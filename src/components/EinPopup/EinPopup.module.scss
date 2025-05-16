@@ -1,0 +1,33 @@
+@use '../../styles/effects.scss' as fx;
+
+.einPopup {
+  position: absolute;
+  background: white;
+  padding: 10px 24px;
+  box-shadow: 0 0 10px rgba(0 0 0 / 20%);
+  border-radius: 4px;
+
+  &.closed:not(.toClosed, .preClosed) {
+    display: none;
+  }
+
+  &.open,
+  &.closed.preClosed {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &.closed,
+  &.open.preOpen {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  &.toOpen {
+    transition: all fx.$transitionDuration fx.$easeOut;
+  }
+
+  &.toClosed {
+    transition: all fx.$transitionDuration fx.$easeOut;
+  }
+}

@@ -1,0 +1,21 @@
+.search-result {
+  padding: 0 0 1em;
+  width: 100%;
+
+  h2 {
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .journalpost-enhet {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    svg {
+      font-size: 1.5rem;
+    }
+  }
+}

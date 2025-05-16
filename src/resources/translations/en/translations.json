@@ -1,0 +1,60 @@
+{
+  "site": {
+    "login": "Log in",
+    "loggingIn": "Logging in",
+    "logout": "Log out",
+    "loggingOut": "Logging out",
+    "username": "Username",
+    "password": "Password",
+    "stayLoggedIn": "Stay logged in",
+    "forgottenPassword": "Forgotten password?",
+    "invalidUsername": "Invalid username",
+    "invalidPassword": "Invalid password",
+    "close": "Close"
+  },
+  "search": {
+    "header": "Search",
+    "button": "Search"
+  },
+  "routing": {
+    "searchPath": "search",
+    "saksmappePath": "case",
+    "calendarPath": "calendar",
+    "statisticsPath": "statistics"
+  },
+  "common": {
+    "publishedAt": "Published",
+    "updatedAt": "Updated",
+    "all": "All",
+    "noResults": "No results found"
+  },
+  "saksmappe": {
+    "label": "Case",
+    "labelPlural": "Cases",
+    "saksnummer": "Case number"
+  },
+  "journalpost": {
+    "label": "Record",
+    "labelPlural": "Records",
+    "pathName": "journalpost",
+    "type": {
+      "inngaaende_dokument": "Incoming document",
+      "utgaaende_dokument": "Outgoing document",
+      "organinternt_dokument_uten_oppfoelging": "Internal document without follow-up",
+      "organinternt_dokument_for_oppfoelging": "Internal document for follow-up",
+      "saksframlegg": "Case presentation",
+      "sakskart": "Case list",
+      "moeteprotokoll": "Meeting protocol",
+      "moetebok": "Meeting minutes",
+      "ukjent": "Unknown record"
+    }
+  },
+  "moetemappe": {
+    "label": "Meeting",
+    "labelPlural": "Meetings"
+  },
+  "moetesak": {
+    "label": "Meeting case",
+    "labelPlural": "Meeting cases"
+  }
+}

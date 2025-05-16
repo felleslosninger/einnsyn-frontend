@@ -1,0 +1,11 @@
+// Media query breakpoints
+$smallScreenMin: 0;
+$mediumScreenMin: 768px;
+$largeScreenMin: 1300px;
+
+$smallScreenMax: $mediumScreenMin - 1px;
+$mediumScreenMax: $largeScreenMin - 1px;
+
+$minWidthMobile: 320px; // Not used for breakpoints, only as a min-width for containers
+$maxWidthDesktop: 1400px; // Not used for breakpoints, only as a max-width for containers
+

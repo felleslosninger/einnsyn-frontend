@@ -1,0 +1,33 @@
+{
+  "name": "einnsyn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:dev": "API_HOSTNAME=https://api.einnsyn.dev next dev --turbopack",
+    "dev:test": "API_HOSTNAME=https://api.test.einnsyn.no next dev --turbopack",
+    "dev:prod": "API_HOSTNAME=https://api.einnsyn.no next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@digdir/designsystemet-css": "^1.0.5",
+    "@digdir/designsystemet-react": "^1.0.5",
+    "@digdir/designsystemet-theme": "^1.0.5",
+    "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
+    "@navikt/aksel-icons": "^7.20.0",
+    "next": "15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "jest": "^29.7.0",
+    "typescript": "^5"
+  }
+}

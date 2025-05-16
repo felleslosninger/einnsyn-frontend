@@ -1,0 +1,31 @@
+@use './variables.scss' as v;
+
+@mixin small {
+  @media (max-width: v.$smallScreenMax) {
+    @content;
+  }
+}
+
+@mixin medium {
+  @media (min-width: v.$mediumScreenMin) and (max-width: v.$mediumScreenMax) {
+    @content;
+  }
+}
+
+@mixin small-and-medium {
+  @media (max-width: v.$mediumScreenMax) {
+    @content;
+  }
+}
+
+@mixin medium-and-large {
+  @media (min-width: v.$mediumScreenMin) {
+    @content;
+  }
+}
+
+@mixin large {
+  @media (min-width: v.$largeScreenMin) {
+    @content;
+  }
+}

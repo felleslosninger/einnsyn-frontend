@@ -1,0 +1,78 @@
+@use '../../../styles/mediaQueries.scss' as *;
+
+.loginContainer {
+  display: flex;
+  align-items: center;
+  //width: px(400);
+
+  @include small {
+    width: 100%;
+  }
+}
+
+.loginOptionsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 2rem;
+}
+
+.loginFieldset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  gap: var(--ds-size-6);
+}
+
+.loginInputContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1.5rem;
+}
+
+.updatePasswordContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.rememberForgottenWrapper {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between !important;
+  align-items: center;
+  //gap: px(16);
+
+  > button {
+    width: fit-content;
+  }
+}
+
+.forgotPasswordLink,
+.createUserAccountBtn {
+  width: fit-content;
+  height: max-content;
+  font-weight: 500;
+
+  &:visited {
+    color: var(--fds-semantic-text-action-primary-default);
+    text-decoration-color: var(--fds-semantic-text-action-primary-default);
+  }
+
+  &:active {
+    color: var(--fds-semantic-text-action-primary-active);
+    text-decoration-color: var(--fds-semantic-text-action-primary-active);
+  }
+
+  &:hover {
+    color: var(--fds-semantic-text-action-primary-hover);
+    text-decoration-color: var(--fds-semantic-text-action-primary-hover);
+  }
+}

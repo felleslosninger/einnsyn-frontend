@@ -1,0 +1,221 @@
+@use '../../styles/mediaQueries.scss' as mediaQueries;
+
+.ein-modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  overflow: auto;
+
+  // Override EinPopup:
+  background: transparent;
+
+  &,
+  .ein-modal-backdrop {
+    pointer-events: none;
+  }
+
+  .ein-modal-content {
+    pointer-events: all;
+  }
+
+  .ein-modal-body {
+    overflow: auto;
+  }
+
+  .ein-modal-backdrop {
+    position: fixed;
+    opacity: 0.5;
+    background: #000;
+    pointer-events: none;
+  }
+
+  .ein-modal-content,
+  .ein-modal-backdrop {
+    inset: 0;
+  }
+
+  .ein-modal-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  }
+
+  .ein-modal-close-button {
+    flex: 0;
+    text-decoration: none;
+    //margin-right: px(-12);
+  }
+
+  /*
+  * Mobile layout (old PromptScreen)
+  */
+  @include mediaQueries.small {
+    .ein-modal-header {
+      padding: --var(--ds-size-base);
+      //gap: px(13);
+
+      h1 {
+        font-weight: 500;
+        //font-size: px(20);
+        //line-height: px(30);
+      }
+    }
+
+    .ein-modal-body {
+      padding: var(--ds-size-6) var(--ds-size-4);
+    }
+
+    .ein-modal-footer {
+      //padding: px(13) px(16);
+    }
+
+    .ein-modal-content {
+      display: flex;
+      flex-direction: column;
+      top: auto;
+      bottom: 0;
+      transform: translateY(101%);
+      height: fit-content;
+      max-height: 95%;
+      position: fixed;
+      z-index: 1;
+      overscroll-behavior: none;
+      box-shadow: 0 0 16px #595959;
+      background: var(--fds-semantic-surface-neutral-subtle);
+      border-radius: 4px;
+      pointer-events: all;
+    }
+
+    .ein-modal-close-button {
+      background: transparent !important;
+
+      :global(.text) {
+        display: none;
+      }
+    }
+
+    &:global(.open),
+    &:global(.closed.preClosed) {
+      .ein-modal-content {
+        transform: translateY(0);
+      }
+
+      .ein-modal-backdrop {
+        opacity: 0.5;
+      }
+    }
+
+    &:global(.closed),
+    &:global(.open.preOpen) {
+      // Override EinPopup:
+      transform: scale(1);
+      opacity: 1;
+
+      .ein-modal-content {
+        transform: translateY(101%);
+      }
+
+      .ein-modal-backdrop {
+        opacity: 0;
+      }
+    }
+
+    &:global(.open:not(.preOpen)), // Needed because of overdrag
+    &:global(.toOpen),
+    &:global(.toClosed) {
+      &,
+      .ein-modal-backdrop,
+      .ein-modal-content {
+        transition: all 350ms cubic-bezier(0.165, 0.84, 0.44, 1); /* easeOutQuart */
+      }
+    }
+  } // mediaQueries.small
+
+  /*
+  * Desktop layout (medium / large screens)
+  */
+  @include mediaQueries.medium-and-large {
+    .ein-modal-header {
+      padding: var(--ds-size-4) var(--ds-size-6);
+      gap: var(--ds-size-6);
+      justify-content: space-between;
+
+      h1 {
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+
+    .ein-modal-content {
+      position: absolute;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      width: fit-content;
+      height: fit-content;
+      max-width: 95vw;
+      max-height: 95vh;
+      background: white;
+      margin: auto;
+      border-radius: var(--ds-border-radius-base);
+      box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
+      overflow: auto;
+      min-height: 200px;
+      min-width: 400px;
+
+      @include mediaQueries.medium {
+        max-height: 90vh;
+      }
+    }
+
+    .ein-modal-body {
+      padding: var(--ds-size-6) var(--ds-size-4);
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
+
+    .ein-modal-footer {
+      //padding: px(27) px(40);
+      flex: 0 0;
+    }
+
+    &:global(.open),
+    &:global(.closed.preClosed) {
+      opacity: 1;
+
+      // Override EinPopup:
+      transform: none;
+
+      .ein-modal-content {
+        transform: scale(1);
+      }
+    }
+
+    &:global(.closed),
+    &:global(.open.preOpen) {
+      opacity: 0;
+
+      // Override EinPopup:
+      transform: none;
+
+      .ein-modal-content {
+        transform: scale(0.5);
+      }
+    }
+
+    &:global(.toOpen) {
+      &,
+      .ein-modal-content {
+        transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); /* easeOutExpo */
+      }
+    }
+
+    &:global(.toClosed) {
+      &,
+      .ein-modal-content {
+        transition: all 250ms ease;
+      }
+    }
+  } // mediaQueries.medium-and-large
+}

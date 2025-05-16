@@ -1,0 +1,96 @@
+@use 'fonts.inter.scss';
+@use './mediaQueries.scss' as mq;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  padding-top: var(--ds-size-8);
+
+  @include mq.small-and-medium {
+    padding-top: var(--ds-size-4);
+  }
+}
+
+
+.container-wrapper {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0 auto;
+  padding-left: var(--ds-size-4);
+  padding-right: var(--ds-size-4);
+
+  > .container-pre, 
+  > .container-post {
+    width: 200px;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  > .container-post {
+    flex-grow: 1;
+    justify-content: flex-end;
+  }
+
+  > .container {
+    flex-grow: 2;
+    flex-shrink: 1;
+    max-width: 1400px;
+  }
+
+  > .container-post {
+    text-align: right;
+  }
+
+  @include mq.medium {
+    > .container-pre.collapsible {
+      width: 0;
+    }
+  }
+
+  @include mq.small {
+    flex-wrap: wrap;
+
+    > .container-pre,
+    > .container-post,
+    > .container {
+      padding-left: var(--ds-size-4);
+      padding-right: var(--ds-size-4);
+    }
+
+    > .container-pre,
+    > .container-post {
+      width: 50%;
+    }
+    > .container {
+      width: 100%;
+    }
+
+    > .container-pre {
+      order: 1;
+    }
+    > .container-post {
+      order: 2;
+
+    }
+    > .container {
+      order: 3;
+    }
+  }
+
+}
+

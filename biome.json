@@ -1,0 +1,13 @@
+{
+  "files": {
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  }
+}
