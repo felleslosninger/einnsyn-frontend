@@ -14,7 +14,7 @@
   "dependencies": {
     "@digdir/designsystemet-css": "^1.0.6",
     "@digdir/designsystemet-react": "^1.0.5",
-    "@digdir/designsystemet-theme": "^1.0.5",
+    "@digdir/designsystemet-theme": "^1.0.6",
     "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
     "@navikt/aksel-icons": "^7.20.0",
     "next": "15.3.2",
