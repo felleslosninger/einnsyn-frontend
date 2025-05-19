@@ -12,7 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "^1.0.5",
+    "@digdir/designsystemet-css": "^1.0.6",
     "@digdir/designsystemet-react": "^1.0.5",
     "@digdir/designsystemet-theme": "^1.0.5",
     "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
