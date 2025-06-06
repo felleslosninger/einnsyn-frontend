@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const compareDeps = (a: unknown[], b: unknown[]) => {
   if (a.length !== b.length) {
@@ -12,20 +12,19 @@ const compareDeps = (a: unknown[], b: unknown[]) => {
   return true;
 };
 
-/**
- * Determines whether a list of dependencies has changed since last render
- *
- * @param deps list of dependencies
- * @returns Whether the dependencies have changed
- */
-export default function useIsChanged(deps: unknown[], treatInitialAsUnchanged = false) {
-  const previousDeps = useRef<unknown[] | null>(treatInitialAsUnchanged ? deps : null);
-  if (
-    previousDeps.current === null ||
-    !compareDeps(previousDeps.current, deps)
-  ) {
-    previousDeps.current = [...deps];
-    return true;
-  }
-  return false;
+export default function useIsChanged(
+  deps: unknown[],
+  treatInitialAsUnchanged = false,
+) {
+  // Make "previousDeps" an unique symbol initially if it should be treated as changed
+  const previousDepsRef = useRef<unknown[]>(
+    treatInitialAsUnchanged ? [...deps] : [Symbol('initial')],
+  );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  useEffect(() => {
+    previousDepsRef.current = [...deps];
+  }, deps);
+
+  return !compareDeps(previousDepsRef.current, deps);
 }

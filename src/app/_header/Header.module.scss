@@ -1,0 +1,13 @@
+.header {
+  background-color: var(--ds-color-neutral-background-default);
+  width: 100%;
+  z-index: 10;
+  margin-bottom: var(--ein-horizontal-spacing);
+
+  //box-shadow: 0 0 10px rgba(0,0,0,.2);
+  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
+
+  .logo {
+    display: block;
+  }
+}

@@ -1,21 +1,27 @@
-'use server';
+import {
+  type CookieSettings,
+  deleteCookie,
+  getCookie,
+  updateCookie,
+} from './cookieActions';
+import { getSettings } from './settingsCookie';
 
-import { getCookie, updateCookie } from './cookieActions';
-
-const SETTINGS_COOKIE_NAME = 'ein_auth';
-
-type AuthContent = {
-	authProvider: 'einnsyn' | 'ansattporten' | undefined;
-	apiKey: string | undefined;
-	token: string | undefined;
-	refreshToken: string | undefined;
+export const AUTH_COOKIE_NAME = 'auth';
+export type Auth = {
+  authProvider: 'eInnsyn' | 'ansattporten';
+  authTimestamp: number;
+  apiKey?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresAt?: number;
 };
+const defaultContent: Partial<Auth> = {};
 
-const defaultContent: AuthContent = {
-	authProvider: undefined,
-	apiKey: undefined,
-	token: undefined,
-	refreshToken: undefined,
+// Keep a auth-timestamp cookie as well, that is *not* httpOnly. This is used by the frontend to
+// determine if the login status has changed.
+export const AUTH_TIMESTAMP_COOKIE_NAME = 'auth-timestamp';
+export type AuthTimestamp = {
+  timestamp: number;
 };
 
 /**
@@ -24,16 +30,46 @@ const defaultContent: AuthContent = {
  * @param authContent
  * @returns
  */
-export const updateAuth = async (authContent: AuthContent) => {
-	return updateCookie(SETTINGS_COOKIE_NAME, authContent, {
-		maxAge: 60 * 30, // 30 minutes (default)
-	});
+export const updateAuth = async (
+  authContent: Auth,
+  cookieSettings: Partial<CookieSettings> = {},
+) => {
+  const settings = await getSettings();
+  const maxAge =
+    cookieSettings.maxAge ??
+    (settings.stayLoggedIn
+      ? 60 * 60 * 24 * 365 // One year if "stay logged in" is set
+      : 60 * 30); // 30 minutes (default)
+
+  // Update the auth-timestamp cookie
+  updateCookie(
+    AUTH_TIMESTAMP_COOKIE_NAME,
+    {
+      timestamp: authContent.authTimestamp,
+    },
+    {
+      httpOnly: false, // This should be accessible from the frontend
+      maxAge: cookieSettings.maxAge,
+    },
+  );
+
+  // Update auth cookie
+  return updateCookie(AUTH_COOKIE_NAME, authContent, {
+    maxAge,
+    ...cookieSettings,
+    httpOnly: true, // This should not be accessible from the frontend
+  });
 };
 
 export const getAuth = async () => {
-	const authCookieContent = await getCookie<AuthContent>(SETTINGS_COOKIE_NAME);
-	return {
-		...defaultContent,
-		...authCookieContent,
-	};
+  const authCookieContent = await getCookie<Auth>(AUTH_COOKIE_NAME);
+  return {
+    ...defaultContent,
+    ...authCookieContent,
+  } as Auth;
+};
+
+export const deleteAuth = async () => {
+  await deleteCookie(AUTH_COOKIE_NAME);
+  await deleteCookie(AUTH_TIMESTAMP_COOKIE_NAME);
 };

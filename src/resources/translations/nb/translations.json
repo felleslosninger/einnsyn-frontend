@@ -1,0 +1,64 @@
+{
+  "site": {
+    "login": "Logg inn",
+    "loggingIn": "Logger inn",
+    "logout": "Logg ut",
+    "loggingOut": "Logger ut",
+    "username": "Brukernavn",
+    "usernamePlaceholder": "bruker@example.com",
+    "password": "Passord",
+    "passwordPlaceholder": "********",
+    "stayLoggedIn": "Forbli innlogget",
+    "forgottenPassword": "Glemt passord?",
+    "invalidUsernameOrPassword": "Ugyldig brukernavn eller passord",
+    "loggedInAs": "Innlogget som $1",
+    "unknownError": "En ukjent feil oppstod",
+    "close": "Lukk",
+    "closeModal": "Lukk modal"
+  },
+  "search": {
+    "header": "Søk",
+    "button": "Søk"
+  },
+  "routing": {
+    "searchPath": "sok",
+    "saksmappePath": "sak",
+    "calendarPath": "kalender",
+    "statisticsPath": "statistikk"
+  },
+  "common": {
+    "publishedAt": "Publisert",
+    "updatedAt": "Oppdatert",
+    "all": "Alle",
+    "noResults": "Ingen resultater funnet"
+  },
+  "saksmappe": {
+    "label": "Saksmappe",
+    "labelPlural": "Saksmapper",
+    "saksnummer": "Saksnummer"
+  },
+  "journalpost": {
+    "label": "Journalpost",
+    "labelPlural": "Journalposter",
+    "pathName": "journalpost",
+    "type": {
+      "inngaaende_dokument": "Inngående dokument",
+      "utgaaende_dokument": "Utgående dokument",
+      "organinternt_dokument_uten_oppfoelging": "Organinternt dokument uten oppfølging",
+      "organinternt_dokument_for_oppfoelging": "Organinternt dokument for oppfølging",
+      "saksframlegg": "Saksframlegg",
+      "sakskart": "Sakskart",
+      "moeteprotokoll": "Møteprotokoll",
+      "moetebok": "Møtebok",
+      "ukjent": "Ukjent journalpost"
+    }
+  },
+  "moetemappe": {
+    "label": "Møte",
+    "labelPlural": "Møter"
+  },
+  "moetesak": {
+    "label": "Møtesak",
+    "labelPlural": "Møtesaker"
+  }
+}

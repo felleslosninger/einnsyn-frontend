@@ -1,0 +1,29 @@
+.user-menu {
+  display: inline-block;
+  text-align: left;
+
+  :global(.ein-popup) {
+    padding: 0;
+  }
+}
+
+.settings-button {
+  border-radius: var(--ds-border-radius-full);
+  padding: var(--ds-size-2);
+  &:hover {
+    background-color: transparent;
+  }
+  
+}
+
+.settings-menu-content-section {
+  padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.settings-menu-content {
+  width: 300px;
+ }

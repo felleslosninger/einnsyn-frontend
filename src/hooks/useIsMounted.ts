@@ -5,14 +5,14 @@ import { useCallback, useEffect, useRef } from 'react';
  * @returns Whether the component is mounted
  */
 export default function useIsMounted() {
-  const isMountedRef = useRef(false);
+	const isMountedRef = useRef(false);
 
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
-  return useCallback(() => isMountedRef.current, []);
+	return useCallback(() => isMountedRef.current, []);
 }

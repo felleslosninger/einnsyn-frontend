@@ -1,5 +1,8 @@
 @use '../../styles/mediaQueries.scss' as mediaQueries;
 
+$verticalPadding: calc(var(--ein-vertical-spacing));
+$horizontalPadding: calc(var(--ein-horizontal-spacing));
+
 .ein-modal-container {
   position: fixed;
   inset: 0;
@@ -18,10 +21,6 @@
     pointer-events: all;
   }
 
-  .ein-modal-body {
-    overflow: auto;
-  }
-
   .ein-modal-backdrop {
     position: fixed;
     opacity: 0.5;
@@ -38,7 +37,25 @@
     display: flex;
     align-items: center;
     width: 100%;
-    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+    padding: $horizontalPadding $verticalPadding;
+    gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+  }
+
+  .ein-modal-body {
+    overflow: auto;
+    padding: $horizontalPadding $verticalPadding;
+    gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+    min-width: 500px;
+  }
+
+  .ein-modal-footer {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+    padding: $horizontalPadding $verticalPadding;
+    gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   }
 
   .ein-modal-close-button {
@@ -52,7 +69,7 @@
   */
   @include mediaQueries.small {
     .ein-modal-header {
-      padding: --var(--ds-size-base);
+      //padding: --var(--ds-size-base);
       //gap: px(13);
 
       h1 {
@@ -63,7 +80,7 @@
     }
 
     .ein-modal-body {
-      padding: var(--ds-size-6) var(--ds-size-4);
+      padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     }
 
     .ein-modal-footer {
@@ -137,8 +154,6 @@
   */
   @include mediaQueries.medium-and-large {
     .ein-modal-header {
-      padding: var(--ds-size-4) var(--ds-size-6);
-      gap: var(--ds-size-6);
       justify-content: space-between;
 
       h1 {
@@ -170,7 +185,6 @@
     }
 
     .ein-modal-body {
-      padding: var(--ds-size-6) var(--ds-size-4);
       flex: 1 1 auto;
       overflow-y: auto;
     }

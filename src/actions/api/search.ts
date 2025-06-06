@@ -1,33 +1,31 @@
 'use server';
 
-import type EInnsynClient from '@digdir/einnsyn-sdk';
 import {
-	EInnsynError,
-	type Base,
-	type PaginatedList,
-	type SearchParameters,
+  type Base,
+  EInnsynError,
+  type PaginatedList,
+  type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { getApiClient } from './getApiClient';
-import { cache } from 'react';
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
-	return {
-		items: [],
-	};
+  return {
+    items: [],
+  };
 }
 
 type SearchableEntity = 'Journalpost' | 'Saksmappe' | 'Moetemappe' | 'Moetesak';
 const isSearchableEntity = (
-	entityName?: string | null,
+  entityName?: string | null,
 ): entityName is SearchableEntity => {
-	return (
-		entityName !== undefined &&
-		entityName != null &&
-		(entityName === 'Journalpost' ||
-			entityName === 'Saksmappe' ||
-			entityName === 'Moetemappe' ||
-			entityName === 'Moetesak')
-	);
+  return (
+    entityName !== undefined &&
+    entityName != null &&
+    (entityName === 'Journalpost' ||
+      entityName === 'Saksmappe' ||
+      entityName === 'Moetemappe' ||
+      entityName === 'Moetesak')
+  );
 };
 
 /**
@@ -38,48 +36,48 @@ const isSearchableEntity = (
  * @returns
  */
 export const getSearchResults = async (
-	enhetSlug: string,
-	searchParams: URLSearchParams,
+  enhetSlug: string,
+  searchParams: URLSearchParams,
 ) => {
-	const api = await getApiClient();
-	const apiQuery: SearchParameters = {};
+  const api = await getApiClient();
+  const apiQuery: SearchParameters = {};
 
-	// Combine Entity filter from path and searchParams
-	if (searchParams.has('entity')) {
-		apiQuery.entity = searchParams.getAll('entity').filter(isSearchableEntity);
-	}
+  // Combine Entity filter from path and searchParams
+  if (searchParams.has('entity')) {
+    apiQuery.entity = searchParams.getAll('entity').filter(isSearchableEntity);
+  }
 
-	// Combine Enhet filter from path and searchParams
-	const enhet: string[] = [];
-	if (enhetSlug) {
-		enhet.push(enhetSlug);
-	}
-	if (searchParams.has('enhet')) {
-		enhet.push(...(searchParams.getAll('enhet') ?? ''));
-	}
-	if (enhet.length) {
-		apiQuery.administrativEnhet = enhet;
-	}
+  // Combine Enhet filter from path and searchParams
+  const enhet: string[] = [];
+  if (enhetSlug) {
+    enhet.push(enhetSlug);
+  }
+  if (searchParams.has('enhet')) {
+    enhet.push(...(searchParams.getAll('enhet') ?? ''));
+  }
+  if (enhet.length) {
+    apiQuery.administrativEnhet = enhet;
+  }
 
-	// Build the query object based on the searchParams
-	if (searchParams.has('q')) {
-		apiQuery.query = searchParams.get('q') ?? '';
-	}
+  // Build the query object based on the searchParams
+  if (searchParams.has('q')) {
+    apiQuery.query = searchParams.get('q') ?? '';
+  }
 
-	try {
-		apiQuery.expand = [
-			'administrativEnhetObjekt.parent.parent',
-			'saksmappe',
-			'dokumentbeskrivelse.dokumentobjekt',
-			'korrespondansepart.administrativEnhetObjekt',
-		];
-		const searchResults = await api.search.search(apiQuery);
-		return searchResults;
-	} catch (error) {
-		// TODO: Handle the error
-		if (error instanceof EInnsynError) {
-			console.error('Error fetching search results:', error.message);
-		}
-		return getEmptySearchResults();
-	}
+  try {
+    apiQuery.expand = [
+      'administrativEnhetObjekt.parent.parent',
+      'saksmappe',
+      'dokumentbeskrivelse.dokumentobjekt',
+      'korrespondansepart.administrativEnhetObjekt',
+    ];
+    const searchResults = await api.search.search(apiQuery);
+    return searchResults;
+  } catch (error) {
+    // TODO: Handle the error
+    if (error instanceof EInnsynError) {
+      console.error('Error fetching search results:', error.message);
+    }
+    return getEmptySearchResults();
+  }
 };

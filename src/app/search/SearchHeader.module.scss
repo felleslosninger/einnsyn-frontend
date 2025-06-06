@@ -1,0 +1,9 @@
+.logoLink {
+  display: inline-block;
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    border-radius: var(--ds-border-radius-default);
+  }
+}

@@ -1,18 +1,16 @@
-'use server';
-
 import type { LanguageCode } from '~/lib/translation/translation';
-import { getCookie, updateCookie } from './cookieActions';
+import { type CookieSettings, getCookie, updateCookie } from './cookieActions';
 
-const SETTINGS_COOKIE_NAME = 'ein_settings';
+export const SETTINGS_COOKIE_NAME = 'settings';
 
-type SettingsContent = {
-	language: LanguageCode;
-	stayLoggedIn: boolean;
+export type Settings = {
+  language: LanguageCode;
+  stayLoggedIn: boolean;
 };
 
-const defaultSettings: SettingsContent = {
-	language: 'nb',
-	stayLoggedIn: false,
+const defaultSettings: Settings = {
+  language: 'nb',
+  stayLoggedIn: false,
 };
 
 /**
@@ -21,17 +19,21 @@ const defaultSettings: SettingsContent = {
  * @param authContent
  * @returns
  */
-export const updateSettings = async (settingsContent: SettingsContent) => {
-	return updateCookie(SETTINGS_COOKIE_NAME, settingsContent, {
-		maxAge: 60 * 60 * 24 * 365, // 365 days
-	});
+export const updateSettings = async (
+  settingsContent: Partial<Settings>,
+  cookieSettings: Partial<CookieSettings> = {},
+) => {
+  return updateCookie(SETTINGS_COOKIE_NAME, settingsContent, {
+    httpOnly: false,
+    maxAge: 60 * 60 * 24 * 365, // 365 days
+    ...cookieSettings,
+  });
 };
 
 export const getSettings = async () => {
-	const settingsCookieContent =
-		await getCookie<SettingsContent>(SETTINGS_COOKIE_NAME);
-	return {
-		...defaultSettings,
-		...settingsCookieContent,
-	};
+  const settingsCookieContent = await getCookie<Settings>(SETTINGS_COOKIE_NAME);
+  return {
+    ...defaultSettings,
+    ...settingsCookieContent,
+  };
 };

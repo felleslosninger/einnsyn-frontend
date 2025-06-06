@@ -5,12 +5,16 @@
     "logout": "Log out",
     "loggingOut": "Logging out",
     "username": "Username",
+    "usernamePlaceholder": "user@example.com",
     "password": "Password",
+    "passwordPlaceholder": "********",
     "stayLoggedIn": "Stay logged in",
     "forgottenPassword": "Forgotten password?",
-    "invalidUsername": "Invalid username",
-    "invalidPassword": "Invalid password",
-    "close": "Close"
+    "invalidUsernameOrPassword": "Invalid username or password",
+    "loggedInAs": "Logged in as $1",
+    "unknownError": "An unknown error occurred",
+    "close": "Close",
+    "closeModal": "Close modal"
   },
   "search": {
     "header": "Search",

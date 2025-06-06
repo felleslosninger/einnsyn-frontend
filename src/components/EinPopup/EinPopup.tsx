@@ -7,189 +7,180 @@
  */
 
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useMemo, useRef } from 'react';
-import type {
-	EinTransitionEvent,
-	EinTransitionEvents,
-} from '../EinTransition/EinTransition';
-import EinTransition from '../EinTransition/EinTransition';
-import './EinPopup.module.scss';
-import useTransitionState from '~/hooks/useTransitionState';
-import useIsMounted from '~/hooks/useIsMounted';
-import useIsChanged from '~/hooks/useIsChanged';
-import { domTransitionend } from '~/lib/utils/domTransitionend';
-import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import useIsChanged from '~/hooks/useIsChanged';
+import useIsMounted from '~/hooks/useIsMounted';
+import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import cn from '~/lib/utils/className';
+import type { EinTransitionEvents } from '../EinTransition/EinGammalTransition';
+import './EinPopup.scss';
+import { getClosestPositionedAncestor } from '~/lib/utils/domClosestPositionedAncestor';
+import {
+  calculatePopupPosition,
+  type PopupPosition,
+} from '~/lib/utils/calculatePopupPosition';
 
 export type EinPopupProps = {
-	open: boolean;
-	setOpen: (open: boolean) => void;
-	closeOnOutsideClick?: boolean;
-	closeOnEsc?: boolean;
-	trapFocus?: boolean;
-	children: ReactNode;
-	events?: EinPopupEvents;
-	transitionFromTrigger?: boolean;
-	className?: string;
-	containerRef?: RefObject<HTMLDivElement | null>;
-	transitionRef?: RefObject<HTMLElement | null>;
-};
-
-export type EinPopupEvents = {
-	onPreOpen?: EinTransitionEvent;
-	onToOpen?: EinTransitionEvent;
-	onOpen?: EinTransitionEvent;
-	onPreClosed?: EinTransitionEvent;
-	onToClosed?: EinTransitionEvent;
-	onClosed?: EinTransitionEvent;
-	onReset?: EinTransitionEvent;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  closeOnOutsideClick?: boolean;
+  closeOnEsc?: boolean;
+  trapFocus?: boolean;
+  children: ReactNode;
+  transitionEvents?: EinTransitionEvents;
+  transitionFromTrigger?: boolean;
+  className?: string;
+  popupRef?: RefObject<HTMLDivElement | null>;
+  preferredPosition?: PopupPosition[];
 };
 
 export default function EinPopup(props: EinPopupProps) {
-	const fallbackContainerRef = useRef(null);
-	const {
-		open = false,
-		closeOnOutsideClick = true,
-		closeOnEsc = true,
-		trapFocus = true,
-		transitionFromTrigger = false,
-		className,
-		children,
-		events = {},
-		containerRef = fallbackContainerRef,
-		transitionRef = containerRef,
-		setOpen = () => undefined,
-	} = props;
-	const triggerRef = useRef<Element | null>(null);
-	const [isTransitioning, setIsTransitioning] = useTransitionState(false);
-	const transitionEvents: EinTransitionEvents = {};
-	const isFrontend = typeof document !== 'undefined';
-	const isMounted = useIsMounted();
-	const switched = useIsChanged([open]) && isMounted();
+  const fallbackPopupRef = useRef<HTMLDivElement | null>(null);
+  const {
+    open = false,
+    closeOnOutsideClick = true,
+    closeOnEsc = true,
+    trapFocus = true,
+    transitionFromTrigger = false,
+    className,
+    children,
+    transitionEvents,
+    popupRef = fallbackPopupRef,
+    preferredPosition = ['below', 'left', 'right', 'above'],
+    setOpen = () => undefined,
+  } = props;
+  const isBrowser = typeof document !== 'undefined';
+  const triggerRef = useRef<Element | null>(null);
+  const isMounted = useIsMounted();
+  const switched = useIsChanged([open]) && isMounted();
 
-	// Mark that we're transitioning
-	// biome-ignore lint/correctness/useExhaustiveDependencies: We only want to execute this when *switched* changes
-	useMemo(() => {
-		if (switched && !isTransitioning) {
-			setIsTransitioning(true);
-		}
-	}, [switched]);
+  // Update the ref of the trigger when the popup is opened
+  useLayoutEffect(() => {
+    if (isBrowser && open) {
+      triggerRef.current = document.activeElement;
+      if (triggerRef.current instanceof HTMLElement) {
+        triggerRef.current.classList.add('active');
+      }
+    } else if (
+      isBrowser &&
+      !open &&
+      triggerRef.current instanceof HTMLElement
+    ) {
+      triggerRef.current.classList.remove('active');
+      triggerRef.current = null;
+    }
+  }, [isBrowser, open]);
 
-	if (isFrontend) {
-		// Transition to open
-		if (open) {
-			triggerRef.current = document.activeElement;
-			const triggerElement = triggerRef.current;
-			const transitionElement = transitionRef.current || containerRef.current;
-			// Set transition origin to triggering link's position
-			if (triggerElement && transitionElement && transitionFromTrigger) {
-				const triggerBounds = triggerElement.getBoundingClientRect();
-				const contentBounds = transitionElement.getBoundingClientRect();
-				const triggerCenter = {
-					x: triggerBounds.x + triggerBounds.width / 2,
-					y: triggerBounds.y + triggerBounds.height / 2,
-				};
-				const contentCenter = {
-					x: contentBounds.x + contentBounds.width / 2,
-					y: contentBounds.y + contentBounds.height / 2,
-				};
-				const transOrigin = {
-					xPc:
-						50 +
-						((triggerCenter.x - contentCenter.x) / contentBounds.width) * 100,
-					yPc:
-						50 +
-						((triggerCenter.y - contentCenter.y) / contentBounds.height) * 100,
-				};
-				transitionElement.style.transformOrigin = `${transOrigin.xPc}% ${transOrigin.yPc}%`;
-			}
-			transitionEvents.onInitTransition = async (e) => {
-				// Make sure closed is set, in case this is the first render
-				e.classList.remove('open');
-				e.classList.add('closed', 'einPopupTransition');
-			};
-			transitionEvents.onInitTransitionIn = async (e) => {
-				e.classList.remove('closed');
-				e.classList.add('preOpen', 'open', 'einPopupTransition');
-				await Promise.all([events.onPreOpen?.(e), domTransitionend(e)]);
-			};
-			transitionEvents.onTransitionIn = async (e) => {
-				e.classList.remove('preOpen');
-				e.classList.add('toOpen', 'einPopupTransition');
-				await Promise.all([events.onToOpen?.(e), domTransitionend(e)]);
-			};
-			transitionEvents.onDone = async (e) => {
-				e.classList.remove('toOpen', 'einPopupTransition');
-				e.classList.add('open');
-				await Promise.all([events.onOpen?.(e), domTransitionend(e)]);
-				setIsTransitioning(false);
-			};
-		}
-		// Transition to closed
-		else {
-			triggerRef.current = document.activeElement;
-			transitionEvents.onInitTransition = async (e) => {
-				// Make sure open is set
-				e.classList.remove('closed');
-				e.classList.add('open', 'einPopupTransition');
-			};
-			transitionEvents.onInitTransitionOut = async (e) => {
-				e.classList.remove('open');
-				e.classList.add('preClosed', 'closed', 'einPopupTransition');
-				await Promise.all([events.onPreClosed?.(e), domTransitionend(e)]);
-			};
-			transitionEvents.onTransitionOut = async (e) => {
-				e.classList.remove('preClosed');
-				e.classList.add('toClosed', 'einPopupTransition');
-				await Promise.all([events.onToClosed?.(e), domTransitionend(e)]);
-			};
-			transitionEvents.onDone = async (e) => {
-				e.classList.remove('toClosed', 'einPopupTransition');
-				e.classList.add('closed');
-				await Promise.all([events.onClosed?.(e), domTransitionend(e)]);
-				setIsTransitioning(false);
-			};
-		}
-	}
+  // Update trigger button position
+  useLayoutEffect(() => {
+    const popupElement = popupRef.current;
+    const triggerElement = triggerRef.current;
+    if (
+      isBrowser &&
+      open &&
+      popupElement instanceof HTMLElement &&
+      triggerElement instanceof HTMLElement &&
+      getComputedStyle(popupElement).position === 'absolute'
+    ) {
+      updatePopupPosition(popupElement, triggerElement);
 
-	// Close on esc
-	useEffect(() => {
-		const container = containerRef.current;
-		if (open && container && closeOnEsc) {
-			const closeEsc = (e: KeyboardEvent) => {
-				if (e.key === 'Escape') {
-					setOpen(false);
-				}
-			};
-			document.addEventListener('keyup', closeEsc);
-			return () => {
-				document.removeEventListener('keyup', closeEsc);
-			};
-		}
-		return undefined;
-	}, [closeOnEsc, containerRef, open, setOpen]);
+      // Update position on window resize
+      const eventListener = () => {
+        updatePopupPosition(popupElement, triggerElement);
+      };
+      window.addEventListener('resize', eventListener);
 
-	// Close on click outside
-	useOnOutsideClick(containerRef, closeOnOutsideClick, () => {
-		setOpen(false);
-	});
+      // Clean up the event listener on unmount or when open changes
+      return () => {
+        window.removeEventListener('resize', eventListener);
+      };
+    }
+  }, [open, popupRef, isBrowser]);
 
-	// Trap focus when open
-	useFocusTrap(containerRef, trapFocus, () => setOpen(false));
+  // Close on esc
+  useEffect(() => {
+    const popup = popupRef.current;
+    if (open && popup && closeOnEsc) {
+      const closeEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setOpen(false);
+        }
+      };
+      document.addEventListener('keyup', closeEsc);
+      return () => {
+        document.removeEventListener('keyup', closeEsc);
+      };
+    }
+    return undefined;
+  }, [closeOnEsc, popupRef, open, setOpen]);
 
-	if (open || isTransitioning || switched) {
-		return (
-			<EinTransition dependencies={[open]} events={transitionEvents}>
-				<div
-					className={cn(className, { open: open, closed: !open }, 'einPopup')}
-					ref={containerRef}
-				>
-					{children}
-				</div>
-			</EinTransition>
-		);
-	}
+  // Close on click outside
+  useOnOutsideClick(popupRef, closeOnOutsideClick, () => {
+    setOpen(false);
+  });
 
-	return null;
+  // Trap focus when open
+  useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
+
+  /**
+   * Set the position of the popup relative to the trigger element.
+   *
+   * @param popupElement
+   * @param triggerElement
+   * @returns
+   */
+  const updatePopupPosition = (
+    popupElement: HTMLElement,
+    triggerElement: HTMLElement,
+  ) => {
+    // Before we calculate the position of the popup, we need to find the current
+    // dimensions of the popup element. Move it far up and left, so that it's current
+    // position does not affect its size.
+    const body = document.body;
+    popupElement.style.top = `${-body.scrollHeight}px`;
+    popupElement.style.left = `${-body.scrollWidth}px`;
+    const popupRect = popupElement.getBoundingClientRect();
+    const triggerRect = triggerElement.getBoundingClientRect();
+
+    const position = calculatePopupPosition({
+      popup: popupRect,
+      reference: triggerRect,
+      preferredPosition,
+    });
+    if (!position) {
+      // Could not find a relative position that fits in the viewport
+      popupElement.style.top = '';
+      popupElement.style.left = '';
+      return;
+    }
+
+    // Get the closest positioned ancestor of the popup, since we need to subtract
+    // its position from the popup position to get the correct absolute position.
+    const positionedAncestor = getClosestPositionedAncestor(popupElement);
+    if (positionedAncestor) {
+      const ancestorRect = positionedAncestor.getBoundingClientRect();
+      position.top -= ancestorRect.top;
+      position.left -= ancestorRect.left;
+    }
+
+    // Set the final position of the popup popup
+    popupElement.style.top = `${position.top}px`;
+    popupElement.style.left = `${position.left}px`;
+  };
+
+  return (
+    //<EinTransition dependencies={[open]} events={events}>
+    <>
+      {open && (
+        <div
+          className={cn(className, { open: open, closed: !open }, 'ein-popup')}
+          ref={popupRef}
+        >
+          {children}
+        </div>
+      )}
+    </>
+    //</EinTransition>
+  );
 }

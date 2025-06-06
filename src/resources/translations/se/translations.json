@@ -1,0 +1,64 @@
+{
+  "site": {
+    "login": "Logge sisa",
+    "loggingIn": "Lea loggemin sisa",
+    "logout": "Logge olggos",
+    "loggingOut": "Lea loggemin olggos",
+    "username": "Geavaheaddjinamma",
+    "usernamePlaceholder": "geavaheaddji@example.com",
+    "password": "Beassansátni",
+    "passwordPlaceholder": "********",
+    "stayLoggedIn": "Biso sisačállojuvvon",
+    "forgottenPassword": "Vajálduhtton beassansátni?",
+    "invalidUsernameOrPassword": "Boastut geavaheaddjinamma dahje beassansátni",
+    "loggedInAs": "Sisačállojuvvon dego $1",
+    "unknownError": "Dovdameahttun feaila",
+    "close": "Gidde",
+    "closeModal": "Gidde modála"
+  },
+  "search": {
+    "header": "Oza",
+    "button": "Oza"
+  },
+  "routing": {
+    "searchPath": "ohcan",
+    "saksmappePath": "ášši",
+    "calendarPath": "kaleandar",
+    "statisticsPath": "statistihkka"
+  },
+  "common": {
+    "publishedAt": "Almmuhuvvon",
+    "updatedAt": "Beaiváduvvon",
+    "all": "Buot",
+    "noResults": "Ii gávdnon bohtosat"
+  },
+  "saksmappe": {
+    "label": "Áššemáhppa",
+    "labelPlural": "Áššemáhpát",
+    "saksnummer": "Áššenummir"
+  },
+  "journalpost": {
+    "label": "Journálapoasta",
+    "labelPlural": "Journálapoasttat",
+    "pathName": "journalapoasta",
+    "type": {
+      "inngaaende_dokument": "Sisaboahtán dokumeanta",
+      "utgaaende_dokument": "Olggosmannan dokumeanta",
+      "organinternt_dokument_uten_oppfoelging": "Siskkáldas dokumeanta čuovvoleami haga",
+      "organinternt_dokument_for_oppfoelging": "Siskkáldas dokumeanta čuovvoleapmái",
+      "saksframlegg": "Áššeovddastus",
+      "sakskart": "Áššelistu",
+      "moeteprotokoll": "Čoahkkinbeavdegirji",
+      "moetebok": "Čoahkkingirji",
+      "ukjent": "Dovdameahttun journálapoasta"
+    }
+  },
+  "moetemappe": {
+    "label": "Čoahkkin",
+    "labelPlural": "Čoahkkimat"
+  },
+  "moetesak": {
+    "label": "Čoahkkinášši",
+    "labelPlural": "Čoahkkináššit"
+  }
+}

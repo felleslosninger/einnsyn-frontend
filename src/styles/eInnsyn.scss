@@ -1,6 +1,11 @@
 @use 'fonts.inter.scss';
 @use './mediaQueries.scss' as mq;
 
+:root {
+  --ein-vertical-spacing: var(--ds-size-8);
+  --ein-horizontal-spacing: var(--ds-size-8);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -17,7 +22,7 @@ body {
 }
 
 header {
-  padding-top: var(--ds-size-8);
+  padding-top: var(--ein-horizontal-spacing);
 
   @include mq.small-and-medium {
     padding-top: var(--ds-size-4);
@@ -31,8 +36,8 @@ header {
   flex-direction: row;
   flex-wrap: nowrap;
   margin: 0 auto;
-  padding-left: var(--ds-size-4);
-  padding-right: var(--ds-size-4);
+  padding-left: var(--ein-vertical-spacing);
+  padding-right: var(--ein-vertical-spacing);
 
   > .container-pre, 
   > .container-post {

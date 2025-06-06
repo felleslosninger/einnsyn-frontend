@@ -34,10 +34,19 @@ export function useOnOutsideClick(
 
   useEffect(() => {
     const container = containerRef.current;
-    if (enabled && container) {
+
+    // Only react to clicks in the container '.einnsyn-body'. Browser extensions like password managers might click icons directly in the <body>, we don't want to react to those.
+    const eInnsynBody =
+      container?.ownerDocument?.querySelector('.einnsyn-body');
+
+    if (enabled && container && eInnsynBody) {
       const onOutsideClick = (e: MouseEvent) => {
         const target = e.target;
-        if (target instanceof HTMLElement && !container?.contains(target as HTMLElement)) {
+        if (
+          target instanceof HTMLElement &&
+          eInnsynBody.contains(target) &&
+          !container?.contains(target)
+        ) {
           callback?.();
         }
       };
