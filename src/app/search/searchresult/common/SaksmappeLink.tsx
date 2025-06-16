@@ -1,5 +1,5 @@
-import { Link } from '@digdir/designsystemet-react';
-import { isSaksmappe, type Saksmappe } from '@digdir/einnsyn-sdk';
+import { type Saksmappe, isSaksmappe } from '@digdir/einnsyn-sdk';
+import { EinLink } from '~/components/EinLink/EinLink';
 
 export default function SaksmappeLink({
   saksmappe,

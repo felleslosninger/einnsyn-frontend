@@ -7,7 +7,12 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   position: fixed;
   inset: 0;
   z-index: 1050;
-  overflow: auto;
+
+  :global(.ein-popup-content) {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
 
   // Override EinPopup:
   background: transparent;
@@ -73,7 +78,6 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       //gap: px(13);
 
       h1 {
-        font-weight: 500;
         //font-size: px(20);
         //line-height: px(30);
       }
@@ -157,7 +161,6 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       justify-content: space-between;
 
       h1 {
-        font-weight: 500;
         margin: 0;
       }
     }
@@ -175,7 +178,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       margin: auto;
       border-radius: var(--ds-border-radius-base);
       box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
-      overflow: auto;
+      overflow: visible;
       min-height: 200px;
       min-width: 400px;
 

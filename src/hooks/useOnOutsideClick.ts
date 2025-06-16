@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  *
@@ -33,34 +33,31 @@ export function useOnOutsideClick(
     typeof args[i] === 'function' ? (args[i++] as () => void) : undefined;
 
   useEffect(() => {
-    const container = containerRef.current;
-
     // Only react to clicks in the container '.einnsyn-body'. Browser extensions like password managers might click icons directly in the <body>, we don't want to react to those.
-    const eInnsynBody =
-      container?.ownerDocument?.querySelector('.einnsyn-body');
-
-    if (enabled && container && eInnsynBody) {
-      const onOutsideClick = (e: MouseEvent) => {
-        const target = e.target;
-        if (
-          target instanceof HTMLElement &&
-          eInnsynBody.contains(target) &&
-          !container?.contains(target)
-        ) {
-          callback?.();
-        }
-      };
-      // Don't react to current click
-      setTimeout(() =>
-        document.addEventListener('click', onOutsideClick, true),
-      );
-      return () => {
-        // Make sure unbind happens after bind
-        setTimeout(() =>
-          document.removeEventListener('click', onOutsideClick, true),
-        );
-      };
+    const eInnsynBody = document.querySelector('.einnsyn-body');
+    if (!enabled || !eInnsynBody) {
+      return;
     }
-    return undefined;
+
+    const onOutsideClick = (e: MouseEvent) => {
+      const target = e.target;
+      if (
+        target instanceof Node &&
+        eInnsynBody.contains(target) &&
+        !containerRef.current?.contains(target)
+      ) {
+        callback?.();
+      }
+    };
+
+    // Don't react to current click
+    const timeoutId = requestAnimationFrame(() => {
+      document.addEventListener('click', onOutsideClick);
+    });
+
+    return () => {
+      cancelAnimationFrame(timeoutId);
+      document.removeEventListener('click', onOutsideClick);
+    };
   }, [callback, containerRef, enabled]);
 }

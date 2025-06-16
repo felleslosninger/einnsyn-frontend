@@ -13,8 +13,23 @@
     "invalidUsernameOrPassword": "Invalid username or password",
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
-    "close": "Close",
     "closeModal": "Close modal"
+  },
+  "admin": {
+    "apiKey": {
+      "label": "API key",
+      "labelPlural": "API keys",
+      "addApiKey": "Create API key",
+      "keyName": "Key name",
+      "shouldExpire": "Should expire",
+      "expiresAt": "Expiry date",
+      "expiresInDays": "Expires in days",
+      "expiresNever": "Never",
+      "expiresTooltip": "Enter the number of days after which the API key should expire. Keep it empty if the API key should never expire.",
+      "copyKeyWarning": "Your API key was successfully created. The secret key is only shown once, please copy it now and store it securely.",
+      "deleteConfirmationTitle": "Delete API key",
+      "deleteConfirmationMessage": "Are you sure you want to delete the API key '$1'?"
+    }
   },
   "search": {
     "header": "Search",
@@ -30,7 +45,16 @@
     "publishedAt": "Published",
     "updatedAt": "Updated",
     "all": "All",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "create": "Create",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "unnamed": "Unnamed",
+    "close": "Close",
+    "copyToClipboard": "Copy to clipboard",
+    "copiedToClipboard": "Copied to clipboard"
   },
   "saksmappe": {
     "label": "Case",

@@ -3,10 +3,10 @@
     width: 100%;
   }
 
-  &.active {
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
-  }
+  // &.active {
+  //   outline: var(--dsc-focus-outline);
+  //   outline-offset: var(--ds-border-width-focus);
+  // }
 
   &.style-link {
     color: var(--ds-color-text-subtle);

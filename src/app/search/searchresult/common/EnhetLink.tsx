@@ -1,6 +1,6 @@
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
-import Link from 'next/link';
 import { Fragment } from 'react/jsx-runtime';
+import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 
 const getAncestors = (enhet: Enhet) => {

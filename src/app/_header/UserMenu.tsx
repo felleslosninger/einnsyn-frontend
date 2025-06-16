@@ -11,6 +11,8 @@ import LoginButton from './LoginButton';
 import { EinButton } from '~/components/EinButton/EinButton';
 import LogoutButton from './LogoutButton';
 import styles from './UserMenu.module.scss';
+import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
+import { EinLink } from '~/components/EinLink/EinLink';
 
 export default function ProfileButton() {
   const { authInfo } = useSessionData();
@@ -38,12 +40,12 @@ export default function ProfileButton() {
 }
 
 type DropdownButtonProps = {
-  authInfo: AuthInfo;
+  authInfo: ExtendedAuthInfo;
   onClick?: () => void;
 };
 
 type DropdownContentProps = {
-  authInfo: AuthInfo;
+  authInfo: ExtendedAuthInfo;
 };
 
 export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
@@ -97,10 +99,20 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
       <div className={styles['user-menu-content-section']}>
         <span data-size="sm">{t('site.loggedInAs')}</span>
         <br />
-        <strong>{authInfo.orgnummer}</strong>
+        <strong>{authInfo.enhet?.navn ?? authInfo.orgnummer}</strong>
       </div>
       <div className={styles['user-menu-content-section']}>
-        This organization is not registered in eInnsyn.
+        {authInfo.enhet && (
+          <>
+            <div>
+              <EinLink href={''}>Virksomhetshierarki</EinLink>
+            </div>
+            <div>
+              <EinLink href={''}>API nøkler</EinLink>
+            </div>
+          </>
+        )}
+        {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>
       <div className={styles['user-menu-content-section']}>
         <LogoutButton />

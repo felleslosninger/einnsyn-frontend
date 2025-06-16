@@ -22,7 +22,15 @@ export function calculatePopupPosition({
   offsetY?: number;
   // The fraction of the popup size to use as a "magnetic" snapping threshold
   snapTolerance?: number;
-}): { top: number; left: number } | null {
+}):
+  | {
+      position: string;
+      top: number;
+      left: number;
+      arrowTop?: number;
+      arrowLeft?: number;
+    }
+  | undefined {
   // Get Geometry for elements and viewport
   const popupRect =
     popup instanceof DOMRect ? popup : popup.getBoundingClientRect();
@@ -172,12 +180,53 @@ export function calculatePopupPosition({
       finalBottom <= viewport.height + viewport.scrollY &&
       finalRight <= viewport.width + viewport.scrollX
     ) {
-      return { top, left };
+      // Calculate arrow position
+      const arrowPositions = getArrowPosition(
+        { top, left, bottom: finalBottom, right: finalRight },
+        {
+          top: referenceRect.top + viewport.scrollY,
+          left: referenceRect.left + viewport.scrollX,
+          bottom: referenceRect.bottom + viewport.scrollY,
+          right: referenceRect.right + viewport.scrollX,
+        },
+      );
+
+      return {
+        position,
+        top,
+        left,
+        arrowTop: arrowPositions.top,
+        arrowLeft: arrowPositions.left,
+      };
     }
   }
 
   console.warn(
     'calculatePopupPosition: No preferred position fits within the viewport.',
   );
-  return null;
 }
+
+type Rect = {
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+};
+
+const clamp = (value: number, min: number, max: number) => {
+  return Math.max(min, Math.min(value, max));
+};
+
+const getArrowPosition = (popup: Rect, reference: Rect) => {
+  const popupWidth = popup.right - popup.left;
+  const popupHeight = popup.bottom - popup.top;
+  const refCenterX = reference.left + (reference.right - reference.left) / 2;
+  const refCenterY = reference.top + (reference.bottom - reference.top) / 2;
+  const closestX = clamp(refCenterX, popup.left, popup.right);
+  const closestY = clamp(refCenterY, popup.top, popup.bottom);
+
+  return {
+    top: closestY - popup.top,
+    left: closestX - popup.left,
+  };
+};

@@ -1,12 +1,21 @@
 @use '../../styles/effects.scss' as fx;
 
+$arrowSize: 12px;
+$arrowHalfSize: calc($arrowSize / 2);
+
 .ein-popup {
   position: absolute;
   z-index: 1000;
-  background: white;
-  padding: 10px 24px;
+  background: var(--ds-color-neutral-background-default);
   box-shadow: 0 0 10px rgba(0 0 0 / 20%);
   border-radius: var(--ds-border-radius-default);
+
+  .ein-popup-content {
+    position: relative;
+    z-index: 1;
+    background: inherit;
+    padding: 10px 24px;
+  }
 
   &.closed:not(.toClosed, .preClosed) {
     display: none;
@@ -16,6 +25,67 @@
   &.closed.preClosed {
     opacity: 1;
     transform: scale(1);
+
+    &:before  {
+      content: '';
+      position: absolute;
+      width: $arrowSize;
+      height: $arrowSize;
+      background-color: inherit;
+      border-radius: 0;
+      transform: translateX(-50%) translateY(-50%) rotate(45deg);
+      border: inherit;
+    }
+
+    // Make the arrow cast a shadow
+    &:before {
+      z-index: -1;
+      box-shadow: inherit;
+    }
+
+    &[style*="--ein-popup-position: above"]:before {
+      top: 100%; 
+      left: clamp(
+        $arrowHalfSize,
+        var(--ein-popup-arrow-left),
+        calc(100% - $arrowHalfSize)
+      );
+      border-left: none;
+      border-top: none;
+    }
+
+    &[style*="--ein-popup-position: below"]:before {
+      top: 0; 
+      left: clamp(
+        $arrowHalfSize,
+        var(--ein-popup-arrow-left),
+        calc(100% - $arrowHalfSize)
+      );
+      border-right: none;
+      border-bottom: none;
+    }
+
+    &[style*="--ein-popup-position: left"]:before {
+      left: 100%; 
+      top: clamp(
+        $arrowHalfSize,
+        var(--ein-popup-arrow-top),
+        calc(100% - $arrowHalfSize)
+      );
+      border-left: none;
+      border-bottom: none;
+    }
+
+    &[style*="--ein-popup-position: right"]:before {
+      left: 0; 
+      top: clamp(
+        $arrowHalfSize,
+        var(--ein-popup-arrow-top),
+        calc(100% - $arrowHalfSize)
+      );
+      border-right: none;
+      border-top: none;
+    }
   }
 
   &.closed,

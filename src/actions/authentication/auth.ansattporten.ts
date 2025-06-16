@@ -163,7 +163,8 @@ export const handleCallback = async (request: Request) => {
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
     console.error('OIDC Authorization Code Grant failed:', error);
-    throw new Error('Authentication failed during callback.');
+    // This could be a valid "cancel" case, so we don't throw an error here
+    //throw new Error('Authentication failed during callback.');
   } finally {
     // Clean up the Ansattporten cookie
     await deleteAnsattportenCookie();

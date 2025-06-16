@@ -7,7 +7,7 @@
  */
 
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
 import useIsChanged from '~/hooks/useIsChanged';
 import useIsMounted from '~/hooks/useIsMounted';
@@ -47,13 +47,12 @@ export default function EinPopup(props: EinPopupProps) {
     children,
     transitionEvents,
     popupRef = fallbackPopupRef,
-    preferredPosition = ['below', 'left', 'right', 'above'],
+    preferredPosition = ['below', 'above', 'right', 'left'],
     setOpen = () => undefined,
   } = props;
   const isBrowser = typeof document !== 'undefined';
   const triggerRef = useRef<Element | null>(null);
   const isMounted = useIsMounted();
-  const switched = useIsChanged([open]) && isMounted();
 
   // Update the ref of the trigger when the popup is opened
   useLayoutEffect(() => {
@@ -116,9 +115,10 @@ export default function EinPopup(props: EinPopupProps) {
   }, [closeOnEsc, popupRef, open, setOpen]);
 
   // Close on click outside
-  useOnOutsideClick(popupRef, closeOnOutsideClick, () => {
+  const outsideClickHandler = useCallback(() => {
     setOpen(false);
-  });
+  }, [setOpen]);
+  useOnOutsideClick(popupRef, open && closeOnOutsideClick, outsideClickHandler);
 
   // Trap focus when open
   useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
@@ -165,8 +165,17 @@ export default function EinPopup(props: EinPopupProps) {
     }
 
     // Set the final position of the popup popup
-    popupElement.style.top = `${position.top}px`;
-    popupElement.style.left = `${position.left}px`;
+    popupElement.style.setProperty('top', `${position.top}px`);
+    popupElement.style.setProperty('left', `${position.left}px`);
+    popupElement.style.setProperty('--ein-popup-position', position.position);
+    popupElement.style.setProperty(
+      '--ein-popup-arrow-top',
+      position.arrowTop ? `${position.arrowTop}px` : '',
+    );
+    popupElement.style.setProperty(
+      '--ein-popup-arrow-left',
+      position.arrowLeft ? `${position.arrowLeft}px` : '',
+    );
   };
 
   return (
@@ -177,7 +186,7 @@ export default function EinPopup(props: EinPopupProps) {
           className={cn(className, { open: open, closed: !open }, 'ein-popup')}
           ref={popupRef}
         >
-          {children}
+          <div className="ein-popup-content">{children}</div>
         </div>
       )}
     </>

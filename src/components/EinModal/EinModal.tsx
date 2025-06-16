@@ -122,7 +122,6 @@ export function EinModalHeader({
 
   const closeHandler = (event: React.MouseEvent<HTMLFormElement>) => {
     event.preventDefault();
-    event.stopPropagation();
 
     router.push(basepath);
   };
@@ -131,7 +130,11 @@ export function EinModalHeader({
     <div
       className={cn(className, styles['ein-modal-header'], 'ein-modal-header')}
     >
-      {children ?? <h1>{title}</h1>}
+      {children ?? (
+        <h1 className="ds-heading" data-size="md">
+          {title}
+        </h1>
+      )}
       <form method="get" action={basepath} onSubmit={closeHandler}>
         <Button
           icon

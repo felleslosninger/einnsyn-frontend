@@ -75,7 +75,7 @@ export default function SearchHeader() {
           </form>
         </div>
         <div className="container-post">
-          <SettingsMenu />
+          {/* <SettingsMenu /> */}
           <UserMenu />
         </div>
       </div>

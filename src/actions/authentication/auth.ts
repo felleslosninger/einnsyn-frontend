@@ -6,7 +6,7 @@ import { deleteAuth, getAuth } from '../cookies/authCookie';
 import * as ansattporten from './auth.ansattporten';
 import * as eInnsyn from './auth.eInnsyn';
 
-type ExtendedAuthInfo = AuthInfo & {
+export type ExtendedAuthInfo = AuthInfo & {
   enhet?: Enhet;
   bruker?: Bruker;
 };
@@ -20,7 +20,14 @@ export async function getAuthInfo() {
 
   try {
     const apiClient = await getApiClient();
-    return await apiClient.authinfo.get();
+    const authInfo: ExtendedAuthInfo = await apiClient.authinfo.get();
+    if (authInfo.type === 'Enhet' && authInfo.id) {
+      authInfo.enhet = await apiClient.enhet.get(authInfo.id);
+    }
+    if (authInfo.type === 'Bruker' && authInfo.id) {
+      authInfo.bruker = await apiClient.bruker.get(authInfo.id);
+    }
+    return authInfo;
   } catch (error) {
     console.error('Failed to fetch auth info:', error);
     return undefined;

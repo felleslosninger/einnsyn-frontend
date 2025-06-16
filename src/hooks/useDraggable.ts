@@ -92,7 +92,6 @@ export function useDraggable({
         window.addEventListener(
           'click',
           function cancelClick(ce) {
-            ce.stopPropagation();
             window.removeEventListener('click', cancelClick, true);
           },
           true,
@@ -113,12 +112,12 @@ export function useDraggable({
         dragSelector === undefined
           ? startHeaderDrag
           : (e: MouseEvent | TouchEvent) => {
-            const target = e.target as HTMLElement;
-            const closestMatch = target.closest(dragSelector);
-            if (closestMatch && ref.current?.contains(closestMatch)) {
-              startHeaderDrag(e);
-            }
-          };
+              const target = e.target as HTMLElement;
+              const closestMatch = target.closest(dragSelector);
+              if (closestMatch && ref.current?.contains(closestMatch)) {
+                startHeaderDrag(e);
+              }
+            };
 
       document.addEventListener('mousedown', maybeStartHeaderDrag);
       document.addEventListener('touchstart', maybeStartHeaderDrag);

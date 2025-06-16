@@ -13,7 +13,7 @@ export function AnsattportenLogin() {
   return (
     <form action={ansattportenAuthAction} data-size="sm">
       <input type="hidden" name="originUrl" value={originUrl} />
-      Forvalter du en virksomhet?{' '}
+      Forvalter du en virksomhet? <br />
       <EinButton type="submit" style="link" disabled={pending}>
         Logg inn gjennom Ansattporten
       </EinButton>

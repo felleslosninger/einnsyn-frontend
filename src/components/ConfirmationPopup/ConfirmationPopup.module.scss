@@ -1,0 +1,35 @@
+.confirmation-popup {
+  z-index: 1100;
+}
+
+.confirmation-content {
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.confirmation-header {
+  padding: 1rem 1rem 0.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ds-color-danger-text-default);
+  }
+}
+
+.confirmation-body {
+  padding: 1rem;
+
+  p {
+    margin: 0;
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
+.confirmation-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem 1rem;
+}
