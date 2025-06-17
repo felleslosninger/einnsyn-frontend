@@ -19,6 +19,7 @@ type EinModalProps = {
   children: ReactNode;
   className?: string;
   containerRef?: RefObject<HTMLDivElement>;
+  setOpen?: (open: boolean) => void;
 };
 
 type EinModalHeaderProps = {
@@ -44,10 +45,12 @@ export default function EinModal({
   children,
   className,
   containerRef: containerRefProp,
+  setOpen,
 }: EinModalProps) {
   const router = useRouter();
   const basepath = useModalBasepath();
   const closeModal = () => {
+    setOpen?.(false);
     router.push(basepath);
   };
   const isMobileLayout = useBreakpoint('SM');
@@ -122,7 +125,6 @@ export function EinModalHeader({
 
   const closeHandler = (event: React.MouseEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     router.push(basepath);
   };
 
@@ -142,6 +144,7 @@ export function EinModalHeader({
           aria-label={t('site:closeModal')}
           data-color="neutral"
           data-variant="tertiary"
+          className={styles['ein-modal-close-button']}
         >
           <XMarkIcon fontSize="1.5rem" />
         </Button>

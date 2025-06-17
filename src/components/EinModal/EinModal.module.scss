@@ -8,14 +8,12 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   inset: 0;
   z-index: 1050;
 
-  :global(.ein-popup-content) {
+  > :global(.ein-popup-content) {
     position: relative;
     width: 100%;
     height: 100%;
+    background: transparent;
   }
-
-  // Override EinPopup:
-  background: transparent;
 
   &,
   .ein-modal-backdrop {
@@ -66,7 +64,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   .ein-modal-close-button {
     flex: 0;
     text-decoration: none;
-    //margin-right: px(-12);
+    margin-right: calc(0px - var(--ds-size-3));
   }
 
   /*

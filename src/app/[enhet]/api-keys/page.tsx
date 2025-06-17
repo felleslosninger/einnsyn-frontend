@@ -1,6 +1,6 @@
 'use server';
 
-import type { ApiKey, PaginatedList } from '@digdir/einnsyn-sdk';
+import type { ApiKey, Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import { notFound } from 'next/navigation';
 import { getApiClient } from '~/actions/api/getApiClient';
 import ApiKeys from './ApiKeys';
@@ -19,17 +19,12 @@ export async function deleteApiKeyAction(formData: FormData) {
   }
 
   await apiClient.apikey.delete(keyId);
-
-  // Revalidate the API keys after deletion
-  revalidatePath('/', 'layout');
 }
 
 export async function addApiKeyAction(
   previousState: ApiKey | undefined,
   formData: FormData,
 ): Promise<ApiKey | undefined> {
-  console.log('Add API key? ', previousState);
-
   const apiClient = await getApiClient();
   const enhetId = formData.get('enhetId');
   if (typeof enhetId !== 'string') {
@@ -41,16 +36,15 @@ export async function addApiKeyAction(
     throw new Error('API key name is required');
   }
 
-  const expiresAt = formData.get('expiresAt');
+  const expiresInDays = formData.get('expiresInDays');
   const apiKeyData: { name: string; expiresAt?: string } = { name };
-  if (typeof expiresAt === 'string' && expiresAt) {
-    apiKeyData.expiresAt = expiresAt;
+  if (typeof expiresInDays === 'string' && expiresInDays.trim() !== '') {
+    const expiresAt =
+      Date.now() + Number.parseInt(expiresInDays, 10) * 24 * 60 * 60 * 1000;
+    apiKeyData.expiresAt = new Date(expiresAt).toISOString();
   }
 
   const apiKey = await apiClient.enhet.addApiKey(enhetId, apiKeyData);
-
-  // Revalidate the API keys after addition
-  revalidatePath('/', 'layout');
 
   return apiKey;
 }

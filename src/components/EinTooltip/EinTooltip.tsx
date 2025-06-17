@@ -3,21 +3,23 @@ import {
   type ReactElement,
   cloneElement,
   isValidElement,
-  useRef,
   useState,
 } from 'react';
 import EinPopup from '../EinPopup/EinPopup';
 
+import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
 import styles from './EinTooltip.module.scss';
 
 export default function EinTooltip({
   children,
   content,
   className = '',
+  preferredPosition = ['below', 'above', 'right', 'left'],
 }: {
   children: React.ReactNode;
   content: string;
   className?: string;
+  preferredPosition?: PopupPosition[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,10 +39,13 @@ export default function EinTooltip({
     }
   };
 
-  const childWithClick = cloneElement(child, {
-    ...child.props,
-    onClick: handleClick,
-  });
+  const childWithClick = cloneElement(
+    child as ReactElement<Record<string, unknown>>,
+    {
+      ...((child.props as Record<string, unknown>) || {}),
+      onClick: handleClick,
+    },
+  );
 
   return (
     <>
@@ -49,8 +54,13 @@ export default function EinTooltip({
         open={!!content && open}
         setOpen={(isOpen) => setOpen(isOpen)}
         className={styles.tooltip}
+        preferredPosition={preferredPosition}
       >
-        <div className={`ein-tooltip ${className}`} role="tooltip">
+        <div
+          className={`ein-tooltip ${className}`}
+          role="tooltip"
+          data-size="sm"
+        >
           {content}
         </div>
       </EinPopup>

@@ -19,14 +19,20 @@
     "apiKey": {
       "label": "API key",
       "labelPlural": "API keys",
+      "intro": "API keys can be used to authorize external applications to programmatically access, create, and update content on behalf of your organization. Each key is unique to your organization and provides a secure way to integrate with external services and automate content management workflows.",
       "addApiKey": "Create API key",
+      "deleteApiKey": "Delete API key",
       "keyName": "Key name",
+      "keyNameTooltip": "A descriptive name for the API key, for instance referencing the archive or application that will use it.",
       "shouldExpire": "Should expire",
       "expiresAt": "Expiry date",
       "expiresInDays": "Expires in days",
       "expiresNever": "Never",
-      "expiresTooltip": "Enter the number of days after which the API key should expire. Keep it empty if the API key should never expire.",
-      "copyKeyWarning": "Your API key was successfully created. The secret key is only shown once, please copy it now and store it securely.",
+      "expiresTooltip": "The number of days after which the API key should expire. Keep it empty if the API key should never expire.",
+      "createdApiKeyTitle": "Your API key",
+      "secretKey": "Secret key",
+      "copyKeyWarning": "Please store your key securely, it will only be shown once.",
+      "copyKeyConfirmation": "I have stored my key.",
       "deleteConfirmationTitle": "Delete API key",
       "deleteConfirmationMessage": "Are you sure you want to delete the API key '$1'?"
     }

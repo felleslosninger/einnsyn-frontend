@@ -1,103 +1,132 @@
 'use client';
 
+import { Alert } from '@digdir/designsystemet-react';
 import { useParams } from 'next/navigation';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { EinCheckbox } from '~/components/EinCheckbox/EinCheckbox';
 import { EinInput } from '~/components/EinInput/EinInput';
 import EinModal, {
   EinModalBody,
-  EinModalFooter,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
 import { useTranslation } from '~/hooks/useTranslation';
 import { addApiKeyAction } from './page';
-import { Field, Label, Select, Switch } from '@digdir/designsystemet-react';
 
 import styles from './AddApiKeyModal.module.scss';
+import useIsChanged from '~/hooks/useIsChanged';
+import type { ApiKey } from '@digdir/einnsyn-sdk';
 
 interface AddApiKeyModalProps {
   open: boolean;
+  setOpen?: (open: boolean) => void;
+  addApiKeyHandler: (apiKey: ApiKey) => void;
 }
 
-export default function AddApiKeyModal({ open }: AddApiKeyModalProps) {
+export default function AddApiKeyModal({
+  open,
+  setOpen,
+  addApiKeyHandler,
+}: AddApiKeyModalProps) {
   const t = useTranslation();
-  const [shouldExpire, setShouldExpire] = useState(false);
-  const [copied, setCopied] = useState(false);
   const { enhet: enhetId } = useParams<{ enhet: string }>();
   const [addedKey, addApiKey, isPending] = useActionState(
     addApiKeyAction,
     undefined,
   );
+  const [isKeyCopied, setIsKeyCopied] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const hasNewKey = useIsChanged([addedKey]) && !!addedKey;
 
-  const copyToClipboard = async () => {
-    if (addedKey?.secretKey) {
-      try {
-        await navigator.clipboard.writeText(addedKey.secretKey);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy: ', err);
-      }
+  useEffect(() => {
+    if (hasNewKey) {
+      setShowSuccessMessage(true);
+      addApiKeyHandler(addedKey);
     }
-  };
+  }, [hasNewKey, addApiKeyHandler, addedKey]);
 
   const handleClose = () => {
-    setCopied(false);
+    setOpen?.(false);
+    setIsKeyCopied(false);
+    setShowSuccessMessage(false);
   };
 
-  const title = addedKey
-    ? t('admin.apiKey.successfullyCreatedTitle')
+  const title = showSuccessMessage
+    ? t('admin.apiKey.createdApiKeyTitle')
     : t('admin.apiKey.addApiKey');
 
-  const body = addedKey ? (
-    <>
-      <p>{t('admin.apiKey.copyKeyWarning')}</p>
-      <p data-size="lg">
-        {t('admin.apiKey.keyName')}: <strong>{addedKey.name}:</strong>
-        <br />
-        <code>{addedKey.secretKey}</code>
-      </p>
-      <EinButton onClick={copyToClipboard} disabled={copied}>
-        {t('common.copyToClipboard')}
-      </EinButton>
-      <EinButton onClick={handleClose}>{t('common.close')}</EinButton>
-    </>
-  ) : (
-    <form className={styles.form} action={addApiKey}>
-      <input type="hidden" name="enhetId" value={enhetId} />
-      <EinInput
-        name="name"
-        label={t('admin.apiKey.keyName')}
-        required
-        disabled={isPending}
-      />
+  const body =
+    addedKey && showSuccessMessage ? (
+      <>
+        <div className={styles.form}>
+          <Alert data-color="warning">{t('admin.apiKey.copyKeyWarning')}</Alert>
 
-      <EinInput
-        name="expiresInDays"
-        label={t('admin.apiKey.expiresInDays')}
-        placeholder={t('admin.apiKey.expiresNever')}
-        tooltip={t('admin.apiKey.expiresTooltip')}
-        type="number"
-        disabled={isPending}
-      />
+          <EinInput
+            label={t('admin.apiKey.keyName')}
+            type="text"
+            value={addedKey.name}
+            readOnly
+          />
 
-      <div className={styles.confirmButtons}>
-        <EinButton
-          onClick={handleClose}
+          <EinInput
+            label={t('admin.apiKey.secretKey')}
+            copyToClipboard
+            readOnly
+            autoComplete="off"
+            value={addedKey.secretKey}
+            className={styles.secretKeyInput}
+          />
+
+          <EinCheckbox
+            label={t('admin.apiKey.copyKeyConfirmation')}
+            name="keyCopied"
+            checked={isKeyCopied}
+            onChange={(e) => setIsKeyCopied(e.target.checked)}
+          />
+
+          <EinButton onClick={handleClose} disabled={!isKeyCopied}>
+            {t('common.close')}
+          </EinButton>
+        </div>
+      </>
+    ) : (
+      <form className={styles.form} action={addApiKey}>
+        <input type="hidden" name="enhetId" value={enhetId} />
+        <EinInput
+          name="name"
+          label={t('admin.apiKey.keyName')}
+          tooltip={t('admin.apiKey.keyNameTooltip')}
+          required
           disabled={isPending}
-          variant="secondary"
-        >
-          {t('common.cancel')}
-        </EinButton>
-        <EinButton type="submit" disabled={isPending}>
-          {isPending ? t('common.creating') : t('common.create')}
-        </EinButton>
-      </div>
-    </form>
-  );
+        />
+
+        <EinInput
+          name="expiresInDays"
+          label={t('admin.apiKey.expiresInDays')}
+          placeholder={t('admin.apiKey.expiresNever')}
+          tooltip={t('admin.apiKey.expiresTooltip')}
+          type="number"
+          min={1}
+          disabled={isPending}
+        />
+
+        <div className={styles.confirmButtons}>
+          <EinButton
+            onClick={handleClose}
+            disabled={isPending}
+            variant="secondary"
+          >
+            {t('common.cancel')}
+          </EinButton>
+          <EinButton type="submit" disabled={isPending}>
+            {isPending ? t('common.creating') : t('common.create')}
+          </EinButton>
+        </div>
+      </form>
+    );
 
   return (
-    <EinModal className={styles.modal} open={open}>
+    <EinModal className={styles.modal} open={open} setOpen={setOpen}>
       <EinModalHeader title={title} />
       <EinModalBody>{body}</EinModalBody>
     </EinModal>

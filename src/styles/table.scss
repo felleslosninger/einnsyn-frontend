@@ -1,0 +1,48 @@
+@use "mediaQueries.scss" as mq;
+
+.ein-table {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+
+  @include mq.small-and-medium {
+    grid-template-columns: 1.5fr 1fr 1fr;
+  }
+
+  > .table-row {
+    display: contents;
+
+    &:nth-child(2n) > .table-cell{
+      background-color: var(--ds-color-neutral-surface-tinted);
+    }
+
+    &:hover:not(.table-header) > .table-cell {
+      background-color: var(--ds-color-neutral-surface-hover);
+    }
+
+    > .table-cell {
+      background-color: var(--ds-color-neutral-surface-default);
+      padding: var(--ds-size-2);
+      min-width: var(--ds-size-10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:first-child {
+        justify-content: flex-start;
+        border-top-left-radius: var(--ds-border-radius-default);
+        border-bottom-left-radius: var(--ds-border-radius-default);
+      }
+      &:last-child {
+        justify-content: flex-end;
+        border-top-right-radius: var(--ds-border-radius-default);
+        border-bottom-right-radius: var(--ds-border-radius-default);
+      }
+    }
+
+  }
+
+  > .table-header {
+    font-weight: 600;
+  }
+
+}

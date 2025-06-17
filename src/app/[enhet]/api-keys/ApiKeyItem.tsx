@@ -11,13 +11,24 @@ import EinModal, {
 } from '~/components/EinModal/EinModal';
 import { useTranslation } from '~/hooks/useTranslation';
 import { deleteApiKeyAction } from './page';
+import { dateFormat } from '~/lib/utils/dateFormat';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+
+import tableStyles from './AddApiKeyModal.module.scss';
+import styles from './ApiKeyItem.module.scss';
+import cn from '~/lib/utils/className';
 
 interface ApiKeyItemProps {
   apiKey: ApiKey;
+  removeApiKeyHandler: (keyId: string) => ApiKey | undefined;
 }
 
-export default function ApiKeyItem({ apiKey }: ApiKeyItemProps) {
+export default function ApiKeyItem({
+  apiKey,
+  removeApiKeyHandler,
+}: ApiKeyItemProps) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [isDeleting, startDeleteTransition] = useTransition();
 
@@ -31,45 +42,78 @@ export default function ApiKeyItem({ apiKey }: ApiKeyItemProps) {
 
   const handleDelete = (form: FormData) => {
     startDeleteTransition(() => {
+      removeApiKeyHandler(form.get('keyId') as string);
       deleteApiKeyAction(form);
+      setShowDeletePopup(false);
     });
   };
 
+  const daysTillExpiration = apiKey.expiresAt
+    ? Math.ceil(
+        (new Date(apiKey.expiresAt).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
+      )
+    : Number.POSITIVE_INFINITY;
+  const expiryWarning =
+    daysTillExpiration <= 0
+      ? 'expired'
+      : daysTillExpiration < 30
+        ? 'expiringSoon'
+        : '';
+
   return (
     <>
-      <tr>
-        <td>{apiKey.name}</td>
-        <td>{apiKey.expiresAt ?? t('admin.apiKey.expiresNever')}</td>
-        <td>
-          <EinButton style="link" onClick={handleDeleteClick}>
-            <TrashIcon title="a11y-title" fontSize="1.5rem" />
+      <div className="table-row">
+        <div className="table-cell">{apiKey.name}</div>
+        <div className={cn('table-cell', styles[expiryWarning])}>
+          {' '}
+          {apiKey.expiresAt
+            ? dateFormat(apiKey.expiresAt, languageCode)
+            : t('admin.apiKey.expiresNever')}
+        </div>
+        <div className="table-cell">
+          <EinButton variant="secondary" onClick={handleDeleteClick}>
+            <TrashIcon
+              title={t('admin.apiKey.deleteApiKey')}
+              fontSize="1.5rem"
+            />
+            {t('common.delete')}
           </EinButton>
-        </td>
-      </tr>
 
-      <EinModal open={showDeletePopup}>
-        <EinModalHeader title={t('admin.apiKey.deleteConfirmationTitle')} />
-        <EinModalBody>
-          <p>
-            {t(
-              'admin.apiKey.deleteConfirmationMessage',
-              apiKey.name ?? t('common.unnamed'),
-            )}
-          </p>
-        </EinModalBody>
-        <EinModalFooter>
-          <form action={handleDelete}>
-            <input type="hidden" name="action" value="delete" />
-            <input type="hidden" name="keyId" value={apiKey.id} />
-            <EinButton onClick={handleCancel} disabled={isDeleting}>
-              {t('common.cancel')}
-            </EinButton>
-            <EinButton type="submit" data-color="danger" disabled={isDeleting}>
-              {isDeleting ? t('common.deleting') : t('common.delete')}
-            </EinButton>
-          </form>
-        </EinModalFooter>
-      </EinModal>
+          <EinModal open={showDeletePopup} setOpen={setShowDeletePopup}>
+            <EinModalHeader title={t('admin.apiKey.deleteConfirmationTitle')} />
+            <EinModalBody>
+              <form action={handleDelete} className={tableStyles.form}>
+                <div>
+                  {t(
+                    'admin.apiKey.deleteConfirmationMessage',
+                    apiKey.name ?? t('common.unnamed'),
+                  )}
+                </div>
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="keyId" value={apiKey.id} />
+
+                <div className={tableStyles.confirmButtons}>
+                  <EinButton
+                    onClick={handleCancel}
+                    disabled={isDeleting}
+                    variant="secondary"
+                  >
+                    {t('common.cancel')}
+                  </EinButton>
+                  <EinButton
+                    type="submit"
+                    data-color="danger"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? t('common.deleting') : t('common.delete')}
+                  </EinButton>
+                </div>
+              </form>
+            </EinModalBody>
+          </EinModal>
+        </div>
+      </div>
     </>
   );
 }

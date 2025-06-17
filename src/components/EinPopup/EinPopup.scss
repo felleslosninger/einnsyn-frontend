@@ -6,15 +6,14 @@ $arrowHalfSize: calc($arrowSize / 2);
 .ein-popup {
   position: absolute;
   z-index: 1000;
-  background: var(--ds-color-neutral-background-default);
-  box-shadow: 0 0 10px rgba(0 0 0 / 20%);
-  border-radius: var(--ds-border-radius-default);
+  filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 0.2));
+
 
   .ein-popup-content {
     position: relative;
     z-index: 1;
-    background: inherit;
-    padding: 10px 24px;
+    background-color: var(--ds-color-neutral-background-default);
+    border-radius: var(--ds-border-radius-default);
   }
 
   &.closed:not(.toClosed, .preClosed) {
@@ -31,16 +30,11 @@ $arrowHalfSize: calc($arrowSize / 2);
       position: absolute;
       width: $arrowSize;
       height: $arrowSize;
-      background-color: inherit;
+      background-color: var(--ds-color-neutral-background-default);
       border-radius: 0;
       transform: translateX(-50%) translateY(-50%) rotate(45deg);
       border: inherit;
-    }
-
-    // Make the arrow cast a shadow
-    &:before {
       z-index: -1;
-      box-shadow: inherit;
     }
 
     &[style*="--ein-popup-position: above"]:before {
