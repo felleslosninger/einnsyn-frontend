@@ -14,14 +14,19 @@ import './searchStyles.scss';
 import SettingsMenu from '../_header/SettingsMenu';
 
 export default function SearchHeader() {
+  const defaultSearchPath = '/search';
   const router = useRouter();
   const basepath = useModalBasepath();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
+    if (event.key !== 'Enter' && event.key !== 'Escape') {
       setSearchQuery(event.currentTarget.value ?? '');
+    }
+    if (event.key === 'Escape') {
+      event.currentTarget.value = '';
+      setSearchQuery('');
     }
   };
 
@@ -40,7 +45,14 @@ export default function SearchHeader() {
       newParams.delete('q');
     }
 
-    router.push(`${basepath}?${newParams.toString()}`);
+    if (basepath === '/') {
+      // Go to the default search path
+      router.push(`${defaultSearchPath}?${newParams.toString()}`);
+    } else {
+      // Make sure we do not add repeated parameters
+      const newPath = basepath.split('?', 1)[0];
+      router.push(`${newPath}?${newParams.toString()}`);
+    }
   };
 
   return (
