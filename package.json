@@ -16,7 +16,7 @@
     "@digdir/designsystemet-react": "^1.0.8",
     "@digdir/designsystemet-theme": "^1.0.8",
     "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
-    "@navikt/aksel-icons": "^7.20.0",
+    "@navikt/aksel-icons": "^7.23.0",
     "next": "15.3.3",
     "openid-client": "^6.5.1",
     "react": "^19.1.0",
