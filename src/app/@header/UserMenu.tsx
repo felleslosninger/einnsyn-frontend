@@ -13,6 +13,7 @@ import LogoutButton from './LogoutButton';
 import styles from './UserMenu.module.scss';
 import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
 import { EinLink } from '~/components/EinLink/EinLink';
+import cn from '~/lib/utils/className';
 
 export default function ProfileButton() {
   const { authInfo } = useSessionData();
@@ -82,7 +83,7 @@ export function EnhetMenuButton({ authInfo, onClick }: DropdownButtonProps) {
       onClick={onClick}
       variant="secondary"
       data-color="neutral"
-      className={styles['profile-button']}
+      className={cn(styles['enhet-dropdown-button'], 'header-button')}
     >
       <Buildings3Icon
         title={t('site.loggedInAs', orgnummer)}
@@ -95,20 +96,35 @@ export function EnhetMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div className={styles['user-menu-content']}>
-      <div className={styles['user-menu-content-section']}>
+    <div
+      className={cn(
+        styles['enhet-dropdown-content'],
+        'header-dropdown-content',
+      )}
+    >
+      <div
+        className={cn(
+          styles['enhet-dropdown-content-section'],
+          'header-dropdown-content-section',
+        )}
+      >
         <span data-size="sm">{t('site.loggedInAs')}</span>
         <br />
         <strong>{authInfo.enhet?.navn ?? authInfo.orgnummer}</strong>
       </div>
-      <div className={styles['user-menu-content-section']}>
+      <div
+        className={cn(
+          styles['enhet-dropdown-content-section'],
+          'header-dropdown-content-section',
+        )}
+      >
         {authInfo.enhet && (
           <>
             <div>
               <EinLink href={''}>Virksomhetshierarki</EinLink>
             </div>
             <div>
-              <EinLink href={`/${authInfo.enhet.orgnummer}/api-keys`}>
+              <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
                 {t('admin.apiKey.labelPlural')}
               </EinLink>
             </div>
@@ -116,7 +132,12 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>
-      <div className={styles['user-menu-content-section']}>
+      <div
+        className={cn(
+          styles['enhet-dropdown-content-section'],
+          'header-dropdown-content-section',
+        )}
+      >
         <LogoutButton />
       </div>
     </div>
@@ -138,7 +159,7 @@ export function Dropdown({
   });
 
   return (
-    <div className={styles['user-menu']}>
+    <div className={cn(styles.dropdown, 'header-dropdown')}>
       {buttonWithClickHandler}
       <EinPopup open={open} setOpen={setOpen}>
         {children}

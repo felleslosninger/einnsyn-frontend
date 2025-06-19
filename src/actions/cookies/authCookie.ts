@@ -1,12 +1,14 @@
+'use server';
+
 import {
   type CookieSettings,
-  deleteCookie,
+  deleteCookieAction,
   getCookie,
-  updateCookie,
+  updateCookieAction,
 } from './cookieActions';
 import { getSettings } from './settingsCookie';
 
-export const AUTH_COOKIE_NAME = 'auth';
+const AUTH_COOKIE_NAME = 'auth';
 export type Auth = {
   authProvider: 'eInnsyn' | 'ansattporten';
   authTimestamp: number;
@@ -19,7 +21,7 @@ const defaultContent: Partial<Auth> = {};
 
 // Keep a auth-timestamp cookie as well, that is *not* httpOnly. This is used by the frontend to
 // determine if the login status has changed.
-export const AUTH_TIMESTAMP_COOKIE_NAME = 'auth-timestamp';
+const AUTH_TIMESTAMP_COOKIE_NAME = 'auth-timestamp';
 export type AuthTimestamp = {
   timestamp: number;
 };
@@ -30,7 +32,7 @@ export type AuthTimestamp = {
  * @param authContent
  * @returns
  */
-export const updateAuth = async (
+export const updateAuthAction = async (
   authContent: Auth,
   cookieSettings: Partial<CookieSettings> = {},
 ) => {
@@ -42,7 +44,7 @@ export const updateAuth = async (
       : 60 * 30); // 30 minutes (default)
 
   // Update the auth-timestamp cookie
-  updateCookie(
+  updateCookieAction(
     AUTH_TIMESTAMP_COOKIE_NAME,
     {
       timestamp: authContent.authTimestamp,
@@ -54,7 +56,7 @@ export const updateAuth = async (
   );
 
   // Update auth cookie
-  return updateCookie(AUTH_COOKIE_NAME, authContent, {
+  return updateCookieAction(AUTH_COOKIE_NAME, authContent, {
     maxAge,
     ...cookieSettings,
     httpOnly: true, // This should not be accessible from the frontend
@@ -69,7 +71,7 @@ export const getAuth = async () => {
   } as Auth;
 };
 
-export const deleteAuth = async () => {
-  await deleteCookie(AUTH_COOKIE_NAME);
-  await deleteCookie(AUTH_TIMESTAMP_COOKIE_NAME);
+export const deleteAuthAction = async () => {
+  await deleteCookieAction(AUTH_COOKIE_NAME);
+  await deleteCookieAction(AUTH_TIMESTAMP_COOKIE_NAME);
 };

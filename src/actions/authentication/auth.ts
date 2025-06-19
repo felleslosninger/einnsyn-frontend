@@ -1,16 +1,17 @@
 'use server';
 
 import type { AuthInfo, Bruker, Enhet } from '@digdir/einnsyn-sdk';
-import { getApiClient } from '../api/getApiClient';
-import { deleteAuth, getAuth } from '../cookies/authCookie';
+import { cache } from 'react';
+import { cachedApiClient } from '../api/getApiClient';
+import { deleteAuthAction, getAuth } from '../cookies/authCookie';
 import * as ansattporten from './auth.ansattporten';
-import * as eInnsyn from './auth.eInnsyn';
 
 export type ExtendedAuthInfo = AuthInfo & {
   enhet?: Enhet;
   bruker?: Bruker;
 };
 
+export const cachedAuthInfo = cache(getAuthInfo);
 export async function getAuthInfo() {
   const auth = await getAuth();
 
@@ -19,7 +20,7 @@ export async function getAuthInfo() {
   }
 
   try {
-    const apiClient = await getApiClient();
+    const apiClient = await cachedApiClient();
     const authInfo: ExtendedAuthInfo = await apiClient.authinfo.get();
     if (authInfo.type === 'Enhet' && authInfo.id) {
       authInfo.enhet = await apiClient.enhet.get(authInfo.id);
@@ -59,7 +60,7 @@ export const maybeRefreshToken = async (): Promise<void> => {
     console.warn(
       'Access token expired/invalid, but no refresh token available. Clearing auth session.',
     );
-    await deleteAuth();
+    await deleteAuthAction();
     return;
   }
 

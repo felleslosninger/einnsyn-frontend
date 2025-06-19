@@ -1,18 +1,13 @@
 'use server';
 
-import type { ApiKey, Base, PaginatedList } from '@digdir/einnsyn-sdk';
+import type { ApiKey } from '@digdir/einnsyn-sdk';
 import { notFound } from 'next/navigation';
-import { getApiClient } from '~/actions/api/getApiClient';
+import { cachedApiClient } from '~/actions/api/getApiClient';
+import { cachedAuthInfo } from '~/actions/authentication/auth';
 import ApiKeys from './ApiKeys';
-import { revalidatePath } from 'next/cache';
-
-type ApiKeyState = {
-  addedKey?: ApiKey;
-  apiKeys: PaginatedList<ApiKey>;
-};
 
 export async function deleteApiKeyAction(formData: FormData) {
-  const apiClient = await getApiClient();
+  const apiClient = await cachedApiClient();
   const keyId = formData.get('keyId');
   if (typeof keyId !== 'string') {
     throw new Error('API key ID is required');
@@ -25,7 +20,7 @@ export async function addApiKeyAction(
   previousState: ApiKey | undefined,
   formData: FormData,
 ): Promise<ApiKey | undefined> {
-  const apiClient = await getApiClient();
+  const apiClient = await cachedApiClient();
   const enhetId = formData.get('enhetId');
   if (typeof enhetId !== 'string') {
     throw new Error('Enhet ID is required');
@@ -44,34 +39,28 @@ export async function addApiKeyAction(
     apiKeyData.expiresAt = new Date(expiresAt).toISOString();
   }
 
-  const apiKey = await apiClient.enhet.addApiKey(enhetId, apiKeyData);
-
-  return apiKey;
+  try {
+    const apiKey = await apiClient.enhet.addApiKey(enhetId, apiKeyData);
+    return apiKey;
+  } catch (error) {
+    throw new Error('Failed to create API key');
+  }
 }
 
 export default async function ApiKeysPage({
   params,
-  searchParams,
-}: {
-  params: Promise<{ enhet: string }>;
-  searchParams: Promise<{ [key: string]: string }>;
-}) {
-  const { enhet: enhetId = '' } = await params;
-  if (!enhetId) {
+}: { params: Promise<{ enhetId: string }> }) {
+  const authInfo = await cachedAuthInfo();
+  if (!authInfo) {
     notFound();
   }
 
-  const apiClient = await getApiClient();
-  const enhet = await apiClient.enhet.get(enhetId).catch((error) => {});
-  if (!enhet) {
-    notFound();
-  }
+  const { enhetId } = await params;
+  const apiClient = await cachedApiClient();
 
-  try {
-    const apiKeys = await apiClient.enhet.listApiKey(enhetId);
-    return <ApiKeys apiKeys={apiKeys} enhetId={enhetId} />;
-  } catch (error) {
-    console.warn('Failed to fetch API keys:', error);
+  const apiKeys = await apiClient.enhet.listApiKey(enhetId).catch((error) => {
+    console.warn('Failed to fetch API keys for enhet:', error);
     notFound();
-  }
+  });
+  return <ApiKeys apiKeys={apiKeys} />;
 }

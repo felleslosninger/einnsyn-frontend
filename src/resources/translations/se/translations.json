@@ -1,27 +1,79 @@
 {
   "site": {
-    "login": "Logge sisa",
-    "loggingIn": "Lea loggemin sisa",
-    "logout": "Logge olggos",
-    "loggingOut": "Lea loggemin olggos",
+    "login": "Čálit sisa",
+    "loggingIn": "Čállá sisa",
+    "logout": "Čálit olggos",
+    "loggingOut": "Čállá olggos",
     "username": "Geavaheaddjinamma",
-    "usernamePlaceholder": "geavaheaddji@example.com",
+    "usernamePlaceholder": "geavaheaddji@ovdamearka.no",
     "password": "Beassansátni",
     "passwordPlaceholder": "********",
-    "stayLoggedIn": "Biso sisačállojuvvon",
-    "forgottenPassword": "Vajálduhtton beassansátni?",
+    "stayLoggedIn": "Biso sisačálgašuvvan",
+    "forgottenPassword": "Leatgo vajálduhttán beassansáni?",
     "invalidUsernameOrPassword": "Boastut geavaheaddjinamma dahje beassansátni",
-    "loggedInAs": "Sisačállojuvvon dego $1",
-    "unknownError": "Dovdameahttun feaila",
-    "close": "Gidde",
-    "closeModal": "Gidde modála"
+    "loggedInAs": "Sisačálgašuvvan dego $1",
+    "unknownError": "Dovdameahttun feaila dáhpáhuvai",
+    "closeModal": "Gidde",
+    "language": "Giella",
+    "colorScheme": "Ivnnit",
+    "colorSchemeLight": "Čuovgat",
+    "colorSchemeDark": "Seavdnjat",
+    "colorSchemeSystem": "Systemastandárda"
+  },
+  "admin": {
+    "apiKey": {
+      "label": "API-čoavdda",
+      "labelPlural": "API-čoavdagat",
+      "intro": "API-čoavdagiid bokte sáhttet olgguldas applikašuvnnat ožžot lobi prográmmafápmosaččat geavahit, ráhkadit ja beaivádit sisdoalu du organisašuvnna beales. Juohke čoavdda lea sierranas du organisašuvdnii ja addá sihkaris vuogi integreret olgguldas bálvalusaiguin ja automaiseret sisdoallu-bargovugiid.",
+      "addApiKey": "Ráhkat API-čoavdaga",
+      "deleteApiKey": "Sihko API-čoavdaga",
+      "keyName": "Čoavdaga namma",
+      "keyNameTooltip": "Govvidan namma API-čoavdagii, omd. dat arkiiva dahje applikašuvdna mii galgá dan geavahit.",
+      "shouldExpire": "Galgá nohkat",
+      "expiresAt": "Nohkanbeaivi",
+      "expiresInDays": "Nohká (beivviid) siste",
+      "expiresNever": "Ii goassige",
+      "expiresTooltip": "Man ollu beaivvi maŋŋel go API-čoavdda galgá nohkat. Guđe dan guorosin jos čoavdda ii galgga goassige nohkat.",
+      "createdApiKeyTitle": "Du API-čoavdda",
+      "secretKey": "Suollemáš čoavdda",
+      "copyKeyWarning": "Várjal čoavdaga sihkkarit, dat čájehuvvo dušše oktii.",
+      "copyKeyConfirmation": "Lean vurken čoavdaga.",
+      "deleteConfirmationTitle": "Sihko API-čoavdaga",
+      "deleteConfirmationMessage": "Leatgo sihkkar ahte háliidat sihkkojuvvot API-čoavdaga '$1'?"
+    },
+    "organization": {
+      "label": "Organisašuvdna",
+      "labelPlural": "Organisašuvnnat",
+      "name": "Namma",
+      "description": "Govvádus",
+      "logo": "Logo",
+      "logoTooltip": "Logo čájehuvvo applikašuvnna bajilčállosis.",
+      "addOrganization": "Ráhkat organisašuvnna",
+      "deleteOrganization": "Sihko organisašuvnna",
+      "deleteConfirmationTitle": "Sihko organisašuvnna",
+      "deleteConfirmationMessage": "Leatgo sihkkar ahte háliidat sihkkojuvvot organisašuvnna '$1'?"
+    },
+    "statusMessage": {
+      "label": "Doaimmadieđáhus",
+      "labelPlural": "Doaimmadieđáhusat",
+      "intro": "Doaimmadieđáhusat geavahuvvojit dieđihit geavaheaddjiide bálvalusa statusa, beaivádusaid dahje eará dehálaš dieđuid mat gusket du organisašuvdnii. Dain sáhttá dieđihit plánen dihtomovttaid, doaibmaheađuštusaid dahje eará relevánta dieđuid maid geavaheaddjit berrejit diehtit.",
+      "addStatusMessage": "Ráhkat doaimmadieđáhusa",
+      "deleteStatusMessage": "Sihko doaimmadieđáhusa",
+      "title": "Bajilčála",
+      "content": "Sisdoallu",
+      "startDate": "Álgodáhton",
+      "endDate": "Loahppadáhton",
+      "active": "Aktiiva",
+      "inactive": "Ii leat aktiiva",
+      "deleteConfirmationMessage": "Leatgo sihkkar ahte háliidat sihkkojuvvot doaimmadieđáhusa '$1'?"
+    }
   },
   "search": {
     "header": "Oza",
     "button": "Oza"
   },
   "routing": {
-    "searchPath": "ohcan",
+    "searchPath": "oza",
     "saksmappePath": "ášši",
     "calendarPath": "kaleandar",
     "statisticsPath": "statistihkka"
@@ -30,27 +82,36 @@
     "publishedAt": "Almmuhuvvon",
     "updatedAt": "Beaiváduvvon",
     "all": "Buot",
-    "noResults": "Ii gávdnon bohtosat"
+    "noResults": "Bohtosat eai gávdnon",
+    "delete": "Sihko",
+    "deleting": "Sihkko...",
+    "create": "Ráhkat",
+    "creating": "Ráhkada...",
+    "cancel": "Gaskkalduhte",
+    "unnamed": "Nama haga",
+    "close": "Gidde",
+    "copyToClipboard": "Kopier čuohpuspircui",
+    "copiedToClipboard": "Kopierejuvvon čuohpuspircui"
   },
   "saksmappe": {
-    "label": "Áššemáhppa",
-    "labelPlural": "Áššemáhpát",
-    "saksnummer": "Áššenummir"
+    "label": "Ášši",
+    "labelPlural": "Áššit",
+    "saksnummer": "Áššinummar"
   },
   "journalpost": {
-    "label": "Journálapoasta",
-    "labelPlural": "Journálapoasttat",
+    "label": "Journalapoasta",
+    "labelPlural": "Journalapoasttat",
     "pathName": "journalapoasta",
     "type": {
-      "inngaaende_dokument": "Sisaboahtán dokumeanta",
-      "utgaaende_dokument": "Olggosmannan dokumeanta",
-      "organinternt_dokument_uten_oppfoelging": "Siskkáldas dokumeanta čuovvoleami haga",
-      "organinternt_dokument_for_oppfoelging": "Siskkáldas dokumeanta čuovvoleapmái",
-      "saksframlegg": "Áššeovddastus",
+      "inngaaende_dokument": "Sisasboahtti dokumeanta",
+      "utgaaende_dokument": "Olggosmanni dokumeanta",
+      "organinternt_dokument_uten_oppfoelging": "Organisašuvnna siskkáldas notáhta čuovvuleami haga",
+      "organinternt_dokument_for_oppfoelging": "Organisašuvnna siskkáldas notáhta čuovvuleapmái",
+      "saksframlegg": "Áššeovdanbuktin",
       "sakskart": "Áššelistu",
       "moeteprotokoll": "Čoahkkinbeavdegirji",
       "moetebok": "Čoahkkingirji",
-      "ukjent": "Dovdameahttun journálapoasta"
+      "ukjent": "Dovdameahttun journalapoasta"
     }
   },
   "moetemappe": {

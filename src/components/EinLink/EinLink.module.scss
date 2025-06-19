@@ -30,4 +30,13 @@
     color: var(--ds-color-neutral-background-default);
     outline: none;
   }
+
+  &.active {
+    color: var(--ds-color-neutral-text-default);
+    font-weight: 600;
+  }
+
+  &.activeExact {
+    color: var(--ds-color-base-default);
+  }
 }

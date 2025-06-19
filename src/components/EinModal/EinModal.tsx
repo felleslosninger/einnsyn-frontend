@@ -85,6 +85,13 @@ export default function EinModal({
     },
   });
 
+  // Close on backdrop click
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      closeModal();
+    }
+  };
+
   // Disable scrollwheel outside container
   useScrollwheelTrap(containerRef, open);
 
@@ -106,9 +113,11 @@ export default function EinModal({
       >
         {children}
       </div>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
       <div
         className={cn(styles['ein-modal-backdrop'], 'ein-modal-backdrop')}
         onWheel={() => false}
+        onClick={handleBackdropClick}
       />
     </EinPopup>
   );

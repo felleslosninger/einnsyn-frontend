@@ -29,7 +29,7 @@ export default function AddApiKeyModal({
   addApiKeyHandler,
 }: AddApiKeyModalProps) {
   const t = useTranslation();
-  const { enhet: enhetId } = useParams<{ enhet: string }>();
+  const { enhetId } = useParams<{ enhetId: string }>();
   const [addedKey, addApiKey, isPending] = useActionState(
     addApiKeyAction,
     undefined,

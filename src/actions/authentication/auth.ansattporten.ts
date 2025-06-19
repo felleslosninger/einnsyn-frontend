@@ -1,12 +1,16 @@
 'use server';
 
 import * as oidc from 'openid-client';
-import { deleteAuth, getAuth, updateAuth } from '../cookies/authCookie';
+import {
+  deleteAuthAction,
+  getAuth,
+  updateAuthAction,
+} from '../cookies/authCookie';
 import {
   type CookieSettings,
-  deleteCookie,
+  deleteCookieAction,
   getCookie,
-  updateCookie,
+  updateCookieAction,
 } from '../cookies/cookieActions';
 import { redirect } from 'next/navigation';
 import { jwtExpiresIn } from '~/lib/utils/jwtExpiresIn';
@@ -179,7 +183,7 @@ export const handleCallback = async (request: Request) => {
  * @returns
  */
 const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {
-  return await updateCookie<AnsattportenCookieContent>(
+  return await updateCookieAction<AnsattportenCookieContent>(
     ANSATTPORTEN_COOKIE_NAME,
     content,
     {
@@ -202,7 +206,7 @@ const getAnsattportenCookie = async () => {
  * @returns
  */
 const deleteAnsattportenCookie = async () => {
-  return await deleteCookie(ANSATTPORTEN_COOKIE_NAME);
+  return await deleteCookieAction(ANSATTPORTEN_COOKIE_NAME);
 };
 
 /**
@@ -214,7 +218,7 @@ export async function attemptTokenRefresh(refreshToken: string): Promise<void> {
     await updateAuthWithTokens(tokens);
   } catch (error) {
     console.error('Failed to refresh token:', error);
-    await deleteAuth();
+    await deleteAuthAction();
   }
 }
 
@@ -241,7 +245,7 @@ export const buildEndSessionUrl = async () => {
     post_logout_redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
   });
 
-  await deleteAuth();
+  await deleteAuthAction();
   await deleteAnsattportenCookie();
 
   return endSessionUrl;
@@ -267,7 +271,7 @@ async function updateAuthWithTokens(
   }
 
   // Update auth cookie with the new tokens
-  await updateAuth(
+  await updateAuthAction(
     {
       authTimestamp: timestamp ?? (await getAuth()).authTimestamp,
       authProvider: 'ansattporten',

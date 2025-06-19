@@ -6,14 +6,18 @@ $arrowHalfSize: calc($arrowSize / 2);
 .ein-popup {
   position: absolute;
   z-index: 1000;
-  filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.4));
 
 
   .ein-popup-content {
     position: relative;
     z-index: 1;
-    background-color: var(--ds-color-neutral-background-default);
     border-radius: var(--ds-border-radius-default);
+  }
+
+  .ein-popup-content,
+  &:before {
+    background-color: var(--ds-color-neutral-surface-default);
   }
 
   &.closed:not(.toClosed, .preClosed) {
@@ -30,7 +34,7 @@ $arrowHalfSize: calc($arrowSize / 2);
       position: absolute;
       width: $arrowSize;
       height: $arrowSize;
-      background-color: var(--ds-color-neutral-background-default);
+      //background-color: var(--ds-color-neutral-background-default);
       border-radius: 0;
       transform: translateX(-50%) translateY(-50%) rotate(45deg);
       border: inherit;

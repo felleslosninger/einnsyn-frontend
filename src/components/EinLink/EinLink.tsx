@@ -4,11 +4,9 @@ import cn from '~/lib/utils/className';
 
 import styles from './EinLink.module.scss';
 
-export type EinLinkProps = {};
-
 export const EinLink = ({
   ...props
-}: LinkProps & EinLinkProps & AnchorHTMLAttributes<HTMLAnchorElement>) => {
+}: LinkProps & AnchorHTMLAttributes<HTMLAnchorElement>) => {
   return (
     <Link
       {...props}

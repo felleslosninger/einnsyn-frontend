@@ -13,7 +13,12 @@
     "invalidUsernameOrPassword": "Invalid username or password",
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
-    "closeModal": "Close modal"
+    "closeModal": "Close modal",
+    "language": "Language",
+    "colorScheme": "Color scheme",
+    "colorSchemeLight": "Light",
+    "colorSchemeDark": "Dark",
+    "colorSchemeSystem": "System default"
   },
   "admin": {
     "apiKey": {
@@ -35,6 +40,32 @@
       "copyKeyConfirmation": "I have stored my key.",
       "deleteConfirmationTitle": "Delete API key",
       "deleteConfirmationMessage": "Are you sure you want to delete the API key '$1'?"
+    },
+    "organization": {
+      "label": "Organization",
+      "labelPlural": "Organizations",
+      "name": "Name",
+      "description": "Description",
+      "logo": "Logo",
+      "logoTooltip": "The logo will be displayed in the header of the application.",
+      "addOrganization": "Create organization",
+      "deleteOrganization": "Delete organization",
+      "deleteConfirmationTitle": "Delete organization",
+      "deleteConfirmationMessage": "Are you sure you want to delete the organization '$1'?"
+    },
+    "statusMessage": {
+      "label": "Status message",
+      "labelPlural": "Status messages",
+      "intro": "Status messages are used to inform users about service status, updates, or important announcements related to your organization. They can be used to communicate planned maintenance, service disruptions, or other relevant information that users should be aware of when interacting with your organization.",
+      "addStatusMessage": "Create status message",
+      "deleteStatusMessage": "Delete status message",
+      "title": "Title",
+      "content": "Content",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteConfirmationMessage": "Are you sure you want to delete the status message '$1'?"
     }
   },
   "search": {

@@ -164,6 +164,10 @@ export default function EinPopup(props: EinPopupProps) {
       position.left -= ancestorRect.left;
     }
 
+    // Add scroll offsets to the position
+    position.top -= window.scrollY;
+    position.left -= window.scrollX;
+
     // Set the final position of the popup popup
     popupElement.style.setProperty('top', `${position.top}px`);
     popupElement.style.setProperty('left', `${position.left}px`);
