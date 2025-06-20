@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
 import {
   deleteAuthAction,
@@ -12,8 +13,6 @@ import {
   getCookie,
   updateCookieAction,
 } from '../cookies/cookieActions';
-import { redirect } from 'next/navigation';
-import { jwtExpiresIn } from '~/lib/utils/jwtExpiresIn';
 
 const ANSATTPORTEN_URL = process.env.ANSATTPORTEN_URL;
 const ANSATTPORTEN_CLIENT_ID = process.env.ANSATTPORTEN_CLIENT_ID;
@@ -55,23 +54,25 @@ type AnsattportenCookieContent = {
   state: string;
 };
 
-// Load the Ansattporten OIDC configuration
-let oidcConfig = await discoverOidcConfig();
+// Cache for the OIDC configuration
+let oidcConfigCache: Promise<oidc.Configuration> | null = null;
+let lastConfigRefresh = 0;
+const CONFIG_REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
 
-// Refresh the configuration every hour
-setInterval(
-  async () => {
-    try {
-      oidcConfig = await discoverOidcConfig();
-    } catch (error) {
-      console.error(
-        'Failed to refresh Ansattporten OIDC configuration:',
-        error,
-      );
-    }
-  },
-  60 * 60 * 1000,
-);
+/**
+ * Get the OIDC configuration, with caching and automatic refresh
+ */
+async function getOidcConfig(): Promise<oidc.Configuration> {
+  const now = Date.now();
+
+  // If we don't have a cached config or it's been more than an hour, refresh it
+  if (!oidcConfigCache || now - lastConfigRefresh > CONFIG_REFRESH_INTERVAL) {
+    oidcConfigCache = discoverOidcConfig();
+    lastConfigRefresh = now;
+  }
+
+  return oidcConfigCache;
+}
 
 /**
  * Discover the Ansattporten OIDC configuration.
@@ -109,6 +110,7 @@ export async function ansattportenAuthAction(
  * @returns The authorization URL
  */
 const buildAuthorizationUrl = async (originUrl: string) => {
+  const oidcConfig = await getOidcConfig();
   const codeVerifier = oidc.randomPKCECodeVerifier();
   const codeChallenge = await oidc.calculatePKCECodeChallenge(codeVerifier);
   const nonce = oidc.randomNonce();
@@ -155,6 +157,8 @@ export const handleCallback = async (request: Request) => {
   if (!state) {
     throw new Error('Missing state in cookie');
   }
+
+  const oidcConfig = await getOidcConfig();
 
   try {
     // Get tokens from Ansattporten
@@ -214,6 +218,7 @@ const deleteAnsattportenCookie = async () => {
  */
 export async function attemptTokenRefresh(refreshToken: string): Promise<void> {
   try {
+    const oidcConfig = await getOidcConfig();
     const tokens = await oidc.refreshTokenGrant(oidcConfig, refreshToken);
     await updateAuthWithTokens(tokens);
   } catch (error) {
@@ -241,6 +246,7 @@ export const buildEndSessionUrl = async () => {
     return;
   }
 
+  const oidcConfig = await getOidcConfig();
   const endSessionUrl = oidc.buildEndSessionUrl(oidcConfig, {
     post_logout_redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
   });
@@ -268,6 +274,7 @@ async function updateAuthWithTokens(
       : undefined;
   if (refreshTokenExpiresIn) {
     cookieSettings.maxAge = refreshTokenExpiresIn;
+    console.log(`Set cookieSettings.maxAge: ${cookieSettings.maxAge}`);
   }
 
   // Update auth cookie with the new tokens

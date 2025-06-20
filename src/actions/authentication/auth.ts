@@ -65,7 +65,9 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 
   if (authSession.authProvider === 'ansattporten') {
+    console.log('Attempting to refresh Ansattporten token');
     await ansattporten.attemptTokenRefresh(authSession.refreshToken);
+    console.log('Ansattporten token refreshed successfully');
   } else if (authSession.authProvider === 'eInnsyn') {
     // await
   }

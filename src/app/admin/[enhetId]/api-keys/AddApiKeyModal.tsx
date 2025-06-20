@@ -11,7 +11,7 @@ import EinModal, {
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
 import { useTranslation } from '~/hooks/useTranslation';
-import { addApiKeyAction } from './page';
+import { addApiKeyAction } from './actions';
 
 import styles from './AddApiKeyModal.module.scss';
 import useIsChanged from '~/hooks/useIsChanged';

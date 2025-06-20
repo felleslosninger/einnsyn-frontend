@@ -10,7 +10,7 @@ import EinModal, {
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
 import { useTranslation } from '~/hooks/useTranslation';
-import { deleteApiKeyAction } from './page';
+import { deleteApiKeyAction } from './actions';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 

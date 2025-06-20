@@ -44,6 +44,10 @@ export const updateAuthAction = async (
       : 60 * 30); // 30 minutes (default)
 
   // Update the auth-timestamp cookie
+  console.log(
+    `Update ${AUTH_TIMESTAMP_COOKIE_NAME} with timestamp:`,
+    authContent.authTimestamp,
+  );
   updateCookieAction(
     AUTH_TIMESTAMP_COOKIE_NAME,
     {
@@ -56,6 +60,7 @@ export const updateAuthAction = async (
   );
 
   // Update auth cookie
+  console.log(`Update ${AUTH_COOKIE_NAME}`);
   return updateCookieAction(AUTH_COOKIE_NAME, authContent, {
     maxAge,
     ...cookieSettings,
