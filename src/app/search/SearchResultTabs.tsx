@@ -13,7 +13,7 @@ export default function SearchResultTabs() {
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
-    const searchParamsCopy = new URLSearchParams(searchParams);
+    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {
@@ -24,7 +24,7 @@ export default function SearchResultTabs() {
 
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles['search-result-tab'], 'header-tab'];
-    const activeTab = searchParams.get('entity') || '';
+    const activeTab = searchParams?.get('entity') || '';
     if (activeTab === tabName) {
       classes.push('active');
     }

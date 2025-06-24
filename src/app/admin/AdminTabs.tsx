@@ -9,7 +9,7 @@ import cn from '~/lib/utils/className';
 
 export default function AdminTabs() {
   const pathname = usePathname();
-  const { enhetId } = useParams<{ enhetId: string }>();
+  const { enhetId } = useParams<{ enhetId: string }>() ?? {};
   const t = useTranslation();
 
   const getLinkClassName = (linkPathname: string) => {

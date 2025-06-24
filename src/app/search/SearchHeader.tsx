@@ -14,7 +14,7 @@ export default function SearchHeader() {
   const router = useRouter();
   const basepath = useModalBasepath();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
+  const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') ?? '');
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter' && event.key !== 'Escape') {
@@ -27,13 +27,13 @@ export default function SearchHeader() {
   };
 
   useEffect(() => {
-    setSearchQuery(searchParams.get('q') ?? '');
+    setSearchQuery(searchParams?.get('q') ?? '');
   }, [searchParams]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newParams = new URLSearchParams(searchParams.toString());
+    const newParams = new URLSearchParams(searchParams?.toString());
 
     if (searchQuery.trim()) {
       newParams.set('q', searchQuery.trim());
@@ -72,7 +72,7 @@ export default function SearchHeader() {
         </Search>
 
         {/* Include current query parameters as hidden inputs */}
-        {Array.from(searchParams.entries()).map(
+        {Array.from(searchParams?.entries() ?? []).map(
           ([key, value]) =>
             key !== 'q' && (
               <input key={key} type="hidden" name={key} value={value} />
