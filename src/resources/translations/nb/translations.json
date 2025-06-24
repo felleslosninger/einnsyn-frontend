@@ -5,7 +5,7 @@
     "logout": "Logg ut",
     "loggingOut": "Logger ut",
     "username": "Brukernavn",
-    "usernamePlaceholder": "bruker@example.com",
+    "usernamePlaceholder": "bruker@eksempel.no",
     "password": "Passord",
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Forbli innlogget",
@@ -13,15 +13,67 @@
     "invalidUsernameOrPassword": "Ugyldig brukernavn eller passord",
     "loggedInAs": "Innlogget som $1",
     "unknownError": "En ukjent feil oppstod",
-    "close": "Lukk",
-    "closeModal": "Lukk modal"
+    "closeModal": "Lukk",
+    "language": "Språk",
+    "colorScheme": "Fargevalg",
+    "colorSchemeLight": "Lys",
+    "colorSchemeDark": "Mørk",
+    "colorSchemeSystem": "Systemstandard"
+  },
+  "admin": {
+    "apiKey": {
+      "label": "API-nøkkel",
+      "labelPlural": "API-nøkler",
+      "intro": "API-nøkler kan benyttes for å autorisere eksterne applikasjoner til å programmatisk aksessere, opprette og oppdatere innhold på vegne av din organisasjon. Hver nøkkel er unik for organisasjonen og gir en sikker måte å integrere med eksterne tjenester og automatisere arbeidsflyter for innholdsstyring.",
+      "addApiKey": "Opprett API-nøkkel",
+      "deleteApiKey": "Slett API-nøkkel",
+      "keyName": "Navn på nøkkel",
+      "keyNameTooltip": "Et beskrivende navn for API-nøkkelen, for eksempel en referanse til arkivet eller applikasjonen som skal benytte den.",
+      "shouldExpire": "Skal utløpe",
+      "expiresAt": "Utløpsdato",
+      "expiresInDays": "Utløper om antall dager",
+      "expiresNever": "Aldri",
+      "expiresTooltip": "Antall dager før API-nøkkelen utløper. La feltet stå tomt hvis nøkkelen ikke skal utløpe.",
+      "createdApiKeyTitle": "Din API-nøkkel",
+      "secretKey": "Hemmelig nøkkel",
+      "copyKeyWarning": "Vennligst lagre nøkkelen din på et sikkert sted. Den vil kun bli vist denne ene gangen.",
+      "copyKeyConfirmation": "Jeg har lagret nøkkelen.",
+      "deleteConfirmationTitle": "Slett API-nøkkel",
+      "deleteConfirmationMessage": "Er du sikker på at du vil slette API-nøkkelen '$1'?"
+    },
+    "organization": {
+      "label": "Organisasjon",
+      "labelPlural": "Organisasjoner",
+      "name": "Navn",
+      "description": "Beskrivelse",
+      "logo": "Logo",
+      "logoTooltip": "Logoen vil bli vist i toppteksten til applikasjonen.",
+      "addOrganization": "Opprett organisasjon",
+      "deleteOrganization": "Slett organisasjon",
+      "deleteConfirmationTitle": "Slett organisasjon",
+      "deleteConfirmationMessage": "Er du sikker på at du vil slette organisasjonen '$1'?"
+    },
+    "statusMessage": {
+      "label": "Driftsmelding",
+      "labelPlural": "Driftsmeldinger",
+      "intro": "Driftsmeldinger benyttes for å informere brukere om tjenestestatus, oppdateringer eller viktige kunngjøringer relatert til din organisasjon. De kan brukes til å kommunisere planlagt vedlikehold, driftsforstyrrelser eller annen relevant informasjon som brukere bør være klar over.",
+      "addStatusMessage": "Opprett driftsmelding",
+      "deleteStatusMessage": "Slett driftsmelding",
+      "title": "Tittel",
+      "content": "Innhold",
+      "startDate": "Startdato",
+      "endDate": "Sluttdato",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "deleteConfirmationMessage": "Er du sikker på at du vil slette driftsmeldingen '$1'?"
+    }
   },
   "search": {
     "header": "Søk",
     "button": "Søk"
   },
   "routing": {
-    "searchPath": "sok",
+    "searchPath": "søk",
     "saksmappePath": "sak",
     "calendarPath": "kalender",
     "statisticsPath": "statistikk"
@@ -30,11 +82,20 @@
     "publishedAt": "Publisert",
     "updatedAt": "Oppdatert",
     "all": "Alle",
-    "noResults": "Ingen resultater funnet"
+    "noResults": "Ingen treff",
+    "delete": "Slett",
+    "deleting": "Sletter...",
+    "create": "Opprett",
+    "creating": "Oppretter...",
+    "cancel": "Avbryt",
+    "unnamed": "Uten navn",
+    "close": "Lukk",
+    "copyToClipboard": "Kopier til utklippstavle",
+    "copiedToClipboard": "Kopiert til utklippstavle"
   },
   "saksmappe": {
-    "label": "Saksmappe",
-    "labelPlural": "Saksmapper",
+    "label": "Sak",
+    "labelPlural": "Saker",
     "saksnummer": "Saksnummer"
   },
   "journalpost": {
@@ -44,8 +105,8 @@
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",
-      "organinternt_dokument_uten_oppfoelging": "Organinternt dokument uten oppfølging",
-      "organinternt_dokument_for_oppfoelging": "Organinternt dokument for oppfølging",
+      "organinternt_dokument_uten_oppfoelging": "Organinternt notat uten oppfølging",
+      "organinternt_dokument_for_oppfoelging": "Organinternt notat for oppfølging",
       "saksframlegg": "Saksframlegg",
       "sakskart": "Sakskart",
       "moeteprotokoll": "Møteprotokoll",

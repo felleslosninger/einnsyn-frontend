@@ -12,15 +12,15 @@
     display: contents;
 
     &:nth-child(2n) > .table-cell{
-      background-color: var(--ds-color-neutral-surface-tinted);
+      background-color: var(--ds-color-accent-background-tinted);
     }
 
     &:hover:not(.table-header) > .table-cell {
-      background-color: var(--ds-color-neutral-surface-hover);
+      background-color: var(--ds-color-accent-surface-hover);
     }
 
     > .table-cell {
-      background-color: var(--ds-color-neutral-surface-default);
+      background-color: var(--ds-color-neutral-background-default);
       padding: var(--ds-size-2);
       min-width: var(--ds-size-10);
       display: flex;

@@ -4,13 +4,16 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 
+import styles from './SearchResultTabs.module.scss';
+import cn from '~/lib/utils/className';
+
 export default function SearchResultTabs() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
-    const searchParamsCopy = new URLSearchParams(searchParams);
+    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {
@@ -20,8 +23,8 @@ export default function SearchResultTabs() {
   };
 
   const getLinkClassName = (tabName: string) => {
-    const classes: string[] = ['search-result-tab'];
-    const activeTab = searchParams.get('entity') || '';
+    const classes: string[] = [styles['search-result-tab'], 'header-tab'];
+    const activeTab = searchParams?.get('entity') || '';
     if (activeTab === tabName) {
       classes.push('active');
     }
@@ -29,7 +32,10 @@ export default function SearchResultTabs() {
   };
 
   return (
-    <>
+    <div
+      className={cn(styles['search-result-tabs'], 'header-tabs')}
+      data-size="sm"
+    >
       <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
         {t('common.all')}
       </EinLink>
@@ -57,6 +63,6 @@ export default function SearchResultTabs() {
       >
         {t('moetesak.labelPlural')}
       </EinLink>
-    </>
+    </div>
   );
 }

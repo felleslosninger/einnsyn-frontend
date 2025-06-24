@@ -15,20 +15,11 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     background: transparent;
   }
 
-  &,
-  .ein-modal-backdrop {
-    pointer-events: none;
-  }
-
-  .ein-modal-content {
-    pointer-events: all;
-  }
-
   .ein-modal-backdrop {
     position: fixed;
     opacity: 0.5;
-    background: #000;
-    pointer-events: none;
+    background-color: var(--ds-color-neutral-text-default);
+    //backdrop-filter: blur(5px);
   }
 
   .ein-modal-content,
@@ -43,13 +34,9 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
     padding: $horizontalPadding $verticalPadding;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
-  }
-
-  .ein-modal-body {
-    overflow: auto;
-    padding: $horizontalPadding $verticalPadding;
-    gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
-    min-width: 500px;
+    h1 {
+      flex-grow: 1;
+    }
   }
 
   .ein-modal-footer {
@@ -72,13 +59,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   */
   @include mediaQueries.small {
     .ein-modal-header {
-      //padding: --var(--ds-size-base);
-      //gap: px(13);
-
-      h1 {
-        //font-size: px(20);
-        //line-height: px(30);
-      }
+      padding: --var(--ds-size-2);
     }
 
     .ein-modal-body {
@@ -101,7 +82,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       z-index: 1;
       overscroll-behavior: none;
       box-shadow: 0 0 16px #595959;
-      background: var(--fds-semantic-surface-neutral-subtle);
+      background: var(--ds-color-neutral-background-default);
       border-radius: 4px;
       pointer-events: all;
     }
@@ -172,7 +153,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       height: fit-content;
       max-width: 95vw;
       max-height: 95vh;
-      background: white;
+      background: var(--ds-color-neutral-surface-default);
       margin: auto;
       border-radius: var(--ds-border-radius-base);
       box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
@@ -188,6 +169,10 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     .ein-modal-body {
       flex: 1 1 auto;
       overflow-y: auto;
+      //overflow: auto;
+      padding: $horizontalPadding $verticalPadding;
+      gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+      min-width: 500px;
     }
 
     .ein-modal-footer {

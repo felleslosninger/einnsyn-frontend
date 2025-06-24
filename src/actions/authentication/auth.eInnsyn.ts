@@ -1,8 +1,8 @@
 'use server';
 
 import { validateUsername } from '~/lib/utils/validators';
-import { updateAuth } from '../cookies/authCookie';
-import { updateSettings } from '../cookies/settingsCookie';
+import { updateAuthAction } from '../cookies/authCookie';
+import { updateSettingsAction } from '../cookies/settingsCookie';
 
 const API_URL = process.env.API_URL;
 
@@ -78,10 +78,10 @@ export const eInnsynLoginAction = async (
 
     // Successful login
     if (isApiTokenResponse(responseData)) {
-      await updateSettings({
+      await updateSettingsAction({
         stayLoggedIn,
       });
-      await updateAuth({
+      await updateAuthAction({
         authProvider: 'eInnsyn',
         authTimestamp: Date.now(),
         accessToken: responseData.token,

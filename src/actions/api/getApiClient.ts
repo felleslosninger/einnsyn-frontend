@@ -2,6 +2,7 @@
 
 import EInnsynClient from '@digdir/einnsyn-sdk';
 import { getAuth } from '../cookies/authCookie';
+import { cache } from 'react';
 
 export const getApiClient = async () => {
   const auth = await getAuth();
@@ -13,3 +14,5 @@ export const getApiClient = async () => {
     apiKey: auth?.apiKey,
   });
 };
+
+export const cachedApiClient = cache(getApiClient);

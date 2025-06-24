@@ -21,14 +21,14 @@ export function ModalWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams().toString();
+  const searchParams = useSearchParams();
   const modalSegment = useSelectedLayoutSegments('modal');
   const modalIsOpen = /\(\.+\)/.test(modalSegment.join('/') ?? '');
 
   // Update path name if we don't have an intercepted path
   useEffect(() => {
     if (!modalIsOpen) {
-      basepath = pathname + (searchParams ? `?${searchParams}` : '');
+      basepath = pathname + (searchParams ? `?${searchParams.toString()}` : '');
     }
   }, [modalIsOpen, pathname, searchParams]);
 

@@ -1,6 +1,8 @@
 @use 'fonts.inter.scss';
 @use './mediaQueries.scss' as mq;
 @use './table.scss';
+@use './headerDropdown.scss';
+@use './headerTabs.scss';
 
 :root {
   --ein-vertical-spacing: var(--ds-size-8);

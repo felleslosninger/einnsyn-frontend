@@ -6,7 +6,7 @@ import {
   type PaginatedList,
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
-import { getApiClient } from './getApiClient';
+import { cachedApiClient } from './getApiClient';
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
@@ -39,7 +39,7 @@ export const getSearchResults = async (
   enhetSlug: string,
   searchParams: URLSearchParams,
 ) => {
-  const api = await getApiClient();
+  const api = await cachedApiClient();
   const apiQuery: SearchParameters = {};
 
   // Combine Entity filter from path and searchParams

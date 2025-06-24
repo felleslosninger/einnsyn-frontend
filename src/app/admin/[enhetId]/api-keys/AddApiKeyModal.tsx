@@ -11,7 +11,7 @@ import EinModal, {
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
 import { useTranslation } from '~/hooks/useTranslation';
-import { addApiKeyAction } from './page';
+import { addApiKeyAction } from './actions';
 
 import styles from './AddApiKeyModal.module.scss';
 import useIsChanged from '~/hooks/useIsChanged';
@@ -29,7 +29,7 @@ export default function AddApiKeyModal({
   addApiKeyHandler,
 }: AddApiKeyModalProps) {
   const t = useTranslation();
-  const { enhet: enhetId } = useParams<{ enhet: string }>();
+  const { enhetId } = useParams<{ enhetId: string }>() ?? {};
   const [addedKey, addApiKey, isPending] = useActionState(
     addApiKeyAction,
     undefined,

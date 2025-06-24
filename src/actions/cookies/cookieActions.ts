@@ -34,7 +34,7 @@ export async function getCookie<T>(cookieName: string): Promise<T | null> {
  * @param cookieSettings
  * @returns
  */
-export async function updateCookie<T>(
+export async function updateCookieAction<T>(
   cookieName: string,
   newContent: Partial<T>,
   cookieSettings: Partial<CookieSettings> = {},
@@ -59,7 +59,7 @@ export async function updateCookie<T>(
  *
  * @param cookieName
  */
-export async function deleteCookie(cookieName: string): Promise<void> {
+export async function deleteCookieAction(cookieName: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(cookieName);
 }

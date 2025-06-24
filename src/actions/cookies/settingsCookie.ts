@@ -1,16 +1,24 @@
-import type { LanguageCode } from '~/lib/translation/translation';
-import { type CookieSettings, getCookie, updateCookie } from './cookieActions';
+'use server';
 
-export const SETTINGS_COOKIE_NAME = 'settings';
+import type { LanguageCode } from '~/lib/translation/translation';
+import {
+  type CookieSettings,
+  getCookie,
+  updateCookieAction,
+} from './cookieActions';
+
+const SETTINGS_COOKIE_NAME = 'settings';
 
 export type Settings = {
   language: LanguageCode;
   stayLoggedIn: boolean;
+  colorScheme: 'auto' | 'light' | 'dark';
 };
 
 const defaultSettings: Settings = {
   language: 'nb',
   stayLoggedIn: false,
+  colorScheme: 'auto',
 };
 
 /**
@@ -19,11 +27,11 @@ const defaultSettings: Settings = {
  * @param authContent
  * @returns
  */
-export const updateSettings = async (
+export const updateSettingsAction = async (
   settingsContent: Partial<Settings>,
   cookieSettings: Partial<CookieSettings> = {},
 ) => {
-  return updateCookie(SETTINGS_COOKIE_NAME, settingsContent, {
+  return updateCookieAction(SETTINGS_COOKIE_NAME, settingsContent, {
     httpOnly: false,
     maxAge: 60 * 60 * 24 * 365, // 365 days
     ...cookieSettings,

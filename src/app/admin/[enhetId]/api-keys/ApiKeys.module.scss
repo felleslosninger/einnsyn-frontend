@@ -1,11 +1,12 @@
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  margin-top: var(--ein-horizontal-spacing);
   margin-bottom: var(--ein-horizontal-spacing);
 }
 
 .intro {
-  margin-bottom: var(--ein-horizontal-spacing);
+  max-width: 600px;
 }
 

@@ -1,3 +1,4 @@
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import type { LanguageCode } from '~/lib/translation/translation';
 
 /**
@@ -6,7 +7,6 @@ import type { LanguageCode } from '~/lib/translation/translation';
  * @returns Current language code and a function to change it
  */
 export function useLanguageCode(): LanguageCode {
-	// const rootLoaderData = useRouteLoaderData<typeof loader>('root');
-	// return rootLoaderData?.language ?? 'nb';
-	return 'en';
+  const { settings } = useSessionData();
+  return settings.language ?? 'en';
 }

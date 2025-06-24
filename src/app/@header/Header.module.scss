@@ -1,0 +1,38 @@
+.header {
+  background-color: var(--ds-color-neutral-background-default);
+  width: 100%;
+  z-index: 10;
+  margin-bottom: var(--ein-horizontal-spacing);
+  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
+
+  .logo {
+    display: block;
+  }
+}
+
+.logoLink {
+  display: inline-block;
+  padding: var(--ds-size-2) 0;
+
+  svg {
+    height: var(--ds-line-height-sm);
+    width: auto;
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    border-radius: var(--ds-border-radius-default);
+  }
+}
+
+.pre {
+  padding-bottom: var(--ein-horizontal-spacing);
+}
+
+.headerDropdownList {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
