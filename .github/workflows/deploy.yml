@@ -27,6 +27,7 @@ jobs:
     with:
       image-name: einnsyn-frontend-next
       application-type: docker
+      lifecycle: ${{ github.event.inputs.deployment-environment == 'dev' && 'development' || 'deployment' }}
     secrets: inherit
 
   update-image:
@@ -34,12 +35,13 @@ jobs:
     needs: build
     with:
       application-name: einnsyn-frontend-next
-      deployment-environment: test
+      deployment-environment: ${{ github.event.inputs.deployment-environment || 'test' }}
       image-name: einnsyn-frontend-next
       image-version: ${{ needs.build.outputs.image-version }}
       image-digest: ${{ needs.build.outputs.image-digest }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
+      lifecycle: ${{ github.event.inputs.deployment-environment == 'dev' && 'development' || 'deployment' }}
     secrets: inherit
 
   count-dev-labels:
