@@ -23,11 +23,20 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY .env .
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+
+# Standalone build requires placeholders for environment variables
+ENV API_URL=http://placeholder:8080
+ENV COOKIE_SECRET=placeholder
+ENV ANSATTPORTEN_AUTH_DETAILS=placeholder
+ENV ANSATTPORTEN_CLIENT_ID=placeholder
+ENV ANSATTPORTEN_CLIENT_SECRET=placeholder
+ENV ANSATTPORTEN_URL=placeholder
+ENV NEXT_PUBLIC_BASE_URL=http://placeholder:3000
+
 RUN \
   if [ -f yarn.lock ]; then \
     corepack enable yarn && yarn run build; \
