@@ -1,0 +1,35 @@
+.settingsDropdownContent {
+  button {
+    border: var(--ds-border-width-default) solid transparent;
+  }
+}
+
+.languageContainer,
+.colorSchemeContainer {
+  background: var(--ds-color-surface-tinted);
+  background: transparent;
+  border-radius: var(--ds-border-radius-default);
+}
+
+.colorSchemeContainer {
+  display: flex;
+
+  form {
+    display: contents;
+  }
+  button {
+    flex-grow: 1;
+  }
+}
+
+:global([lang='nb']) .settingsDropdownContent :global([data-language-selector='nb']),
+:global([lang='nn']) .settingsDropdownContent :global([data-language-selector='nn']),
+:global([lang='en']) .settingsDropdownContent :global([data-language-selector='en']),
+:global([lang='se']) .settingsDropdownContent :global([data-language-selector='se']),
+:global([data-color-scheme='dark']) .settingsDropdownContent :global([data-color-scheme-selector='dark']),
+:global([data-color-scheme='light']) .settingsDropdownContent :global([data-color-scheme-selector='light']),
+:global([data-color-scheme='auto']) .settingsDropdownContent :global([data-color-scheme-selector='auto']) {
+  border: var(--ds-border-width-default) solid var(--ds-color-accent-border-default);
+  background-color: var(--ds-color-surface-active);
+  color: var(--ds-color-)
+}

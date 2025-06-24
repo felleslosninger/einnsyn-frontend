@@ -1,0 +1,30 @@
+.header-tabs {
+  position: relative;
+  left: calc(-1 * var(--ds-size-4));
+  padding-top: var(--ds-size-4);
+}
+
+.header-tab.ein-link {
+  display: inline-block;
+  padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-3);
+  margin: 0 var(--ds-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+  text-decoration: none;
+
+  &.active {
+    color: var(--ds-color-neutral-text-default);
+    border-bottom: 3px solid var(--ds-color-neutral-text-default);
+  }
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    border-bottom-color: transparent;
+    border-radius: var(--ds-border-radius-default);
+    background-color: transparent;
+    color: var(--ds-color-neutral-text-default);
+  }
+}

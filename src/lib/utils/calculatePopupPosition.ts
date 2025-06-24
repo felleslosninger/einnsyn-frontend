@@ -40,8 +40,8 @@ export function calculatePopupPosition({
       : reference.getBoundingClientRect();
 
   const viewport = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: document.documentElement.clientWidth - 2 * offsetX,
+    height: document.documentElement.clientHeight - 2 * offsetY,
     scrollX: window.scrollX,
     scrollY: window.scrollY,
   };

@@ -4,7 +4,6 @@ import SearchResult from './searchresult/SearchResult';
 
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useTranslation } from '~/hooks/useTranslation';
-import './searchStyles.scss';
 
 export default function SearchResultContainer({
   searchResults,

@@ -9,8 +9,6 @@ export default function EinError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  console.log('Error:', error);
-
   useEffect(() => {
     console.error(error);
   }, [error]);

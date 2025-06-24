@@ -14,7 +14,7 @@ import styles from './ApiKeys.module.scss';
 
 export default function ApiKeys({
   apiKeys,
-}: { apiKeys: PaginatedList<ApiKey>; enhetId: string }) {
+}: { apiKeys: PaginatedList<ApiKey> }) {
   const t = useTranslation();
   const [showAddModal, setShowAddModal] = useState(false);
   const [currentApiKeys, setCurrentApiKeys] =
@@ -64,12 +64,14 @@ export default function ApiKeys({
       />
 
       <div className="container-wrapper">
-        <div className="container-pre" />
+        <div className="container-pre collapsible" />
         <div className="container">
+          <h1 className="ds-heading" data-size="lg">
+            {t('admin.apiKey.labelPlural')}
+          </h1>
+
           <div className={styles.header}>
-            <h1 className="ds-heading" data-size="lg">
-              {t('admin.apiKey.labelPlural')}
-            </h1>
+            <div className={styles.intro}>{t('admin.apiKey.intro')}</div>
 
             <EinButton onClick={() => setShowAddModal(true)}>
               <PlusCircleIcon title="a11y-title" fontSize="1.5rem" />
@@ -77,23 +79,23 @@ export default function ApiKeys({
             </EinButton>
           </div>
 
-          <div className={styles.intro}>{t('admin.apiKey.intro')}</div>
-
-          <div className="ein-table">
-            <div className="table-row table-header">
-              <div className="table-cell">{t('admin.apiKey.keyName')}</div>
-              <div className="table-cell">{t('admin.apiKey.expiresAt')}</div>
-              <div className="table-cell">{/*{t('common.delete')}*/}</div>
+          {currentApiKeys.items.length > 0 && (
+            <div className="ein-table">
+              <div className="table-row table-header">
+                <div className="table-cell">{t('admin.apiKey.keyName')}</div>
+                <div className="table-cell">{t('admin.apiKey.expiresAt')}</div>
+                <div className="table-cell">{/*{t('common.delete')}*/}</div>
+              </div>
+              {/* Display currentApiKeys which will be updated on scroll */}
+              {currentApiKeys.items.map((key: ApiKey) => (
+                <ApiKeyItem
+                  key={key.id}
+                  apiKey={key}
+                  removeApiKeyHandler={removeApiKey}
+                />
+              ))}
             </div>
-            {/* Display currentApiKeys which will be updated on scroll */}
-            {currentApiKeys.items.map((key: ApiKey) => (
-              <ApiKeyItem
-                key={key.id}
-                apiKey={key}
-                removeApiKeyHandler={removeApiKey}
-              />
-            ))}
-          </div>
+          )}
 
           {/* Conditionally render EinScrollTrigger only if there's a next page */}
           {currentApiKeys.next && (
