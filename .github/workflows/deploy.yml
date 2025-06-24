@@ -22,46 +22,22 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-publish-image:
-    runs-on: ubuntu-latest
-    outputs:
-      image-digest: ${{ steps.output-image-digest.outputs.image-digest}}
-      image-version: ${{ steps.output-image-version.outputs.image-version}}
-    steps:
-      - name: Set imagetag as env variable
-        run: echo "IMAGE_TAG=$(date +'%Y-%m-%d-%H%M')-${GITHUB_SHA::8}" >> "$GITHUB_ENV"
-      - name: Set IMAGE_NAME env variable
-        run: echo "IMAGE_NAME=${{ secrets.REGISTRY_URL }}/einnsyn-frontend-next" >> "$GITHUB_ENV"
-      - name: checkout
-        uses: actions/checkout@v4.2.2
-      - name: Build image
-        run: docker build -t "${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}" .
-      - name: "Login docker container registry"
-        uses: docker/login-action@v3.4.0
-        with:
-          registry: ${{ secrets.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: "Push image"
-        run: docker push ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
-      - name: Extract image digest
-        run: |
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}} | cut -d '@' -f 2)
-          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_ENV"
-      - id: output-image-version
-        run: echo "image-version=${{env.IMAGE_TAG}}" >> "$GITHUB_OUTPUT"
-      - id: output-image-digest
-        run: echo "image-digest=${{env.IMAGE_DIGEST}}" >> "$GITHUB_OUTPUT"
+  build:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    with:
+      image-name: einnsyn-frontend-next
+      application-type: docker
+    secrets: inherit
 
   update-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
-    needs: build-publish-image
+    needs: build
     with:
       application-name: einnsyn-frontend-next
-      deployment-environment: ${{ inputs.deployment-environment || 'test' }}
-      image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
+      deployment-environment: test
       image-name: einnsyn-frontend-next
-      image-version: ${{ needs.build-publish-image.outputs.image-version }}
+      image-version: ${{ needs.build.outputs.image-version }}
+      image-digest: ${{ needs.build.outputs.image-digest }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
     secrets: inherit
@@ -84,14 +60,14 @@ jobs:
 
   update-dev-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
-    needs: [count-dev-labels, build-publish-image]
+    needs: [count-dev-labels, build]
     if: needs.count-dev-labels.outputs.dev_pr_count == 0
     with:
       application-name: einnsyn-frontend-next
       deployment-environment: "dev"
-      image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
+      image-digest: ${{ needs.build.outputs.image-digest }}
       image-name: einnsyn-frontend-next
-      image-version: ${{ needs.build-publish-image.outputs.image-version }}
+      image-version: ${{ needs.build.outputs.image-version }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
     secrets: inherit
