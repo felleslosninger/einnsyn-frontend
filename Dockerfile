@@ -35,7 +35,7 @@ ENV ANSATTPORTEN_AUTH_DETAILS=placeholder
 ENV ANSATTPORTEN_CLIENT_ID=placeholder
 ENV ANSATTPORTEN_CLIENT_SECRET=placeholder
 ENV ANSATTPORTEN_URL=placeholder
-ENV NEXT_PUBLIC_BASE_URL=http://placeholder:3000
+ENV NEXT_PUBLIC_BASE_URL=http://placeholder:8080
 
 RUN \
   if [ -f yarn.lock ]; then \
@@ -55,7 +55,7 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
 RUN apk add --no-cache curl
@@ -74,7 +74,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
-EXPOSE 3000
+EXPOSE 8080
 CMD ["node", "server.js"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:8080/api/health || exit 1
