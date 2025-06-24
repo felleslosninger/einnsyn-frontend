@@ -101,7 +101,7 @@
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
-    "pathName": "journalpost",
+    "pathName": "record",
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
@@ -121,5 +121,12 @@
   "moetesak": {
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
+  },
+  "virksomhet": {
+    "label": "Organization",
+    "navn": "Name",
+    "telefon": "Telephone",
+    "adresse": "address",
+    "epost": "email"
   }
 }

@@ -17,12 +17,8 @@ export default function SearchHeader() {
   const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') ?? '');
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter' && event.key !== 'Escape') {
+    if (event.key !== 'Enter') {
       setSearchQuery(event.currentTarget.value ?? '');
-    }
-    if (event.key === 'Escape') {
-      event.currentTarget.value = '';
-      setSearchQuery('');
     }
   };
 

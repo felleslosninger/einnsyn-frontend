@@ -121,5 +121,12 @@
   "moetesak": {
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
+  },
+  "virksomhet": {
+    "label": "Verksemd",
+    "navn": "namn",
+    "telefon": "telefon",
+    "adresse": "adresse",
+    "espost": "e-post"
   }
 }

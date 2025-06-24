@@ -1,2 +1,2 @@
-import Search from '../../[enhet]/page';
+import Search from '~/app/[...enhet]/page';
 export default Search;

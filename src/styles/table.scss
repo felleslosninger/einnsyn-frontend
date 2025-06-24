@@ -4,6 +4,10 @@
   display: grid;
   grid-template-columns: 3fr 1fr 1fr;
 
+  &.four-col {
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+  }
+
   @include mq.small-and-medium {
     grid-template-columns: 1.5fr 1fr 1fr;
   }

@@ -15,7 +15,8 @@ const getAncestors = (enhet: Enhet) => {
 
 const getHref = (enhet: Enhet) => {
   const ancestors = getAncestors(enhet);
-  return ancestors.map((ancestor) => ancestor.id).join('/');
+  return `/${ancestors.map((ancestor) => ancestor.id).join('-')}`;
+  // return `/${enhet.id}`;
 };
 
 const getName = (languageCode: string, enhet: Enhet) => {
@@ -46,15 +47,6 @@ export default function EnhetLink({
 
   if (!isEnhet(enhet)) {
     return <></>;
-  }
-
-  let enhetName = enhet.navn;
-  if (languageCode === 'en' && enhet.navnEngelsk) {
-    enhetName = enhet.navnEngelsk;
-  } else if (languageCode === 'nn' && enhet.navnNynorsk) {
-    enhetName = enhet.navnNynorsk;
-  } else if (languageCode === 'nb' && enhet.navnSami) {
-    enhetName = enhet.navnSami;
   }
 
   const ancestors = withAncestors ? getAncestors(enhet) : [enhet];

@@ -121,5 +121,12 @@
   "moetesak": {
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
+  },
+  "virksomhet": {
+    "label": "Verksemd",
+    "navn": "navn",
+    "telefon": "telefon",
+    "adresse": "adresse",
+    "epost": "epost"
   }
 }
