@@ -173,6 +173,10 @@ export const handleCallback = async (request: Request) => {
 
   try {
     // Get tokens from Ansattporten
+    console.log('Requesting tokens with codeVerifier:', codeVerifier);
+    console.log('Expected state:', state);
+    console.log('Expected nonce:', nonce);
+    console.log('Request:', request);
     const tokens = await oidc.authorizationCodeGrant(oidcConfig, request, {
       pkceCodeVerifier: codeVerifier,
       expectedState: state,
