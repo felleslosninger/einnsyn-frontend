@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
+import { getOrigin } from '~/lib/utils/getOrigin';
 import {
   deleteAuthAction,
   getAuth,
@@ -20,10 +21,6 @@ const ANSATTPORTEN_CLIENT_SECRET = process.env.ANSATTPORTEN_CLIENT_SECRET;
 const ANSATTPORTEN_AUTH_DETAILS = process.env.ANSATTPORTEN_AUTH_DETAILS;
 
 const ANSATTPORTEN_COOKIE_NAME = 'ansattporten';
-const LOGIN_REDIRECT_URL = new URL(
-  '/auth/ansattporten/callback',
-  process.env.NEXT_PUBLIC_BASE_URL,
-).href;
 
 if (!ANSATTPORTEN_URL) {
   throw new Error('Missing environment variable for Ansattporten URL');
@@ -88,6 +85,10 @@ async function discoverOidcConfig() {
   );
 }
 
+async function getLoginRedirectUri() {
+  return new URL('/auth/ansattporten/callback', await getOrigin()).href;
+}
+
 /**
  * A Server Action to initiate the Ansattporten login process.
  *
@@ -127,13 +128,14 @@ const buildAuthorizationUrl = async (originUrl: string) => {
   // const authorizationDetails =
   //   '[{"type":"ansattporten:altinn:service","resource":"urn:altinn:resource:2480:40","representation_is_required":"true"}]';
   const authorizationDetails = ANSATTPORTEN_AUTH_DETAILS;
+  const loginRedirectUri = await getLoginRedirectUri();
 
   return oidc.buildAuthorizationUrl(oidcConfig, {
     acr_values: 'substantial',
     authorization_details: authorizationDetails,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    redirect_uri: LOGIN_REDIRECT_URL,
+    redirect_uri: loginRedirectUri,
     response_type: 'code',
     nonce,
     scope: 'openid profile',
@@ -247,8 +249,9 @@ export const buildEndSessionUrl = async () => {
   }
 
   const oidcConfig = await getOidcConfig();
+  const baseUrl = await getOrigin();
   const endSessionUrl = oidc.buildEndSessionUrl(oidcConfig, {
-    post_logout_redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
+    post_logout_redirect_uri: baseUrl,
   });
 
   await deleteAuthAction();
@@ -262,7 +265,6 @@ async function updateAuthWithTokens(
   timestamp?: number,
 ) {
   if (!tokens.access_token) {
-    console.error('OIDC callback: access_token missing from response');
     throw new Error('Authentication failed: No access_token received.');
   }
 
@@ -274,7 +276,6 @@ async function updateAuthWithTokens(
       : undefined;
   if (refreshTokenExpiresIn) {
     cookieSettings.maxAge = refreshTokenExpiresIn;
-    console.log(`Set cookieSettings.maxAge: ${cookieSettings.maxAge}`);
   }
 
   // Update auth cookie with the new tokens
@@ -287,7 +288,9 @@ async function updateAuthWithTokens(
       expiresAt:
         tokens.expires_in === undefined
           ? undefined
-          : (new Date().getTime() + tokens.expires_in * 1000) / 1000,
+          : Math.round(
+              (new Date().getTime() + tokens.expires_in * 1000) / 1000,
+            ),
     },
     cookieSettings,
   );

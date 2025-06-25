@@ -47,10 +47,10 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 
   // Check if token is valid
-  const nowInSeconds = Date.now() / 1000;
+  const nowInSeconds = Math.round(Date.now() / 1000);
   if (
     authSession.expiresAt &&
-    authSession.expiresAt > nowInSeconds + 120 // 120 seconds buffer
+    authSession.expiresAt > nowInSeconds + 10 // 10 seconds buffer
   ) {
     return;
   }
@@ -65,9 +65,14 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 
   if (authSession.authProvider === 'ansattporten') {
-    console.log('Attempting to refresh Ansattporten token');
-    await ansattporten.attemptTokenRefresh(authSession.refreshToken);
-    console.log('Ansattporten token refreshed successfully');
+    try {
+      await ansattporten.attemptTokenRefresh(authSession.refreshToken);
+      console.debug('Ansattporten token refreshed successfully');
+    } catch (error) {
+      console.error('Failed to refresh Ansattporten token:', error);
+      // The refresh token might have been used by another request at the same time,
+      // so we keep going and use the existing token if it is still valid.
+    }
   } else if (authSession.authProvider === 'eInnsyn') {
     // await
   }

@@ -4,11 +4,13 @@ import { useFormStatus } from 'react-dom';
 import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';
+import useOrigin from '~/hooks/useOrigin';
 
 export function AnsattportenLogin() {
   const basepath = useModalBasepath();
-  const originUrl = new URL(basepath, process.env.NEXT_PUBLIC_BASE_URL).href;
+  const origin = useOrigin();
   const { pending } = useFormStatus();
+  const originUrl = new URL(basepath, origin).href;
 
   return (
     <form action={ansattportenAuthAction} data-size="sm">

@@ -28,14 +28,13 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Standalone build requires placeholders for environment variables
+# Temporary build-time placeholders that will be overridden at runtime
 ENV API_URL=http://placeholder:8080
-ENV COOKIE_SECRET=placeholder
-ENV ANSATTPORTEN_AUTH_DETAILS=placeholder
-ENV ANSATTPORTEN_CLIENT_ID=placeholder
-ENV ANSATTPORTEN_CLIENT_SECRET=placeholder
-ENV ANSATTPORTEN_URL=placeholder
-ENV NEXT_PUBLIC_BASE_URL=http://placeholder:8080
+ENV COOKIE_SECRET=build-placeholder-secret
+ENV ANSATTPORTEN_AUTH_DETAILS=build-placeholder-secret
+ENV ANSATTPORTEN_CLIENT_ID=build-placeholder-secret
+ENV ANSATTPORTEN_CLIENT_SECRET=build-placeholder-secret
+ENV ANSATTPORTEN_URL=build-placeholder-secret
 
 RUN \
   if [ -f yarn.lock ]; then \
