@@ -156,6 +156,9 @@ export const handleCallback = async (request: Request) => {
   if (!nonce) {
     throw new Error('Missing nonce in cookie');
   }
+  if (!originUrl) {
+    throw new Error('Missing originUrl in cookie');
+  }
   if (!state) {
     throw new Error('Missing state in cookie');
   }
@@ -173,8 +176,18 @@ export const handleCallback = async (request: Request) => {
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
     console.error('OIDC Authorization Code Grant failed:', error);
-    // This could be a valid "cancel" case, so we don't throw an error here
-    //throw new Error('Authentication failed during callback.');
+
+    // User cancelled authentication at the provider
+    if (
+      error instanceof oidc.AuthorizationResponseError &&
+      error.error === 'access_denied'
+    ) {
+      console.info('User cancelled authentication');
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Authentication failed during callback: ${errorMessage}`);
+    }
   } finally {
     // Clean up the Ansattporten cookie
     await deleteAnsattportenCookie();
