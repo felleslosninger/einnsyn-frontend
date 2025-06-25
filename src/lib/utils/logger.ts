@@ -1,22 +1,25 @@
 import { trace } from '@opentelemetry/api';
 
 export type LogEntry = {
-  timestamp: string;
+  '@timestamp': string;
   level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   message: string;
   traceId?: string;
   spanId?: string;
-  service: string;
   error_message?: string;
   stack_trace?: string;
   [key: string]: unknown;
 };
 
-class Logger {
-  private serviceName: string;
+export type Metadata = {
+  [key: string]: unknown;
+};
 
-  constructor(serviceName = 'eInnsyn') {
-    this.serviceName = serviceName;
+class Logger {
+  private metadata: Metadata = {};
+
+  constructor(metadata: Metadata = {}) {
+    this.metadata = metadata;
   }
 
   private getTraceContext() {
@@ -41,11 +44,11 @@ class Logger {
     const error = messageParam instanceof Error ? messageParam : errorParam;
 
     const entry: LogEntry = {
-      timestamp: new Date().toISOString(),
+      '@timestamp': new Date().toISOString(),
       level,
       message,
-      service: this.serviceName,
       ...this.getTraceContext(),
+      ...this.metadata,
     };
 
     // Add error information if provided
@@ -57,7 +60,7 @@ class Logger {
     }
 
     // In development, also log to console for easier debugging
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       const consoleMethod =
         level === 'error'
           ? 'error'
@@ -94,6 +97,10 @@ class Logger {
   }
 }
 
-export const logger = new Logger();
+export const logger = new Logger({
+  application: 'eInnsyn',
+  environment: process ? process.env.ENVIRONMENT || 'local' : 'development',
+  logtype: 'application',
+});
 
 export { Logger };
