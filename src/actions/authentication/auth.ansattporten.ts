@@ -77,12 +77,18 @@ async function getOidcConfig(): Promise<oidc.Configuration> {
  * @returns configuration object
  */
 async function discoverOidcConfig() {
-  return await oidc.discovery(
+  const config = await oidc.discovery(
     new URL(ANSATTPORTEN_URL),
     ANSATTPORTEN_CLIENT_ID,
     undefined,
     oidc.ClientSecretPost(ANSATTPORTEN_CLIENT_SECRET),
   );
+  config[oidc.customFetch] = async (url, options) => {
+    console.log('Fetching:', url);
+    console.log('Fetch options:', options);
+    return await fetch(url, options);
+  };
+  return config;
 }
 
 async function getLoginRedirectUri() {
@@ -171,7 +177,6 @@ export const handleCallback = async (request: Request) => {
       pkceCodeVerifier: codeVerifier,
       expectedState: state,
       expectedNonce: nonce,
-      //re: loginRedirectUri,
     });
 
     await updateAuthWithTokens(tokens, Date.now());
