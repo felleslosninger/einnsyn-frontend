@@ -278,9 +278,9 @@ export const buildEndSessionUrl = async () => {
   }
 
   const oidcConfig = await getOidcConfig();
-  const baseUrl = await getOrigin();
+  const origin = await getOrigin();
   const endSessionUrl = oidc.buildEndSessionUrl(oidcConfig, {
-    post_logout_redirect_uri: baseUrl,
+    post_logout_redirect_uri: origin,
   });
 
   await deleteAuthAction();

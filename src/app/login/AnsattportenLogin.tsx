@@ -4,11 +4,11 @@ import { useFormStatus } from 'react-dom';
 import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';
-import useOrigin from '~/hooks/useOrigin';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 
 export function AnsattportenLogin() {
   const basepath = useModalBasepath();
-  const origin = useOrigin();
+  const { origin } = useSessionData();
   const { pending } = useFormStatus();
   const originUrl = new URL(basepath, origin).href;
 

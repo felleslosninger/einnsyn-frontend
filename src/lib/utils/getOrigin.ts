@@ -7,5 +7,8 @@ export async function getOrigin() {
   const host = headersList.get('x-forwarded-host') || headersList.get('host');
   const protocol = headersList.get('x-forwarded-proto') || 'http';
 
+  // Debugging
+  console.log('x-forwarded-host: ', headersList.get('x-forwarded-host'));
+
   return `${protocol}://${host}`;
 }

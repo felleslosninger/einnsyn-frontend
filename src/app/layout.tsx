@@ -9,6 +9,7 @@ import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDat
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
+import { getOrigin } from '~/lib/utils/getOrigin';
 
 export const viewport = {
   width: 'device-width',
@@ -46,6 +47,7 @@ export default async function Layout({
 }>) {
   const settings = await getSettings();
   const authInfo = await cachedAuthInfo();
+  const origin = await getOrigin();
 
   return (
     <html lang={settings.language}>
@@ -59,6 +61,7 @@ export default async function Layout({
             sessionData={{
               settings,
               authInfo,
+              origin,
             }}
           >
             {header}
