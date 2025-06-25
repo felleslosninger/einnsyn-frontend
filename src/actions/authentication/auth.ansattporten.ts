@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
 import { getOrigin } from '~/lib/utils/getOrigin';
+import { logger } from '~/lib/utils/logger';
 import {
   deleteAuthAction,
   getAuth,
@@ -183,7 +184,9 @@ export const handleCallback = async (request: Request) => {
 
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
-    console.warn('OIDC Authorization Code Grant failed:', error);
+    logger.warn('OIDC Authorization Code Grant failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
 
     if (
       error instanceof oidc.AuthorizationResponseError &&
@@ -248,7 +251,9 @@ export async function attemptTokenRefresh(refreshToken: string): Promise<void> {
     const tokens = await oidc.refreshTokenGrant(oidcConfig, refreshToken);
     await updateAuthWithTokens(tokens);
   } catch (error) {
-    console.error('Failed to refresh token:', error);
+    logger.error('Failed to refresh token', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     await deleteAuthAction();
   }
 }

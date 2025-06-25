@@ -7,6 +7,7 @@ import {
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from './getApiClient';
+import { logger } from '~/lib/utils/logger';
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
@@ -76,7 +77,7 @@ export const getSearchResults = async (
   } catch (error) {
     // TODO: Handle the error
     if (error instanceof EInnsynError) {
-      console.error('Error fetching search results:', error.message);
+      logger.error('Error fetching search results', { error: error.message });
     }
     return getEmptySearchResults();
   }
