@@ -91,7 +91,7 @@ async function discoverOidcConfig() {
   return config;
 }
 
-async function getLoginRedirectUri() {
+async function getCallbackUri() {
   return new URL('/auth/ansattporten/callback', await getOrigin()).href;
 }
 
@@ -134,14 +134,14 @@ const buildAuthorizationUrl = async (originUrl: string) => {
   // const authorizationDetails =
   //   '[{"type":"ansattporten:altinn:service","resource":"urn:altinn:resource:2480:40","representation_is_required":"true"}]';
   const authorizationDetails = ANSATTPORTEN_AUTH_DETAILS;
-  const loginRedirectUri = await getLoginRedirectUri();
+  const callbackUri = await getCallbackUri();
 
   return oidc.buildAuthorizationUrl(oidcConfig, {
     acr_values: 'substantial',
     authorization_details: authorizationDetails,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    redirect_uri: loginRedirectUri,
+    redirect_uri: callbackUri,
     response_type: 'code',
     nonce,
     scope: 'openid profile',
@@ -172,12 +172,15 @@ export const handleCallback = async (request: Request) => {
   const oidcConfig = await getOidcConfig();
 
   try {
-    // Get tokens from Ansattporten
-    console.log('Requesting tokens with codeVerifier:', codeVerifier);
-    console.log('Expected state:', state);
-    console.log('Expected nonce:', nonce);
-    console.log('Request:', request);
-    const tokens = await oidc.authorizationCodeGrant(oidcConfig, request, {
+    // Construct the correct callback URL, in case we're proxied
+    const possiblyProxiedUrl = new URL(request.url);
+    const origin = await getOrigin();
+    const correctedUrl = new URL(
+      possiblyProxiedUrl.pathname + possiblyProxiedUrl.search,
+      origin,
+    );
+
+    const tokens = await oidc.authorizationCodeGrant(oidcConfig, correctedUrl, {
       pkceCodeVerifier: codeVerifier,
       expectedState: state,
       expectedNonce: nonce,
