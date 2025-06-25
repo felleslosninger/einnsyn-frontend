@@ -83,11 +83,6 @@ async function discoverOidcConfig() {
     undefined,
     oidc.ClientSecretPost(ANSATTPORTEN_CLIENT_SECRET),
   );
-  config[oidc.customFetch] = async (url, options) => {
-    console.log('Fetching:', url);
-    console.log('Fetch options:', options);
-    return await fetch(url, options);
-  };
   return config;
 }
 
@@ -188,23 +183,16 @@ export const handleCallback = async (request: Request) => {
 
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
-    console.error('OIDC Authorization Code Grant failed:', error);
-    console.log(JSON.stringify(error));
+    console.warn('OIDC Authorization Code Grant failed:', error);
 
-    // Debugging
-    if (error instanceof oidc.AuthorizationResponseError) {
-      console.log('Authorization response error:');
-    }
-
-    // User cancelled authentication at the provider
     if (
       error instanceof oidc.AuthorizationResponseError &&
       error.error === 'access_denied'
     ) {
-      console.info('User cancelled authentication');
+      // User cancelled authentication at the provider
     } else if (error instanceof oidc.AuthorizationResponseError) {
       throw new Error(
-        `Authentication failed during callback: ${error.error_description}`,
+        `Authentication failed during callback: ${error.error} ${error.error_description}`,
       );
     } else {
       const errorMessage =
