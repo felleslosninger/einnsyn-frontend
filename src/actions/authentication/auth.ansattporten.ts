@@ -171,11 +171,18 @@ export const handleCallback = async (request: Request) => {
       pkceCodeVerifier: codeVerifier,
       expectedState: state,
       expectedNonce: nonce,
+      //re: loginRedirectUri,
     });
 
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
     console.error('OIDC Authorization Code Grant failed:', error);
+    console.log(JSON.stringify(error));
+
+    // Debugging
+    if (error instanceof oidc.AuthorizationResponseError) {
+      console.log('Authorization response error:');
+    }
 
     // User cancelled authentication at the provider
     if (
@@ -183,6 +190,10 @@ export const handleCallback = async (request: Request) => {
       error.error === 'access_denied'
     ) {
       console.info('User cancelled authentication');
+    } else if (error instanceof oidc.AuthorizationResponseError) {
+      throw new Error(
+        `Authentication failed during callback: ${error.error_description}`,
+      );
     } else {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
