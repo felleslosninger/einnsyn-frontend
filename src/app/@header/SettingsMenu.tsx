@@ -58,7 +58,7 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
           'header-dropdown-content-section',
         )}
       >
-        <strong>Settings</strong>
+        <strong>{t('site.settings')}</strong>
       </div>
       <div
         className={cn(

@@ -1,5 +1,6 @@
 {
   "site": {
+    "settings": "Innstillingar",
     "login": "Logg inn",
     "loggingIn": "Loggar inn",
     "logout": "Logg ut",
