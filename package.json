@@ -15,7 +15,7 @@
     "@digdir/designsystemet-css": "^1.1.0",
     "@digdir/designsystemet-react": "^1.1.0",
     "@digdir/designsystemet-theme": "^1.1.0",
-    "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
+    "@digdir/einnsyn-sdk": "^1.0.0",
     "@navikt/aksel-icons": "^7.23.2",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "^1.13.0",
