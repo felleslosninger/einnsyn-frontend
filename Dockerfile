@@ -65,6 +65,6 @@ COPY --from=builder --chown=nextjs:nodejs /app .
 
 USER nextjs
 EXPOSE 8080
-CMD ["pnpm", "run", "start"]
+CMD ["npm", "run", "start"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8080/api/health || exit 1
