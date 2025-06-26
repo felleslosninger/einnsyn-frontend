@@ -1,5 +1,6 @@
 {
   "site": {
+    "settings": "Heivehusat",
     "login": "Čálit sisa",
     "loggingIn": "Čállá sisa",
     "logout": "Čálit olggos",

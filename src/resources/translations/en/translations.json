@@ -1,5 +1,6 @@
 {
   "site": {
+    "settings": "Settings",
     "login": "Log in",
     "loggingIn": "Logging in",
     "logout": "Log out",

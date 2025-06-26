@@ -121,9 +121,6 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         {authInfo.enhet && (
           <>
             <div>
-              <EinLink href={''}>Virksomhetshierarki</EinLink>
-            </div>
-            <div>
               <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
                 {t('admin.apiKey.labelPlural')}
               </EinLink>
