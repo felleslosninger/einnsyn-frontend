@@ -2,6 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
+import { getOrigin } from '~/lib/utils/getOrigin';
+import { logger } from '~/lib/utils/logger';
 import {
   deleteAuthAction,
   getAuth,
@@ -20,10 +22,6 @@ const ANSATTPORTEN_CLIENT_SECRET = process.env.ANSATTPORTEN_CLIENT_SECRET;
 const ANSATTPORTEN_AUTH_DETAILS = process.env.ANSATTPORTEN_AUTH_DETAILS;
 
 const ANSATTPORTEN_COOKIE_NAME = 'ansattporten';
-const LOGIN_REDIRECT_URL = new URL(
-  '/auth/ansattporten/callback',
-  process.env.NEXT_PUBLIC_BASE_URL,
-).href;
 
 if (!ANSATTPORTEN_URL) {
   throw new Error('Missing environment variable for Ansattporten URL');
@@ -80,12 +78,17 @@ async function getOidcConfig(): Promise<oidc.Configuration> {
  * @returns configuration object
  */
 async function discoverOidcConfig() {
-  return await oidc.discovery(
+  const config = await oidc.discovery(
     new URL(ANSATTPORTEN_URL),
     ANSATTPORTEN_CLIENT_ID,
     undefined,
     oidc.ClientSecretPost(ANSATTPORTEN_CLIENT_SECRET),
   );
+  return config;
+}
+
+async function getCallbackUri() {
+  return new URL('/auth/ansattporten/callback', await getOrigin()).href;
 }
 
 /**
@@ -127,13 +130,14 @@ const buildAuthorizationUrl = async (originUrl: string) => {
   // const authorizationDetails =
   //   '[{"type":"ansattporten:altinn:service","resource":"urn:altinn:resource:2480:40","representation_is_required":"true"}]';
   const authorizationDetails = ANSATTPORTEN_AUTH_DETAILS;
+  const callbackUri = await getCallbackUri();
 
   return oidc.buildAuthorizationUrl(oidcConfig, {
     acr_values: 'substantial',
     authorization_details: authorizationDetails,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    redirect_uri: LOGIN_REDIRECT_URL,
+    redirect_uri: callbackUri,
     response_type: 'code',
     nonce,
     scope: 'openid profile',
@@ -154,6 +158,9 @@ export const handleCallback = async (request: Request) => {
   if (!nonce) {
     throw new Error('Missing nonce in cookie');
   }
+  if (!originUrl) {
+    throw new Error('Missing originUrl in cookie');
+  }
   if (!state) {
     throw new Error('Missing state in cookie');
   }
@@ -161,8 +168,15 @@ export const handleCallback = async (request: Request) => {
   const oidcConfig = await getOidcConfig();
 
   try {
-    // Get tokens from Ansattporten
-    const tokens = await oidc.authorizationCodeGrant(oidcConfig, request, {
+    // Construct the correct callback URL, in case we're proxied
+    const possiblyProxiedUrl = new URL(request.url);
+    const origin = await getOrigin();
+    const correctedUrl = new URL(
+      possiblyProxiedUrl.pathname + possiblyProxiedUrl.search,
+      origin,
+    );
+
+    const tokens = await oidc.authorizationCodeGrant(oidcConfig, correctedUrl, {
       pkceCodeVerifier: codeVerifier,
       expectedState: state,
       expectedNonce: nonce,
@@ -170,9 +184,24 @@ export const handleCallback = async (request: Request) => {
 
     await updateAuthWithTokens(tokens, Date.now());
   } catch (error) {
-    console.error('OIDC Authorization Code Grant failed:', error);
-    // This could be a valid "cancel" case, so we don't throw an error here
-    //throw new Error('Authentication failed during callback.');
+    logger.warn('OIDC Authorization Code Grant failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    if (
+      error instanceof oidc.AuthorizationResponseError &&
+      error.error === 'access_denied'
+    ) {
+      // User cancelled authentication at the provider
+    } else if (error instanceof oidc.AuthorizationResponseError) {
+      throw new Error(
+        `Authentication failed during callback: ${error.error} ${error.error_description}`,
+      );
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Authentication failed during callback: ${errorMessage}`);
+    }
   } finally {
     // Clean up the Ansattporten cookie
     await deleteAnsattportenCookie();
@@ -222,7 +251,9 @@ export async function attemptTokenRefresh(refreshToken: string): Promise<void> {
     const tokens = await oidc.refreshTokenGrant(oidcConfig, refreshToken);
     await updateAuthWithTokens(tokens);
   } catch (error) {
-    console.error('Failed to refresh token:', error);
+    logger.error('Failed to refresh token', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     await deleteAuthAction();
   }
 }
@@ -247,8 +278,9 @@ export const buildEndSessionUrl = async () => {
   }
 
   const oidcConfig = await getOidcConfig();
+  const origin = await getOrigin();
   const endSessionUrl = oidc.buildEndSessionUrl(oidcConfig, {
-    post_logout_redirect_uri: process.env.NEXT_PUBLIC_BASE_URL,
+    post_logout_redirect_uri: origin,
   });
 
   await deleteAuthAction();
@@ -262,7 +294,6 @@ async function updateAuthWithTokens(
   timestamp?: number,
 ) {
   if (!tokens.access_token) {
-    console.error('OIDC callback: access_token missing from response');
     throw new Error('Authentication failed: No access_token received.');
   }
 
@@ -274,7 +305,6 @@ async function updateAuthWithTokens(
       : undefined;
   if (refreshTokenExpiresIn) {
     cookieSettings.maxAge = refreshTokenExpiresIn;
-    console.log(`Set cookieSettings.maxAge: ${cookieSettings.maxAge}`);
   }
 
   // Update auth cookie with the new tokens
@@ -287,7 +317,9 @@ async function updateAuthWithTokens(
       expiresAt:
         tokens.expires_in === undefined
           ? undefined
-          : (new Date().getTime() + tokens.expires_in * 1000) / 1000,
+          : Math.round(
+              (new Date().getTime() + tokens.expires_in * 1000) / 1000,
+            ),
     },
     cookieSettings,
   );

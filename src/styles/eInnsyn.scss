@@ -67,6 +67,7 @@ header {
   @include mq.medium {
     > .container-pre.collapsible {
       width: 0;
+      display: none;
     }
   }
 

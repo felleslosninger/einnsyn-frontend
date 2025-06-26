@@ -16,6 +16,7 @@ import EinTooltip from '../EinTooltip/EinTooltip';
 import styles from './EinInput.module.scss';
 import { useTranslation } from '~/hooks/useTranslation';
 import { useEffect, useRef, useState } from 'react';
+import { logger } from '~/lib/utils/logger';
 
 type EinInputProps = {
   fullWidth?: boolean;
@@ -51,7 +52,7 @@ export const EinInput = ({
         }
         timeoutRef.current = setTimeout(() => setCopied(false), 2000);
       } catch (err) {
-        console.error('Failed to copy: ', err);
+        logger.error('Failed to copy: ', err);
       }
     }
   };

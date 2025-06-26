@@ -17,10 +17,13 @@
     "@digdir/designsystemet-theme": "^1.1.0",
     "@digdir/einnsyn-sdk": "github:felleslosninger/einnsyn-sdk-typescript",
     "@navikt/aksel-icons": "^7.23.2",
+    "@opentelemetry/api": "^1.9.0",
+    "@vercel/otel": "^1.13.0",
     "next": "15.3.4",
     "openid-client": "^6.6.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "sass": "^1.89.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.5",

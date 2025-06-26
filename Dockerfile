@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 
 # Install dependencies
@@ -23,11 +23,19 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY .env .
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+
+# Temporary build-time placeholders that will be overridden at runtime
+ENV API_URL=http://placeholder:8080
+ENV COOKIE_SECRET=build-placeholder-secret
+ENV ANSATTPORTEN_AUTH_DETAILS=build-placeholder-secret
+ENV ANSATTPORTEN_CLIENT_ID=build-placeholder-secret
+ENV ANSATTPORTEN_CLIENT_SECRET=build-placeholder-secret
+ENV ANSATTPORTEN_URL=build-placeholder-secret
+
 RUN \
   if [ -f yarn.lock ]; then \
     corepack enable yarn && yarn run build; \
@@ -46,26 +54,17 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
 RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# https://nextjs.org/docs/app/api-reference/config/next-config-js/output
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app .
 
 USER nextjs
-EXPOSE 3000
-CMD ["node", "server.js"]
+EXPOSE 8080
+CMD ["pnpm", "run", "start"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:8080/api/health || exit 1

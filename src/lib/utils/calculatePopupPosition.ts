@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 // For better type safety and autocompletion
 export type PopupPosition = 'above' | 'below' | 'left' | 'right';
 
@@ -201,7 +203,7 @@ export function calculatePopupPosition({
     }
   }
 
-  console.warn(
+  logger.warn(
     'calculatePopupPosition: No preferred position fits within the viewport.',
   );
 }

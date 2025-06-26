@@ -22,6 +22,7 @@ import useIsChanged from '~/hooks/useIsChanged';
 export type SessionData = {
   settings: Settings;
   authInfo?: AuthInfo;
+  origin: string;
 };
 
 export type SessionDataWithUpdate = SessionData & {
