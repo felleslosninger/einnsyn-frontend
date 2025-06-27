@@ -71,7 +71,8 @@
   },
   "search": {
     "header": "Search",
-    "button": "Search"
+    "button": "Search",
+    "placeholder": "Search in eInnsyn..."
   },
   "routing": {
     "searchPath": "search",
@@ -122,5 +123,12 @@
   "moetesak": {
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
+  },
+  "footer": {
+    "ariaLabel": "Footer links",
+    "about": "About eInnsyn",
+    "privacy": "Privacy Policy",
+    "accessibility": "Accessibility Statement",
+    "github": "eInnsyn on Github"
   }
 }

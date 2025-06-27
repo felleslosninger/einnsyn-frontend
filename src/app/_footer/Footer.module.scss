@@ -1,0 +1,28 @@
+.footer {
+  background: var(--ds-color-neutral-background-tinted);
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  :global(.ein-link) {
+    text-decoration: none;
+  }
+  :global(.container-wrapper > .container-post) {
+    align-items: center;
+  }
+
+  margin-top: auto;
+
+  nav {
+    display: flex;
+    gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+    padding: var(--ds-size-4) 0;
+  }
+}
+
+.githubLink:global(.ein-link) {
+  display: inline-flex;
+  align-items: center;
+}
+
+.githubIcon {
+  height: 1.7em;
+  width: 1.7em;
+}

@@ -1,0 +1,34 @@
+.homeSearchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem;
+}
+
+.searchForm {
+  width: 100%;
+  max-width: 600px;
+}
+
+.searchForm [data-ds-component="Search"] {
+  width: 100%;
+  font-size: 1.25rem;
+}
+
+.searchForm [data-ds-component="Search"] input {
+  font-size: 1.25rem;
+  padding: 1rem 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .homeSearchContainer {
+    min-height: 40vh;
+    padding: 1rem;
+  }
+  
+  .searchForm [data-ds-component="Search"] input {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+}

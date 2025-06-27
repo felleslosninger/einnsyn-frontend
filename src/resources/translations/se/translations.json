@@ -71,7 +71,8 @@
   },
   "search": {
     "header": "Oza",
-    "button": "Oza"
+    "button": "Oza",
+    "placeholder": "Oza eInnsynas..."
   },
   "routing": {
     "searchPath": "oza",
@@ -122,5 +123,12 @@
   "moetesak": {
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
+  },
+  "footer": {
+    "ariaLabel": "Liŋkkat vuoldečállosis",
+    "about": "eInnsyn birra",
+    "privacy": "Personsuodjalusjulggaštus",
+    "accessibility": "Gievrrasvuođajulggaštus",
+    "github": "eInnsyn Githubas"
   }
 }
