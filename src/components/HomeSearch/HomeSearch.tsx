@@ -4,6 +4,7 @@ import { Search, SearchClear, SearchInput } from '@digdir/designsystemet-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
+import AnimatedSearchHeader from './AnimatedSearchHeader';
 import styles from './HomeSearch.module.scss';
 
 export default function HomeSearch() {
@@ -32,26 +33,33 @@ export default function HomeSearch() {
   };
 
   return (
-    <div className={styles.homeSearchContainer}>
-      <form
-        className={styles.searchForm}
-        method="get"
-        onSubmit={onSubmit}
-        action="/search"
-      >
-        <Search data-color="brand3">
-          <SearchInput
-            aria-label={t('search.button')}
-            name="q"
-            autoComplete="off"
-            onKeyDown={onKeyDown}
-            onInput={onKeyDown}
-            value={searchQuery}
-            placeholder={t('search.placeholder')}
-          />
-          <SearchClear />
-        </Search>
-      </form>
+    <div className="container-wrapper home-search-container">
+      {/* <div className="container-pre collapsible" /> */}
+      <div className="container">
+        <div className={styles.homeSearchContainer}>
+          <AnimatedSearchHeader />
+          <form
+            className={styles.searchForm}
+            method="get"
+            onSubmit={onSubmit}
+            action="/search"
+          >
+            <Search data-color="brand3">
+              <SearchInput
+                aria-label={t('search.button')}
+                name="q"
+                autoComplete="off"
+                onKeyDown={onKeyDown}
+                onInput={onKeyDown}
+                value={searchQuery}
+                placeholder={t('search.placeholder')}
+              />
+              <SearchClear />
+            </Search>
+          </form>
+        </div>
+      </div>
+      <div className="container-post" />
     </div>
   );
 }

@@ -1,14 +1,14 @@
 .homeSearchContainer {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 50vh;
-  padding: 2rem;
 }
 
 .searchForm {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .searchForm [data-ds-component="Search"] {
