@@ -4,6 +4,7 @@ import type { AuthInfo, Bruker, Enhet } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
 import { cachedApiClient } from '../api/getApiClient';
 import { deleteAuthAction, getAuth } from '../cookies/authCookie';
+import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './auth.ansattporten';
 
 export type ExtendedAuthInfo = AuthInfo & {
@@ -30,7 +31,9 @@ export async function getAuthInfo() {
     }
     return authInfo;
   } catch (error) {
-    console.error('Failed to fetch auth info:', error);
+    logger.error('Failed to fetch auth info', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return undefined;
   }
 }
@@ -47,17 +50,17 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 
   // Check if token is valid
-  const nowInSeconds = Date.now() / 1000;
+  const nowInSeconds = Math.round(Date.now() / 1000);
   if (
     authSession.expiresAt &&
-    authSession.expiresAt > nowInSeconds + 120 // 120 seconds buffer
+    authSession.expiresAt > nowInSeconds + 10 // 10 seconds buffer
   ) {
     return;
   }
 
   // Token is expired or nearing expiry, or expiresAt is not set
   if (!authSession.refreshToken) {
-    console.warn(
+    logger.warn(
       'Access token expired/invalid, but no refresh token available. Clearing auth session.',
     );
     await deleteAuthAction();
@@ -65,9 +68,16 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 
   if (authSession.authProvider === 'ansattporten') {
-    console.log('Attempting to refresh Ansattporten token');
-    await ansattporten.attemptTokenRefresh(authSession.refreshToken);
-    console.log('Ansattporten token refreshed successfully');
+    try {
+      await ansattporten.attemptTokenRefresh(authSession.refreshToken);
+      logger.debug('Ansattporten token refreshed successfully');
+    } catch (error) {
+      logger.error('Failed to refresh Ansattporten token', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      // The refresh token might have been used by another request at the same time,
+      // so we keep going and use the existing token if it is still valid.
+    }
   } else if (authSession.authProvider === 'eInnsyn') {
     // await
   }

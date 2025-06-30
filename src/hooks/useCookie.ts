@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { logger } from '~/lib/utils/logger';
 
 // Pick a single cookie from the document.cookie string
 const pickCookie = (cookies: string, cookieName: string) => {
@@ -58,7 +59,7 @@ export function useCookie<T>(cookieName: string): T | null {
         : null;
       return json as T;
     } catch (error) {
-      console.error('Error parsing cookie:', error);
+      logger.error('Error parsing cookie:', error);
       return null;
     }
   }, [cookieString]);

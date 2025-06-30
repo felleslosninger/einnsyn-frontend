@@ -28,12 +28,6 @@ export default function AdminTabs() {
       >
         {t('admin.apiKey.labelPlural')}
       </EinLink>
-      <EinLink
-        className={getLinkClassName(`/admin/${enhetId}status-messages`)}
-        href={`/admin/${enhetId}/status-messages`}
-      >
-        {t('admin.statusMessage.labelPlural')}
-      </EinLink>
     </div>
   );
 }
