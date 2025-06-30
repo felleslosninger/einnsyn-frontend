@@ -14,7 +14,7 @@
   "dependencies": {
     "@digdir/designsystemet-css": "^1.1.2",
     "@digdir/designsystemet-react": "^1.1.2",
-    "@digdir/designsystemet-theme": "^1.1.0",
+    "@digdir/designsystemet-theme": "^1.1.2",
     "@digdir/einnsyn-sdk": "^1.0.0",
     "@navikt/aksel-icons": "^7.23.2",
     "@opentelemetry/api": "^1.9.0",
