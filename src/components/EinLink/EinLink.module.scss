@@ -31,12 +31,12 @@
     outline: none;
   }
 
-  &.active {
+  &:global(.active) {
     color: var(--ds-color-neutral-text-default);
     font-weight: 600;
   }
 
-  &.activeExact {
+  &:global(.activeExact) {
     color: var(--ds-color-base-default);
   }
 }

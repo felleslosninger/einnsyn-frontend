@@ -1,3 +1,5 @@
+import HomeSearch from '~/components/HomeSearch';
+
 export default async function Root() {
-  return <></>;
+  return <HomeSearch />;
 }

@@ -77,7 +77,7 @@ export const getSearchResults = async (
   } catch (error) {
     // TODO: Handle the error
     if (error instanceof EInnsynError) {
-      logger.error('Error fetching search results', { error: error.message });
+      logger.error('Error fetching search results', error);
     }
     return getEmptySearchResults();
   }

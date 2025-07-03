@@ -65,7 +65,7 @@ export default async function Layout({
             }}
           >
             {header}
-            {children}
+            <main className="content-flex-grow">{children}</main>
             <Footer />
             <ModalWrapper>{modal}</ModalWrapper>
             <ThemeManager />

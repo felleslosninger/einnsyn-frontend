@@ -11,10 +11,13 @@ import { PlusCircleIcon } from '@navikt/aksel-icons';
 import { fetchNextPage } from '~/actions/api/pagination';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import styles from './ApiKeys.module.scss';
+import cn from '~/lib/utils/className';
 
 export default function ApiKeys({
   apiKeys,
-}: { apiKeys: PaginatedList<ApiKey> }) {
+}: {
+  apiKeys: PaginatedList<ApiKey>;
+}) {
   const t = useTranslation();
   const [showAddModal, setShowAddModal] = useState(false);
   const [currentApiKeys, setCurrentApiKeys] =
@@ -63,7 +66,7 @@ export default function ApiKeys({
         addApiKeyHandler={addApiKey}
       />
 
-      <div className="container-wrapper">
+      <div className="container-wrapper main-content">
         <div className="container-pre collapsible" />
         <div className="container">
           <h1 className="ds-heading" data-size="lg">
@@ -71,7 +74,9 @@ export default function ApiKeys({
           </h1>
 
           <div className={styles.header}>
-            <div className={styles.intro}>{t('admin.apiKey.intro')}</div>
+            <div className={cn(styles.intro, 'text-container')}>
+              {t('admin.apiKey.intro')}
+            </div>
 
             <EinButton onClick={() => setShowAddModal(true)}>
               <PlusCircleIcon title="a11y-title" fontSize="1.5rem" />
