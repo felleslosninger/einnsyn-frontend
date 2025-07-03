@@ -1,4 +1,9 @@
-import { startTransition, useState, type Dispatch, type SetStateAction } from 'react';
+import {
+  startTransition,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 
 /**
  * A wrapper around useState that wraps the set-function inside startTransition

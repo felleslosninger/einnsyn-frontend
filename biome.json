@@ -1,6 +1,6 @@
 {
   "files": {
-    "include": [
+    "includes": [
       "src/**/*.ts",
       "src/**/*.tsx"
     ]

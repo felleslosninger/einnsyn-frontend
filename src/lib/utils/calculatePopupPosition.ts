@@ -220,8 +220,6 @@ const clamp = (value: number, min: number, max: number) => {
 };
 
 const getArrowPosition = (popup: Rect, reference: Rect) => {
-  const popupWidth = popup.right - popup.left;
-  const popupHeight = popup.bottom - popup.top;
   const refCenterX = reference.left + (reference.right - reference.left) / 2;
   const refCenterY = reference.top + (reference.bottom - reference.top) / 2;
   const closestX = clamp(refCenterX, popup.left, popup.right);

@@ -71,7 +71,8 @@
   },
   "search": {
     "header": "Søk",
-    "button": "Søk"
+    "button": "Søk",
+    "placeholder": "Søk i eInnsyn..."
   },
   "routing": {
     "searchPath": "søk",
@@ -122,6 +123,13 @@
   "moetesak": {
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
+  },
+  "footer": {
+    "ariaLabel": "Lenker i bunntekst",
+    "about": "Om eInnsyn",
+    "privacy": "Personvernerklæring",
+    "accessibility": "Tilgjengelighetserklæring",
+    "github": "eInnsyn på Github"
   },
   "virksomhet": {
     "label": "Verksemd",

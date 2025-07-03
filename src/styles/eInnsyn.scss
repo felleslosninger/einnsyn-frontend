@@ -16,12 +16,23 @@
 html {
   padding: 0;
   margin: 0;
+  overflow-y: scroll;
 }
 
 body {
   font-family: Inter, sans-serif;
   padding: 0;
   margin: 0;
+}
+
+.einnsyn-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-flex-grow {
+  flex: 1;
 }
 
 header {
@@ -42,6 +53,11 @@ header {
   padding-left: var(--ein-vertical-spacing);
   padding-right: var(--ein-vertical-spacing);
 
+  &.main-content {
+    padding-top: var(--ein-horizontal-spacing);
+    border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  }
+
   > .container-pre, 
   > .container-post {
     width: 200px;
@@ -50,6 +66,8 @@ header {
   }
 
   > .container-post {
+    display: flex;
+    align-items: flex-start;
     flex-grow: 1;
     justify-content: flex-end;
   }
@@ -103,3 +121,6 @@ header {
 
 }
 
+.text-container {
+    max-width: 600px;
+}
