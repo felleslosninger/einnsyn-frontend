@@ -1,6 +1,5 @@
 'use client';
 
-import type { AuthInfo } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import { cloneElement, useState } from 'react';
 import EinPopup from '~/components/EinPopup/EinPopup';
@@ -68,7 +67,7 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div>
+    <div className={'header-dropdown-content-section'}>
       <p>{t('site.loggedInAs', authInfo.email)}</p>
       <LogoutButton />
     </div>
@@ -119,13 +118,11 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         )}
       >
         {authInfo.enhet && (
-          <>
-            <div>
-              <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
-                {t('admin.apiKey.labelPlural')}
-              </EinLink>
-            </div>
-          </>
+          <div>
+            <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
+              {t('admin.apiKey.labelPlural')}
+            </EinLink>
+          </div>
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>
