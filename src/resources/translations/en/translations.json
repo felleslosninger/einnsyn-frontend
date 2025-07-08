@@ -93,7 +93,8 @@
     "unnamed": "Unnamed",
     "close": "Close",
     "copyToClipboard": "Copy to clipboard",
-    "copiedToClipboard": "Copied to clipboard"
+    "copiedToClipboard": "Copied to clipboard",
+    "title": "Title"
   },
   "saksmappe": {
     "label": "Case",
@@ -104,6 +105,17 @@
     "label": "Record",
     "labelPlural": "Records",
     "pathName": "record",
+    "connectedToCase": "Associated case",
+    "goToCase": "Go to case",
+    "docNumber": "Doc. no.",
+    "from": "From",
+    "to": "To",
+    "fromTo": "From/to",
+    "docDate": "Document date",
+    "recordDate": "Journal date",
+    "pubDate": "Published date",
+    "legalBasis": "Legal basis",
+    "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",

@@ -93,7 +93,8 @@
     "unnamed": "Uten navn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavle",
-    "copiedToClipboard": "Kopiert til utklippstavle"
+    "copiedToClipboard": "Kopiert til utklippstavle",
+    "title": "Tittel"
   },
   "saksmappe": {
     "label": "Sak",
@@ -104,6 +105,17 @@
     "label": "Journalpost",
     "labelPlural": "Journalposter",
     "pathName": "journalpost",
+    "connectedToCase": "Tilknyttet sak",
+    "goToCase": "Til saken",
+    "docNumber": "Doknr.",
+    "from": "Fra",
+    "to": "Til",
+    "fromTo": "Fra/til",
+    "docDate": "Dokumentdato",
+    "recordDate": "Journaldato",
+    "pubDate": "Publiseringsdato",
+    "legalBasis": "Hjemmel",
+    "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",
@@ -136,6 +148,6 @@
     "navn": "navn",
     "telefon": "telefon",
     "adresse": "adresse",
-    "epost": "epost"
+    "epost": "e-post"
   }
 }

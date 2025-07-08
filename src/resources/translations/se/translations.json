@@ -93,7 +93,8 @@
     "unnamed": "Nama haga",
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",
-    "copiedToClipboard": "Kopierejuvvon čuohpuspircui"
+    "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
+    "title": "Bajilčála"
   },
   "saksmappe": {
     "label": "Ášši",
@@ -104,6 +105,17 @@
     "label": "Journalapoasta",
     "labelPlural": "Journalapoasttat",
     "pathName": "journalapoasta",
+    "connectedToCase": "Čadnon ášši",
+    "goToCase": "TÁššái",
+    "docNumber": "Doknr.",
+    "from": "Geas",
+    "to": "Geasa",
+    "fromTo": "Geas/geasa",
+    "docDate": "Dokumeantadáhton",
+    "recordDate": "Journálii registrerejuvvon",
+    "pubDate": "Almmuhuvvon",
+    "legalBasis": "Láhkavuođđu",
+    "recordType": "Dok.málle",
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",
@@ -132,10 +144,10 @@
     "github": "eInnsyn Githubas"
   },
   "virksomhet": {
-    "label": "Verksemd",
-    "navn": "namn",
-    "telefon": "telefon",
-    "adresse": "adresse",
-    "espost": "e-post"
+    "label": "fitnidat",
+    "navn": "namma",
+    "telefon": "telefovdna",
+    "adresse": "čujuhus",
+    "epost": "e-poasta"
   }
 }
