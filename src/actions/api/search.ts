@@ -32,7 +32,7 @@ const isSearchableEntity = (
 /**
  * Get a PaginatedList of search results
  *
- * @param api
+ * @param enhetSlug
  * @param searchParams
  * @returns
  */
@@ -51,7 +51,7 @@ export const getSearchResults = async (
   // Combine Enhet filter from path and searchParams
   const enhet: string[] = [];
   if (enhetSlug) {
-    enhet.push(enhetSlug);
+    enhet.push(...(enhetSlug.split('-') ?? ''));
   }
   if (searchParams.has('enhet')) {
     enhet.push(...(searchParams.getAll('enhet') ?? ''));
