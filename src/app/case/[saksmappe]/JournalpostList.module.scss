@@ -1,3 +1,13 @@
-.ein-table {
-  grid-template-columns: 3fr 1fr 1fr 1fr;
+@use "../../../styles/mediaQueries.scss" as mq;
+@use "../../../styles/variables" as v;
+
+.journalpostList {
+  padding-top: var(--ein-horizontal-spacing);
+  overflow-x: scroll;
+
+  max-width: calc(v.$maxWidthDesktop - 400px - var(--ein-vertical-spacing) * 2);
+
+  @include mq.small-and-medium {
+    max-width: calc(v.$mediumScreenMax - 400px - var(--ein-vertical-spacing) * 2);
+  }
 }

@@ -1,27 +1,31 @@
 'use client';
-import type { Enhet, Saksmappe } from '@digdir/einnsyn-sdk';
-import { useTranslation } from '~/hooks/useTranslation';
+import type { Saksmappe } from '@digdir/einnsyn-sdk';
+import { EinField } from '~/components/EinField/EinField';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useTranslation } from '~/hooks/useTranslation';
 import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 
 export default function SaksmappeCard({ saksmappe }: { saksmappe: Saksmappe }) {
   const t = useTranslation();
 
   return (
-    <div>
-      <div>
-        {t('Journalpost.connectedToCase')}: {saksmappe.offentligTittel}
-      </div>
-      <div>
-        {t('saksmappe.saksnummer')}: {saksmappe.saksnummer}
-      </div>
+    <div className={'ds-card__block'}>
+      <EinField
+        label={t('journalpost.connectedToCase')}
+        value={
+          <EinLink
+            className={'saksmappe-link'}
+            href={generateSaksmappeURL(saksmappe)}
+          >
+            {saksmappe.offentligTittel}
+          </EinLink>
+        }
+      />
+      <EinField
+        label={t('saksmappe.saksnummer')}
+        value={saksmappe.saksnummer}
+      />
       {/* Jornalpost count?*/}
-      <EinLink
-        className={'saksmappe-link'}
-        href={generateSaksmappeURL(saksmappe)}
-      >
-        {t('journalpost.goToCase')}
-      </EinLink>
     </div>
   );
 }

@@ -1,5 +1,5 @@
+import { cachedApiClient } from '~/actions/api/getApiClient';
 import JournalpostContainer from './JournalpostContainer';
-import { getApiClient } from '~/actions/api/getApiClient';
 
 export default async function Journalpost({
   params,
@@ -8,10 +8,14 @@ export default async function Journalpost({
 }) {
   const { journalpost = '' } = await params;
 
-  const apiClient = await getApiClient();
+  const apiClient = await cachedApiClient();
 
   const journalpostEntity = await apiClient.journalpost.get(journalpost, {
-    expand: ['administrativEnhetObjekt'],
+    expand: [
+      'administrativEnhetObjekt',
+      'saksmappe',
+      'dokumentbeskrivelse.dokumentobjekt',
+    ],
   });
 
   return <JournalpostContainer journalpost={journalpostEntity} />;

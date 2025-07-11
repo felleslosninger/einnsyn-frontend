@@ -2,19 +2,31 @@
 
 import {
   type Enhet,
+  isEnhet,
   type Journalpost,
   type PaginatedList,
   type Saksmappe,
-  isEnhet,
 } from '@digdir/einnsyn-sdk';
-import JournalpostList from '~/app/case/[saksmappe]/JournalpostList';
-import { useTranslation } from '~/hooks/useTranslation';
 import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
+import JournalpostList from '~/app/case/[saksmappe]/JournalpostList';
+import { EinField } from '~/components/EinField/EinField';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
+import styles from './SaksmappeContainer.module.scss';
 
-export default function saksmappeContainer({
+function formatDate(date: string | undefined) {
+  if (!date) return '';
+  const d = new Date(date);
+  return new Intl.DateTimeFormat('no-nb').format(d);
+}
+
+export default function SaksmappeContainer({
   saksmappe,
   journalpostList,
-}: { saksmappe: Saksmappe; journalpostList: PaginatedList<Journalpost> }) {
+}: {
+  saksmappe: Saksmappe;
+  journalpostList: PaginatedList<Journalpost>;
+}) {
   const t = useTranslation();
 
   const e = saksmappe.administrativEnhetObjekt;
@@ -24,17 +36,35 @@ export default function saksmappeContainer({
   }
 
   return (
-    <>
-      <h1>{saksmappe.offentligTittel}</h1>
-      <div>
-        <div>
-          <div>
-            {t('saksmappe.saksnummer')}: {saksmappe.saksnummer}
+    <div className="container-wrapper">
+      <div className="container-pre" />
+      <div className="container">
+        <h1>{saksmappe.offentligTittel}</h1>
+        <div className={cn(styles.saksmappe, 'ds-card')}>
+          <div className={cn(styles.saksmappeInfo, 'ds-card__block')}>
+            <div className={'saksmappe-card'}>
+              <EinField
+                label={t('saksmappe.saksnummer')}
+                value={saksmappe.saksnummer}
+              ></EinField>
+              <EinField
+                label={t('common.publishedAt')}
+                value={formatDate(saksmappe.publisertDato)}
+              ></EinField>
+              <EinField
+                label={t('common.updatedAt')}
+                value={formatDate(saksmappe.oppdatertDato)}
+              ></EinField>
+              {/* todo: Add counter? */}
+            </div>
+          </div>
+          <div className={cn(styles.enhetInfo, 'ds-card__block')}>
+            {enhet && <EnhetCard enhet={enhet} />}
           </div>
         </div>
-        {enhet && <EnhetCard enhet={enhet} />}
+        <JournalpostList journalposts={journalpostList} />
       </div>
-      <JournalpostList journalposts={journalpostList} />
-    </>
+      <div className="container-post" />
+    </div>
   );
 }
