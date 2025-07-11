@@ -115,6 +115,8 @@
     "recordDate": "Journal date",
     "pubDate": "Published date",
     "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "notPublished": "Not published",
     "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Incoming document",

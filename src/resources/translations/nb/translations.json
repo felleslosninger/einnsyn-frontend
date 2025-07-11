@@ -115,6 +115,8 @@
     "recordDate": "Journaldato",
     "pubDate": "Publiseringsdato",
     "legalBasis": "Hjemmel",
+    "attachmentPlural": "Vedlegg",
+    "notPublished": "Ikke publisert",
     "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Inngående dokument",
