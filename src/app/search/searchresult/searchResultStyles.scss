@@ -19,3 +19,15 @@
     }
   }
 }
+
+.search-result-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .search-result-icon {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+  }
+}
