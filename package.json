@@ -19,14 +19,14 @@
     "@navikt/aksel-icons": "^7.25.1",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "^1.13.0",
-    "next": "15.4.4",
+    "next": "15.4.5",
     "openid-client": "^6.6.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "sass": "^1.89.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.2",
+    "@biomejs/biome": "^2.1.3",
     "@types/jest": "^29.5.14",
     "@types/node": "^24",
     "@types/react": "^19",
