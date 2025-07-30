@@ -4,10 +4,10 @@ import { Search, SearchClear, SearchInput } from '@digdir/designsystemet-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
-import AnimatedSearchHeader from './AnimatedSearchHeader';
-import styles from './HomeSearch.module.scss';
+import AnimatedHeader from './AnimatedHeader';
+import styles from './Home.module.scss';
 
-export default function HomeSearch() {
+export default function Home() {
   const router = useRouter();
   const t = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,8 +36,8 @@ export default function HomeSearch() {
     <div className="container-wrapper home-search-container">
       {/* <div className="container-pre collapsible" /> */}
       <div className="container">
-        <div className={styles.homeSearchContainer}>
-          <AnimatedSearchHeader />
+        <div className={styles.homeContainer}>
+          <AnimatedHeader />
           <form
             className={styles.searchForm}
             method="get"

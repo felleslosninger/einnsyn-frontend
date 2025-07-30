@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import styles from './AnimatedSearchHeader.module.scss';
+import styles from './AnimatedHeader.module.scss';
 
-export default function AnimatedSearchHeader() {
+export default function AnimatedHeader() {
   const searchMessages = [
     'Søk i offentlig postjournal',
     'Søk i offentlige møtedokumenter',
