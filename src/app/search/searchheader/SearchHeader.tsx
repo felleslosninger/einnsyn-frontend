@@ -1,13 +1,12 @@
 'use client';
 
-import { Search, SearchClear, SearchInput } from '@digdir/designsystemet-react';
-import { useEffect, useState } from 'react';
-import SearchResultTabs from './SearchResultTabs';
-
+import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
-
-import styles from './SearchHeader.module.scss';
+import { EinButton } from '~/components/EinButton/EinButton';
+import { EinSearchField } from '~/components/EinSearchField/EinSearchField';
+import SearchTabs from './SearchTabs';
 
 export default function SearchHeader() {
   const defaultSearchPath = '/search';
@@ -59,17 +58,18 @@ export default function SearchHeader() {
         onSubmit={onSubmit}
         action={basepath}
       >
-        <Search data-color="brand3">
-          <SearchInput
-            aria-label="Søk"
-            name="q"
-            autoComplete="off"
-            onKeyDown={onKeyDown}
-            onInput={onKeyDown}
-            value={searchQuery}
-          />
-          <SearchClear />
-        </Search>
+        <EinSearchField
+          name="q"
+          autoComplete="off"
+          onKeyDown={onKeyDown}
+          onInput={onKeyDown}
+          value={searchQuery}
+        >
+          <EinButton style="link" data-size="sm">
+            <Buildings3Icon title="Enhet" fontSize="1.2rem" />{' '}
+            <span className="text">Alle virksomheter</span>
+          </EinButton>
+        </EinSearchField>
 
         {/* Include current query parameters as hidden inputs */}
         {Array.from(searchParams?.entries() ?? []).map(
@@ -80,7 +80,7 @@ export default function SearchHeader() {
         )}
       </form>
 
-      <SearchResultTabs />
+      <SearchTabs />
     </>
   );
 }

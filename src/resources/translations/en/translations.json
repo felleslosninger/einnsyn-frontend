@@ -93,7 +93,16 @@
     "unnamed": "Unnamed",
     "close": "Close",
     "copyToClipboard": "Copy to clipboard",
-    "copiedToClipboard": "Copied to clipboard"
+    "copiedToClipboard": "Copied to clipboard",
+    "apply": "Apply",
+    "clear": "Clear",
+    "filter": "Search tools",
+    "fromDate": "From date",
+    "toDate": "To date",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "yes": "Yes",
+    "no": "No"
   },
   "saksmappe": {
     "label": "Case",
@@ -123,6 +132,48 @@
   "moetesak": {
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
+  },
+  "searchFilters": {
+    "publisertDato": "Publication date",
+    "oppdatertDato": "Update date",
+    "moeteDato": "Meeting date",
+    "fullTextOnly": "Full text only",
+    "journalpostType": "Record type",
+    "journalpostTypes": {
+      "inngaaende": "Incoming",
+      "utgaaende": "Outgoing",
+      "organinternt": "Internal",
+      "saksframlegg": "Case file",
+      "sakskart": "Case list",
+      "moeteprotokoll": "Meeting protocol",
+      "moetebok": "Meeting minutes"
+    },
+    "datePresets": {
+      "past24Hours": "Past 24 hours",
+      "pastWeek": "Past week",
+      "pastMonth": "Past month",
+      "pastYear": "Past year",
+      "customRange": "Custom range"
+    },
+    "sorting": "Sorting",
+    "sortOptions": {
+      "offentligTittelAsc": "Title, ascending",
+      "offentligTittelDesc": "Title, descending",
+      "publisertDatoAsc": "Publication date, ascending",
+      "publisertDatoDesc": "Publication date, descending",
+      "oppdatertDatoAsc": "Update date, ascending",
+      "oppdatertDatoDesc": "Update date, descending",
+      "enhetAsc": "Organization, ascending",
+      "enhetDesc": "Organization, descending"
+    }
+  },
+  "animatedHeader": {
+    "message1": "Search public mail records",
+    "message2": "Search public meeting documents",
+    "message3": "Search public case files",
+    "message4": "Search public decisions",
+    "message5": "Search municipal documents",
+    "message6": "Search government archives"
   },
   "footer": {
     "ariaLabel": "Footer links",

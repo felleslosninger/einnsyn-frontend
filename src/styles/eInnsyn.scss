@@ -52,30 +52,34 @@ header {
   margin: 0 auto;
   padding-left: var(--ein-vertical-spacing);
   padding-right: var(--ein-vertical-spacing);
+  width: 100%;
+  max-width: 100%;
 
   &.main-content {
     padding-top: var(--ein-horizontal-spacing);
     border-top: 1px solid var(--ds-color-neutral-border-subtle);
   }
 
-  > .container-pre, 
-  > .container-post {
+  > .container-pre {
     width: 200px;
     flex-grow: 0;
     flex-shrink: 0;
   }
 
-  > .container-post {
-    display: flex;
-    align-items: flex-start;
-    flex-grow: 1;
-    justify-content: flex-end;
+  > .container {
+    flex-grow: 0;
+    flex-shrink: 1;
+    width: 1400px;
+    min-width: 400px;
   }
 
-  > .container {
-    flex-grow: 2;
-    flex-shrink: 1;
-    max-width: 1400px;
+  > .container-post {
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-width: 200px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
   }
 
   > .container-post {

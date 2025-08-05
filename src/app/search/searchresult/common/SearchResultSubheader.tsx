@@ -1,7 +1,5 @@
 import {
   isEnhet,
-  isMoetemappe,
-  isMoetesak,
   type Journalpost,
   type Moetemappe,
   type Moetesak,
@@ -22,7 +20,7 @@ export default function SearchResultSubheader({
   label: string;
   item: Journalpost | Saksmappe | Moetesak | Moetemappe | string | undefined;
 }) {
-  const translate = useTranslation();
+  const t = useTranslation();
   const languageCode = useLanguageCode();
 
   if (item === undefined || typeof item === 'string') {
@@ -47,7 +45,7 @@ export default function SearchResultSubheader({
         <>
           <span className="spacer"> &ndash; </span>
           <span className="search-result-published-date">
-            {capitalize(translate('common.publishedAt'))}&nbsp;
+            {capitalize(t('common.publishedAt'))}&nbsp;
             {publishedDate}
           </span>
         </>
@@ -56,7 +54,7 @@ export default function SearchResultSubheader({
         <>
           <span className="spacer"> &ndash; </span>
           <span className="search-result-updated-date">
-            {capitalize(translate('common.updatedAt'))}&nbsp;
+            {capitalize(t('common.updatedAt'))}&nbsp;
             {updatedDate}
           </span>
         </>

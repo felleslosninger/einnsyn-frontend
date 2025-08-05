@@ -1,0 +1,63 @@
+.einDropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.triggerButton:global(.ein-button) {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 0;
+  text-decoration: none;
+  
+}
+
+.triggerContent {
+  flex: 1;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdownPopup {
+  z-index: 1000;
+}
+
+.dropdownContent {
+
+  min-width: 200px;
+  max-width: 400px;
+  padding: calc(var(--ein-vertical-spacing) / 2) 0;
+
+  
+  // Style for dropdown items
+  button, a {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    border-radius: var(--ds-border-radius-sm);
+    text-decoration: none;
+    color: inherit;
+    
+    &:hover, &:focus {
+      background-color: var(--ds-color-neutral-background-subtle);
+    }
+    
+    &:focus {
+      outline: 2px solid var(--ds-color-accent-background-default);
+      outline-offset: -2px;
+    }
+  }
+}

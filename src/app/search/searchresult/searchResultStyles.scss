@@ -1,6 +1,11 @@
 .search-result {
-  padding: 0 0 1em;
+  padding: 0 0 var(--ein-horizontal-spacing) 0;
   width: 100%;
+
+  > a {
+    display: inline-block;
+    max-width: 100%;
+  }
 
   h2 {
     max-width: 100%;

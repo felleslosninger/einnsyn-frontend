@@ -93,7 +93,16 @@
     "unnamed": "Uten navn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavle",
-    "copiedToClipboard": "Kopiert til utklippstavle"
+    "copiedToClipboard": "Kopiert til utklippstavle",
+    "apply": "Bruk",
+    "clear": "Nullstill",
+    "filter": "Søkeverktøy",
+    "fromDate": "Fra dato",
+    "toDate": "Til dato",
+    "ascending": "Stigende",
+    "descending": "Synkende",
+    "yes": "Ja",
+    "no": "Nei"
   },
   "saksmappe": {
     "label": "Sak",
@@ -123,6 +132,48 @@
   "moetesak": {
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
+  },
+  "searchFilters": {
+    "publisertDato": "Publiseringsdato",
+    "oppdatertDato": "Oppdateringsdato",
+    "moeteDato": "Møtedato",
+    "fullTextOnly": "Kun fulltekst",
+    "journalpostType": "Journalposttype",
+    "journalpostTypes": {
+      "inngaaende": "Inngående",
+      "utgaaende": "Utgående",
+      "organinternt": "Intern",
+      "saksframlegg": "Saksframlegg",
+      "sakskart": "Sakskart",
+      "moeteprotokoll": "Møteprotokoll",
+      "moetebok": "Møtebok"
+    },
+    "datePresets": {
+      "past24Hours": "Siste 24 timer",
+      "pastWeek": "Siste uke",
+      "pastMonth": "Siste måned",
+      "pastYear": "Siste år",
+      "customRange": "Egendefinert periode"
+    },
+    "sorting": "Sortering",
+    "sortOptions": {
+      "offentligTittelAsc": "Tittel, stigende",
+      "offentligTittelDesc": "Tittel, synkende",
+      "publisertDatoAsc": "Publiseringsdato, stigende",
+      "publisertDatoDesc": "Publiseringsdato, synkende",
+      "oppdatertDatoAsc": "Oppdateringsdato, stigende",
+      "oppdatertDatoDesc": "Oppdateringsdato, synkende",
+      "enhetAsc": "Virksomhet, stigende",
+      "enhetDesc": "Virksomhet, synkende"
+    }
+  },
+  "animatedHeader": {
+    "message1": "Søk i offentlig postjournal",
+    "message2": "Søk i offentlige møtedokumenter",
+    "message3": "Søk i offentlig saksgang",
+    "message4": "Søk i offentlige vedtak",
+    "message5": "Søk i kommunale dokumenter",
+    "message6": "Søk i statlige arkiver"
   },
   "footer": {
     "ariaLabel": "Lenker i bunntekst",

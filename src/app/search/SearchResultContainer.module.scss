@@ -1,0 +1,9 @@
+.searchContainer {
+  &:global(.main-content) {
+    padding-top: var(--ds-size-3);
+  }
+
+  :global(.search-toolbar) {
+    padding-bottom: var(--ds-size-9);
+  }
+}

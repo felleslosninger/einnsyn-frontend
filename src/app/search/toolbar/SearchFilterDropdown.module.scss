@@ -1,0 +1,67 @@
+.searchToolbar {
+  display: flex;
+  gap: calc(var(--ein-horizontal-spacing) / 2);
+  align-items: center;
+  justify-content: flex-end;
+
+  :global(.dropdown-option:hover) {
+    background-color: var(--ds-color-surface-hover);
+  }
+}
+
+.enumContent {
+    display: flex;
+    flex-direction: column;
+
+    button {
+        background: none;
+        border: none;
+        padding: calc(var(--ein-vertical-spacing) / 2) var(--ein-horizontal-spacing);
+        text-align: left;
+        cursor: pointer;
+        border-radius: var(--ds-border-radius-small);
+
+        &:hover {
+            background-color: var(--ds-color-surface-hover);
+        }
+    }
+}
+
+.dateInputs {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ein-vertical-spacing) / 2);
+
+  .dateInputWrapper {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--ein-horizontal-spacing) / 4);
+
+    input {
+      flex: 1;
+      padding: calc(var(--ein-vertical-spacing) / 2);
+      border: 1px solid var(--ds-color-neutral-border-default);
+      border-radius: var(--ds-border-radius-small);
+      font-size: var(--ds-font-size-small);
+
+      &:focus {
+        border-color: var(--ds-color-accent-border-default);
+        outline: none;
+      }
+    }
+
+    button {
+      padding: calc(var(--ein-vertical-spacing) / 2) var(--ein-horizontal-spacing);
+      background-color: var(--ds-color-accent-background-default);
+      color: var(--ds-color-accent-text-default);
+      border: none;
+      border-radius: var(--ds-border-radius-small);
+      cursor: pointer;
+      font-size: var(--ds-font-size-small);
+
+      &:hover {
+        background-color: var(--ds-color-accent-background-hover);
+      }
+    }
+  }
+}

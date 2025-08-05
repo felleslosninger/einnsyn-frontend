@@ -14,11 +14,11 @@ import './searchResultStyles.scss';
 
 export default function SearchResult({ item }: { item: Base }) {
   return (
-    <div className="search-result">
+    <>
       {isJournalpost(item) && <JournalpostResult item={item} />}
       {isSaksmappe(item) && <SaksmappeResult item={item} />}
       {isMoetemappe(item) && <MoetemappeResult item={item} />}
       {isMoetesak(item) && <MoetesakResult item={item} />}
-    </div>
+    </>
   );
 }

@@ -1,36 +1,40 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '~/hooks/useTranslation';
 import styles from './AnimatedHeader.module.scss';
 
 export default function AnimatedHeader() {
-  const searchMessages = [
-    'Søk i offentlig postjournal',
-    'Søk i offentlige møtedokumenter',
-    'Søk i offentlig saksgang',
-    'Søk i offentlige vedtak',
-    'Søk i kommunale dokumenter',
-    'Søk i statlige arkiver',
-  ];
+  const t = useTranslation();
+
+  const searchMessages = useMemo(
+    () => [
+      t('animatedHeader.message1'),
+      t('animatedHeader.message2'),
+      t('animatedHeader.message3'),
+      t('animatedHeader.message4'),
+      t('animatedHeader.message5'),
+      t('animatedHeader.message6'),
+    ],
+    [t],
+  );
 
   const [currentText, setCurrentText] = useState(searchMessages[0]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const getRandomNextIndex = useCallback((current: number) => {
-    const availableIndices = searchMessages
-      .map((_, index) => index)
-      .filter((index) => index !== current);
-    return availableIndices[
-      Math.floor(Math.random() * availableIndices.length)
-    ];
-  }, []);
+  const getNextIndex = useCallback(
+    (current: number) => {
+      return (current + 1) % searchMessages.length;
+    },
+    [searchMessages],
+  );
 
   const animateToNextText = useCallback(() => {
     if (isAnimating) return;
 
     setIsAnimating(true);
-    const nextIndex = getRandomNextIndex(currentIndex);
+    const nextIndex = getNextIndex(currentIndex);
     const nextText = searchMessages[nextIndex];
 
     // Find common prefix between current and next text
@@ -73,7 +77,7 @@ export default function AnimatedHeader() {
         }, 50); // Typing speed
       }
     }, 50); // Erasing speed
-  }, [currentText, currentIndex, isAnimating, getRandomNextIndex]);
+  }, [currentText, currentIndex, isAnimating, getNextIndex, searchMessages]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
