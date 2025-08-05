@@ -8,12 +8,19 @@
     align-items: center;
   }
 
-  margin-top: auto;
-
   nav {
     display: flex;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     padding: var(--ds-size-4) 0;
+  }
+
+  &.sticky {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transform: translateY(0);
   }
 }
 
@@ -25,4 +32,11 @@
 .githubIcon {
   height: 1.7em;
   width: 1.7em;
+}
+
+.stickyPlaceholder {
+  display: none;
+  &.sticky {
+    display: block;
+  }
 }
