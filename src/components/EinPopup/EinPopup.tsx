@@ -32,6 +32,7 @@ export type EinPopupProps = {
   transitionFromTrigger?: boolean;
   className?: string;
   popupRef?: RefObject<HTMLDivElement | null>;
+  triggerRef?: RefObject<Element | null>;
   preferredPosition?: PopupPosition[];
 };
 
@@ -47,6 +48,7 @@ export default function EinPopup(props: EinPopupProps) {
     children,
     transitionEvents,
     popupRef = fallbackPopupRef,
+    triggerRef: triggerRefProp,
     preferredPosition = ['below', 'above', 'right', 'left'],
     setOpen = () => undefined,
   } = props;
@@ -54,10 +56,69 @@ export default function EinPopup(props: EinPopupProps) {
   const triggerRef = useRef<Element | null>(null);
   const isMounted = useIsMounted();
 
+  /**
+   * Set the position of the popup relative to the trigger element.
+   *
+   * @param popupElement
+   * @param triggerElement
+   * @returns
+   */
+  const updatePopupPosition = useCallback(
+    (popupElement: HTMLElement, triggerElement: HTMLElement) => {
+      // Before we calculate the position of the popup, we need to find the current
+      // dimensions of the popup element. Move it far up and left, so that it's current
+      // position does not affect its size.
+      const body = document.body;
+      popupElement.style.top = `${-body.scrollHeight}px`;
+      popupElement.style.left = `${-body.scrollWidth}px`;
+      const popupRect = popupElement.getBoundingClientRect();
+      const triggerRect = triggerElement.getBoundingClientRect();
+
+      const position = calculatePopupPosition({
+        popup: popupRect,
+        reference: triggerRect,
+        preferredPosition,
+      });
+      if (!position) {
+        // Could not find a relative position that fits in the viewport
+        popupElement.style.top = '';
+        popupElement.style.left = '';
+        return;
+      }
+
+      // Get the closest positioned ancestor of the popup, since we need to subtract
+      // its position from the popup position to get the correct absolute position.
+      const positionedAncestor = getClosestPositionedAncestor(popupElement);
+      if (positionedAncestor) {
+        const ancestorRect = positionedAncestor.getBoundingClientRect();
+        position.top -= ancestorRect.top;
+        position.left -= ancestorRect.left;
+      }
+
+      // Add scroll offsets to the position
+      position.top -= window.scrollY;
+      position.left -= window.scrollX;
+
+      // Set the final position of the popup popup
+      popupElement.style.setProperty('top', `${position.top}px`);
+      popupElement.style.setProperty('left', `${position.left}px`);
+      popupElement.style.setProperty('--ein-popup-position', position.position);
+      popupElement.style.setProperty(
+        '--ein-popup-arrow-top',
+        position.arrowTop ? `${position.arrowTop}px` : '',
+      );
+      popupElement.style.setProperty(
+        '--ein-popup-arrow-left',
+        position.arrowLeft ? `${position.arrowLeft}px` : '',
+      );
+    },
+    [preferredPosition],
+  );
+
   // Update the ref of the trigger when the popup is opened
   useLayoutEffect(() => {
     if (isBrowser && open) {
-      triggerRef.current = document.activeElement;
+      triggerRef.current = triggerRefProp?.current ?? document.activeElement;
       if (triggerRef.current instanceof HTMLElement) {
         triggerRef.current.classList.add('active');
       }
@@ -69,7 +130,7 @@ export default function EinPopup(props: EinPopupProps) {
       triggerRef.current.classList.remove('active');
       triggerRef.current = null;
     }
-  }, [isBrowser, open]);
+  }, [isBrowser, open, triggerRefProp?.current]);
 
   // Update trigger button position
   useLayoutEffect(() => {
@@ -95,7 +156,7 @@ export default function EinPopup(props: EinPopupProps) {
         window.removeEventListener('resize', eventListener);
       };
     }
-  }, [open, popupRef, isBrowser]);
+  }, [open, popupRef, isBrowser, updatePopupPosition]);
 
   // Close on esc
   useEffect(() => {
@@ -103,6 +164,19 @@ export default function EinPopup(props: EinPopupProps) {
     if (open && popup && closeOnEsc) {
       const closeEsc = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
+          const activeElement = document.activeElement;
+          // Don't close if an input field has focus
+          if (
+            activeElement instanceof HTMLInputElement ||
+            activeElement instanceof HTMLTextAreaElement
+          ) {
+            activeElement.blur();
+            return;
+          }
+          // Close the innermost popup, don't close all when nested
+          if (popup.querySelectorAll('.ein-popup').length > 0) {
+            return;
+          }
           setOpen(false);
         }
       };
@@ -122,65 +196,6 @@ export default function EinPopup(props: EinPopupProps) {
 
   // Trap focus when open
   useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
-
-  /**
-   * Set the position of the popup relative to the trigger element.
-   *
-   * @param popupElement
-   * @param triggerElement
-   * @returns
-   */
-  const updatePopupPosition = (
-    popupElement: HTMLElement,
-    triggerElement: HTMLElement,
-  ) => {
-    // Before we calculate the position of the popup, we need to find the current
-    // dimensions of the popup element. Move it far up and left, so that it's current
-    // position does not affect its size.
-    const body = document.body;
-    popupElement.style.top = `${-body.scrollHeight}px`;
-    popupElement.style.left = `${-body.scrollWidth}px`;
-    const popupRect = popupElement.getBoundingClientRect();
-    const triggerRect = triggerElement.getBoundingClientRect();
-
-    const position = calculatePopupPosition({
-      popup: popupRect,
-      reference: triggerRect,
-      preferredPosition,
-    });
-    if (!position) {
-      // Could not find a relative position that fits in the viewport
-      popupElement.style.top = '';
-      popupElement.style.left = '';
-      return;
-    }
-
-    // Get the closest positioned ancestor of the popup, since we need to subtract
-    // its position from the popup position to get the correct absolute position.
-    const positionedAncestor = getClosestPositionedAncestor(popupElement);
-    if (positionedAncestor) {
-      const ancestorRect = positionedAncestor.getBoundingClientRect();
-      position.top -= ancestorRect.top;
-      position.left -= ancestorRect.left;
-    }
-
-    // Add scroll offsets to the position
-    position.top -= window.scrollY;
-    position.left -= window.scrollX;
-
-    // Set the final position of the popup popup
-    popupElement.style.setProperty('top', `${position.top}px`);
-    popupElement.style.setProperty('left', `${position.left}px`);
-    popupElement.style.setProperty('--ein-popup-position', position.position);
-    popupElement.style.setProperty(
-      '--ein-popup-arrow-top',
-      position.arrowTop ? `${position.arrowTop}px` : '',
-    );
-    popupElement.style.setProperty(
-      '--ein-popup-arrow-left',
-      position.arrowLeft ? `${position.arrowLeft}px` : '',
-    );
-  };
 
   return (
     //<EinTransition dependencies={[open]} events={events}>

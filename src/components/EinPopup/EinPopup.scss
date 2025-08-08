@@ -6,7 +6,7 @@ $arrowHalfSize: calc($arrowSize / 2);
 .ein-popup {
   position: absolute;
   z-index: 1000;
-  filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.3));
 
 
   .ein-popup-content {
@@ -35,7 +35,6 @@ $arrowHalfSize: calc($arrowSize / 2);
       width: $arrowSize;
       height: $arrowSize;
       //background-color: var(--ds-color-neutral-background-default);
-      border-radius: 0;
       transform: translateX(-50%) translateY(-50%) rotate(45deg);
       border: inherit;
       z-index: -1;
