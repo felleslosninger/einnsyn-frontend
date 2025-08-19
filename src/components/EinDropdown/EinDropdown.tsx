@@ -1,18 +1,19 @@
 'use client';
 
+import { ChevronDownIcon } from '@navikt/aksel-icons';
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
-import { ChevronDownIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
 import EinPopup from '~/components/EinPopup/EinPopup';
+import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
 import cn from '~/lib/utils/className';
+import { isStandardClick } from '~/lib/utils/isStandardClick';
 import styles from './EinDropdown.module.scss';
-import { PopupPosition } from '~/lib/utils/calculatePopupPosition';
 
 export type EinDropdownProps = {
   trigger: ReactNode;
@@ -41,12 +42,21 @@ export default function EinDropdown({
 }: EinDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleToggle = useCallback(() => {
-    if (!disabled) {
-      setIsOpen(!isOpen);
-    }
-  }, [disabled, isOpen]);
+  const handleToggle = useCallback(
+    (e: React.MouseEvent<Element>) => {
+      if (!isStandardClick(e)) {
+        return;
+      }
+
+      if (!disabled) {
+        setIsOpen(!isOpen);
+      }
+    },
+    [disabled, isOpen],
+  );
 
   // Use useEffect to add event listener for automatic closing on item clicks
   useEffect(() => {
@@ -81,17 +91,22 @@ export default function EinDropdown({
   }, [isOpen, closeOnItemClick]);
 
   return (
-    <div className={cn(styles.einDropdown, className, 'ein-dropdown')}>
+    <div
+      role="toolbar"
+      ref={containerRef}
+      className={cn(styles.einDropdown, className, 'ein-dropdown')}
+    >
       <EinButton
+        ref={buttonRef}
         variant={variant}
-        style="link"
-        data-color="neutral"
+        style="custom"
         onClick={handleToggle}
         disabled={disabled}
         className={cn(
           styles.triggerButton,
           { [styles.open]: isOpen },
           triggerClassName,
+          'ein-dropdown-trigger',
         )}
       >
         <span className={styles.triggerContent}>{trigger}</span>
@@ -109,8 +124,10 @@ export default function EinDropdown({
         closeOnOutsideClick={true}
         closeOnEsc={true}
         preferredPosition={preferredPosition}
+        triggerRef={buttonRef}
       >
         <div ref={contentRef} className={styles.dropdownContent}>
+          {/* <div className={cn(styles.dropdownHeader)}>{trigger}</div> */}
           {children}
         </div>
       </EinPopup>

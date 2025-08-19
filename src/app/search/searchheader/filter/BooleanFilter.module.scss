@@ -1,0 +1,16 @@
+.booleanFilter {
+  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  white-space: nowrap;
+  gap: var(--ein-horizontal-spacing);
+  color: var(--ds-color-text-subtle);
+
+  &:hover {
+    color: var(--ds-color-text-default);
+    background-color: var(--ds-color-surface-hover);
+  }
+
+  input:checked {
+    background-color: var(--ds-color-text-default);
+    border-color: var(--ds-color-text-default);
+  }
+}

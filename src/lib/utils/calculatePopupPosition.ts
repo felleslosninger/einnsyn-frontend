@@ -1,7 +1,19 @@
 import { logger } from './logger';
 
 // For better type safety and autocompletion
-export type PopupPosition = 'above' | 'below' | 'left' | 'right';
+export type PopupPosition =
+  | 'above'
+  | 'below'
+  | 'left'
+  | 'right'
+  | 'belowRight'
+  | 'belowLeft'
+  | 'leftTop'
+  | 'leftBottom'
+  | 'rightTop'
+  | 'rightBottom'
+  | 'aboveLeft'
+  | 'aboveRight';
 
 /**
  * Calculates the ideal position for a popup element relative to a reference element,
@@ -85,6 +97,39 @@ export function calculatePopupPosition({
         popupRect.height / 2,
       left: referenceRect.right + viewport.scrollX + offsetX,
     }),
+    // New positions - aligned to reference edges
+    belowRight: () => ({
+      top: referenceRect.bottom + viewport.scrollY + offsetY,
+      left: referenceRect.right + viewport.scrollX - popupRect.width,
+    }),
+    belowLeft: () => ({
+      top: referenceRect.bottom + viewport.scrollY + offsetY,
+      left: referenceRect.left + viewport.scrollX,
+    }),
+    leftTop: () => ({
+      top: referenceRect.top + viewport.scrollY,
+      left: referenceRect.left + viewport.scrollX - popupRect.width - offsetX,
+    }),
+    leftBottom: () => ({
+      top: referenceRect.bottom + viewport.scrollY - popupRect.height,
+      left: referenceRect.left + viewport.scrollX - popupRect.width - offsetX,
+    }),
+    rightTop: () => ({
+      top: referenceRect.top + viewport.scrollY,
+      left: referenceRect.right + viewport.scrollX + offsetX,
+    }),
+    rightBottom: () => ({
+      top: referenceRect.bottom + viewport.scrollY - popupRect.height,
+      left: referenceRect.right + viewport.scrollX + offsetX,
+    }),
+    aboveLeft: () => ({
+      top: referenceRect.top + viewport.scrollY - popupRect.height - offsetY,
+      left: referenceRect.left + viewport.scrollX,
+    }),
+    aboveRight: () => ({
+      top: referenceRect.top + viewport.scrollY - popupRect.height - offsetY,
+      left: referenceRect.right + viewport.scrollX - popupRect.width,
+    }),
   };
 
   // Iterate through preferred positions and find the first one that fits
@@ -107,6 +152,41 @@ export function calculatePopupPosition({
 
     // Adjust the position to fit vertically
     if (position === 'left' || position === 'right') {
+      // Adjust top overflow
+      if (top < viewport.scrollY) {
+        top = viewport.scrollY;
+      }
+      // Adjust bottom overflow
+      if (top + popupRect.height > viewport.height + viewport.scrollY) {
+        top = viewport.height + viewport.scrollY - popupRect.height;
+      }
+    }
+
+    // Adjust positions for new edge-aligned positions
+    // For bottom-aligned positions, adjust horizontally
+    if (
+      position === 'belowLeft' ||
+      position === 'belowRight' ||
+      position === 'aboveLeft' ||
+      position === 'aboveRight'
+    ) {
+      // Adjust left overflow
+      if (left < viewport.scrollX) {
+        left = viewport.scrollX;
+      }
+      // Adjust right overflow
+      if (left + popupRect.width > viewport.width + viewport.scrollX) {
+        left = viewport.width + viewport.scrollX - popupRect.width;
+      }
+    }
+
+    // For side-aligned positions, adjust vertically
+    if (
+      position === 'leftTop' ||
+      position === 'leftBottom' ||
+      position === 'rightTop' ||
+      position === 'rightBottom'
+    ) {
       // Adjust top overflow
       if (top < viewport.scrollY) {
         top = viewport.scrollY;

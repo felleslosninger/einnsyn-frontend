@@ -96,7 +96,7 @@
     "copiedToClipboard": "Kopiert til utklippstavle",
     "apply": "Bruk",
     "clear": "Nullstill",
-    "filter": "Søkeverktøy",
+    "filter": "Filter",
     "fromDate": "Fra dato",
     "toDate": "Til dato",
     "ascending": "Stigende",
@@ -149,7 +149,7 @@
       "moetebok": "Møtebok"
     },
     "datePresets": {
-      "past24Hours": "Siste 24 timer",
+      "pastDay": "Siste 24 timer",
       "pastWeek": "Siste uke",
       "pastMonth": "Siste måned",
       "pastYear": "Siste år",
@@ -165,6 +165,16 @@
       "oppdatertDatoDesc": "Oppdateringsdato, synkende",
       "enhetAsc": "Virksomhet, stigende",
       "enhetDesc": "Virksomhet, synkende"
+    }
+  },
+  "searchField": {
+    "properties": {
+      "publisertDato": "publisert",
+      "oppdatertDato": "oppdatert",
+      "moeteDato": "moetedato",
+      "journalposttype": "journalposttype",
+      "fulltext": "fulltekst",
+      "id": "id"
     }
   },
   "animatedHeader": {

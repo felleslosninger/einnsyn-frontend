@@ -18,6 +18,7 @@ export default function SearchResultContainer({
   const t = useTranslation();
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
+
   // Update currentSearchResults when searchResults prop changes (new search)
   useEffect(() => {
     setCurrentSearchResults(searchResults);

@@ -96,7 +96,7 @@
     "copiedToClipboard": "Kopiert til utklippstavla",
     "apply": "Bruk",
     "clear": "Nullstill",
-    "filter": "Søkjeverkty",
+    "filter": "Filter",
     "fromDate": "Frå dato",
     "toDate": "Til dato",
     "ascending": "Stigande",
@@ -149,7 +149,7 @@
       "moetebok": "Møtebok"
     },
     "datePresets": {
-      "past24Hours": "Siste 24 timar",
+      "pastDay": "Siste 24 timar",
       "pastWeek": "Siste veke",
       "pastMonth": "Siste månad",
       "pastYear": "Siste år",

@@ -1,54 +1,24 @@
 'use client';
 
 import { Buildings3Icon } from '@navikt/aksel-icons';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useModalBasepath } from '~/app/@modal/ModalWrapper';
+import { useCallback } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { EinSearchField } from '~/components/EinSearchField/EinSearchField';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { SearchField } from '~/components/SearchField/SearchField';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import SearchTabs from './SearchTabs';
 
 export default function SearchHeader() {
-  const defaultSearchPath = '/search';
-  const router = useRouter();
-  const basepath = useModalBasepath();
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') ?? '');
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const { searchQuery, pushSearchQuery } = useSearchField();
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter' && event.key !== 'Escape') {
-      setSearchQuery(event.currentTarget.value ?? '');
-    }
-    if (event.key === 'Escape') {
-      event.currentTarget.value = '';
-      setSearchQuery('');
-    }
-  };
-
-  useEffect(() => {
-    setSearchQuery(searchParams?.get('q') ?? '');
-  }, [searchParams]);
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const newParams = new URLSearchParams(searchParams?.toString());
-
-    if (searchQuery.trim()) {
-      newParams.set('q', searchQuery.trim());
-    } else {
-      newParams.delete('q');
-    }
-
-    if (basepath === '/') {
-      // Go to the default search path
-      router.push(`${defaultSearchPath}?${newParams.toString()}`);
-    } else {
-      // Make sure we do not add repeated parameters
-      const newPath = basepath.split('?', 1)[0];
-      router.push(`${newPath}?${newParams.toString()}`);
-    }
-  };
+  const onSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      pushSearchQuery(searchQuery);
+      event.preventDefault();
+    },
+    [searchQuery, pushSearchQuery],
+  );
 
   return (
     <>
@@ -56,23 +26,17 @@ export default function SearchHeader() {
         className="search-form"
         method="get"
         onSubmit={onSubmit}
-        action={basepath}
+        action={optimisticPathname}
       >
-        <EinSearchField
-          name="q"
-          autoComplete="off"
-          onKeyDown={onKeyDown}
-          onInput={onKeyDown}
-          value={searchQuery}
-        >
+        <SearchField name="q" autoComplete="off">
           <EinButton style="link" data-size="sm">
             <Buildings3Icon title="Enhet" fontSize="1.2rem" />{' '}
             <span className="text">Alle virksomheter</span>
           </EinButton>
-        </EinSearchField>
+        </SearchField>
 
         {/* Include current query parameters as hidden inputs */}
-        {Array.from(searchParams?.entries() ?? []).map(
+        {Array.from(optimisticSearchParams?.entries() ?? []).map(
           ([key, value]) =>
             key !== 'q' && (
               <input key={key} type="hidden" name={key} value={value} />

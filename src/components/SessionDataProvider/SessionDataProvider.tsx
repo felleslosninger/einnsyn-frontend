@@ -1,10 +1,9 @@
 'use client';
 
 import type { AuthInfo } from '@digdir/einnsyn-sdk';
-import { useRouter } from 'next/navigation';
 import {
-  type ReactNode,
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -18,6 +17,7 @@ import {
 } from '~/actions/cookies/settingsCookie';
 import { useCookie } from '~/hooks/useCookie';
 import useIsChanged from '~/hooks/useIsChanged';
+import { useNavigation } from '../NavigationProvider/NavigationProvider';
 
 export type SessionData = {
   settings: Settings;
@@ -52,7 +52,7 @@ export function SessionDataProvider({
   children,
   sessionData,
 }: SessionDataProviderProps) {
-  const router = useRouter();
+  const navigation = useNavigation();
   const authTimestampCookie = useCookie<AuthTimestamp>('auth-timestamp');
   const authIsChanged = useIsChanged([authTimestampCookie?.timestamp], true);
 
@@ -67,10 +67,17 @@ export function SessionDataProvider({
     },
   }));
 
+  useEffect(() => {
+    console.log('SessionDataProvider mounted');
+    return () => {
+      console.log('SessionDataProvider unmounted');
+    };
+  }, []);
+
   // Refresh the context (auth info) if we have a change in the auth timestamp
   useEffect(() => {
     if (authIsChanged) {
-      router.refresh();
+      navigation.refresh();
     }
   });
 

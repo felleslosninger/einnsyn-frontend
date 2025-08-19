@@ -1,22 +1,21 @@
 import {
-	type CheckboxProps,
-	Checkbox,
-	Field,
-	Label,
+  Checkbox,
+  type CheckboxProps,
+  Field,
 } from '@digdir/designsystemet-react';
 
 type EinCheckboxProps = {
-	errorMessage?: string;
+  errorMessage?: string;
 };
 
 export const EinCheckbox = ({
-	errorMessage,
-	...props
+  errorMessage,
+  ...props
 }: CheckboxProps & EinCheckboxProps) => {
-	return (
-		<Field>
-			<Checkbox {...props} />
-			{errorMessage && <span>{errorMessage}</span>}
-		</Field>
-	);
+  return (
+    <Field>
+      <Checkbox {...props} />
+      {errorMessage && <span>{errorMessage}</span>}
+    </Field>
+  );
 };

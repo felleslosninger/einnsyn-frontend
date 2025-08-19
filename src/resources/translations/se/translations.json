@@ -96,7 +96,7 @@
     "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
     "apply": "Geavat",
     "clear": "Sihko",
-    "filter": "Ohcanovttit",
+    "filter": "Sillit",
     "fromDate": "Beaivvi rájes",
     "toDate": "Beaivvi rádjai",
     "ascending": "Bajásdoallo",
@@ -149,7 +149,7 @@
       "moetebok": "Čoahkkingirji"
     },
     "datePresets": {
-      "past24Hours": "Manuá 24 diimmu",
+      "pastDay": "Manuá 24 diimmu",
       "pastWeek": "Manuá váhkku",
       "pastMonth": "Manuá mánnu",
       "pastYear": "Manuá jagi",

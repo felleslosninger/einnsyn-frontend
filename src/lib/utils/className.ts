@@ -2,8 +2,8 @@ type ClassName =
   | undefined
   | string
   | {
-    [name: string]: boolean;
-  };
+      [name: string]: boolean;
+    };
 
 /**
  * Add optional classnames to element class.
@@ -26,7 +26,9 @@ export default function cn(...args: ClassName[]): string {
     // Add classNames from object
     else if (typeof arg === 'object') {
       for (const key in arg) {
-        classNames[key] = !!arg[key];
+        if (key !== 'undefined') {
+          classNames[key] = !!arg[key];
+        }
       }
     }
   }

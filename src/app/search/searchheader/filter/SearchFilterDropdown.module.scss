@@ -1,11 +1,13 @@
-.searchToolbar {
-  display: flex;
-  gap: calc(var(--ein-horizontal-spacing) / 2);
-  align-items: center;
-  justify-content: flex-end;
+.filterDropdown {
+  :global(.spacer) {
+    width: var(--ein-horizontal-spacing);
+    border-top: 1px solid var(--ds-color-neutral-border-subtle);
+    margin: var(--ein-half-vertical-spacing) auto 0;
+    padding: var(--ein-half-vertical-spacing) 0 0;
+  }
 
-  :global(.dropdown-option:hover) {
-    background-color: var(--ds-color-surface-hover);
+  :global(.ein-popup-content) {
+    min-width: 300px;
   }
 }
 
@@ -16,7 +18,7 @@
     button {
         background: none;
         border: none;
-        padding: calc(var(--ein-vertical-spacing) / 2) var(--ein-horizontal-spacing);
+        padding: var(--ein-half-vertical-spacing) var(--ein-horizontal-spacing);
         text-align: left;
         cursor: pointer;
         border-radius: var(--ds-border-radius-small);
@@ -30,7 +32,7 @@
 .dateInputs {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--ein-vertical-spacing) / 2);
+  gap: var(--ein-half-vertical-spacing);
 
   .dateInputWrapper {
     display: flex;
@@ -39,7 +41,7 @@
 
     input {
       flex: 1;
-      padding: calc(var(--ein-vertical-spacing) / 2);
+      padding: var(--ein-half-vertical-spacing);
       border: 1px solid var(--ds-color-neutral-border-default);
       border-radius: var(--ds-border-radius-small);
       font-size: var(--ds-font-size-small);
@@ -51,7 +53,7 @@
     }
 
     button {
-      padding: calc(var(--ein-vertical-spacing) / 2) var(--ein-horizontal-spacing);
+      padding: var(--ein-half-vertical-spacing) var(--ein-horizontal-spacing);
       background-color: var(--ds-color-accent-background-default);
       color: var(--ds-color-accent-text-default);
       border: none;

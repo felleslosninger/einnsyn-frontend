@@ -1,16 +1,18 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
 import { EinLink } from '~/components/EinLink/EinLink';
+import {
+  useOptimisticPathname,
+  useOptimisticSearchParams,
+} from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
-
 import cn from '~/lib/utils/className';
+import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
-import SearchFilterDropdown from '../toolbar/SearchFilterDropdown';
 
 export default function SearchTabs() {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const searchParams = useOptimisticSearchParams();
+  const pathname = useOptimisticPathname();
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
@@ -33,8 +35,12 @@ export default function SearchTabs() {
   };
 
   return (
-    <div className={cn(styles.tabsContainer, 'header-tabs')}>
-      <div className={cn(styles.searchTabs)} data-size="sm">
+    <div
+      className={cn(styles.tabsContainer, 'header-tabs')}
+      data-size="sm"
+      data-color="neutral"
+    >
+      <div className={cn(styles.searchTabs)}>
         <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
           {t('common.all')}
         </EinLink>
@@ -65,7 +71,7 @@ export default function SearchTabs() {
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown className="header-tab header-tab-right" />
+        <SearchFilterDropdown />
       </div>
     </div>
   );

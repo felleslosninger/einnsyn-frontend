@@ -1,14 +1,14 @@
 'use client';
 
 import { Search, SearchClear, SearchInput } from '@digdir/designsystemet-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import AnimatedHeader from './AnimatedHeader';
 import styles from './Home.module.scss';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 
 export default function Home() {
-  const router = useRouter();
+  const navigation = useNavigation();
   const t = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,7 +28,7 @@ export default function Home() {
     if (searchQuery.trim()) {
       const params = new URLSearchParams();
       params.set('q', searchQuery.trim());
-      router.push(`/search?${params.toString()}`);
+      navigation.push(`/search?${params.toString()}`);
     }
   };
 

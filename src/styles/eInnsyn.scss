@@ -7,6 +7,8 @@
 :root {
   --ein-vertical-spacing: var(--ds-size-8);
   --ein-horizontal-spacing: var(--ds-size-8);
+  --ein-half-vertical-spacing: calc(var(--ein-vertical-spacing) / 2);
+  --ein-half-horizontal-spacing: calc(var(--ein-horizontal-spacing) / 2);
 }
 
 * {

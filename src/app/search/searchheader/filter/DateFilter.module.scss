@@ -1,0 +1,85 @@
+.dateFilter {
+}
+
+.radioOption {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  color: var(--ds-color-text-subtle);
+
+  &:hover,
+  &:global(.active) {
+    color: var(--ds-color-text-default);
+  }
+
+  &:hover {
+    background-color: var(--ds-color-surface-hover);
+  }
+
+  input {
+    position: absolute;
+    right: var(--ein-half-horizontal-spacing);
+    left: auto;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+
+  label {
+    display: block;
+    padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+    width: 100%;
+  }
+}
+
+.customRange {
+  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+
+  &,
+  input {
+    color: var(--ds-color-text-subtle);
+  }
+
+  &:global(.active) {
+    &,
+    input {
+      color: var(--ds-color-text-default);
+    }
+  }
+}
+
+.dateLabel {
+  display: flex;
+  gap: calc(var(--ein-horizontal-spacing));
+  padding: 0 var(--ds-size-3);
+  background: var(--ds-color-neutral-surface-default);
+  border-style: solid;
+  border-color: var(--ds-color-neutral-border-subtle);
+  border-width: round(up, var(--ds-border-width-default), 1px);
+  border-radius: var(--ds-border-radius-md);
+  align-items: center;
+
+  span {
+    flex-grow: 1;
+  }
+}
+
+.dateInput {
+    flex-grow: 0;
+
+    // Remove default styles
+    border: none;
+    background: transparent;
+    color: var(--ds-color-neutral-text-default);
+    font-size: inherit;
+    line-height: inherit;
+    height: var(--ds-size-12);
+
+    // Remove default focus styles
+    &:focus,
+    &:focus-visible {
+      box-shadow: none;
+      outline: none;
+    }
+}

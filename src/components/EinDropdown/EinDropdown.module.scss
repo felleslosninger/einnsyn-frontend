@@ -1,15 +1,28 @@
 .einDropdown {
   position: relative;
-  display: inline-block;
 }
 
-.triggerButton:global(.ein-button) {
+.triggerButton:global(.ein-button.ein-dropdown-trigger) {
   display: flex;
   align-items: center;
   white-space: nowrap;
-  gap: 0;
+  gap: calc(var(--ein-horizontal-spacing) / 4);
   text-decoration: none;
-  
+  font-weight: normal;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  appearance: none;
+
+  &:hover,
+  &:global(.active) {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+  }
 }
 
 .triggerContent {
@@ -23,7 +36,7 @@
   align-items: center;
   
   &.rotated {
-    transform: rotate(180deg);
+    transform: rotate(-180deg);
   }
 }
 
@@ -32,32 +45,25 @@
 }
 
 .dropdownContent {
-
   min-width: 200px;
   max-width: 400px;
-  padding: calc(var(--ein-vertical-spacing) / 2) 0;
+  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+}
 
-  
-  // Style for dropdown items
-  button, a {
-    display: block;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    border-radius: var(--ds-border-radius-sm);
-    text-decoration: none;
-    color: inherit;
-    
-    &:hover, &:focus {
-      background-color: var(--ds-color-neutral-background-subtle);
-    }
-    
-    &:focus {
-      outline: 2px solid var(--ds-color-accent-background-default);
-      outline-offset: -2px;
-    }
+.dropdownHeader {
+  position: relative;
+  left: var(--ein-half-horizontal-spacing);
+  right: var(--ein-half-horizontal-spacing);
+  width: auto;
+  font-weight: 600;
+  border-bottom: 1px solid var(--ds-color-border-subtle);
+}
+
+.dropdownContent :global(.ein-button.ein-button) {
+  width: 100%;
+  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  &:hover,
+  &:global(.active) {
+    background-color: var(--ds-color-surface-hover);
   }
 }

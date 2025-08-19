@@ -96,7 +96,7 @@
     "copiedToClipboard": "Copied to clipboard",
     "apply": "Apply",
     "clear": "Clear",
-    "filter": "Search tools",
+    "filter": "Filter",
     "fromDate": "From date",
     "toDate": "To date",
     "ascending": "Ascending",
@@ -135,10 +135,15 @@
   },
   "searchFilters": {
     "publisertDato": "Publication date",
+    "publisertDatoPrefix": "published",
     "oppdatertDato": "Update date",
+    "oppdateretDatoPrefix": "updated",
     "moeteDato": "Meeting date",
+    "moeteDatoPrefix": "meetingdate",
     "fullTextOnly": "Full text only",
+    "fulltextOnlyPrefix": "fulltext",
     "journalpostType": "Record type",
+    "journalpostTypePrefix": "recordtype",
     "journalpostTypes": {
       "inngaaende": "Incoming",
       "utgaaende": "Outgoing",
@@ -149,7 +154,7 @@
       "moetebok": "Meeting minutes"
     },
     "datePresets": {
-      "past24Hours": "Past 24 hours",
+      "pastDay": "Past 24 hours",
       "pastWeek": "Past week",
       "pastMonth": "Past month",
       "pastYear": "Past year",
@@ -165,6 +170,16 @@
       "oppdatertDatoDesc": "Update date, descending",
       "enhetAsc": "Organization, ascending",
       "enhetDesc": "Organization, descending"
+    }
+  },
+  "searchField": {
+    "properties": {
+      "publisertDato": "published",
+      "oppdatertDato": "updated",
+      "moeteDato": "meetingdate",
+      "journalposttype": "journalposttype",
+      "fulltext": "fulltext",
+      "id": "id"
     }
   },
   "animatedHeader": {

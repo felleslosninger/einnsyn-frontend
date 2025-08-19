@@ -65,6 +65,11 @@ export const getSearchResults = async (
     apiQuery.query = searchParams.get('q') ?? '';
   }
 
+  // Filter by full text
+  if (searchParams.has('ft')) {
+    apiQuery.fulltext = searchParams.get('ft') === 'true';
+  }
+
   try {
     apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent',
