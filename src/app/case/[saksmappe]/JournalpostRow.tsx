@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  isSkjerming,
-  type Journalpost,
-  type Korrespondansepart,
-} from '@digdir/einnsyn-sdk';
+import { isSkjerming, type Journalpost } from '@digdir/einnsyn-sdk';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -54,8 +50,6 @@ export default function JournalpostRow({
 }: {
   journalpost: Journalpost;
 }) {
-  let korrespondansepartList: Korrespondansepart[];
-
   return (
     <tr className="table-row">
       <td className={'table-cell'}>

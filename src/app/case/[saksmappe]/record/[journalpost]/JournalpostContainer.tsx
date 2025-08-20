@@ -26,10 +26,30 @@ import { getFileIcon } from '~/lib/utils/getFileIcon';
 export default function JournalpostContainer({
   journalpost,
 }: {
-  journalpost: Journalpost;
+  journalpost: Journalpost | null;
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
+  const [viewAllAttachments, setViewAllAttachments] = useState(false);
+
+  const getAttatchments = () =>
+    viewAllAttachments ? attatchments : attatchments.slice(0, 7);
+
+  function toggleAttachmentDisplay() {
+    setViewAllAttachments(!viewAllAttachments);
+  }
+
+  if (journalpost === null) {
+    return (
+      <div className="container-wrapper">
+        <div className="container-pre" />
+        <div className="container">
+          <div>{t('journalpost.label')}</div>
+          <h1>{t('journalpost.404')}</h1>
+        </div>
+      </div>
+    );
+  }
 
   const e = journalpost.administrativEnhetObjekt;
   let enhet: Enhet | undefined;
@@ -78,12 +98,22 @@ export default function JournalpostContainer({
         },
       ) ?? [];
 
-  const getAttatchments = () =>
-    viewAllAttachments ? attatchments : attatchments.slice(0, 7);
-
-  const [viewAllAttachments, setViewAllAttachments] = useState(false);
-  function toggleAttachmentDisplay() {
-    setViewAllAttachments(!viewAllAttachments);
+  function determineKorrparts() {
+    if (journalpost?.journalposttype === 'inngaaende_dokument') {
+      return (journalpost.korrespondansepart ?? [])
+        .filter((k) => typeof k !== 'string')
+        .filter((k) => /^[Aa]vsender$/.test(k.korrespondanseparttype))
+        .map((k) => k.korrespondansepartNavnSensitiv)
+        .join(', ');
+    } else if (journalpost?.journalposttype === 'utgaaende_dokument') {
+      return (journalpost.korrespondansepart ?? [])
+        .filter((k) => typeof k !== 'string')
+        .filter((k) => /^[Mm]ottaker$/.test(k.korrespondanseparttype))
+        .map((k) => k.korrespondansepartNavnSensitiv)
+        .join(', ');
+    } else {
+      return t('common.unnamed');
+    }
   }
 
   return (
@@ -99,14 +129,24 @@ export default function JournalpostContainer({
         >
           {/*
       todo
-       frå/til
        bestill-knapp
       */}
           <EinField
             label={t('journalpost.docNumber')}
             value={journalpost.journalpostnummer.toString()}
           />
-          <EinField label={t('journalpost.fromTo')} value={'TODO: korrpart'} />
+          {journalpost.journalposttype === 'utgaaende_dokument' && (
+            <EinField
+              label={t('journalpost.to')}
+              value={determineKorrparts()}
+            />
+          )}
+          {journalpost.journalposttype === 'inngaaende_dokument' && (
+            <EinField
+              label={t('journalpost.from')}
+              value={determineKorrparts()}
+            />
+          )}
           <EinField
             label={t('journalpost.recordType')}
             value={mapJournalpostType(journalpost.journalposttype)}

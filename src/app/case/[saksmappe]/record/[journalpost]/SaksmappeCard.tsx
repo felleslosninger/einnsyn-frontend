@@ -10,17 +10,14 @@ export default function SaksmappeCard({ saksmappe }: { saksmappe: Saksmappe }) {
 
   return (
     <div className={'ds-card__block'}>
-      <EinField
-        label={t('journalpost.connectedToCase')}
-        value={
-          <EinLink
-            className={'saksmappe-link'}
-            href={generateSaksmappeURL(saksmappe)}
-          >
-            {saksmappe.offentligTittel}
-          </EinLink>
-        }
-      />
+      <EinField label={t('journalpost.connectedToCase')} />
+      <EinLink
+        className={'saksmappe-link'}
+        href={generateSaksmappeURL(saksmappe)}
+      >
+        {saksmappe.offentligTittel}
+      </EinLink>
+
       <EinField
         label={t('saksmappe.saksnummer')}
         value={saksmappe.saksnummer}

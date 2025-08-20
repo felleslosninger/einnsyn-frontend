@@ -15,6 +15,7 @@ export default async function Journalpost({
       'administrativEnhetObjekt',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
+      'korrespondansepart',
     ],
   });
 

@@ -10,15 +10,11 @@ export default function EnhetCard({ enhet }: { enhet: Enhet }) {
 
   return (
     <div className={'enhetCard'}>
-      <EinField
-        label={t('virksomhet.label')}
-        value={
-          /* Make this prettier... */
-          <EinLink className={'enhet-link'} href={generateEnhetUrl(enhet)}>
-            {enhet.navn}
-          </EinLink>
-        }
-      ></EinField>
+      <EinField label={t('virksomhet.label')}>
+        <EinLink className={'enhet-link'} href={generateEnhetUrl(enhet)}>
+          {enhet.navn}
+        </EinLink>
+      </EinField>
       <EinField
         label={t('virksomhet.telefon')}
         value={enhet.kontaktpunktTelefon ?? ''}

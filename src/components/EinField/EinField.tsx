@@ -3,14 +3,19 @@ import { capitalize } from '~/lib/utils/stringutils';
 export const EinField = ({
   label,
   value,
+  children,
 }: {
   label: string;
-  value: string;
+  value?: string;
+  children?: React.ReactNode;
 }) => {
   return (
     <div className="fieldWrapper">
       <span className="fieldLabel">{capitalize(label)}: </span>
-      <span className="fieldData">{value}</span>
+      {value && children === undefined && (
+        <span className="fieldData">{value}</span>
+      )}
+      {children && <span className="fieldData">{children}</span>}
     </div>
   );
 };
