@@ -23,7 +23,7 @@
     "openid-client": "^6.6.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "sass": "^1.89.2"
+    "sass": "^1.91.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.3",
