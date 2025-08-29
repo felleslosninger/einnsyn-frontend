@@ -1,3 +1,6 @@
+import assert from 'node:assert';
+import { describe, test } from 'node:test';
+
 import {
   searchQueryToTokens,
   tokensToSearchQuery,
@@ -6,12 +9,12 @@ import {
 describe('searchQueryToTokens', () => {
   test('single words', () => {
     const result = searchQueryToTokens('single words');
-    expect(result).toEqual([{ value: 'single' }, { value: 'words' }]);
+    assert.deepStrictEqual(result, [{ value: 'single' }, { value: 'words' }]);
   });
 
   test('quotes', () => {
     const result = searchQueryToTokens('"quotes" "should skip spaces"');
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'quotes', quoted: true },
       { value: 'should skip spaces', quoted: true },
     ]);
@@ -21,7 +24,7 @@ describe('searchQueryToTokens', () => {
     const result = searchQueryToTokens(
       'prefix:prefixed prefix2:"prefixed sequence"',
     );
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'prefixed', prefix: 'prefix' },
       { value: 'prefixed sequence', prefix: 'prefix2', quoted: true },
     ]);
@@ -31,7 +34,7 @@ describe('searchQueryToTokens', () => {
     const result = searchQueryToTokens(
       'prefix:prefixed word prefix2:"prefixed sequence" "word" "se quence" "prefix:foo" pre:"ba" b',
     );
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'prefixed', prefix: 'prefix' },
       { value: 'word' },
       { value: 'prefixed sequence', prefix: 'prefix2', quoted: true },
@@ -45,12 +48,12 @@ describe('searchQueryToTokens', () => {
 
   test('un-closed quotes', () => {
     const result = searchQueryToTokens('"foo bar');
-    expect(result).toEqual([{ value: '"foo' }, { value: 'bar' }]);
+    assert.deepStrictEqual(result, [{ value: '"foo' }, { value: 'bar' }]);
   });
 
   test('un-closed prefixed quotes', () => {
     const result = searchQueryToTokens('pre:"foo bar');
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: '"foo', prefix: 'pre' },
       { value: 'bar' },
     ]);
@@ -58,7 +61,7 @@ describe('searchQueryToTokens', () => {
 
   test('quotes in the middle of a word', () => {
     const result = searchQueryToTokens('this"is a"quote test');
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'this"is' },
       { value: 'a"quote' },
       { value: 'test' },
@@ -67,7 +70,7 @@ describe('searchQueryToTokens', () => {
 
   test('quotes in the middle of a string', () => {
     const result = searchQueryToTokens('this"is "a quote');
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'this"is' },
       { value: '"a' },
       { value: 'quote' },
@@ -76,14 +79,18 @@ describe('searchQueryToTokens', () => {
 
   test('double spaces', () => {
     const result = searchQueryToTokens('foo  bar');
-    expect(result).toEqual([{ value: 'foo' }, { value: '' }, { value: 'bar' }]);
+    assert.deepStrictEqual(result, [
+      { value: 'foo' },
+      { value: '' },
+      { value: 'bar' },
+    ]);
   });
 
   test('multiple colons', () => {
     const result = searchQueryToTokens(
       'unit:http://data.oslo.kommune.no/virksomhet/osloKommune+',
     );
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       {
         prefix: 'unit',
         value: 'http://data.oslo.kommune.no/virksomhet/osloKommune+',
@@ -93,17 +100,17 @@ describe('searchQueryToTokens', () => {
 
   test('single space', () => {
     const result = searchQueryToTokens(' ');
-    expect(result).toEqual([{ value: '' }, { value: '' }]);
+    assert.deepStrictEqual(result, [{ value: '' }, { value: '' }]);
   });
 
   test('space at the end of string', () => {
     const result = searchQueryToTokens('test ');
-    expect(result).toEqual([{ value: 'test' }, { value: '' }]);
+    assert.deepStrictEqual(result, [{ value: 'test' }, { value: '' }]);
   });
 
   test('escaped quotes', () => {
     const result = searchQueryToTokens('foo "bar\\"baz"');
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { value: 'foo' },
       { value: 'bar"baz', quoted: true },
     ]);
@@ -116,7 +123,7 @@ describe('tokensToSearchQuery', () => {
       { value: 'single' },
       { value: 'words' },
     ]);
-    expect(result).toEqual('single words');
+    assert.strictEqual(result, 'single words');
   });
 
   test('quotes', () => {
@@ -124,7 +131,7 @@ describe('tokensToSearchQuery', () => {
       { value: 'quotes', quoted: true },
       { value: 'should skip spaces', quoted: true },
     ]);
-    expect(result).toEqual('"quotes" "should skip spaces"');
+    assert.strictEqual(result, '"quotes" "should skip spaces"');
   });
 
   test('prefix', () => {
@@ -132,7 +139,7 @@ describe('tokensToSearchQuery', () => {
       { value: 'prefixed', prefix: 'prefix' },
       { value: 'prefixed sequence', prefix: 'prefix2', quoted: true },
     ]);
-    expect(result).toEqual('prefix:prefixed prefix2:"prefixed sequence"');
+    assert.strictEqual(result, 'prefix:prefixed prefix2:"prefixed sequence"');
   });
 
   test('mix', () => {
@@ -146,14 +153,15 @@ describe('tokensToSearchQuery', () => {
       { value: 'ba', prefix: 'pre', quoted: true },
       { value: 'b' },
     ]);
-    expect(result).toEqual(
+    assert.strictEqual(
+      result,
       'prefix:prefixed word prefix2:"prefixed sequence" "word" "se quence" "prefix:foo" pre:"ba" b',
     );
   });
 
   test('un-closed quotes', () => {
     const result = tokensToSearchQuery([{ value: '"foo' }, { value: 'bar' }]);
-    expect(result).toEqual('"foo bar');
+    assert.strictEqual(result, '"foo bar');
   });
 
   test('un-closed prefixed quotes', () => {
@@ -161,7 +169,7 @@ describe('tokensToSearchQuery', () => {
       { value: '"foo', prefix: 'pre' },
       { value: 'bar' },
     ]);
-    expect(result).toEqual('pre:"foo bar');
+    assert.strictEqual(result, 'pre:"foo bar');
   });
 
   test('quotes in the middle of a word', () => {
@@ -170,7 +178,7 @@ describe('tokensToSearchQuery', () => {
       { value: 'a"quote' },
       { value: 'test' },
     ]);
-    expect(result).toEqual('this"is a"quote test');
+    assert.strictEqual(result, 'this"is a"quote test');
   });
 
   test('quotes in the middle of a string', () => {
@@ -179,7 +187,7 @@ describe('tokensToSearchQuery', () => {
       { value: '"a' },
       { value: 'quote' },
     ]);
-    expect(result).toEqual('this"is "a quote');
+    assert.strictEqual(result, 'this"is "a quote');
   });
 
   test('double spaces', () => {
@@ -188,7 +196,7 @@ describe('tokensToSearchQuery', () => {
       { value: '' },
       { value: 'bar' },
     ]);
-    expect(result).toEqual('foo  bar');
+    assert.strictEqual(result, 'foo  bar');
   });
 
   test('multiple colons', () => {
@@ -198,7 +206,8 @@ describe('tokensToSearchQuery', () => {
         value: 'http://data.oslo.kommune.no/virksomhet/osloKommune+',
       },
     ]);
-    expect(result).toEqual(
+    assert.strictEqual(
+      result,
       'unit:http://data.oslo.kommune.no/virksomhet/osloKommune+',
     );
   });
@@ -208,7 +217,7 @@ describe('tokensToSearchQuery', () => {
       { value: 'foo' },
       { value: 'bar"baz', quoted: true },
     ]);
-    expect(result).toEqual('foo "bar\\"baz"');
+    assert.strictEqual(result, 'foo "bar\\"baz"');
   });
 });
 
@@ -231,12 +240,11 @@ describe('search string tokenizer round trip', () => {
     '',
   ];
 
-  test.each(strings)(
-    'should convert to tokens and back to string: %s',
-    (str) => {
+  for (const str of strings) {
+    test(`should convert to tokens and back to string: ${str}`, () => {
       const tokens = searchQueryToTokens(str);
       const result = tokensToSearchQuery(tokens);
-      expect(result).toEqual(str);
-    },
-  );
+      assert.strictEqual(result, str);
+    });
+  }
 });

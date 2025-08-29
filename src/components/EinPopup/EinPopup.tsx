@@ -65,7 +65,7 @@ export default function EinPopup(props: EinPopupProps) {
    */
   const updatePopupPosition = useCallback(
     (popupElement: HTMLElement, triggerElement: HTMLElement) => {
-      // Before we calculate the position of the popup, we need to find the current
+      // To we calculate the position of the popup, we need to find the current
       // dimensions of the popup element. Move it far up and left, so that it's current
       // position does not affect its size.
       const body = document.body;

@@ -1,8 +1,8 @@
 .booleanFilter {
-  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  position: relative;
   white-space: nowrap;
-  gap: var(--ein-horizontal-spacing);
   color: var(--ds-color-text-subtle);
+
 
   &:hover {
     color: var(--ds-color-text-default);
@@ -12,5 +12,18 @@
   input:checked {
     background-color: var(--ds-color-text-default);
     border-color: var(--ds-color-text-default);
+  }
+
+  label {
+    padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+    width: 100%;
+  }
+  input {
+    position: absolute;
+    max-width: none;
+    right: var(--ein-half-horizontal-spacing);
+    top: -1px;
+    bottom: 0;
+    margin: auto;
   }
 }

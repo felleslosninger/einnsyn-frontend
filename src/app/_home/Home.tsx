@@ -35,31 +35,31 @@ export default function Home() {
   return (
     <div className="container-wrapper home-search-container">
       {/* <div className="container-pre collapsible" /> */}
-      <div className="container">
-        <div className={styles.homeContainer}>
-          <AnimatedHeader />
-          <form
-            className={styles.searchForm}
-            method="get"
-            onSubmit={onSubmit}
-            action="/search"
-          >
-            <Search data-color="brand3">
-              <SearchInput
-                aria-label={t('search.button')}
-                name="q"
-                autoComplete="off"
-                onKeyDown={onKeyDown}
-                onInput={onKeyDown}
-                value={searchQuery}
-                placeholder={t('search.placeholder')}
-              />
-              <SearchClear />
-            </Search>
-          </form>
-        </div>
+      {/* <div className="container"> */}
+      <div className={styles.homeContainer}>
+        <AnimatedHeader />
+        <form
+          className={styles.searchForm}
+          method="get"
+          onSubmit={onSubmit}
+          action="/search"
+        >
+          <Search data-color="brand3">
+            <SearchInput
+              aria-label={t('search.button')}
+              name="q"
+              autoComplete="off"
+              onKeyDown={onKeyDown}
+              onInput={onKeyDown}
+              value={searchQuery}
+              placeholder={t('search.placeholder')}
+            />
+            <SearchClear />
+          </Search>
+        </form>
       </div>
-      <div className="container-post" />
+      {/* </div> */}
+      {/* <div className="container-post" /> */}
     </div>
   );
 }

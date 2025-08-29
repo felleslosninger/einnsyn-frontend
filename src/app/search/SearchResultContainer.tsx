@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from '@digdir/designsystemet-react';
-import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
+import type { Base, Enhet, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { useTranslation } from '~/hooks/useTranslation';

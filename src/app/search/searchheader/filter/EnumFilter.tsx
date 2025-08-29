@@ -42,7 +42,7 @@ export function EnumFilter({
       }
       setSelectedValues(newSelectedValues);
       const valueString = Array.from(newSelectedValues).sort().join(',');
-      setValue?.(valueString);
+      setValue?.(valueString === '' ? undefined : valueString);
     },
     [selectedValues, setValue],
   );

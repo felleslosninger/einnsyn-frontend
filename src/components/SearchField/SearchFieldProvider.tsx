@@ -3,6 +3,7 @@
 import {
   createContext,
   type ReactNode,
+  use,
   useCallback,
   useContext,
   useEffect,
@@ -94,7 +95,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       const newTokens = [...currentTokens];
 
       if (tokenIndex > -1) {
-        if (value === undefined || value === null || value === '') {
+        if (value === undefined || value === null) {
           newTokens.splice(tokenIndex, 1);
         } else {
           newTokens[tokenIndex] = { ...newTokens[tokenIndex], value };
@@ -102,6 +103,8 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       } else if (value !== undefined && value !== null) {
         newTokens.push({ prefix: property, value });
       }
+
+      // Convert tokens to correct translation
 
       const newSearchQuery = tokensToSearchQuery(newTokens);
       setSearchQuery(newSearchQuery, push);

@@ -4,6 +4,7 @@ export type SearchToken = {
   prefix?: string;
   locked?: boolean; // Indicates if the token can be modified or not
   sign?: '+' | '-'; // Indicates hard inclusion / exclusion
+  focused?: boolean;
 };
 
 /**
@@ -23,16 +24,24 @@ export type SearchToken = {
  * @param string Full search query
  * @returns Array of tokens
  */
-export function searchQueryToTokens(string: string): SearchToken[] {
+export function searchQueryToTokens(
+  string: string,
+  caretPosition?: number,
+): SearchToken[] {
   const tokens: SearchToken[] = [];
 
   let currentPrefix: string | undefined;
   let currentWord = '';
   let quoted = false;
   let sign: '+' | '-' | undefined;
+  let focused = false;
 
   for (let i = 0; i < string.length; i += 1) {
     const char = string[i];
+
+    if (caretPosition !== undefined && i === caretPosition) {
+      focused = true;
+    }
 
     // Add current word to token list when we find a space
     if (char === ' ') {
@@ -46,6 +55,7 @@ export function searchQueryToTokens(string: string): SearchToken[] {
       currentWord = '';
       quoted = false;
       sign = undefined;
+      focused = false;
     }
 
     // Include / exclude prefix if
@@ -109,6 +119,7 @@ export function searchQueryToTokens(string: string): SearchToken[] {
     prefix: currentPrefix,
     quoted,
     sign,
+    focused,
   });
 
   // Remove last token if it's empty and not quoted, and the string did not end with a space.

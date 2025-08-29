@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -31,25 +31,19 @@ export default function SearchFilterDropdown({
   const t = useTranslation();
   const { getProperty, setProperty } = useSearchField();
 
-  const setPublisertDato = useCallback(
-    (value: string | undefined) => setProperty('publisertDato', value),
+  const getSetter = useCallback(
+    (property: string) => (value: string | undefined) =>
+      setProperty(property, value),
     [setProperty],
   );
-
-  const setOppdatertDato = useCallback(
-    (value: string | undefined) => setProperty('oppdatertDato', value),
-    [setProperty],
+  const setPublisertDato = useMemo(() => getSetter('publisert'), [getSetter]);
+  const setOppdatertDato = useMemo(() => getSetter('oppdatert'), [getSetter]);
+  const setMoeteDato = useMemo(() => getSetter('moetedato'), [getSetter]);
+  const setJournalposttype = useMemo(
+    () => getSetter('journalposttype'),
+    [getSetter],
   );
-
-  const setMoeteDato = useCallback(
-    (value: string | undefined) => setProperty('moeteDato', value),
-    [setProperty],
-  );
-
-  const setJournalposttype = useCallback(
-    (value: string | undefined) => setProperty('journalpostType', value),
-    [setProperty],
-  );
+  const setFulltext = useMemo(() => getSetter('fulltext'), [getSetter]);
 
   return (
     <EinDropdown
@@ -70,17 +64,17 @@ export default function SearchFilterDropdown({
     >
       <DateFilter
         label={t('searchFilters.publisertDato')}
-        initialValue={getProperty('publisertDato')}
+        initialValue={getProperty('publisert')}
         setValue={setPublisertDato}
       />
       <DateFilter
         label={t('searchFilters.oppdatertDato')}
-        initialValue={getProperty('oppdatertDato')}
+        initialValue={getProperty('oppdatert')}
         setValue={setOppdatertDato}
       />
       <DateFilter
         label={t('searchFilters.moeteDato')}
-        initialValue={getProperty('moeteDato')}
+        initialValue={getProperty('moetedato')}
         setValue={setMoeteDato}
       />
 
@@ -108,7 +102,10 @@ export default function SearchFilterDropdown({
           },
         ]}
       />
-      <BooleanFilter label={t('searchFilters.fullTextOnly')} property="ft" />
+      <BooleanFilter
+        label={t('searchFilters.fullTextOnly')}
+        setValue={setFulltext}
+      />
     </EinDropdown>
   );
 }
