@@ -3,12 +3,15 @@
 import {
   type Base,
   EInnsynError,
+  type FilterParameters,
   type PaginatedList,
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
-import { cachedApiClient } from './getApiClient';
 import { logger } from '~/lib/utils/logger';
 import { searchQueryToTokens } from '~/lib/utils/searchStringTokenizer';
+import { cachedApiClient } from './getApiClient';
+
+type Journalposttype = FilterParameters['journalposttype'];
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
@@ -127,7 +130,22 @@ export const getSearchResults = async (
       (token) => token.prefix === 'journalposttype',
     );
     if (journalposttype) {
-      // apiQuery.journalposttype = journalposttype.value;
+      const wantedTypes = journalposttype.value.split(',');
+      const queryTypes: Journalposttype = [];
+      if (wantedTypes.includes('inngaaende')) {
+        queryTypes.push('inngaaende_dokument');
+      }
+      if (wantedTypes.includes('utgaaende')) {
+        queryTypes.push('utgaaende_dokument');
+      }
+      if (wantedTypes.includes('internt')) {
+        queryTypes.push('organinternt_dokument_for_oppfoelging');
+        queryTypes.push('organinternt_dokument_uten_oppfoelging');
+      }
+      if (wantedTypes.includes('saksframlegg')) {
+        queryTypes.push('saksframlegg');
+      }
+      apiQuery.journalposttype = queryTypes;
     }
 
     console.log(apiQuery);
