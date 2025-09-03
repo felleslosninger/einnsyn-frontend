@@ -148,7 +148,7 @@ export const getSearchResults = async (
       apiQuery.journalposttype = queryTypes;
     }
 
-    console.log(apiQuery);
+    logger.debug('Search API query', apiQuery);
   }
 
   try {
