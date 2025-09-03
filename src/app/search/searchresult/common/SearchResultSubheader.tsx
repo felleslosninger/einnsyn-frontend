@@ -1,57 +1,76 @@
-import type {
-	Journalpost,
-	Moetemappe,
-	Moetesak,
-	Saksmappe,
+import {
+  isEnhet,
+  type Journalpost,
+  type Moetemappe,
+  type Moetesak,
+  type Saksmappe,
 } from '@digdir/einnsyn-sdk';
-import { useTranslation } from '~/hooks/useTranslation';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useTranslation } from '~/hooks/useTranslation';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { capitalize } from '~/lib/utils/stringutils';
+import EnhetLink from './EnhetLink';
 
 export default function SearchResultSubheader({
-	label,
-	item,
+  icon,
+  label,
+  item,
 }: {
-	label: string;
-	item: Journalpost | Saksmappe | Moetesak | Moetemappe | string | undefined;
+  icon?: React.ReactNode;
+  label: string;
+  item: Journalpost | Saksmappe | Moetesak | Moetemappe | string | undefined;
 }) {
-	const translate = useTranslation();
-	const languageCode = useLanguageCode();
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
 
-	if (item === undefined || typeof item === 'string') {
-		return null;
-	}
+  if (item === undefined || typeof item === 'string') {
+    return null;
+  }
 
-	const publishedDate = item.publisertDato
-		? dateFormat(item.publisertDato, languageCode)
-		: undefined;
+  const publishedDate = item.publisertDato
+    ? dateFormat(item.publisertDato, languageCode)
+    : undefined;
 
-	const updatedDate = item.oppdatertDato
-		? dateFormat(item.oppdatertDato, languageCode)
-		: undefined;
+  const updatedDate = item.oppdatertDato
+    ? dateFormat(item.oppdatertDato, languageCode)
+    : undefined;
 
-	return (
-		<div className="search-result-subheader">
-			<span className="search-result-type">{capitalize(label)}</span>
-			{publishedDate && (
-				<>
-					<span className="spacer"> &ndash; </span>
-					<span className="search-result-published-date">
-						{capitalize(translate('common.publishedAt'))}&nbsp;
-						{publishedDate}
-					</span>
-				</>
-			)}
-			{updatedDate && updatedDate !== publishedDate && (
-				<>
-					<span className="spacer"> &ndash; </span>
-					<span className="search-result-updated-date">
-						{capitalize(translate('common.updatedAt'))}&nbsp;
-						{updatedDate}
-					</span>
-				</>
-			)}
-		</div>
-	);
+  const journalenhet = item.journalenhet;
+
+  return (
+    <div className="search-result-subheader">
+      {icon && <span className="search-result-icon">{icon}</span>}
+      <span className="search-result-type">{capitalize(label)}</span>
+      {publishedDate && (
+        <>
+          <span className="spacer"> &ndash; </span>
+          <span className="search-result-published-date">
+            {capitalize(t('common.publishedAt'))}&nbsp;
+            {publishedDate}
+          </span>
+        </>
+      )}
+      {updatedDate && updatedDate !== publishedDate && (
+        <>
+          <span className="spacer"> &ndash; </span>
+          <span className="search-result-updated-date">
+            {capitalize(t('common.updatedAt'))}&nbsp;
+            {updatedDate}
+          </span>
+        </>
+      )}
+      {journalenhet && isEnhet(journalenhet) && (
+        <>
+          <span className="spacer"> &ndash; </span>
+          <span className="search-result-enhet">
+            <EnhetLink
+              enhet={journalenhet}
+              withAncestors={false}
+              className="search-result-enhet-link"
+            />
+          </span>
+        </>
+      )}
+    </div>
+  );
 }

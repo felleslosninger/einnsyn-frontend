@@ -1,4 +1,4 @@
 .tooltip :global(.ein-popup-content){
   max-width: 400px;
-  padding: calc(var(--ein-horizontal-spacing) / 2) calc(var(--ein-vertical-spacing) / 2);
+  padding: var(--ein-half-horizontal-spacing) var(--ein-half-vertical-spacing);
 }

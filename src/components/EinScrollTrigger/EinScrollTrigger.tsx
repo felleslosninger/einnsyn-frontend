@@ -1,21 +1,30 @@
 import React, { useEffect, useRef } from 'react';
+import useIsMounted from '~/hooks/useIsMounted';
 
 type EinScrollTriggerProps = {
   onEnter: () => void;
+  onExit?: () => void;
   rootMargin?: string;
+  children?: React.ReactNode;
 };
 
 export const EinScrollTrigger = ({
   onEnter,
+  onExit,
   rootMargin,
+  children,
 }: EinScrollTriggerProps) => {
   const elementRef = useRef(null);
+  const hasEnteredRef = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          hasEnteredRef.current = true;
           onEnter();
+        } else if (hasEnteredRef.current && onExit) {
+          onExit();
         }
       },
       {
@@ -29,7 +38,7 @@ export const EinScrollTrigger = ({
         if (element) observer.unobserve(element);
       };
     }
-  }, [onEnter, rootMargin]);
+  }, [onEnter, onExit, rootMargin]);
 
-  return <div ref={elementRef} style={{ width: 0, height: 0 }} />;
+  return <div ref={elementRef}>{children}</div>;
 };

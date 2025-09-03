@@ -1,0 +1,83 @@
+.searchFieldContainer {
+  position: relative;
+  display: grid;
+  background: var(--ds-color-neutral-surface-default);
+  border-style: solid;
+  border-color: var(--ds-color-neutral-border-subtle);
+  border-width: round(up, var(--ds-border-width-default), 1px);
+  border-radius: var(--ds-border-radius-md);
+
+  &:has(input:focus) {
+    box-shadow: var(--_ds--focus, var(--dsc-focus-boxShadow));
+    outline: var(--_ds--focus, var(--dsc-focus-outline));
+    outline-offset: var(--_ds--focus, var(--ds-border-width-focus));
+  }
+}
+
+.styledInput,
+.input {
+  grid-area: 1 / 1;
+  padding: var(--ds-size-2) var(--ds-size-3);
+
+  display: flex;
+  align-items: center;
+
+  // Remove default styles
+  border: none;
+  background: transparent;
+  color: var(--ds-color-neutral-text-default);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+  height: var(--ds-size-12);
+}
+
+.styledInput {
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  color: transparent;
+  caret-color: var(--ds-color-neutral-text-default);
+
+
+  // Remove default focus styles
+  &:focus,
+  &:focus-visible {
+    box-shadow: none;
+    outline: none;
+  }
+}
+
+.searchToken {
+  display: inline-block;
+}
+
+.prefixedToken {
+  position: relative;
+  border-radius: var(--ds-border-radius-sm);
+  color: var(--ds-color-neutral-text-subtle);
+  background: var(--ds-color-neutral-surface-tinted);
+  outline: 1px solid var(--ds-color-neutral-surface-tinted);
+  // box-shadow: -2px 0 0 0 var(--ds-color-surface-tinted),
+  //             2px 0 0 0 var(--ds-color-surface-tinted);
+}
+
+.includeToken {
+  background: var(--ds-color-success-surface-tinted);
+  box-shadow: -1px 0 0 0 var(--ds-color-success-surface-tinted),
+              1px 0 0 0 var(--ds-color-success-surface-tinted);
+}
+
+.excludeToken {
+  background: var(--ds-color-danger-surface-tinted);
+  box-shadow: -1px 0 0 0 var(--ds-color-danger-surface-tinted),
+              1px 0 0 0 var(--ds-color-danger-surface-tinted);
+}

@@ -1,6 +1,11 @@
 .search-result {
-  padding: 0 0 1em;
+  padding: 0 0 var(--ein-horizontal-spacing) 0;
   width: 100%;
+
+  > a {
+    display: inline-block;
+    max-width: 100%;
+  }
 
   h2 {
     max-width: 100%;
@@ -17,5 +22,17 @@
     svg {
       font-size: 1.5rem;
     }
+  }
+}
+
+.search-result-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .search-result-icon {
+    display: flex;
+    align-items: center;
+    line-height: 1;
   }
 }

@@ -93,7 +93,16 @@
     "unnamed": "Utan namn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavla",
-    "copiedToClipboard": "Kopiert til utklippstavla"
+    "copiedToClipboard": "Kopiert til utklippstavla",
+    "apply": "Bruk",
+    "clear": "Nullstill",
+    "filter": "Filter",
+    "fromDate": "Frå dato",
+    "toDate": "Til dato",
+    "ascending": "Stigande",
+    "descending": "Synkande",
+    "yes": "Ja",
+    "no": "Nei"
   },
   "saksmappe": {
     "label": "Sak",
@@ -123,6 +132,48 @@
   "moetesak": {
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
+  },
+  "searchFilters": {
+    "publisertDato": "Publiseringsdato",
+    "oppdatertDato": "Oppdateringsdato",
+    "moeteDato": "Møtedato",
+    "fullTextOnly": "Berre fulltekst",
+    "journalpostType": "Journalposttype",
+    "journalpostTypes": {
+      "inngaaende": "Inngåande",
+      "utgaaende": "Utgåande",
+      "organinternt": "Intern",
+      "saksframlegg": "Saksframlegg",
+      "sakskart": "Sakskart",
+      "moeteprotokoll": "Møteprotokoll",
+      "moetebok": "Møtebok"
+    },
+    "datePresets": {
+      "pastDay": "Siste 24 timar",
+      "pastWeek": "Siste veke",
+      "pastMonth": "Siste månad",
+      "pastYear": "Siste år",
+      "customRange": "Eigendefinert periode"
+    },
+    "sorting": "Sortering",
+    "sortOptions": {
+      "offentligTittelAsc": "Tittel, stigande",
+      "offentligTittelDesc": "Tittel, synkande",
+      "publisertDatoAsc": "Publiseringsdato, stigande",
+      "publisertDatoDesc": "Publiseringsdato, synkande",
+      "oppdatertDatoAsc": "Oppdateringsdato, stigande",
+      "oppdatertDatoDesc": "Oppdateringsdato, synkande",
+      "enhetAsc": "Verksemd, stigande",
+      "enhetDesc": "Verksemd, synkande"
+    }
+  },
+  "animatedHeader": {
+    "message1": "Søk i offentleg postjournal",
+    "message2": "Søk i offentlege møtedokument",
+    "message3": "Søk i offentleg saksgang",
+    "message4": "Søk i offentlege vedtak",
+    "message5": "Søk i kommunale dokument",
+    "message6": "Søk i statlege arkiv"
   },
   "footer": {
     "ariaLabel": "Lenkjer i botntekst",

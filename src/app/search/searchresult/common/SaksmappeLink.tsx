@@ -8,7 +8,11 @@ export default function SaksmappeLink({
 }) {
   if (isSaksmappe(saksmappe)) {
     return (
-      <EinLink className="saksmappe-link" href={`/saksmappe/${saksmappe.id}`}>
+      <EinLink
+        data-color="neutral"
+        className="saksmappe-link"
+        href={`/saksmappe/${saksmappe.id}`}
+      >
         {saksmappe.saksnummer}
       </EinLink>
     );

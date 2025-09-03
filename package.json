@@ -3,35 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:dev": "API_URL=https://api.einnsyn.dev next dev --turbopack",
-    "dev:test": "API_URL=https://api.test.einnsyn.no next dev --turbopack",
-    "dev:prod": "API_URL=https://api.einnsyn.no next dev --turbopack",
+    "dev": "NODE_ENV=development next dev --turbopack",
+    "dev:dev": "NODE_ENV=development API_URL=https://api.einnsyn.dev next dev --turbopack",
+    "dev:test": "NODE_ENV=development API_URL=https://api.test.einnsyn.no next dev --turbopack",
+    "dev:prod": "NODE_ENV=development API_URL=https://api.einnsyn.no next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --test"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "^1.1.9",
-    "@digdir/designsystemet-react": "^1.1.3",
-    "@digdir/designsystemet-theme": "^1.1.9",
-    "@digdir/einnsyn-sdk": "^1.1.0",
-    "@navikt/aksel-icons": "^7.25.1",
+    "@digdir/designsystemet-css": "1.3.0",
+    "@digdir/designsystemet-react": "1.3.0",
+    "@digdir/designsystemet-theme": "1.3.0",
+    "@digdir/einnsyn-sdk": "1.2.0",
+    "@navikt/aksel-icons": "7.29.1",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "^1.13.0",
-    "next": "15.4.5",
-    "openid-client": "^6.6.2",
+    "next": "15.5.2",
+    "openid-client": "6.7.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "sass": "^1.89.2"
+    "sass": "1.92.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.3",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^24",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "jest": "^30.0.0",
+    "@biomejs/biome": "2.2.2",
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
     "typescript": "^5"
   }
 }

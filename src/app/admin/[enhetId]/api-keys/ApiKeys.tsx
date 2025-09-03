@@ -8,7 +8,7 @@ import AddApiKeyModal from './AddApiKeyModal';
 import ApiKeyItem from './ApiKeyItem';
 
 import { PlusCircleIcon } from '@navikt/aksel-icons';
-import { fetchNextPage } from '~/actions/api/pagination';
+import { fetchNextPage } from '~/lib/utils/pagination';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import styles from './ApiKeys.module.scss';
 import cn from '~/lib/utils/className';

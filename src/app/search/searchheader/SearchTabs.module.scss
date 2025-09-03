@@ -1,0 +1,16 @@
+.tabsContainer {
+  position: relative;
+  display: flex;
+}
+
+.searchTabs,
+.searchFilter {
+  display: flex;
+  align-items: center;
+}
+
+.searchFilter {
+  width: 100%;
+  margin-right: calc(-1 * var(--ds-size-1)); // Visually align with search field
+  justify-content: flex-end;
+}

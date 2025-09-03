@@ -1,12 +1,12 @@
 'use client';
 
-import {
-  usePathname,
-  useSearchParams,
-  useSelectedLayoutSegments,
-} from 'next/navigation';
+import { useSelectedLayoutSegments } from 'next/navigation';
 import { useEffect } from 'react';
 import EinModal from '~/components/EinModal/EinModal';
+import {
+  useOptimisticPathname,
+  useOptimisticSearchParams,
+} from '~/components/NavigationProvider/NavigationProvider';
 
 // Keep track of the last pathname before a modal is opened. A modal is never opened on
 // the server side, so we fall back to returning '/' in that case.
@@ -15,13 +15,9 @@ export function useModalBasepath() {
   return basepath;
 }
 
-export function ModalWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+export function ModalWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = useOptimisticPathname();
+  const searchParams = useOptimisticSearchParams();
   const modalSegment = useSelectedLayoutSegments('modal');
   const modalIsOpen = /\(\.+\)/.test(modalSegment.join('/') ?? '');
 

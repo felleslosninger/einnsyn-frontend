@@ -5,7 +5,6 @@ import { useActionState, useEffect, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 
-import { useRouter } from 'next/navigation';
 import { eInnsynLoginAction } from '~/actions/authentication/auth.eInnsyn';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';
@@ -19,6 +18,7 @@ import { useSessionData } from '~/components/SessionDataProvider/SessionDataProv
 import { AnsattportenLogin } from './AnsattportenLogin';
 import styles from './LoginForm.module.scss';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
@@ -29,7 +29,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(!!settings?.stayLoggedIn);
   const [displayedError, setDisplayedError] = useState<string | undefined>();
-  const router = useRouter();
+  const navigation = useNavigation();
   const basepath = useModalBasepath();
 
   const [loginState, formAction, isPending] = useActionState(
@@ -53,9 +53,9 @@ export default function LoginForm() {
   // Redirect to basepath if login is successful
   useEffect(() => {
     if (loginState.success) {
-      router.push(basepath);
+      navigation.push(basepath);
     }
-  }, [loginState.success, router, basepath]);
+  }, [loginState.success, navigation, basepath]);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     setDisplayedError(undefined);
