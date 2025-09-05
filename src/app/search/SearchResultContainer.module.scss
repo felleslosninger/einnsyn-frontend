@@ -2,4 +2,40 @@
   :global(.search-toolbar) {
     padding-bottom: var(--ds-size-9);
   }
+
+  &:global(.ein-transition-init-transition-out) {
+    opacity: 1;
+  }
+  &:global(.ein-transition-transition-out) {
+    opacity: .99;
+    transition: transform .1s ease-out;
+
+    .searchResult {
+      opacity: 0;
+    }
+  }
+
+  .searchResult {
+    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+    @for $i from 1 through 50 {
+      &:nth-child(#{$i}) {
+        transition-delay: #{($i - 1) * 20}ms;
+      }
+    }
+  }
+
+  &:global(.ein-transition-init-transition-in) {
+    opacity: .99;
+    .searchResult {
+      opacity: .99;
+    }
+  }
+  &:global(.ein-transition-transition-in) {
+    opacity: 1;
+    transition: transform .1s ease-out;
+
+    .searchResult {
+      opacity: 1;
+    }
+  }
 }

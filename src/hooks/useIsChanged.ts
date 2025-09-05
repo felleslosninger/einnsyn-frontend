@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import useIsMounted from './useIsMounted';
 
 /**
  * Performs a shallow comparison of two arrays.
@@ -31,15 +32,15 @@ export default function useIsChanged(
   deps: unknown[],
   treatInitialAsUnchanged = false,
 ) {
-  // Make "previousDeps" an unique symbol initially if it should be treated as changed
-  const previousDepsRef = useRef<unknown[]>(
-    treatInitialAsUnchanged ? [...deps] : [Symbol('initial')],
-  );
+  const previousDepsRef = useRef<unknown[] | undefined>(undefined);
 
   useEffect(() => {
-    previousDepsRef.current = [...deps];
-    // biome-ignore lint/correctness/useExhaustiveDependencies: Check the *contents* of deps, not the reference
-  }, deps);
+    previousDepsRef.current = deps;
+  });
+
+  if (previousDepsRef.current === undefined) {
+    return !treatInitialAsUnchanged;
+  }
 
   return !compareDeps(previousDepsRef.current, deps);
 }

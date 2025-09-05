@@ -1,17 +1,24 @@
-import { type Journalpost, isEnhet } from '@digdir/einnsyn-sdk';
+import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
 import { ArrowRightIcon, FileIcon } from '@navikt/aksel-icons';
 import { Fragment } from 'react/jsx-runtime';
+import { EinLink } from '~/components/EinLink/EinLink';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import EnhetLink from './common/EnhetLink';
 import SaksmappeLink from './common/SaksmappeLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
-import { useTranslation } from '~/hooks/useTranslation';
-import { EinLink } from '~/components/EinLink/EinLink';
 
-export default function JournalpostResult({ item }: { item: Journalpost }) {
+export default function JournalpostResult({
+  className,
+  item,
+}: {
+  className?: string;
+  item: Journalpost;
+}) {
   const translate = useTranslation();
 
   return (
-    <div className="search-result journalpost-result">
+    <div className={cn(className, 'search-result', 'journalpost-result')}>
       <EinLink href="">
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>

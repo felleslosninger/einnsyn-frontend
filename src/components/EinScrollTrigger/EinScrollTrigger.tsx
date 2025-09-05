@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import useIsMounted from '~/hooks/useIsMounted';
 
 type EinScrollTriggerProps = {
   onEnter: () => void;
