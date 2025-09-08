@@ -1,4 +1,4 @@
-import { getSearchResults } from '~/actions/api/search';
+import { getSearchResults, getEnhetsObjektInfo } from '~/actions/api/search';
 import SearchResultContainer from '~/app/search/SearchResultContainer';
 
 export default async function Search({
@@ -11,5 +11,10 @@ export default async function Search({
   const { enhet = '' } = await params;
   const urlSearchParams = new URLSearchParams(await searchParams);
   const searchResults = await getSearchResults(enhet, urlSearchParams);
-  return <SearchResultContainer searchResults={searchResults} />;
+  const enhetsObjektInfo = await getEnhetsObjektInfo(enhet, urlSearchParams);
+  return <SearchResultContainer
+    searchResults={searchResults}
+    enhetsObjektInfo={enhetsObjektInfo}
+
+  />;
 }

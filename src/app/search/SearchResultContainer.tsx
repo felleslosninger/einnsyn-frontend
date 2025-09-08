@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@digdir/designsystemet-react';
+import { Skeleton, Card, Heading, Paragraph, Link } from '@digdir/designsystemet-react';
 import type { Base, Enhet, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
@@ -9,12 +9,18 @@ import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchResult from './searchresult/SearchResult';
+import { isEnhet } from '@digdir/einnsyn-sdk';
+import EnhetLink from './searchresult/common/EnhetLink';
+
 
 export default function SearchResultContainer({
   searchResults,
+  enhetsObjektInfo = [],
 }: {
   searchResults: PaginatedList<Base>;
+  enhetsObjektInfo?: Enhet[];
 }) {
+
   const t = useTranslation();
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
@@ -36,15 +42,16 @@ export default function SearchResultContainer({
     <div
       className={cn(
         'container-wrapper',
+        'search-container',
         'main-content',
-        styles.searchContainer,
+        styles.searchResultContainer,
       )}
     >
       <div className="container-pre collapsible" />
-      <div className="container">
-        <div className="search-results">
-          {currentSearchResults.items.length ? (
-            currentSearchResults.items.map((item) => (
+      <div className={cn(styles.searchResultContainer, 'container')}>
+        <div className={cn(styles.searchResults, 'search-results')}>
+          {searchResults.items.length ? (
+            searchResults.items.map((item) => (
               <SearchResult key={item.id} item={item} />
             ))
           ) : (
@@ -78,7 +85,50 @@ export default function SearchResultContainer({
               </div>
             </EinScrollTrigger>
           )}
+
         </div>
+
+        <div className={cn(styles.searchResultSidebar, 'sidebar')}>
+
+          {enhetsObjektInfo.length > 0 ? (
+            enhetsObjektInfo
+              .filter(isEnhet)
+              .map((enhet) => (
+                <div key={enhet.id}>
+                  <Card data-color='neutral'>
+                    <Heading><h2 className="ds-heading" data-size="md">{enhet.navn ?? 'Ukjent enhet'}</h2></Heading>
+                    <Paragraph data-size='sm'>
+                      {enhet.kontaktpunktEpost && (
+                        <Paragraph>
+                          <Link href={`mailto:${enhet.kontaktpunktEpost}`}>
+                            {enhet.kontaktpunktEpost}
+                          </Link>
+                        </Paragraph>
+                      )}
+                      {enhet.kontaktpunktTelefon && (
+                        <Paragraph>
+                          Tlf:
+                          <Link href={`tel:${enhet.kontaktpunktTelefon}`}>
+                            {enhet.kontaktpunktTelefon}
+                          </Link>
+                        </Paragraph>
+                      )}
+                      {enhet.kontaktpunktAdresse && <Paragraph>{'' + enhet.kontaktpunktAdresse}</Paragraph>}
+                      {/* {enhet.underenhet && enhet.underenhet.length > 0 && <p> {'Underenheter: ' + enhet.underenhet} </p>} */}
+                      {/* {enhet.parent && <p> {'Overordnet enhet:' + enhet.parent}</p>} */}
+                    </Paragraph>
+                    <Paragraph data-size='xs'>
+                      <div className="enhetstype"> {enhet.enhetstype && <span>{enhet.enhetstype}</span>} </div>
+                    </Paragraph>
+                  </Card>
+                </div>
+              ))
+          ) : (
+            <p></p>
+          )}
+
+        </div>
+
       </div>
       <div className="container-post" />
     </div>

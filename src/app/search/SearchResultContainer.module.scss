@@ -1,5 +1,25 @@
-.searchContainer {
-  :global(.search-toolbar) {
-    padding-bottom: var(--ds-size-9);
-  }
-}
+ .searchResultContainer {
+   display: flex;
+   max-width: 100%;
+ }
+
+ .searchResults {
+   flex: 1 1 0;
+   width: 50%;
+ }
+
+ .searchResultSidebar {
+   flex: 0 0 1;
+   min-width: 30%;
+ }
+
+ .enhet {
+   border: 1px solid var(--a-border-default);
+   padding: 1rem;
+ }
+
+ .searchContainer {
+   :global(.search-toolbar) {
+     padding-bottom: var(--ds-size-9);
+   }
+ }
