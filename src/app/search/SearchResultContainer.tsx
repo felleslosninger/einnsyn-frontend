@@ -105,7 +105,7 @@ export default function SearchResultContainer({
                         <Paragraph>
                           <Link href={`mailto:${enhet.kontaktpunktEpost}`}>
                             <span>
-                              <EnvelopeClosedIcon title="a11y-title" fontSize="1.5rem" />
+                              <EnvelopeClosedIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" />
                               {enhet.kontaktpunktEpost}
                             </span>
                           </Link>
@@ -115,25 +115,22 @@ export default function SearchResultContainer({
                         <Paragraph>
                           <Link href={`tel:${enhet.kontaktpunktTelefon}`}>
                             <span>
-                              <PhoneIcon title="a11y-title" fontSize="1.5rem" />
+                              <PhoneIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" />
                               {enhet.kontaktpunktTelefon} </span>
                           </Link>
                         </Paragraph>
                       )}
                       {enhet.kontaktpunktAdresse && (
                         <Paragraph>
-                          <span>
-                            <HouseIcon title="a11y-title" fontSize="1.5rem" />
-                            {'' + enhet.kontaktpunktAdresse}
-                          </span>
-
+                          <HouseIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" style={{ verticalAlign: 'bottom' }} />
+                          {'' + enhet.kontaktpunktAdresse}
                         </Paragraph>)}
-                      {/* {enhet.underenhet && enhet.underenhet.length > 0 && <p> {'Underenheter: ' + enhet.underenhet} </p>} */}
-                      {/* {enhet.parent && <p> {'Overordnet enhet:' + enhet.parent}</p>} */}
                     </Paragraph>
-                    <Paragraph data-size='xs'>
+
+                    {/* Uninteresting?  */}
+                    {/* <Paragraph data-size='xs'>
                       <div className="enhetstype"> {enhet.enhetstype && <span>{enhet.enhetstype}</span>} </div>
-                    </Paragraph>
+                    </Paragraph> */}
                   </Card>
                 </div>
               ))
