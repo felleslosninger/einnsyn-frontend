@@ -11,6 +11,7 @@ import styles from './SearchResultContainer.module.scss';
 import SearchResult from './searchresult/SearchResult';
 import { isEnhet } from '@digdir/einnsyn-sdk';
 import EnhetLink from './searchresult/common/EnhetLink';
+import { EnvelopeClosedIcon, PhoneIcon, HouseIcon } from '@navikt/aksel-icons';
 
 
 export default function SearchResultContainer({
@@ -96,24 +97,37 @@ export default function SearchResultContainer({
               .map((enhet) => (
                 <div key={enhet.id}>
                   <Card data-color='neutral'>
-                    <Heading><h2 className="ds-heading" data-size="md">{enhet.navn ?? 'Ukjent enhet'}</h2></Heading>
+                    <Heading>
+                      <h2 className="ds-heading" data-size="md">{enhet.navn ?? 'Ukjent enhet'}</h2>
+                    </Heading>
                     <Paragraph data-size='sm'>
                       {enhet.kontaktpunktEpost && (
                         <Paragraph>
                           <Link href={`mailto:${enhet.kontaktpunktEpost}`}>
-                            {enhet.kontaktpunktEpost}
+                            <span>
+                              <EnvelopeClosedIcon title="a11y-title" fontSize="1.5rem" />
+                              {enhet.kontaktpunktEpost}
+                            </span>
                           </Link>
                         </Paragraph>
                       )}
                       {enhet.kontaktpunktTelefon && (
                         <Paragraph>
-                          Tlf:
                           <Link href={`tel:${enhet.kontaktpunktTelefon}`}>
-                            {enhet.kontaktpunktTelefon}
+                            <span>
+                              <PhoneIcon title="a11y-title" fontSize="1.5rem" />
+                              {enhet.kontaktpunktTelefon} </span>
                           </Link>
                         </Paragraph>
                       )}
-                      {enhet.kontaktpunktAdresse && <Paragraph>{'' + enhet.kontaktpunktAdresse}</Paragraph>}
+                      {enhet.kontaktpunktAdresse && (
+                        <Paragraph>
+                          <span>
+                            <HouseIcon title="a11y-title" fontSize="1.5rem" />
+                            {'' + enhet.kontaktpunktAdresse}
+                          </span>
+
+                        </Paragraph>)}
                       {/* {enhet.underenhet && enhet.underenhet.length > 0 && <p> {'Underenheter: ' + enhet.underenhet} </p>} */}
                       {/* {enhet.parent && <p> {'Overordnet enhet:' + enhet.parent}</p>} */}
                     </Paragraph>
