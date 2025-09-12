@@ -14,6 +14,7 @@ import {
 import useIsChanged from '~/hooks/useIsChanged';
 import { useWhyDidYouUpdate } from '~/hooks/whyDidYouUpdate';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
+import { useLoadingCounter } from './useLoadingCounter';
 
 export type EinTransitionEvent = (element: HTMLElement) => Promise<void> | void;
 export type EinTransitionMergeEvent = (
@@ -91,26 +92,31 @@ const addClassNameEvents = (events: EinTransitionEvents = {}) => {
   newEvents.onInitTransition = async (e) => {
     await events.onInitTransition?.(e);
     e.classList.add(transitionEvents.onInitTransition);
+    await domTransitionend(e);
   };
 
   newEvents.onInitTransitionOut = async (e) => {
     await events.onInitTransitionOut?.(e);
     e.classList.add(transitionEvents.onInitTransitionOut);
+    await domTransitionend(e);
   };
 
   newEvents.onTransitionOut = async (e) => {
     await events.onTransitionOut?.(e);
     e.classList.add(transitionEvents.onTransitionOut);
+    await domTransitionend(e);
   };
 
   newEvents.onWaitForLoad = async (e) => {
     await events.onWaitForLoad?.(e);
     e.classList.add(transitionEvents.onWaitForLoad);
+    await domTransitionend(e);
   };
 
   newEvents.onMerge = async (e, old) => {
     await events.onMerge?.(e, old);
     e.classList.add(transitionEvents.onMerge);
+    await domTransitionend(e);
   };
 
   newEvents.onInitTransitionIn = async (e) => {
@@ -122,11 +128,13 @@ const addClassNameEvents = (events: EinTransitionEvents = {}) => {
       transitionEvents.onMerge,
     );
     e.classList.add(transitionEvents.onInitTransitionIn);
+    await domTransitionend(e);
   };
 
   newEvents.onTransitionIn = async (e) => {
     await events.onTransitionIn?.(e);
     e.classList.add(transitionEvents.onTransitionIn);
+    await domTransitionend(e);
   };
 
   newEvents.onDone = async (e) => {
@@ -135,40 +143,34 @@ const addClassNameEvents = (events: EinTransitionEvents = {}) => {
       transitionEvents.onInitTransitionIn,
       transitionEvents.onTransitionIn,
     );
+    await domTransitionend(e);
   };
 
   // Remove all transition class names
-  newEvents.onClean = async (element: HTMLElement) => {
-    await events.onClean?.(element);
-    element.classList.remove(...Object.values(transitionEvents));
+  newEvents.onClean = async (e: HTMLElement) => {
+    await events.onClean?.(e);
+    e.classList.remove(...Object.values(transitionEvents));
+    await domTransitionend(e);
   };
 
   return newEvents;
 };
 
-let idSequenceNumber = 0;
-const getUniqueId = () => idSequenceNumber++;
-
 export const EinTransition = (props: EinTransitionProps) => {
-  const {
-    loading = false,
-    dependencies = [loading],
-    children,
-    withClassNames = false,
-  } = props;
+  const { loading = false, children, withClassNames = false } = props;
+  const loadingCounter = useLoadingCounter(loading);
+  const dependencies = props.dependencies ?? [loadingCounter];
+  const switching = useIsChanged(dependencies, false) && isFrontend;
 
   const fallbackContainerRef = useRef<HTMLElement | null>(null);
   const mergeNodeRef = useRef<HTMLElement | null>(null);
   const [previousContainer, setPreviousContainer] =
     useState<HTMLElement | null>(null);
 
-  const transitionIdRef = useRef<undefined | number>(undefined);
-  const switching = useIsChanged(dependencies, false) && isFrontend;
+  const transitionIdRef = useRef<undefined | symbol>(undefined);
   const [transitionState, setTransitionState] =
     useState<TransitionState>(undefined);
   const transitionStateRef = useRef<TransitionState>(transitionState);
-
-  useWhyDidYouUpdate('EinTransition', props);
 
   // Add a ref to the child if it doesn't have one
   const { container, containerRef } = useMemo(() => {
@@ -217,7 +219,6 @@ export const EinTransition = (props: EinTransitionProps) => {
   //
   // biome-ignore lint/correctness/useExhaustiveDependencies: Only trigger on switching
   useLayoutEffect(() => {
-    console.log('USE EFFECT SWITCHING', { switching });
     if (switching) {
       // If we're already transitioning out, no need to go back to initTransition
       if (transitionState === 'transitionOut') {
@@ -225,7 +226,7 @@ export const EinTransition = (props: EinTransitionProps) => {
       }
 
       // Create new transition ID
-      transitionIdRef.current = getUniqueId();
+      transitionIdRef.current = Symbol();
       mergeNodeRef.current = null;
 
       // The node isn't attached yet, don't transition out
@@ -266,8 +267,6 @@ export const EinTransition = (props: EinTransitionProps) => {
             await events.onWaitForLoad?.(previousContainer);
           }
 
-          console.log('WAITFORLOAD DONE: ', { loading });
-
           // merge
           if (events.onMerge) {
             mergeNodeRef.current = previousContainer.cloneNode(
@@ -300,8 +299,6 @@ export const EinTransition = (props: EinTransitionProps) => {
       return;
     }
 
-    console.log('Transition in: ', { transitionState, loading });
-
     // Nothing to transition in
     const domChild = containerRef.current;
     if (!domChild) {
@@ -314,14 +311,14 @@ export const EinTransition = (props: EinTransitionProps) => {
     (async () => {
       const checkStale = () => transitionId !== transitionIdRef.current;
       try {
-        // initTransitionIn
-        await events.onInitTransitionIn?.(domChild);
-
         // merge
         if (events.onMerge && mergeNodeRef.current) {
           if (checkStale()) return;
           await events.onMerge(domChild, mergeNodeRef.current);
         }
+
+        // initTransitionIn
+        await events.onInitTransitionIn?.(domChild);
 
         // transitionIn
         if (checkStale()) return;
@@ -344,11 +341,6 @@ export const EinTransition = (props: EinTransitionProps) => {
     })();
   }, [transitionState, loading]);
 
-  console.log('EinTransition.render: ', {
-    suspend,
-    transitionState: transitionState,
-    switching,
-  });
   return <SuspenseBoundary suspend={suspend}>{container}</SuspenseBoundary>;
 };
 
