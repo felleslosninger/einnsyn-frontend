@@ -13,7 +13,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "1.3.0",
+    "@digdir/designsystemet-css": "1.5.0",
     "@digdir/designsystemet-react": "1.3.0",
     "@digdir/designsystemet-theme": "1.3.0",
     "@digdir/einnsyn-sdk": "1.2.0",
