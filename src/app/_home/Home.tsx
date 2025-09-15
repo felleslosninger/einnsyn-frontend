@@ -59,16 +59,6 @@ export default function Home() {
               aria-label={t('search.clear')}
               onClick={clearSearch}
             />
-
-            {/* {searchQuery && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                aria-label="Clear search"
-              >
-                X
-              </button>
-            )} */}
           </Search>
         </form>
       </div>
