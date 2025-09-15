@@ -1,5 +1,6 @@
 'use client';
 
+import { clear } from 'console';
 import {
   createContext,
   type ReactNode,
@@ -29,6 +30,7 @@ interface SearchFieldContextType {
   ) => void;
   setSearchQuery: (query: string, push?: boolean) => void;
   pushSearchQuery: (query: string) => void;
+  clearSearch: () => void;
 }
 
 const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
@@ -112,6 +114,10 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     [setSearchQuery],
   );
 
+  const clearSearch = useCallback(() => {
+    setSearchQuery('', true);
+  }, [setSearchQuery]);
+
   const value = useMemo(
     () => ({
       searchTokens,
@@ -120,6 +126,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
+      clearSearch,
     }),
     [
       searchTokens,
@@ -128,6 +135,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
+      clearSearch,
     ],
   );
 

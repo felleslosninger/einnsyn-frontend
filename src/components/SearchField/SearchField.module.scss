@@ -1,6 +1,7 @@
 .searchFieldContainer {
   position: relative;
-  display: grid;
+  display: flex;
+  align-items: center;
   background: var(--ds-color-neutral-surface-default);
   border-style: solid;
   border-color: var(--ds-color-neutral-border-subtle);
@@ -16,9 +17,8 @@
 
 .styledInput,
 .input {
-  grid-area: 1 / 1;
-  padding: var(--ds-size-2) var(--ds-size-3);
 
+  padding: var(--ds-size-2) var(--ds-size-3);
   display: flex;
   align-items: center;
 
@@ -35,20 +35,17 @@
 
 .styledInput {
   pointer-events: none;
-  z-index: 1;
   overflow: hidden;
   pointer-events: none;
 }
 
 .input {
   width: 100%;
-  position: relative;
-  z-index: 2;
+  position: absolute;
   color: transparent;
+  //padding-right: 2.5rem; // space for clear button
   caret-color: var(--ds-color-neutral-text-default);
 
-
-  // Remove default focus styles
   &:focus,
   &:focus-visible {
     box-shadow: none;
@@ -73,11 +70,19 @@
 .includeToken {
   background: var(--ds-color-success-surface-tinted);
   box-shadow: -1px 0 0 0 var(--ds-color-success-surface-tinted),
-              1px 0 0 0 var(--ds-color-success-surface-tinted);
+    1px 0 0 0 var(--ds-color-success-surface-tinted);
 }
 
 .excludeToken {
   background: var(--ds-color-danger-surface-tinted);
   box-shadow: -1px 0 0 0 var(--ds-color-danger-surface-tinted),
-              1px 0 0 0 var(--ds-color-danger-surface-tinted);
+    1px 0 0 0 var(--ds-color-danger-surface-tinted);
+}
+
+.clearButton {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  --dsc-button-size: var(--dsc-search-clear-size);
 }

@@ -1,9 +1,11 @@
 'use client';
 
 import { Fragment, forwardRef, useCallback } from 'react';
+import { SearchClear, Button } from '@digdir/designsystemet-react';
 import cn from '~/lib/utils/className';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
+import { MultiplyIcon } from '@navikt/aksel-icons';
 
 type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   className?: string;
@@ -11,7 +13,7 @@ type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
   ({ children, className, ...inputProps }, ref) => {
-    const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
+    const { searchTokens, searchQuery, setSearchQuery, clearSearch } = useSearchField();
 
     const onInput = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +62,17 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
           className={cn(styles.input, className)}
           {...inputProps}
         />
+        {searchQuery && (
+          <Button
+            className={cn(styles.clearButton)}
+            type="reset"
+            onClick={clearSearch}
+            aria-label="Clear search"
+            variant='tertiary'
+          >
+            <MultiplyIcon title='Clear search' />
+          </Button>
+        )}
       </div>
     );
   },

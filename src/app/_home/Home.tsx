@@ -6,11 +6,12 @@ import { useTranslation } from '~/hooks/useTranslation';
 import AnimatedHeader from './AnimatedHeader';
 import styles from './Home.module.scss';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 export default function Home() {
   const navigation = useNavigation();
   const t = useTranslation();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchQuery, setSearchQuery, clearSearch } = useSearchField();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter' && event.key !== 'Escape') {
@@ -54,7 +55,20 @@ export default function Home() {
               value={searchQuery}
               placeholder={t('search.placeholder')}
             />
-            <SearchClear />
+            <SearchClear
+              aria-label={t('search.clear')}
+              onClick={clearSearch}
+            />
+
+            {/* {searchQuery && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
+                X
+              </button>
+            )} */}
           </Search>
         </form>
       </div>
