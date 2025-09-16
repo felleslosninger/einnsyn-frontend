@@ -97,25 +97,25 @@ $arrowHalfSize: calc($arrowSize / 2);
 
 
   // Transitions
-  // &:global(.ein-transition-init-transition-out) {
+  // &:global(.ein-transition-init-exit-transition) {
   //   display: block;
   //   opacity: 1;
   //   transform: scale(1);
   // }
 
-  // &:global(.ein-transition-transition-out) {
+  // &:global(.ein-transition-exit-transition) {
   //   opacity: 0;
   //   //transform: scale(0.95);
   //   transition: all .2s ease-out;
   // }
 
-  // &:global(.ein-transition-init-transition-in) {
+  // &:global(.ein-transition-init-enter-transition) {
   //   display: block;
   //   opacity: 0;
   //   //transform: scale(0.95);
   // }
   
-  // &:global(.ein-transition-transition-in) {
+  // &:global(.ein-transition-enter-transition) {
   //   opacity: 1;
   //   transform: scale(1);
   //   transition: all .2s ease-out;

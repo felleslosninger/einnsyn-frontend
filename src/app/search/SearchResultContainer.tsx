@@ -20,7 +20,9 @@ export default function SearchResultContainer({
   const t = useTranslation();
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
-  const { loadingSearchParams } = useNavigation();
+  const { loadingSearchParamsString, searchParamsString, loading } =
+    useNavigation();
+  const isLoading = loading && loadingSearchParamsString !== searchParamsString;
 
   // Update currentSearchResults when searchResults prop changes (new search)
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function SearchResultContainer({
   }, [currentSearchResults]);
 
   return (
-    <EinTransition loading={!!loadingSearchParams} withClassNames>
+    <EinTransition loading={isLoading} withClassNames>
       <div
         className={cn(
           'container-wrapper',

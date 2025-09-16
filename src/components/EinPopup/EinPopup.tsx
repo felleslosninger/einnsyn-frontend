@@ -22,8 +22,10 @@ import {
 } from '~/lib/utils/calculatePopupPosition';
 import cn from '~/lib/utils/className';
 import { getClosestPositionedAncestor } from '~/lib/utils/domClosestPositionedAncestor';
-import type { EinTransitionEvents } from '../EinTransition/EinTransition';
-import { EinTransition } from '../EinTransition/EinTransition';
+import {
+  EinTransition,
+  type EinTransitionEvents,
+} from '../EinTransition/EinTransition';
 import styles from './EinPopup.module.scss';
 
 export type EinPopupProps = {
@@ -33,6 +35,7 @@ export type EinPopupProps = {
   closeOnEsc?: boolean;
   trapFocus?: boolean;
   children: ReactNode;
+  animate?: boolean;
   transitionEvents?: EinTransitionEvents;
   transitionFromTrigger?: boolean;
   className?: string;
@@ -48,6 +51,7 @@ export default function EinPopup(props: EinPopupProps) {
     closeOnOutsideClick = true,
     closeOnEsc = true,
     trapFocus = true,
+    animate = false,
     transitionFromTrigger = false,
     className,
     children,
@@ -153,9 +157,10 @@ export default function EinPopup(props: EinPopupProps) {
     }
   }, [open, updatePopupPosition]);
 
+  // If we're animating in, update the position after the content has loaded
   const events: EinTransitionEvents = useMemo(
     () => ({
-      onInitTransitionIn: () => updatePopupPosition(),
+      onInitEnterTransition: () => updatePopupPosition(),
     }),
     [updatePopupPosition],
   );
@@ -199,25 +204,32 @@ export default function EinPopup(props: EinPopupProps) {
   // Trap focus when open
   useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
 
-  return (
-    //<EinTransition dependencies={[open]} withClassNames events={events}>
-    <>
-      {open && (
-        <div
-          className={cn(
-            className,
-            styles.einPopup,
-            { [styles.open]: open, [styles.closed]: !open },
-            'ein-popup',
-          )}
-          ref={popupRef}
-        >
-          <div className={cn(styles.einPopupContent, 'ein-popup-content')}>
-            {children}
-          </div>
-        </div>
+  const content = open ? (
+    <div
+      className={cn(
+        className,
+        styles.einPopup,
+        { [styles.open]: open, [styles.closed]: !open },
+        'ein-popup',
       )}
-    </>
-    //</EinTransition>
+      ref={popupRef}
+    >
+      <div className={cn(styles.einPopupContent, 'ein-popup-content')}>
+        {children}
+      </div>
+    </div>
+  ) : null;
+
+  // Wrap in EinTransition if we're animating
+  return animate ? (
+    <EinTransition
+      dependencies={[open]}
+      withClassNames
+      events={{ ...events, ...transitionEvents }}
+    >
+      {content}
+    </EinTransition>
+  ) : (
+    content
   );
 }
