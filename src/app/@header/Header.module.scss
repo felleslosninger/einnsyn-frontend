@@ -2,10 +2,49 @@
   background-color: var(--ds-color-neutral-background-default);
   width: 100%;
   z-index: 10;
-  //border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
+  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
 
   .logo {
     display: block;
+  }
+
+  &:global(.section-search) {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  &:global(.section-home) {
+   :global(.container-wrapper) {
+      flex-wrap: wrap;
+    }
+
+    :global(.container-pre) {
+      width: 50%;
+    }
+
+    :global(.container-post) {
+      width: 50%;
+    }
+
+    :global(.container) {
+      width: 100%;
+      order: 3;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      form {
+        width: 100%;
+        max-width: 800px;
+      }
+    }
+
+    :global(.header-tabs) {
+      display: none;
+    }
   }
 }
 

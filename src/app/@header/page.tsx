@@ -1,3 +1,2 @@
-export default function DefaultHeader() {
-  return <></>;
-}
+import Search from './search/page';
+export default Search;

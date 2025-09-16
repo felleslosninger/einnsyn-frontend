@@ -1,41 +1,53 @@
+@use '../../styles/easing.scss' as e;
+
 .searchContainer {
   :global(.search-toolbar) {
     padding-bottom: var(--ds-size-9);
   }
 
-  &:global(.ein-transition-init-transition-out) {
+  .searchResult {
+    transform-origin: top left;
+  }
+
+  &:global(.ein-transition-init-exit-transition) {
     opacity: 1;
   }
-  &:global(.ein-transition-transition-out) {
+  &:global(.ein-transition-exit-transition) {
     opacity: .99;
-    transition: transform .1s ease-out;
+    transition: transform .5s e.$easeOutQuart;
 
     .searchResult {
       opacity: 0;
-    }
-  }
-
-  .searchResult {
-    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
-    @for $i from 1 through 50 {
-      &:nth-child(#{$i}) {
-        transition-delay: #{($i - 1) * 20}ms;
+      transform: scale(0.96);
+      transition: all 0.25s e.$easeOutQuart;
+      @for $i from 1 through 50 {
+       &:nth-child(#{$i}) {
+          transition-delay: #{($i - 1) * 30}ms;
+        }
       }
     }
   }
 
-  &:global(.ein-transition-init-transition-in) {
+  &:global(.ein-transition-init-enter-transition) {
     opacity: .99;
     .searchResult {
-      opacity: .99;
+      opacity: 0;
+      transform: scale(0.96);
     }
   }
-  &:global(.ein-transition-transition-in) {
+  &:global(.ein-transition-enter-transition) {
     opacity: 1;
-    transition: transform .1s ease-out;
+    transition: transform .3s e.$easeOutQuart;
 
     .searchResult {
       opacity: 1;
+      transform: scale(1);
+      transition: all 0.15s e.$easeOutQuart;
+      @for $i from 1 through 50 {
+        &:nth-child(#{$i}) {
+          transition-delay: #{($i - 1) * 15}ms;
+        }
+      }
     }
   }
 }

@@ -7,7 +7,10 @@
   align-items: flex-end;
 }
 
-.header-tab, .header-tab.ein-link, .header-tab.ein-button {
+.header-tab,
+.header-tab.ein-link,
+.header-tab.ein-button,
+.header-dropdown > button {
   display: inline-block;
   padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-3);
   margin: 0 var(--ds-size-2);

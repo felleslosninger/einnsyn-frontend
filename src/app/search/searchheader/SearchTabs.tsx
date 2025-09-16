@@ -71,7 +71,7 @@ export default function SearchTabs() {
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown />
+        <SearchFilterDropdown className="header-dropdown" />
       </div>
     </div>
   );
