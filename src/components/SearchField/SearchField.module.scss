@@ -21,6 +21,7 @@
   padding: var(--ds-size-2) var(--ds-size-3);
   display: flex;
   align-items: center;
+  padding-left: 2.5rem;
 
   // Remove default styles
   border: none;
@@ -84,4 +85,12 @@
   top: 50%;
   transform: translateY(-50%);
   --dsc-button-size: var(--dsc-search-clear-size);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ds-color-neutral-text-subtle);
 }

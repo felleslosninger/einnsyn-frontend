@@ -5,7 +5,7 @@ import { SearchClear, Button } from '@digdir/designsystemet-react';
 import cn from '~/lib/utils/className';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
-import { MultiplyIcon } from '@navikt/aksel-icons';
+import { MultiplyIcon, MagnifyingGlassIcon } from '@navikt/aksel-icons';
 
 type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   className?: string;
@@ -25,6 +25,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
 
     return (
       <div className={cn(styles.searchFieldContainer)}>
+        <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
         <div className={cn(styles.styledInput, className)}>
           {searchTokens.map((token, index) => (
             <Fragment key={`${index}-${token.value}`}>
@@ -54,6 +55,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
             </Fragment>
           ))}
         </div>
+
         <input
           ref={ref}
           type="text"
