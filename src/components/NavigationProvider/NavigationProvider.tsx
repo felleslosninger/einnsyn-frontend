@@ -26,10 +26,14 @@ type NavigationContextValue = {
   state: NavigationState['state'];
   pathname: string;
   searchParams: URLSearchParams;
+  searchParamsString: string;
   loadingPathname: string | undefined;
   loadingSearchParams: URLSearchParams | undefined;
+  loadingSearchParamsString: string | undefined;
   optimisticPathname: string;
   optimisticSearchParams: URLSearchParams;
+  optimisticSearchParamsString: string;
+  loading: boolean;
   // Navigation methods
   push: (href: string, options?: NavigateOptions) => void;
   replace: (href: string, options?: NavigateOptions) => void;
@@ -211,10 +215,15 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       state: navigationState.state,
       pathname,
       searchParams,
+      searchParamsString,
       loadingPathname: navigationState.loadingPathname,
       loadingSearchParams,
+      loadingSearchParamsString: navigationState.loadingSearchParamsString,
       optimisticPathname,
       optimisticSearchParams,
+      optimisticSearchParamsString:
+        navigationState.loadingSearchParamsString ?? searchParamsString,
+      loading: navigationState.state === 'loading',
       push,
       replace,
       back,
@@ -224,8 +233,10 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     }),
     [
       navigationState.state,
+      navigationState.loadingSearchParamsString,
       pathname,
       searchParams,
+      searchParamsString,
       navigationState.loadingPathname,
       loadingSearchParams,
       optimisticPathname,
