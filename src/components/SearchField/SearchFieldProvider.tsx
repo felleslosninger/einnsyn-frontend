@@ -3,7 +3,7 @@
 import {
   createContext,
   type ReactNode,
-  use,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -46,7 +46,9 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     [searchQuery],
   );
   useEffect(() => {
-    _setSearchQuery(optimisticSearchParams.get('q') ?? '');
+    startTransition(() =>
+      _setSearchQuery(optimisticSearchParams.get('q') ?? ''),
+    );
   }, [optimisticSearchParams]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
