@@ -11,7 +11,7 @@ import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 export default function Home() {
   const navigation = useNavigation();
   const t = useTranslation();
-  const { searchQuery, setSearchQuery, clearSearch } = useSearchField();
+  const { searchQuery, setSearchQuery } = useSearchField();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter' && event.key !== 'Escape') {
@@ -57,7 +57,7 @@ export default function Home() {
             />
             <SearchClear
               aria-label={t('search.clear')}
-              onClick={clearSearch}
+              onClick={() => setSearchQuery('')}
             />
           </Search>
         </form>

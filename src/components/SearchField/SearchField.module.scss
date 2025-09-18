@@ -1,11 +1,10 @@
 .searchFieldContainer {
   position: relative;
   display: flex;
+  flex-direction: row;
   align-items: center;
   background: var(--ds-color-neutral-surface-default);
-  border-style: solid;
-  border-color: var(--ds-color-neutral-border-subtle);
-  border-width: round(up, var(--ds-border-width-default), 1px);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-radius: var(--ds-border-radius-md);
 
   &:has(input:focus) {
@@ -15,15 +14,17 @@
   }
 }
 
+.inputContainer {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  color: transparent;
+  background: transparent;
+  z-index: 0;
+}
+
 .styledInput,
 .input {
-
-  padding: var(--ds-size-2) var(--ds-size-3);
-  display: flex;
-  align-items: center;
-  padding-left: 2.5rem;
-
-  // Remove default styles
   border: none;
   background: transparent;
   color: var(--ds-color-neutral-text-default);
@@ -35,16 +36,22 @@
 }
 
 .styledInput {
-  pointer-events: none;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   pointer-events: none;
+  z-index: 2;
 }
 
 .input {
-  width: 100%;
   position: absolute;
+  flex: 1 1 auto;
+  width: 100%;
+  padding: var(--ds-size-2) var(--ds-size-3);
   color: transparent;
   caret-color: var(--ds-color-neutral-text-default);
+  padding-left: calc(-1.5 * var(--ds-size-2));
+  z-index: 1;
 
   &:focus,
   &:focus-visible {
@@ -55,6 +62,7 @@
 
 .searchToken {
   display: inline-block;
+  position: relative;
 }
 
 .prefixedToken {
@@ -63,8 +71,6 @@
   color: var(--ds-color-neutral-text-subtle);
   background: var(--ds-color-neutral-surface-tinted);
   outline: 1px solid var(--ds-color-neutral-surface-tinted);
-  // box-shadow: -2px 0 0 0 var(--ds-color-surface-tinted),
-  //             2px 0 0 0 var(--ds-color-surface-tinted);
 }
 
 .includeToken {
@@ -80,18 +86,34 @@
 }
 
 .clearButton {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  --dsc-button-size: var(--dsc-search-clear-size);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scale: 0.5;
+  padding: 0;
+}
+
+.clearIcon {
+  font-size: var(--ds-size-6);
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.searchIconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
 }
 
 .searchIcon {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--ds-color-neutral-text-subtle);
-  font-size: 1.5rem;
+  font-size: var(--ds-size-7);
+  width: var(--ds-size-7);
+  height: var(--ds-size-7);
+  flex-shrink: 0;
 }

@@ -72,7 +72,8 @@
   "search": {
     "header": "Oza",
     "button": "Oza",
-    "placeholder": "Oza eInnsynas..."
+    "placeholder": "Oza eInnsynas...",
+    "clear": "Guoros ohcan"
   },
   "routing": {
     "searchPath": "oza",
