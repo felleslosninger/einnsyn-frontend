@@ -1,5 +1,9 @@
-import { useEffect, useRef } from 'react';
-import useIsMounted from './useIsMounted';
+import { useEffect, useMemo, useRef } from 'react';
+
+type ChangedDeps<T extends readonly unknown[]> = {
+  current: T;
+  previous: T | undefined;
+} | null;
 
 /**
  * Performs a shallow comparison of two arrays.
@@ -7,7 +11,7 @@ import useIsMounted from './useIsMounted';
  * @param b
  * @returns `true` if the arrays are the same length and their elements are equal according to `Object.is`, otherwise `false`.
  */
-const compareDeps = (a: unknown[], b: unknown[]) => {
+const compareDeps = (a: readonly unknown[], b: readonly unknown[]) => {
   if (a.length !== b.length) {
     return false;
   }
@@ -24,23 +28,25 @@ const compareDeps = (a: unknown[], b: unknown[]) => {
  * It performs a shallow comparison of the elements in the dependency array.
  *
  * @param deps The array of dependencies to track for changes.
- * @param treatInitialAsUnchanged If `true`, the hook will return `false` on the initial render.
- *   Defaults to `false`, meaning the initial state is considered a "change".
- * @returns `true` if the `deps` array's contents have changed since the previous commit, otherwise `false`.
+ * @param treatInitialAsUnchanged If true, first render returns null instead of a change object.
+ * @returns Object with { current, previous } when changed, otherwise null.
  */
-export default function useIsChanged(
-  deps: unknown[],
+export default function useIsChanged<T extends readonly unknown[]>(
+  deps: T,
   treatInitialAsUnchanged = false,
-) {
-  const previousDepsRef = useRef<unknown[] | undefined>(undefined);
+): ChangedDeps<T> {
+  const prevRef = useRef<T | undefined>(undefined);
+  const prev = prevRef.current;
+  const isChanged = prev ? !compareDeps(prev, deps) : !treatInitialAsUnchanged;
 
   useEffect(() => {
-    previousDepsRef.current = deps;
+    prevRef.current = deps;
   });
 
-  if (previousDepsRef.current === undefined) {
-    return !treatInitialAsUnchanged;
-  }
-
-  return !compareDeps(previousDepsRef.current, deps);
+  return isChanged
+    ? {
+        current: deps,
+        previous: prevRef.current,
+      }
+    : null;
 }
