@@ -105,8 +105,13 @@ export function EinTransition<T extends unknown[] = [number]>(
     [props.dependencies, loadingCounter],
   ) as T;
 
-  // Ensure we have a single element with a ref
-  if (children !== null && !isValidElement(children)) {
+  const [displayedChildren, setDisplayedChildren] = useState({
+    children,
+    dependencies,
+  });
+  const childrenToRender = displayedChildren.children;
+
+  if (childrenToRender !== null && !isValidElement(childrenToRender)) {
     throw new Error(
       'EinTransition requires a single React element as children',
     );
@@ -119,7 +124,7 @@ export function EinTransition<T extends unknown[] = [number]>(
   // Refs
   const childRef = useRef<HTMLElement>(null);
   const childsOriginalRef = (
-    children as ReactElement<{ ref?: Ref<HTMLElement> }>
+    childrenToRender as ReactElement<{ ref?: Ref<HTMLElement> }>
   )?.props?.ref;
   const mergedRef = useMergedRefs(childRef, childsOriginalRef);
   const snapshotRef = useRef<HTMLElement | null>(null);
@@ -138,21 +143,24 @@ export function EinTransition<T extends unknown[] = [number]>(
 
   // Clone element and attach our ref
   const childWithRef =
-    children === null
+    childrenToRender === null
       ? null
-      : cloneElement(children, {
+      : cloneElement(childrenToRender, {
           ref: mergedRef,
           'aria-busy': transitionStep !== 'idle',
           style: {
-            ...children.props.style,
-            // Hide the original element during transition
-            display: hideNew ? 'none' : children.props.style?.display || '',
+            ...childrenToRender.props.style,
+            display: hideNew
+              ? 'none'
+              : childrenToRender.props.style?.display || '',
           },
         } as RefAttributes<HTMLElement>);
 
   // Detect when we need to transition
-  const shouldTransition = useIsChanged(dependencies, true);
-  console.log('Should transition:', shouldTransition, dependencies);
+  const shouldTransition =
+    JSON.stringify(dependencies) !==
+    JSON.stringify(displayedChildren.dependencies);
+  const depsHaveChanged = useIsChanged(dependencies, true);
 
   // Start transition when dependencies change
   useLayoutEffect(() => {
@@ -171,21 +179,25 @@ export function EinTransition<T extends unknown[] = [number]>(
       const transitionId = ++transitionIdCounter;
       transitionIdRef.current = transitionId;
       changedDepsRef.current = {
-        fromDeps: (shouldTransition as { previous: T }).previous as T,
-        toDeps: (shouldTransition as { current: T }).current as T,
+        fromDeps: (depsHaveChanged as { previous: T }).previous as T,
+        toDeps: (depsHaveChanged as { current: T }).current as T,
       };
 
-      // If we don't have a current element or parent, start transitionIn
-      // immediately (we're probably mounting)
       const currentElement = childRef.current;
       const parent = currentElement?.parentElement;
       if (!parent) {
+        // We are probably mounting. Update state to render new content
+        // and start the enter transition directly.
+        setDisplayedChildren({
+          children: children,
+          dependencies: dependencies,
+        }); // ADDED
         setHideNew(false);
         setTransitionStep('waitForLoad');
         return;
       }
 
-      // Create frozen snapshot
+      // Create a frozen snapshot
       const frozen = domFreeze(currentElement);
 
       // Remove any existing snapshot
@@ -193,25 +205,34 @@ export function EinTransition<T extends unknown[] = [number]>(
         snapshotRef.current.parentElement.removeChild(snapshotRef.current);
       }
 
-      // Insert the frozen element right after the original
+      // Insert the frozen element after the original
       parent.insertBefore(frozen, currentElement.nextSibling);
       snapshotRef.current = frozen;
 
-      // Hide the original element
-      console.log('SetHideNew(true) in useLayoutEffect');
+      // We've cloned the previously displayed children, update the state
+      setDisplayedChildren({ children, dependencies });
+      console.log('SET displayed children', children);
+
+      // Hid the new content until we're ready to show it
       setHideNew(true);
       setTransitionStep('init');
     }
-  }, [shouldTransition, transitionStep]);
+  }, [
+    shouldTransition,
+    transitionStep,
+    children,
+    dependencies,
+    depsHaveChanged,
+  ]);
 
   // Handle transition transitionSteps
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Do not trigger when 'loading' changes, this is handled in a separate step
   useEffect(() => {
     const transitionId = transitionIdRef.current;
     const { fromDeps, toDeps } = changedDepsRef.current;
     const checkStale = () => transitionIdRef.current !== transitionId;
 
     (async () => {
-      console.log('useEffect transitionStep:', transitionStep);
       try {
         // Initiate transition
         if (transitionStep === 'init') {
@@ -261,7 +282,6 @@ export function EinTransition<T extends unknown[] = [number]>(
           }
 
           if (checkStale()) return;
-          console.log('WAIT FOR LOAD!');
           setTransitionStep('waitForLoad');
         }
 
@@ -373,7 +393,6 @@ export function EinTransition<T extends unknown[] = [number]>(
           }
 
           // Reset state
-          console.log('Clean up, set idle');
           setTransitionStep('idle');
           transitionIdRef.current = null;
         }
@@ -387,7 +406,6 @@ export function EinTransition<T extends unknown[] = [number]>(
         }
 
         snapshotRef.current = null;
-        console.log('Emergency cleanup, set idle');
         setTransitionStep('idle');
         transitionIdRef.current = null;
 
@@ -396,7 +414,14 @@ export function EinTransition<T extends unknown[] = [number]>(
         }
       }
     })();
-  }, [transitionStep, events, loading]);
+  }, [transitionStep, events]);
+
+  // Handle "loading" change
+  useEffect(() => {
+    if (transitionStep === 'waitForLoad' && !loading) {
+      setTransitionStep('merge');
+    }
+  }, [loading, transitionStep]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -416,6 +441,10 @@ export function EinTransition<T extends unknown[] = [number]>(
     transitionStep,
     ' Loading: ',
     loading,
+    ' Should transition: ',
+    shouldTransition,
+    ' Deps have changed: ',
+    !!depsHaveChanged,
   );
   return childWithRef;
 }
