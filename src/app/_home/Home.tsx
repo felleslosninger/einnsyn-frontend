@@ -1,12 +1,10 @@
 'use client';
-
-import { Search, SearchClear, SearchInput } from '@digdir/designsystemet-react';
-import { useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import AnimatedHeader from './AnimatedHeader';
 import styles from './Home.module.scss';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { SearchField } from '~/components/SearchField/SearchField';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -45,21 +43,16 @@ export default function Home() {
           onSubmit={onSubmit}
           action="/search"
         >
-          <Search data-color="brand3">
-            <SearchInput
-              aria-label={t('search.button')}
-              name="q"
-              autoComplete="off"
-              onKeyDown={onKeyDown}
-              onInput={onKeyDown}
-              value={searchQuery}
-              placeholder={t('search.placeholder')}
-            />
-            <SearchClear
-              aria-label={t('search.clear')}
-              onClick={() => setSearchQuery('')}
-            />
-          </Search>
+          <SearchField
+            aria-label={t('search.button')}
+            name="q"
+            autoComplete="off"
+            onKeyDown={onKeyDown}
+            onInput={onKeyDown}
+            value={searchQuery}
+            placeholder={t('search.placeholder')}
+            className={styles.searchField}
+          />
         </form>
       </div>
       {/* </div> */}

@@ -81,6 +81,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
             value={searchQuery}
             onInput={onInput}
             className={cn(styles.input, className)}
+            placeholder={t('search.placeholder')}
             {...inputProps}
           />
         </span>
