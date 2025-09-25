@@ -1,12 +1,12 @@
 'use client';
 
+import { Button } from '@digdir/designsystemet-react';
+import { MagnifyingGlassIcon, MultiplyIcon } from '@navikt/aksel-icons';
 import { Fragment, forwardRef, useCallback } from 'react';
-import { SearchClear, Button } from '@digdir/designsystemet-react';
+import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
-import { MultiplyIcon, MagnifyingGlassIcon } from '@navikt/aksel-icons';
-import { useTranslation } from '~/hooks/useTranslation';
 
 type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   className?: string;
@@ -90,7 +90,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
           searchQuery && (
             <Button
               className={cn(styles.clearButton)}
-              type="reset"
+              type="button"
               onClick={handleClear}
               aria-label={t('search.clear')}
               variant='tertiary'

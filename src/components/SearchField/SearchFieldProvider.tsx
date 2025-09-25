@@ -1,16 +1,14 @@
 'use client';
 
-import { clear } from 'console';
 import {
   createContext,
   type ReactNode,
-  use,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import {
