@@ -12,7 +12,8 @@ import {
 } from 'react';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useMergedRefs } from '~/hooks/useMergedRef';
-import { animationframe } from '~/lib/utils/animationframe';
+import { IS_BROWSER } from '~/lib/isBrowser';
+import { animationFrame } from '~/lib/utils/animationFrame';
 import { domFreeze } from '~/lib/utils/domFreeze';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import { logger } from '~/lib/utils/logger';
@@ -74,8 +75,10 @@ export type EinTransitionProps<T extends unknown[] = unknown[]> = {
   // Transition events
   events?: EinTransitionEvents<T>;
   // Add class names for each transition step. This way you can handle all
-  // transitions in CSS.
+  // transitions in CSS. Default: false
   withClassNames?: boolean;
+  // Enable / disable transitions entirely. Default: true
+  enabled?: boolean;
 };
 
 type TransitionStep =
@@ -94,7 +97,12 @@ let transitionIdCounter = 0;
 export function EinTransition<T extends unknown[] = [number]>(
   props: EinTransitionProps<T>,
 ) {
-  const { loading = false, children, withClassNames = false } = props;
+  const {
+    loading = false,
+    children,
+    withClassNames = false,
+    enabled = true,
+  } = props;
 
   // A counter that increments every time loading changes from false to true.
   // This way we can change the fallback-dependencies when loading changes
@@ -105,13 +113,7 @@ export function EinTransition<T extends unknown[] = [number]>(
     [props.dependencies, loadingCounter],
   ) as T;
 
-  const [displayedChildren, setDisplayedChildren] = useState({
-    children,
-    dependencies,
-  });
-  const childrenToRender = displayedChildren.children;
-
-  if (childrenToRender !== null && !isValidElement(childrenToRender)) {
+  if (children !== null && !isValidElement(children)) {
     throw new Error(
       'EinTransition requires a single React element as children',
     );
@@ -124,43 +126,40 @@ export function EinTransition<T extends unknown[] = [number]>(
   // Refs
   const childRef = useRef<HTMLElement>(null);
   const childsOriginalRef = (
-    childrenToRender as ReactElement<{ ref?: Ref<HTMLElement> }>
+    children as ReactElement<{ ref?: Ref<HTMLElement> }>
   )?.props?.ref;
   const mergedRef = useMergedRefs(childRef, childsOriginalRef);
   const snapshotRef = useRef<HTMLElement | null>(null);
   const transitionIdRef = useRef<number | null>(null);
-  const changedDepsRef = useRef<{ toDeps: T; fromDeps?: T }>({
-    toDeps: dependencies,
-    fromDeps: undefined,
-  });
+  const fromDepsRef = useRef<T | undefined>(undefined);
 
   // Memoize events to avoid re-calculating on every render.
   const events = useMemo(
     () =>
-      withClassNames ? addClassNameEvents(props.events) : (props.events ?? {}),
-    [withClassNames, props.events],
+      withClassNames && enabled
+        ? addClassNameEvents(props.events)
+        : (props.events ?? {}),
+    [enabled, withClassNames, props.events],
   );
 
   // Clone element and attach our ref
   const childWithRef =
-    childrenToRender === null
+    children === null
       ? null
-      : cloneElement(childrenToRender, {
+      : cloneElement(children, {
           ref: mergedRef,
           'aria-busy': transitionStep !== 'idle',
           style: {
-            ...childrenToRender.props.style,
-            display: hideNew
-              ? 'none'
-              : childrenToRender.props.style?.display || '',
+            ...children.props.style,
+            display: hideNew ? 'none' : children.props.style?.display || '',
           },
         } as RefAttributes<HTMLElement>);
 
   // Detect when we need to transition
-  const shouldTransition =
-    JSON.stringify(dependencies) !==
-    JSON.stringify(displayedChildren.dependencies);
-  const depsHaveChanged = useIsChanged(dependencies, true);
+  const changedDeps = useIsChanged(dependencies, true);
+  const shouldTransition = IS_BROWSER && enabled && changedDeps !== null;
+  const frozenDom =
+    shouldTransition && childRef.current ? domFreeze(childRef.current) : null;
 
   // Start transition when dependencies change
   useLayoutEffect(() => {
@@ -178,27 +177,14 @@ export function EinTransition<T extends unknown[] = [number]>(
       // Create a new transition ID
       const transitionId = ++transitionIdCounter;
       transitionIdRef.current = transitionId;
-      changedDepsRef.current = {
-        fromDeps: (depsHaveChanged as { previous: T }).previous as T,
-        toDeps: (depsHaveChanged as { current: T }).current as T,
-      };
 
       const currentElement = childRef.current;
       const parent = currentElement?.parentElement;
-      if (!parent) {
-        // We are probably mounting. Update state to render new content
-        // and start the enter transition directly.
-        setDisplayedChildren({
-          children: children,
-          dependencies: dependencies,
-        }); // ADDED
+      if (!parent || !frozenDom) {
         setHideNew(false);
         setTransitionStep('waitForLoad');
         return;
       }
-
-      // Create a frozen snapshot
-      const frozen = domFreeze(currentElement);
 
       // Remove any existing snapshot
       if (snapshotRef.current?.parentElement) {
@@ -206,30 +192,27 @@ export function EinTransition<T extends unknown[] = [number]>(
       }
 
       // Insert the frozen element after the original
-      parent.insertBefore(frozen, currentElement.nextSibling);
-      snapshotRef.current = frozen;
-
-      // We've cloned the previously displayed children, update the state
-      setDisplayedChildren({ children, dependencies });
-      console.log('SET displayed children', children);
+      parent.insertBefore(frozenDom, currentElement.nextSibling);
+      snapshotRef.current = frozenDom;
 
       // Hid the new content until we're ready to show it
+      fromDepsRef.current = changedDeps.previous;
       setHideNew(true);
       setTransitionStep('init');
     }
-  }, [
-    shouldTransition,
-    transitionStep,
-    children,
-    dependencies,
-    depsHaveChanged,
-  ]);
+  }, [changedDeps, frozenDom, shouldTransition, transitionStep]);
 
   // Handle transition transitionSteps
   // biome-ignore lint/correctness/useExhaustiveDependencies: Do not trigger when 'loading' changes, this is handled in a separate step
   useEffect(() => {
+    // Return early when idle
+    if (transitionStep === 'idle') {
+      return;
+    }
+
     const transitionId = transitionIdRef.current;
-    const { fromDeps, toDeps } = changedDepsRef.current;
+    const toDeps = dependencies;
+    const fromDeps = fromDepsRef.current;
     const checkStale = () => transitionIdRef.current !== transitionId;
 
     (async () => {
@@ -244,7 +227,7 @@ export function EinTransition<T extends unknown[] = [number]>(
               toDeps,
               fromDeps,
             );
-            await animationframe(1);
+            await animationFrame(1);
           }
 
           if (checkStale()) return;
@@ -261,7 +244,7 @@ export function EinTransition<T extends unknown[] = [number]>(
               toDeps,
               fromDeps,
             );
-            await animationframe(1);
+            await animationFrame(1);
           }
 
           if (checkStale()) return;
@@ -278,7 +261,7 @@ export function EinTransition<T extends unknown[] = [number]>(
               toDeps,
               fromDeps,
             );
-            await animationframe(1);
+            await animationFrame(1);
           }
 
           if (checkStale()) return;
@@ -296,7 +279,7 @@ export function EinTransition<T extends unknown[] = [number]>(
                 toDeps,
                 fromDeps,
               );
-              await animationframe(1);
+              await animationFrame(1);
             }
             return;
           }
@@ -323,7 +306,7 @@ export function EinTransition<T extends unknown[] = [number]>(
             toDeps,
             fromDeps,
           );
-          await animationframe(1);
+          await animationFrame(1);
 
           if (checkStale()) return;
           setTransitionStep('enterInit');
@@ -351,12 +334,12 @@ export function EinTransition<T extends unknown[] = [number]>(
 
           // Give React a moment to actually render it
           if (checkStale()) return;
-          await animationframe(1);
+          await animationFrame(1);
 
           // Initialize entry
           if (checkStale()) return;
           await events.onInitEnterTransition?.(newElement, toDeps, fromDeps);
-          await animationframe(1);
+          await animationFrame(1);
 
           if (checkStale()) return;
           setTransitionStep('enter');
@@ -374,7 +357,7 @@ export function EinTransition<T extends unknown[] = [number]>(
           // Perform entry transition
           if (checkStale()) return;
           await events.onEnterTransition?.(newElement, toDeps, fromDeps);
-          await animationframe(1);
+          await animationFrame(1);
 
           if (checkStale()) return;
           setTransitionStep('done');
@@ -434,18 +417,6 @@ export function EinTransition<T extends unknown[] = [number]>(
     };
   }, []);
 
-  console.log(
-    'Hide original:',
-    hideNew,
-    ' Step:',
-    transitionStep,
-    ' Loading: ',
-    loading,
-    ' Should transition: ',
-    shouldTransition,
-    ' Deps have changed: ',
-    !!depsHaveChanged,
-  );
   return childWithRef;
 }
 
