@@ -6,12 +6,12 @@ import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import Footer from '~/app/_footer/Footer';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
+import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
-import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 
 export const viewport = {
   width: 'device-width',
