@@ -11,9 +11,9 @@ type Props = {
 type ScrollDirection = 'up' | 'down' | 'none';
 
 /**
- * Hook that returns true if the last significant scroll direction was downward.
+ * Hook that returns the scroll direction of the last significant scroll event.
  * A direction change is only committed after the cumulative movement in the new
- * direction meets its threshold (debouncing jitter / minor oscillations).
+ * direction meets its threshold.
  */
 export const useScrollingDirection = ({
   threshold = 50,
