@@ -25,6 +25,16 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
       [setSearchQuery, inputProps.onInput],
     );
 
+    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== 'Enter' && event.key !== 'Escape') {
+          setSearchQuery(event.currentTarget.value ?? '');
+        }
+        if (event.key === 'Escape') {
+          event.currentTarget.value = '';
+          setSearchQuery('');
+        }
+      };
+
     const handleSearch = useCallback(() => {
       setSearchQuery(searchQuery, true);
     }, [setSearchQuery, searchQuery]);
@@ -80,6 +90,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
             type="text"
             value={searchQuery}
             onInput={onInput}
+            onKeyDown={onKeyDown}
             className={cn(styles.input, className)}
             placeholder={t('search.placeholder')}
             {...inputProps}

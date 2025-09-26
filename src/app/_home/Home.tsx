@@ -3,23 +3,15 @@ import { useNavigation } from '~/components/NavigationProvider/NavigationProvide
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
+
 import AnimatedHeader from './AnimatedHeader';
 import styles from './Home.module.scss';
 
 export default function Home() {
   const navigation = useNavigation();
   const t = useTranslation();
-  const { searchQuery, setSearchQuery } = useSearchField();
+  const { searchQuery } = useSearchField();
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter' && event.key !== 'Escape') {
-      setSearchQuery(event.currentTarget.value ?? '');
-    }
-    if (event.key === 'Escape') {
-      event.currentTarget.value = '';
-      setSearchQuery('');
-    }
-  };
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -33,8 +25,6 @@ export default function Home() {
 
   return (
     <div className="container-wrapper home-search-container">
-      {/* <div className="container-pre collapsible" /> */}
-      {/* <div className="container"> */}
       <div className={styles.homeContainer}>
         <AnimatedHeader />
         <form
@@ -47,15 +37,10 @@ export default function Home() {
             aria-label={t('search.button')}
             name="q"
             autoComplete="off"
-            onKeyDown={onKeyDown}
-            value={searchQuery}
-            placeholder={t('search.placeholder')}
             className={styles.searchField}
           />
         </form>
       </div>
-      {/* </div> */}
-      {/* <div className="container-post" /> */}
     </div>
   );
 }
