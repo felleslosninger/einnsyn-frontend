@@ -46,9 +46,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     [searchQuery],
   );
   useEffect(() => {
-    startTransition(() =>
-      _setSearchQuery(optimisticSearchParams.get('q') ?? ''),
-    );
+    _setSearchQuery(optimisticSearchParams.get('q') ?? '');
   }, [optimisticSearchParams]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
@@ -67,7 +65,10 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         searchParams.delete('q');
       }
       const newSearchParamsString = searchParams.toString();
-      navigation.push(`${optimisticPathname}?${newSearchParamsString}`);
+      // TODO: Translations for /search path
+      const pathName =
+        optimisticPathname === '/' ? '/search' : optimisticPathname;
+      navigation.push(`${pathName}?${newSearchParamsString}`);
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );

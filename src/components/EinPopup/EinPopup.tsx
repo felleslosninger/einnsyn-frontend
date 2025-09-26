@@ -144,7 +144,7 @@ export default function EinPopup(props: EinPopupProps) {
   }, [open, triggerRefProp?.current]);
 
   // Update popup position on resize
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (open) {
       // Update position on window resize
       updatePopupPosition();

@@ -1,6 +1,7 @@
 'use client';
 
 import { Alert } from '@digdir/designsystemet-react';
+import type { ApiKey } from '@digdir/einnsyn-sdk';
 import { useParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
@@ -10,12 +11,10 @@ import EinModal, {
   EinModalBody,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
-import { useTranslation } from '~/hooks/useTranslation';
-import { addApiKeyAction } from './actions';
-
-import styles from './AddApiKeyModal.module.scss';
 import useIsChanged from '~/hooks/useIsChanged';
-import type { ApiKey } from '@digdir/einnsyn-sdk';
+import { useTranslation } from '~/hooks/useTranslation';
+import styles from './AddApiKeyModal.module.scss';
+import { addApiKeyAction } from './actions';
 
 interface AddApiKeyModalProps {
   open: boolean;
@@ -57,38 +56,36 @@ export default function AddApiKeyModal({
 
   const body =
     addedKey && showSuccessMessage ? (
-      <>
-        <div className={styles.form}>
-          <Alert data-color="warning">{t('admin.apiKey.copyKeyWarning')}</Alert>
+      <div className={styles.form}>
+        <Alert data-color="warning">{t('admin.apiKey.copyKeyWarning')}</Alert>
 
-          <EinInput
-            label={t('admin.apiKey.keyName')}
-            type="text"
-            value={addedKey.name}
-            readOnly
-          />
+        <EinInput
+          label={t('admin.apiKey.keyName')}
+          type="text"
+          value={addedKey.name}
+          readOnly
+        />
 
-          <EinInput
-            label={t('admin.apiKey.secretKey')}
-            copyToClipboard
-            readOnly
-            autoComplete="off"
-            value={addedKey.secretKey}
-            className={styles.secretKeyInput}
-          />
+        <EinInput
+          label={t('admin.apiKey.secretKey')}
+          copyToClipboard
+          readOnly
+          autoComplete="off"
+          value={addedKey.secretKey}
+          className={styles.secretKeyInput}
+        />
 
-          <EinCheckbox
-            label={t('admin.apiKey.copyKeyConfirmation')}
-            name="keyCopied"
-            checked={isKeyCopied}
-            onChange={(e) => setIsKeyCopied(e.target.checked)}
-          />
+        <EinCheckbox
+          label={t('admin.apiKey.copyKeyConfirmation')}
+          name="keyCopied"
+          checked={isKeyCopied}
+          onChange={(e) => setIsKeyCopied(e.target.checked)}
+        />
 
-          <EinButton onClick={handleClose} disabled={!isKeyCopied}>
-            {t('common.close')}
-          </EinButton>
-        </div>
-      </>
+        <EinButton onClick={handleClose} disabled={!isKeyCopied}>
+          {t('common.close')}
+        </EinButton>
+      </div>
     ) : (
       <form className={styles.form} action={addApiKey}>
         <input type="hidden" name="enhetId" value={enhetId} />

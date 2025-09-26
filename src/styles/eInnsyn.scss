@@ -37,13 +37,6 @@ body {
   flex: 1;
 }
 
-header {
-  padding-top: var(--ein-horizontal-spacing);
-
-  @include mq.small-and-medium {
-    padding-top: var(--ds-size-4);
-  }
-}
 
 
 .container-wrapper {

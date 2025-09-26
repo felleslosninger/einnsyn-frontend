@@ -10,7 +10,7 @@ import cn from '~/lib/utils/className';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
 
-export default function SearchTabs() {
+export default function SearchTabs({ className }: { className?: string }) {
   const searchParams = useOptimisticSearchParams();
   const pathname = useOptimisticPathname();
   const t = useTranslation();
@@ -36,7 +36,7 @@ export default function SearchTabs() {
 
   return (
     <div
-      className={cn(styles.tabsContainer, 'header-tabs')}
+      className={cn(styles.tabsContainer, className, 'header-tabs')}
       data-size="sm"
       data-color="neutral"
     >

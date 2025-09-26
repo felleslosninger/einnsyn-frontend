@@ -13,6 +13,7 @@ import {
   useState,
   useTransition,
 } from 'react';
+import { animationFrame } from '~/lib/utils/animationFrame';
 
 type NavigationState = {
   state: 'idle' | 'loading';
@@ -79,15 +80,21 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
   // Handle browser back/forward navigation
   useEffect(() => {
-    const handlePopState = () => {
-      // When popstate fires, the URL has already changed.
-      startTransition(() => {
-        setNavigationState({
-          state: 'loading',
-          loadingPathname: window.location.pathname,
-          loadingSearchParamsString: window.location.search,
-          type: 'native',
-        });
+    const handlePopState = async () => {
+      // Trigger a "fake" loading state
+      setNavigationState({
+        state: 'loading',
+        loadingPathname: window.location.pathname,
+        loadingSearchParamsString: window.location.search,
+        type: 'native',
+      });
+
+      // Wait for next frame to ensure loading state is rendered
+      await animationFrame();
+
+      // Revert immediately
+      setNavigationState({
+        state: 'idle',
       });
     };
 
@@ -105,11 +112,11 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       type !== 'native' &&
       loadingPathname !== undefined
     ) {
-      startTransition(() => {
-        const url = new URL(window.location.origin);
-        url.pathname = loadingPathname;
-        url.search = loadingSearchParams?.toString() ?? '';
+      const url = new URL(window.location.origin);
+      url.pathname = loadingPathname;
+      url.search = loadingSearchParams?.toString() ?? '';
 
+      startTransition(() => {
         if (type === 'push') {
           router.push(url.href, loadingOptions);
         } else if (type === 'replace') {
@@ -170,35 +177,35 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   );
 
   const back = useCallback(() => {
+    setNavigationState({
+      state: 'loading',
+      type: 'native',
+    });
     startTransition(() => {
-      setNavigationState({
-        state: 'loading',
-        type: 'native',
-      });
       router.back();
     });
   }, [router]);
 
   const forward = useCallback(() => {
+    setNavigationState({
+      state: 'loading',
+      type: 'native',
+    });
     startTransition(() => {
-      setNavigationState({
-        state: 'loading',
-        type: 'native',
-      });
       router.forward();
     });
   }, [router]);
 
   const refresh = useCallback(() => {
+    const { pathname: currentPathname, searchParams: currentSearchParams } =
+      routeInfoRef.current;
+    setNavigationState({
+      state: 'loading',
+      type: 'replace',
+      loadingPathname: currentPathname,
+      loadingSearchParamsString: currentSearchParams.toString(),
+    });
     startTransition(() => {
-      const { pathname: currentPathname, searchParams: currentSearchParams } =
-        routeInfoRef.current;
-      setNavigationState({
-        state: 'loading',
-        type: 'replace',
-        loadingPathname: currentPathname,
-        loadingSearchParamsString: currentSearchParams.toString(),
-      });
       router.refresh();
     });
   }, [router]);
@@ -276,9 +283,15 @@ export function useOptimisticPathname() {
 
 // Convenience hook to get current or loading search params
 export function useOptimisticSearchParams() {
-  const { searchParams, loadingSearchParams, state } = useNavigation();
+  const {
+    searchParams,
+    searchParamsString,
+    loadingSearchParams,
+    loadingSearchParamsString,
+    state,
+  } = useNavigation();
 
-  return state === 'loading' && loadingSearchParams
+  return state === 'loading' && loadingSearchParamsString !== searchParamsString
     ? loadingSearchParams
     : searchParams;
 }
