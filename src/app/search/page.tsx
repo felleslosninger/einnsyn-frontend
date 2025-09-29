@@ -1,5 +1,5 @@
-import { getSearchResults } from '~/actions/api/search';
-import SearchResultContainer from '~/app/search/SearchResultContainer';
+import { getSearchResults } from '~/features/search/actions/search';
+import SearchResultContainer from '~/features/search/SearchResultContainer';
 
 export default async function Search({
   params,
