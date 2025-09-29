@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@digdir/designsystemet-react';
-import { MagnifyingGlassIcon, MultiplyIcon } from '@navikt/aksel-icons';
+import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { Fragment, forwardRef, useCallback } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -94,7 +94,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
               aria-label={t('search.clear')}
               variant='tertiary'
             >
-              <MultiplyIcon title={t('search.clear')} className={cn(styles.clearIcon)} />
+              <XMarkIcon title={t('search.clear')} className={cn(styles.clearIcon)} />
             </Button>
           )
         }
