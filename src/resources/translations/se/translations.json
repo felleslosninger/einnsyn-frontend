@@ -72,7 +72,8 @@
   "search": {
     "header": "Oza",
     "button": "Oza",
-    "placeholder": "Oza eInnsynas..."
+    "placeholder": "Oza eInnsynas...",
+    "clear": "Guoros ohcan"
   },
   "routing": {
     "searchPath": "oza",
@@ -94,7 +95,16 @@
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",
     "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
-    "title": "Bajilčála"
+    "title": "Bajilčála",
+    "apply": "Geavat",
+    "clear": "Sihko",
+    "filter": "Sillit",
+    "fromDate": "Beaivvi rájes",
+    "toDate": "Beaivvi rádjai",
+    "ascending": "Bajásdoallo",
+    "descending": "Vuollásdoallo",
+    "yes": "Jo",
+    "no": "Ii"
   },
   "saksmappe": {
     "label": "Ášši",
@@ -137,6 +147,48 @@
   "moetesak": {
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
+  },
+  "searchFilters": {
+    "publisertDato": "Almmuhanbeassi",
+    "oppdatertDato": "Beaivádanbeassi",
+    "moeteDato": "Čoahkkinbeassi",
+    "fullTextOnly": "Dusá ollántéksta",
+    "journalpostType": "Journalapoasta šádju",
+    "journalpostTypes": {
+      "inngaaende": "Sisasboahtti",
+      "utgaaende": "Olggosmanni",
+      "organinternt": "Siskkaldas",
+      "saksframlegg": "Áššeovdanbuktin",
+      "sakskart": "Áššelistu",
+      "moeteprotokoll": "Čoahkkinbeavdegirji",
+      "moetebok": "Čoahkkingirji"
+    },
+    "datePresets": {
+      "pastDay": "Manuá 24 diimmu",
+      "pastWeek": "Manuá váhkku",
+      "pastMonth": "Manuá mánnu",
+      "pastYear": "Manuá jagi",
+      "customRange": "Ieznaga määrituvvon áigádat"
+    },
+    "sorting": "Ortnit",
+    "sortOptions": {
+      "offentligTittelAsc": "Namma, bajásdoallo",
+      "offentligTittelDesc": "Namma, vuollásdoallo",
+      "publisertDatoAsc": "Almmuhanbeassi, bajásdoallo",
+      "publisertDatoDesc": "Almmuhanbeassi, vuollásdoallo",
+      "oppdatertDatoAsc": "Beaivádanbeassi, bajásdoallo",
+      "oppdatertDatoDesc": "Beaivádanbeassi, vuollásdoallo",
+      "enhetAsc": "Organisašuvdna, bajásdoallo",
+      "enhetDesc": "Organisašuvdna, vuollásdoallo"
+    }
+  },
+  "animatedHeader": {
+    "message1": "Ohce almmolaš poastajournálas",
+    "message2": "Ohce almmolaš čoahkkindokumeanttain",
+    "message3": "Ohce almmolaš áššegullamis",
+    "message4": "Ohce almmolaš mearrádusain",
+    "message5": "Ohce gielddalaš dokumeanttain",
+    "message6": "Ohce stáhtalaš arkiivvain"
   },
   "footer": {
     "ariaLabel": "Liŋkkat vuoldečállosis",

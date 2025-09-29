@@ -2,7 +2,6 @@
 
 import { Button } from '@digdir/designsystemet-react';
 import { XMarkIcon } from '@navikt/aksel-icons';
-import { useRouter } from 'next/navigation';
 import type { ReactNode, RefObject } from 'react';
 import { useRef } from 'react';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
@@ -13,6 +12,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import EinPopup from '../EinPopup/EinPopup';
 import styles from './EinModal.module.scss';
+import { useNavigation } from '../NavigationProvider/NavigationProvider';
 
 type EinModalProps = {
   open: boolean;
@@ -47,11 +47,11 @@ export default function EinModal({
   containerRef: containerRefProp,
   setOpen,
 }: EinModalProps) {
-  const router = useRouter();
+  const navigation = useNavigation();
   const basepath = useModalBasepath();
   const closeModal = () => {
     setOpen?.(false);
-    router.push(basepath);
+    navigation.push(basepath);
   };
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
@@ -130,11 +130,11 @@ export function EinModalHeader({
 }: EinModalHeaderProps) {
   const t = useTranslation();
   const basepath = useModalBasepath();
-  const router = useRouter();
+  const navigation = useNavigation();
 
   const closeHandler = (event: React.MouseEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push(basepath);
+    navigation.push(basepath);
   };
 
   return (

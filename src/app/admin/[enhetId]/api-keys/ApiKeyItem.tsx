@@ -6,17 +6,16 @@ import { useState, useTransition } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import EinModal, {
   EinModalBody,
-  EinModalFooter,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
-import { useTranslation } from '~/hooks/useTranslation';
-import { deleteApiKeyAction } from './actions';
-import { dateFormat } from '~/lib/utils/dateFormat';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useTranslation } from '~/hooks/useTranslation';
+import { dateFormat } from '~/lib/utils/dateFormat';
+import { deleteApiKeyAction } from './actions';
 
+import cn from '~/lib/utils/className';
 import tableStyles from './AddApiKeyModal.module.scss';
 import styles from './ApiKeyItem.module.scss';
-import cn from '~/lib/utils/className';
 
 interface ApiKeyItemProps {
   apiKey: ApiKey;

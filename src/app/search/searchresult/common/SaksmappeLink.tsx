@@ -1,4 +1,4 @@
-import { type Saksmappe, isSaksmappe } from '@digdir/einnsyn-sdk';
+import { isSaksmappe, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 
@@ -13,6 +13,7 @@ export default function SaksmappeLink({
     return (
       <EinLink
         className="saksmappe-link"
+        data-color="neutral"
         href={`/${t('routing.saksmappePath')}/${saksmappe.id}`}
       >
         {saksmappe.saksnummer}

@@ -2,11 +2,11 @@
 
 import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useState } from 'react';
-import { fetchNextPage } from '~/actions/api/pagination';
 import JournalpostRow from '~/app/case/[saksmappe]/JournalpostRow';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './JournalpostList.module.scss';
 
 export default function JournalpostList({

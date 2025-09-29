@@ -1,14 +1,14 @@
 'use client';
 
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useOptimisticPathname } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
-
-import styles from './AdminTabs.module.scss';
 import cn from '~/lib/utils/className';
+import styles from './AdminTabs.module.scss';
 
 export default function AdminTabs() {
-  const pathname = usePathname();
+  const pathname = useOptimisticPathname();
   const { enhetId } = useParams<{ enhetId: string }>() ?? {};
   const t = useTranslation();
 

@@ -13,7 +13,7 @@ const getAncestors = (enhet: Enhet) => {
   return ancestors;
 };
 
-const getHref = (enhet: Enhet) => {
+export const getEnhetHref = (enhet: Enhet) => {
   const ancestors = getAncestors(enhet);
   return `/${ancestors.map((ancestor) => ancestor.id).join('-')}`;
   // return `/${enhet.id}`;
@@ -21,11 +21,13 @@ const getHref = (enhet: Enhet) => {
 
 const getName = (languageCode: string, enhet: Enhet) => {
   let enhetName = enhet.navn;
-  if (languageCode === 'en' && enhet.navnEngelsk) {
+  if (languageCode === 'nb' && enhet.navn) {
+    enhetName = enhet.navn;
+  } else if (languageCode === 'en' && enhet.navnEngelsk) {
     enhetName = enhet.navnEngelsk;
   } else if (languageCode === 'nn' && enhet.navnNynorsk) {
     enhetName = enhet.navnNynorsk;
-  } else if (languageCode === 'nb' && enhet.navnSami) {
+  } else if (languageCode === 'se' && enhet.navnSami) {
     enhetName = enhet.navnSami;
   }
   return enhetName;
@@ -53,7 +55,11 @@ export default function EnhetLink({
 
   return ancestors.map((enhet, index) => (
     <Fragment key={enhet.id}>
-      <EinLink href={getHref(enhet)} className="enhet-link">
+      <EinLink
+        data-color="neutral"
+        href={getEnhetHref(enhet)}
+        className="enhet-link"
+      >
         {getName(languageCode, enhet)}
       </EinLink>
       {index < ancestors.length - 1 && <span> / </span>}

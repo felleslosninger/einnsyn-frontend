@@ -1,5 +1,5 @@
-import { type Journalpost, isEnhet } from '@digdir/einnsyn-sdk';
-import { ArrowRightIcon } from '@navikt/aksel-icons';
+import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
+import { ArrowRightIcon, FileIcon } from '@navikt/aksel-icons';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -20,18 +20,18 @@ export default function JournalpostResult({ item }: { item: Journalpost }) {
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
+        <SearchResultSubheader
+          item={item}
+          icon={<FileIcon title="a11y-title" fontSize="1rem" />}
+          label={translate('journalpost.label')}
+        />
         <div className="journalpost-enhet">
           <JournalpostOwner journalpost={item} />
         </div>
-        <SearchResultSubheader
-          item={item}
-          label={translate('journalpost.label')}
-        />
         <div className="search-result-saksnummer">
           {translate('saksmappe.saksnummer')}:{' '}
           <SaksmappeLink saksmappe={item.saksmappe} />
         </div>
-        <br />
       </div>
     </div>
   );
@@ -41,7 +41,7 @@ function JournalpostOwner({ journalpost }: { journalpost: Journalpost }) {
   const korrespondansepartList = journalpost.korrespondansepart ?? [];
 
   if (!isEnhet(journalpost.administrativEnhetObjekt)) {
-    return <></>;
+    return;
   }
 
   // Document received by the owner

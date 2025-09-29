@@ -5,11 +5,13 @@ import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import Footer from '~/app/_footer/Footer';
+import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
-import '~/styles/eInnsyn.scss';
-import { ModalWrapper } from './@modal/ModalWrapper';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { getOrigin } from '~/lib/utils/getOrigin';
+import '~/styles/eInnsyn.scss';
+import { ModalWrapper } from './@modal/ModalWrapper';
+import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 
 export const viewport = {
   width: 'device-width',
@@ -55,23 +57,27 @@ export default async function Layout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body data-color-scheme={settings.colorScheme}>
-        <div className="einnsyn-body">
-          <SessionDataProvider
-            sessionData={{
-              settings,
-              authInfo,
-              origin,
-            }}
-          >
-            {header}
-            <main className="content-flex-grow">{children}</main>
-            <Footer />
-            <ModalWrapper>{modal}</ModalWrapper>
-            <ThemeManager />
-          </SessionDataProvider>
-        </div>
-      </body>
+      <NavigationProvider>
+        <SessionDataProvider
+          sessionData={{
+            settings,
+            authInfo,
+            origin,
+          }}
+        >
+          <SearchFieldProvider>
+            <body data-color-scheme={settings.colorScheme}>
+              <div className="einnsyn-body">
+                {header}
+                <main className="content-flex-grow">{children}</main>
+                <Footer />
+                <ModalWrapper>{modal}</ModalWrapper>
+                <ThemeManager />
+              </div>
+            </body>
+          </SearchFieldProvider>
+        </SessionDataProvider>
+      </NavigationProvider>
     </html>
   );
 }
