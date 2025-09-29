@@ -97,8 +97,6 @@
   padding: var(--ds-size-1);
   margin-left: var(--ds-size-2);
   margin-right: var(--ds-size-2);
-  width: var(--ds-size-9);
-  height: var(--ds-size-9);
   min-width: var(--ds-size-9);
   min-height: var(--ds-size-9);
   scale: 0.75;
@@ -110,8 +108,11 @@
 }
 
 .actionButtonContainer {
+  display: flex;
+  flex-direction: row;
   margin-top: var(--ds-size-1);
   margin-bottom: var(--ds-size-1);
+
   padding-top: var(--ds-size-1);
   padding-bottom: var(--ds-size-1);
   padding-left: var(--ds-size-3);
@@ -134,8 +135,6 @@
   padding: 0;
   width: var(--ds-size-9);
   height: var(--ds-size-9);
-  min-width: var(--ds-size-9);
-  min-height: var(--ds-size-9);
 }
 
 .searchIcon {
