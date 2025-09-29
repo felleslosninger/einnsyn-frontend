@@ -4,9 +4,9 @@ import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import EnhetLink from '../../app/search/searchresult/common/EnhetLink';
-import SaksmappeLink from '../../app/search/searchresult/common/SaksmappeLink';
-import SearchResultSubheader from '../../app/search/searchresult/common/SearchResultSubheader';
+import EnhetLink from './searchresult/common/EnhetLink';
+import SaksmappeLink from './searchresult/common/SaksmappeLink';
+import SearchResultSubheader from './searchresult/common/SearchResultSubheader';
 
 export default function JournalpostResult({
   className,

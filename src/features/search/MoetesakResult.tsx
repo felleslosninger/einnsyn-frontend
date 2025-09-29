@@ -3,7 +3,7 @@ import { TasklistIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import SearchResultSubheader from '../../app/search/searchresult/common/SearchResultSubheader';
+import SearchResultSubheader from './searchresult/common/SearchResultSubheader';
 
 export default function MoetesakResult({
   className,

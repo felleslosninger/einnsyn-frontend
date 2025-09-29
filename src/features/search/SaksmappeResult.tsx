@@ -3,10 +3,8 @@ import { FolderFileIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import EnhetLink, {
-  getEnhetHref,
-} from '../../app/search/searchresult/common/EnhetLink';
-import SearchResultSubheader from '../../app/search/searchresult/common/SearchResultSubheader';
+import EnhetLink, { getEnhetHref } from './searchresult/common/EnhetLink';
+import SearchResultSubheader from './searchresult/common/SearchResultSubheader';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   const enhet = saksmappe.administrativEnhetObjekt;
