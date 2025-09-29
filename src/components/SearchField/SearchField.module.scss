@@ -47,12 +47,17 @@
   color: transparent;
   caret-color: var(--ds-color-neutral-text-default);
 
-
   // Remove default focus styles
   &:focus,
   &:focus-visible {
     box-shadow: none;
     outline: none;
+  }
+  
+  &::selection,
+  &::-moz-selection {
+    background-color: var(--ds-color-surface-active);
+    color: var(--ds-color-neutral-text-default);
   }
 }
 
