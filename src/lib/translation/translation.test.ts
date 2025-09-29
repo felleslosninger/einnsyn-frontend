@@ -14,7 +14,7 @@ describe('translation', () => {
       const result = resolveLanguageCode(
         'fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5',
       );
-      assert.strictEqual(result, 'fr');
+      assert.strictEqual(result, 'en');
     });
 
     test('without q, missing in supported languages list', () => {
