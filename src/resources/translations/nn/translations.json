@@ -72,7 +72,8 @@
   "search": {
     "header": "Søk",
     "button": "Søk",
-    "placeholder": "Søk i eInnsyn..."
+    "placeholder": "Søk i eInnsyn...",
+    "clear": "Tøm søk"
   },
   "routing": {
     "searchPath": "søk",
