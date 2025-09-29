@@ -10,7 +10,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
-import SearchResult from './SearchResult';
+import SearchResult from './searchresult/SearchResult';
 
 export default function SearchResultContainer({
   searchResults,

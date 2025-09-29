@@ -3,8 +3,8 @@ import { FolderFileIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import EnhetLink, { getEnhetHref } from './searchresult/common/EnhetLink';
-import SearchResultSubheader from './searchresult/common/SearchResultSubheader';
+import EnhetLink, { getEnhetHref } from './common/EnhetLink';
+import SearchResultSubheader from './common/SearchResultSubheader';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   const enhet = saksmappe.administrativEnhetObjekt;
@@ -34,7 +34,13 @@ export default function SaksmappeResult({
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
-          icon={<FolderFileIcon title="a11y-title" fontSize="1.2rem" />}
+          icon={
+            <FolderFileIcon
+              aria-hidden="true"
+              focusable="false"
+              fontSize="1.2rem"
+            />
+          }
           item={item}
           label={translate('saksmappe.label')}
         />

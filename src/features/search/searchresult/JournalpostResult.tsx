@@ -4,9 +4,9 @@ import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import EnhetLink from './searchresult/common/EnhetLink';
-import SaksmappeLink from './searchresult/common/SaksmappeLink';
-import SearchResultSubheader from './searchresult/common/SearchResultSubheader';
+import EnhetLink from './common/EnhetLink';
+import SaksmappeLink from './common/SaksmappeLink';
+import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function JournalpostResult({
   className,
@@ -25,7 +25,9 @@ export default function JournalpostResult({
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
           item={item}
-          icon={<FileIcon title="a11y-title" fontSize="1rem" />}
+          icon={
+            <FileIcon aria-hidden="true" focusable="false" fontSize="1rem" />
+          }
           label={translate('journalpost.label')}
         />
         <div className="journalpost-enhet">

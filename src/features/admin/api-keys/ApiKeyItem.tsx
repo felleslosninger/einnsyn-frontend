@@ -11,7 +11,7 @@ import EinModal, {
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { deleteApiKeyAction } from './actions';
+import { deleteApiKeyAction } from '../adminActions';
 
 import cn from '~/lib/utils/className';
 import tableStyles from './AddApiKeyModal.module.scss';

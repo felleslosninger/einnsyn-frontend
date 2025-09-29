@@ -202,7 +202,7 @@ export default function EinPopup(props: EinPopupProps) {
   useOnOutsideClick(popupRef, open && closeOnOutsideClick, outsideClickHandler);
 
   // Trap focus when open
-  useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
+  useFocusTrap(popupRef, trapFocus);
 
   const content = open ? (
     <div

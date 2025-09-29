@@ -14,7 +14,7 @@ import EinModal, {
 import useIsChanged from '~/hooks/useIsChanged';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './AddApiKeyModal.module.scss';
-import { addApiKeyAction } from './actions';
+import { addApiKeyAction } from '../adminActions';
 
 interface AddApiKeyModalProps {
   open: boolean;
