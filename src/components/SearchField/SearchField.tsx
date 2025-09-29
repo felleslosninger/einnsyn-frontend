@@ -26,14 +26,10 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
     );
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key !== 'Enter' && event.key !== 'Escape') {
-          setSearchQuery(event.currentTarget.value ?? '');
-        }
-        if (event.key === 'Escape') {
-          event.currentTarget.value = '';
-          setSearchQuery('');
-        }
-      };
+      if (event.key !== 'Enter') {
+        setSearchQuery(event.currentTarget.value ?? '');
+      }
+    };
 
     const handleSearch = useCallback(() => {
       setSearchQuery(searchQuery, true);
@@ -45,14 +41,6 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
 
     return (
       <div className={cn(styles.searchFieldContainer)}>
-        <button
-          className={cn(styles.searchIconButton)}
-          type="submit"
-          aria-label={t('search.button')}
-          onClick={handleSearch}
-        >
-          <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
-        </button>
 
         <span className={cn(styles.inputContainer)}>
           <div className={cn(styles.styledInput, className)}>
@@ -110,6 +98,18 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
             </Button>
           )
         }
+        <div className={cn(styles.actionButtonContainer, {
+          [styles.withBorder]: !!searchQuery
+        })}>
+          <button
+            className={cn(styles.searchIconButton)}
+            type="submit"
+            aria-label={t('search.button')}
+            onClick={handleSearch}
+          >
+            <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
+          </button>
+        </div>
       </div >
     );
   },
