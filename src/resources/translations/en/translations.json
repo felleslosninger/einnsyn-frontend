@@ -72,7 +72,8 @@
   "search": {
     "header": "Search",
     "button": "Search",
-    "placeholder": "Search in eInnsyn..."
+    "placeholder": "Search in eInnsyn...",
+    "clear": "Clear search"
   },
   "routing": {
     "searchPath": "search",

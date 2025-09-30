@@ -1,10 +1,10 @@
 .searchFieldContainer {
   position: relative;
-  display: grid;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   background: var(--ds-color-neutral-surface-default);
-  border-style: solid;
-  border-color: var(--ds-color-neutral-border-subtle);
-  border-width: round(up, var(--ds-border-width-default), 1px);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-radius: var(--ds-border-radius-md);
 
   &:has(input:focus) {
@@ -14,15 +14,22 @@
   }
 }
 
+.inputContainer {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  color: transparent;
+  background: transparent;
+  z-index: 0;
+
+  padding-top: var(--ds-size-2);
+  padding-bottom: var(--ds-size-2);
+  padding-left: var(--ds-size-3);
+  padding-right: var(--ds-size-3);
+}
+
 .styledInput,
 .input {
-  grid-area: 1 / 1;
-  padding: var(--ds-size-2) var(--ds-size-3);
-
-  display: flex;
-  align-items: center;
-
-  // Remove default styles
   border: none;
   background: transparent;
   color: var(--ds-color-neutral-text-default);
@@ -30,24 +37,26 @@
   font-size: inherit;
   line-height: inherit;
   letter-spacing: normal;
-  height: var(--ds-size-12);
+  height: var(--ds-size-8);
+  padding: 0;
 }
 
 .styledInput {
-  pointer-events: none;
-  z-index: 1;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   pointer-events: none;
+  z-index: 2;
 }
 
 .input {
+  position: absolute;
+  flex: 1 1 auto;
   width: 100%;
-  position: relative;
-  z-index: 2;
   color: transparent;
   caret-color: var(--ds-color-neutral-text-default);
+  z-index: 1;
 
-  // Remove default focus styles
   &:focus,
   &:focus-visible {
     box-shadow: none;
@@ -63,6 +72,7 @@
 
 .searchToken {
   display: inline-block;
+  position: relative;
 }
 
 .prefixedToken {
@@ -71,18 +81,69 @@
   color: var(--ds-color-neutral-text-subtle);
   background: var(--ds-color-neutral-surface-tinted);
   outline: 1px solid var(--ds-color-neutral-surface-tinted);
-  // box-shadow: -2px 0 0 0 var(--ds-color-surface-tinted),
-  //             2px 0 0 0 var(--ds-color-surface-tinted);
 }
 
 .includeToken {
   background: var(--ds-color-success-surface-tinted);
   box-shadow: -1px 0 0 0 var(--ds-color-success-surface-tinted),
-              1px 0 0 0 var(--ds-color-success-surface-tinted);
+    1px 0 0 0 var(--ds-color-success-surface-tinted);
 }
 
 .excludeToken {
   background: var(--ds-color-danger-surface-tinted);
   box-shadow: -1px 0 0 0 var(--ds-color-danger-surface-tinted),
-              1px 0 0 0 var(--ds-color-danger-surface-tinted);
+    1px 0 0 0 var(--ds-color-danger-surface-tinted);
+}
+
+.clearButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ds-size-1);
+  margin-left: var(--ds-size-2);
+  margin-right: var(--ds-size-2);
+  min-width: var(--ds-size-9);
+  min-height: var(--ds-size-9);
+  scale: 0.75;
+}
+
+.clearIcon {
+  height: 100%;
+  width: 100%;
+}
+
+.actionButtonContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: var(--ds-size-1);
+  margin-bottom: var(--ds-size-1);
+
+  padding-top: var(--ds-size-1);
+  padding-bottom: var(--ds-size-1);
+  padding-left: var(--ds-size-3);
+  padding-right: var(--ds-size-3);
+
+  &.withBorder {
+    border-left: 1px solid var(--ds-color-neutral-border-subtle);
+  }
+}
+
+.searchIconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+
+  padding: 0;
+  width: var(--ds-size-9);
+  height: var(--ds-size-9);
+}
+
+.searchIcon {
+  height: 100%;
+  width: 100%;
 }
