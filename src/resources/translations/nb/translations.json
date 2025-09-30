@@ -134,6 +134,9 @@
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
   },
+  "statistics": {
+    "header": "Statistikk"
+  },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",
     "oppdatertDato": "Oppdateringsdato",

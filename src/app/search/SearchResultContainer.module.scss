@@ -18,12 +18,25 @@
    padding: 1rem;
  }
 
+ .enhetHeader {
+   display: flex;
+ }
+
  .searchContainer {
    :global(.search-toolbar) {
      padding-bottom: var(--ds-size-9);
    }
  }
 
- .icon-align-bottom {
+ .icon {
+   margin-right: var(--ds-size-1);
+   font-size: 1.5rem;
+ }
+
+ .iconAlignBottom {
    vertical-align: bottom;
+ }
+
+ .button {
+   margin-left: auto;
  }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Card, Heading, Paragraph, Link } from '@digdir/designsystemet-react';
+import { Skeleton, Card, Heading, Paragraph, Link, Button } from '@digdir/designsystemet-react';
 import type { Base, Enhet, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
@@ -97,15 +97,31 @@ export default function SearchResultContainer({
               .map((enhet) => (
                 <div key={enhet.id}>
                   <Card data-color='neutral'>
-                    <Heading>
-                      <h2 className="ds-heading" data-size="md">{enhet.navn ?? 'Ukjent enhet'}</h2>
-                    </Heading>
-                    <Paragraph data-size='sm'>
+                    <span className={cn(styles.enhetHeader)}>
+                      <Heading level={1} data-size='sm'>
+                        {enhet.navn ?? 'Ukjent enhet'}
+                      </Heading>
+                      <Button
+                        className={cn(styles.button)}
+                        data-size={'x-sm'}
+                        variant='tertiary'
+                      >
+                        Fjern filter
+                        {/* TODO: add translation */}
+                      </Button>
+                    </span>
+                    {/* 
+                    <Heading
+                      level={2} data-size='xs' className={cn('ds-heading', styles.statisticsHeader)}>
+                      {t('statistics.header')}
+                    </Heading> */}
+
+                    <div data-size='sm'>
                       {enhet.kontaktpunktEpost && (
                         <Paragraph>
                           <Link href={`mailto:${enhet.kontaktpunktEpost}`}>
                             <span>
-                              <EnvelopeClosedIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" />
+                              <EnvelopeClosedIcon title="a11y-title" aria-hidden="true" className={cn(styles.icon)} />
                               {enhet.kontaktpunktEpost}
                             </span>
                           </Link>
@@ -115,22 +131,18 @@ export default function SearchResultContainer({
                         <Paragraph>
                           <Link href={`tel:${enhet.kontaktpunktTelefon}`}>
                             <span>
-                              <PhoneIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" />
+                              <PhoneIcon title="a11y-title" aria-hidden="true" className={cn(styles.icon)} />
                               {enhet.kontaktpunktTelefon} </span>
                           </Link>
                         </Paragraph>
                       )}
                       {enhet.kontaktpunktAdresse && (
                         <Paragraph>
-                          <HouseIcon title="a11y-title" fontSize="1.5rem" aria-hidden="true" style={{ verticalAlign: 'bottom' }} />
-                          {'' + enhet.kontaktpunktAdresse}
-                        </Paragraph>)}
-                    </Paragraph>
-
-                    {/* Uninteresting?  */}
-                    {/* <Paragraph data-size='xs'>
-                      <div className="enhetstype"> {enhet.enhetstype && <span>{enhet.enhetstype}</span>} </div>
-                    </Paragraph> */}
+                          <HouseIcon title="a11y-title" aria-hidden="true" className={cn(styles.icon, styles.iconAlignBottom)} />
+                          {enhet.kontaktpunktAdresse}
+                        </Paragraph>
+                      )}
+                    </div>
                   </Card>
                 </div>
               ))

@@ -134,6 +134,9 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
+  "statistics": {
+    "header": "Statistics"
+  },
   "searchFilters": {
     "publisertDato": "Publication date",
     "publisertDatoPrefix": "published",
