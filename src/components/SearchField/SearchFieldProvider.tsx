@@ -3,13 +3,12 @@
 import {
   createContext,
   type ReactNode,
-  use,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import {
@@ -30,6 +29,7 @@ interface SearchFieldContextType {
   setSearchQuery: (query: string, push?: boolean) => void;
   pushSearchQuery: (query: string) => void;
 }
+
 
 const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
