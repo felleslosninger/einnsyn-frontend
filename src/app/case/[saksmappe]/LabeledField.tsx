@@ -1,6 +1,6 @@
 import { capitalize } from '~/lib/utils/stringutils';
 
-export const EinField = ({
+export const LabeledField = ({
   label,
   value,
   children,

@@ -9,7 +9,7 @@ import {
 } from '@digdir/einnsyn-sdk';
 import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
 import JournalpostList from '~/app/case/[saksmappe]/JournalpostList';
-import { EinField } from '~/components/EinField/EinField';
+import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './SaksmappeContainer.module.scss';
@@ -43,18 +43,18 @@ export default function SaksmappeContainer({
         <div className={cn(styles.saksmappe, 'ds-card')}>
           <div className={cn(styles.saksmappeInfo, 'ds-card__block')}>
             <div className={'saksmappe-card'}>
-              <EinField
+              <LabeledField
                 label={t('saksmappe.saksnummer')}
                 value={saksmappe.saksnummer}
-              ></EinField>
-              <EinField
+              />
+              <LabeledField
                 label={t('common.publishedAt')}
                 value={formatDate(saksmappe.publisertDato)}
-              ></EinField>
-              <EinField
+              />
+              <LabeledField
                 label={t('common.updatedAt')}
                 value={formatDate(saksmappe.oppdatertDato)}
-              ></EinField>
+              />
               {/* todo: Add counter? */}
             </div>
           </div>

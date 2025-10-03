@@ -11,7 +11,6 @@ import {
 import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
 import SaksmappeCard from '~/app/case/[saksmappe]/record/[journalpost]/SaksmappeCard';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { EinField } from '~/components/EinField/EinField';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -20,6 +19,7 @@ import { mapJournalpostType } from '~/lib/utils/typeNameMapper';
 import { generateFileUrl } from '~/lib/utils/urlGenerators';
 import './journalpostContainerStyles.scss';
 import { useState } from 'react';
+import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { getFileIcon } from '~/lib/utils/getFileIcon';
 
@@ -131,27 +131,27 @@ export default function JournalpostContainer({
       todo
        bestill-knapp
       */}
-          <EinField
+          <LabeledField
             label={t('journalpost.docNumber')}
             value={journalpost.journalpostnummer.toString()}
           />
           {journalpost.journalposttype === 'utgaaende_dokument' && (
-            <EinField
+            <LabeledField
               label={t('journalpost.to')}
               value={determineKorrparts()}
             />
           )}
           {journalpost.journalposttype === 'inngaaende_dokument' && (
-            <EinField
+            <LabeledField
               label={t('journalpost.from')}
               value={determineKorrparts()}
             />
           )}
-          <EinField
+          <LabeledField
             label={t('journalpost.recordType')}
             value={mapJournalpostType(journalpost.journalposttype)}
           />
-          <EinField
+          <LabeledField
             label={t('journalpost.docDate')}
             value={
               journalpost.dokumentetsDato
@@ -159,20 +159,20 @@ export default function JournalpostContainer({
                 : ''
             }
           />
-          <EinField
+          <LabeledField
             label={t('journalpost.recordDate')}
             value={dateFormat(journalpost.journaldato ?? '', languageCode)}
           />
-          <EinField
+          <LabeledField
             label={t('common.publishedAt')}
             value={dateFormat(journalpost.publisertDato ?? '', languageCode)}
           />
-          <EinField
+          <LabeledField
             label={t('common.updatedAt')}
             value={dateFormat(journalpost.oppdatertDato ?? '', languageCode)}
           />
           {isSkjerming(journalpost.skjerming) && (
-            <EinField
+            <LabeledField
               label={t('journalpost.legalBasis')}
               value={journalpost.skjerming.skjermingshjemmel ?? ''}
             />

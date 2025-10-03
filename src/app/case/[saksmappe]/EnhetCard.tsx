@@ -1,6 +1,6 @@
 'use client';
 import type { Enhet } from '@digdir/einnsyn-sdk';
-import { EinField } from '~/components/EinField/EinField';
+import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import { generateEnhetUrl } from '~/lib/utils/urlGenerators';
@@ -10,23 +10,23 @@ export default function EnhetCard({ enhet }: { enhet: Enhet }) {
 
   return (
     <div className={'enhetCard'}>
-      <EinField label={t('virksomhet.label')}>
+      <LabeledField label={t('virksomhet.label')}>
         <EinLink className={'enhet-link'} href={generateEnhetUrl(enhet)}>
           {enhet.navn}
         </EinLink>
-      </EinField>
-      <EinField
+      </LabeledField>
+      <LabeledField
         label={t('virksomhet.telefon')}
         value={enhet.kontaktpunktTelefon ?? ''}
-      ></EinField>
-      <EinField
+      ></LabeledField>
+      <LabeledField
         label={t('virksomhet.epost')}
         value={enhet.kontaktpunktEpost ?? ''}
-      ></EinField>
-      <EinField
+      ></LabeledField>
+      <LabeledField
         label={t('virksomhet.adresse')}
         value={enhet.kontaktpunktAdresse ?? ''}
-      ></EinField>
+      ></LabeledField>
     </div>
   );
 }
