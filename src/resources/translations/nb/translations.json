@@ -135,7 +135,11 @@
     "labelPlural": "Møtesaker"
   },
   "statistics": {
-    "header": "Statistikk"
+    "header": "Statistikk",
+    "innsynskrav": "Innsynskrav",
+    "noData": "Ingen data tilgjengelig",
+    "yearOfInnsynskrav": "Innsynskrav det siste året",
+    "monthOfInnsynskrav": "Innsynskrav den siste måneden"
   },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",

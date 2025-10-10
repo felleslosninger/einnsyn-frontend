@@ -134,6 +134,12 @@
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
   },
+  "statistics": {
+    "header": "Statistihkka",
+    "noData": "Datat eai leat geavahit",
+    "yearOfInnsynskrav": "Innsynskrav dii jagi",
+    "monthOfInnsynskrav": "Innsynskrav dii mánnu"
+  },
   "searchFilters": {
     "publisertDato": "Almmuhanbeassi",
     "oppdatertDato": "Beaivádanbeassi",

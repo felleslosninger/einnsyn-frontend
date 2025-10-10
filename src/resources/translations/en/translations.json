@@ -135,7 +135,10 @@
     "labelPlural": "Meeting cases"
   },
   "statistics": {
-    "header": "Statistics"
+    "header": "Statistics",
+    "noData": "No data available",
+    "yearOfInnsynskrav": "Innsynskrav in the last year",
+    "monthOfInnsynskrav": "Innsynskrav in the last month"
   },
   "searchFilters": {
     "publisertDato": "Publication date",

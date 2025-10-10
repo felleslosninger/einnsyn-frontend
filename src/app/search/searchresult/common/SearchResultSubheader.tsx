@@ -65,7 +65,6 @@ export default function SearchResultSubheader({
           <span className="search-result-enhet">
             <EnhetLink
               enhet={journalenhet}
-              withAncestors={false}
               className="search-result-enhet-link"
             />
           </span>

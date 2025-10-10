@@ -2,7 +2,7 @@
   padding: 0 0 var(--ein-horizontal-spacing) 0;
   width: 100%;
 
-  > a {
+  >a {
     display: inline-block;
     max-width: 100%;
   }
@@ -11,7 +11,7 @@
     max-width: 100%;
     position: relative;
     overflow: hidden;
-    white-space: nowrap;
+    white-space: wrap;
     text-overflow: ellipsis;
   }
 
@@ -19,6 +19,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
     svg {
       font-size: 1.5rem;
     }
