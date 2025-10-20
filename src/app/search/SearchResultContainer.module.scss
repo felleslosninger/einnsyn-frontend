@@ -5,20 +5,18 @@
   max-width: 100%;
 }
 
-.searchResults {
-  // flex: 1 1 0;
-  //  width: 50%;
-}
-
 .searchResultSidebar {
   text-align: left;
-  max-width: 35em;
-  // flex: 0 0 1;
-  //  min-width: 30%;
+  width: 100%;
 
   @include mq.small-and-medium {
     width: 100%;
+    max-width: 100‰;
     margin-bottom: var(--ds-size-5);
+  }
+
+  @include mq.large {
+    max-width: 25em;
   }
 }
 
