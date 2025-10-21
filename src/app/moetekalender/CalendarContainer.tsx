@@ -1,8 +1,12 @@
 'use client';
+import { useState } from 'react';
+import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
-import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
+import { Button, Dropdown, Heading } from '@digdir/designsystemet-react';
+import { ChevronDownIcon, ChevronUpIcon } from '@navikt/aksel-icons';
+import CalendarHeader from './CalendarHeader';
 
 export default function CalendarContainer() {
     return (
@@ -14,8 +18,9 @@ export default function CalendarContainer() {
             <div className="container-pre collapsible" />
 
             <div className="container">
-                <div className="calendar-content">
-                    Calendar
+                <CalendarHeader />
+                <div className={cn('calendarBody', styles.calendarBody)}>
+                    content
                 </div>
             </div>
 

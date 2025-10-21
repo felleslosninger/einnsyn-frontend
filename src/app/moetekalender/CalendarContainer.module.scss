@@ -1,0 +1,23 @@
+.calendarHeader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    gap: var(--ds-size-2)
+}
+
+.displayHeading {
+    width: 100%;
+}
+
+.calendarBody {
+    border: 1px solid black;
+    width: 100‰;
+    height: 100%;
+}
