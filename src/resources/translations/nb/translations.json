@@ -134,6 +134,14 @@
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
   },
+  "moetekalender": {
+    "label": "Møtekalender",
+    "labelPlural": "Møtekalendere"
+  },
+  "statistics": {
+    "label": "Statistikk",
+    "labelPlural": "Statistikker"
+  },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",
     "oppdatertDato": "Oppdateringsdato",

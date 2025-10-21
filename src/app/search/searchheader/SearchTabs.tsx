@@ -16,21 +16,36 @@ export default function SearchTabs() {
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
+    if (entityName === 'Moetekalender') {
+      return '/moetekalender';
+    }
+    if (entityName === 'Statistics') {
+      return '/statistics';
+    }
+
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {
       searchParamsCopy.set('entity', entityName);
     }
-    return `${pathname}?${searchParamsCopy.toString()}`;
+    return `/search?${searchParamsCopy.toString()}`;
   };
 
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
-    const activeTab = searchParams?.get('entity') || '';
-    if (activeTab === tabName) {
+
+    if (tabName === 'Moetekalender' && pathname === '/moetekalender') {
       classes.push('active');
+    } else if (tabName === 'Statistics' && pathname === '/statistics') {
+      classes.push('active');
+    } else if (pathname === '/search') {
+      const activeTab = searchParams?.get('entity') || '';
+      if (activeTab === tabName) {
+        classes.push('active');
+      }
     }
+
     return classes.join(' ');
   };
 
@@ -70,9 +85,24 @@ export default function SearchTabs() {
         </EinLink>
       </div>
 
-      <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown />
+      <div className={cn(styles.otherTabs)}>
+        <EinLink
+          className={getLinkClassName('Moetekalender')}
+          href={getLinkUrl('Moetekalender')}
+        >
+          {t('moetekalender.label')}
+        </EinLink>
+        <EinLink
+          className={getLinkClassName('Statistics')}
+          href={getLinkUrl('Statistics')}
+        >
+          {t('statistics.label')}
+        </EinLink>
       </div>
+
+      {/* <div className={cn(styles.searchFilter, 'search-filter')}>
+        <SearchFilterDropdown />
+      </div> */}
     </div>
   );
 }
