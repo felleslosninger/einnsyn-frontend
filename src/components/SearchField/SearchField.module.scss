@@ -119,9 +119,9 @@
   font-size: inherit;
   line-height: inherit;
   letter-spacing: normal;
-  padding-top: calc(var(--ds-size-2) + var(--ds-size-1) / 2);
+  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
   padding-bottom: var(--ds-size-2);
-  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default)*2 );
+  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default)*2 ); // Full height minus borders
 }
 
 .styledInput {
