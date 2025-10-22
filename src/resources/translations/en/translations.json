@@ -134,6 +134,43 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
+    "moetekalender": {
+    "label": "Meeting calendar",
+    "labelPlural": "Meeting calendars",
+    "viewOptions": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "today": "Today",
+      "displayWeekends": "Display weekends",
+      "hideWeekends": "Hide weekends",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all"
+    },
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  },
   "searchFilters": {
     "publisertDato": "Publication date",
     "publisertDatoPrefix": "published",

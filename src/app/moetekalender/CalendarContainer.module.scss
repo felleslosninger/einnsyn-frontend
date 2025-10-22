@@ -12,12 +12,28 @@
     gap: var(--ds-size-2)
 }
 
+.arrowIcon {
+    height: 70%;
+    width: 70%;
+}
+
 .displayHeading {
     width: 100%;
 }
 
-.calendarBody {
-    border: 1px solid black;
-    width: 100‰;
+.datePicker {
+    display: flex;
+}
+
+.calendarButton {
+    padding: var(--ds-size-1);
+}
+
+.calendarIcon {
     height: 100%;
+    width: 100%;
+}
+
+.checkbox {
+    padding: var(--ds-size-2) var(--ds-size-4);
 }

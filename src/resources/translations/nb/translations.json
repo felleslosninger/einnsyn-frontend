@@ -136,7 +136,40 @@
   },
   "moetekalender": {
     "label": "Møtekalender",
-    "labelPlural": "Møtekalendere"
+    "labelPlural": "Møtekalendere",
+    "viewOptions": {
+      "month": "Måned",
+      "week": "Uke",
+      "day": "Dag",
+      "today": "I dag",
+      "displayWeekends": "Vis helger",
+      "hideWeekends": "Skjul helger",
+      "expandAll": "Utvid alle",
+      "collapseAll": "Skjul alle"
+    },
+    "days": {
+      "sunday": "Søndag",
+      "monday": "Mandag",
+      "tuesday": "Tirsdag",
+      "wednesday": "Onsdag",
+      "thursday": "Torsdag",
+      "friday": "Fredag",
+      "saturday": "Lørdag"
+    },
+    "months": {
+      "january": "Januar",
+      "february": "Februar",
+      "march": "Mars",
+      "april": "April",
+      "may": "Mai",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "August",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Desember"
+    }
   },
   "statistics": {
     "label": "Statistikk",

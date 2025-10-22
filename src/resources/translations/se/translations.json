@@ -134,6 +134,43 @@
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
   },
+"moetekalender": {
+  "label": "Čuohppesáddanbassi",
+  "labelPlural": "Čuohppesáddanbassit",
+  "viewOptions": {
+    "month": "Mánnu",
+    "week": "Vahkku",
+    "day": "Beaivi",
+    "today": "Ođasmahtto",
+    "displayWeekends": "Váldde vahkku­beaivviid",
+    "hideWeekends": "Skihkko vahkku­beaivviid",
+    "expandAll": "Loahtte guokte",
+    "collapseAll": "Skihtte guokte"
+  },
+  "days": {
+    "sunday": "Sotnabeaivi",
+    "monday": "Mánnodat",
+    "tuesday": "Disdat",
+    "wednesday": "Gaskavahkku",
+    "thursday": "Duorastat",
+    "friday": "Bearjadat",
+    "saturday": "Lávvardat"
+  },
+  "months": {
+    "january": "Ođđajagemánnu",
+    "february": "Guovvamánnu",
+    "march": "Njukčamánnu",
+    "april": "Cuoŋománnu",
+    "may": "Miessemánnu",
+    "june": "Geassemánnu",
+    "july": "Suiodnemánnu",
+    "august": "Borgemánnu",
+    "september": "Čakčamánnu",
+    "october": "Golggotmánnu",
+    "november": "Skábmamánnu",
+    "december": "Juovlamánnu"
+  }
+},
   "searchFilters": {
     "publisertDato": "Almmuhanbeassi",
     "oppdatertDato": "Beaivádanbeassi",

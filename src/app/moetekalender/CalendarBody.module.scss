@@ -1,0 +1,83 @@
+// .body {
+//     // border-left: solid 1px black;
+// }
+
+// .body :global(tr) {
+//     height: 100px;
+//     // border-left: solid 1px black;
+// }
+
+// .row {
+//     // border-left: solid 1px black;
+// }
+
+// .row :global(td) {
+//     justify-content: flex-start;
+//     border-top-left-radius: var(--ds-border-radius-default);
+//     border-bottom-left-radius: var(--ds-border-radius-default);
+// }
+
+.calendarContainer {
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendarTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    flex-grow: 1;
+}
+
+.head {
+    position: sticky;
+    top: 0;
+    z-index: 7;
+}
+
+.headerRow :global(th) {
+    padding: 12px;
+    font-weight: 600;
+}
+
+.body {
+    flex-grow: 1;
+}
+
+.body :global(tr) {
+    height: 120px;
+    /* Default height, will be adjustable */
+    position: relative;
+}
+
+.row {
+    border-bottom: 1px solid var(--ds-color-neutral-border-default, #ddd);
+}
+
+.row :global(td) {
+    border-right: 1px solid var(--ds-color-neutral-border-default, #ddd);
+    padding: 8px;
+    vertical-align: top;
+    position: relative;
+
+    &:last-child {
+        border-right: none;
+    }
+
+    &:first-child {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    &:last-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+:global(.calendar-page) {
+    height: 100vh;
+    overflow: hidden;
+}

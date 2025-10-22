@@ -134,6 +134,43 @@
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
   },
+  "moetekalender": {
+    "label": "Møtekalender",
+    "labelPlural": "Møtekalendere",
+    "viewOptions": {
+      "month": "Månad",
+      "week": "Veke",
+      "day": "Dag",
+      "today": "I dag",
+      "displayWeekends": "Vis helgar",
+      "hideWeekends": "Skjul helgar",
+      "expandAll": "Utvid alle",
+      "collapseAll": "Skjul alle"
+    },
+    "days": {
+      "sunday": "Søndag",
+      "monday": "Måndag",
+      "tuesday": "Tysdag",
+      "wednesday": "Onsdag",
+      "thursday": "Torsdag",
+      "friday": "Fredag",
+      "saturday": "Laurdag"
+    },
+    "months": {
+      "january": "Januar",
+      "february": "Februar",
+      "march": "Mars",
+      "april": "April",
+      "may": "Mai",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "August",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Desember"
+    }
+  },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",
     "oppdatertDato": "Oppdateringsdato",
