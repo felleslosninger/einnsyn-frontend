@@ -1,0 +1,12 @@
+.enhetSelector {
+  padding-top: var(--ds-size-2);
+  padding-bottom: var(--ds-size-2);
+}
+
+.enhetSelectorDialog {
+  max-height: 300px;
+  overflow: scroll;
+  top: 0;
+  right: 0;
+  left: 0;
+}
