@@ -27,45 +27,48 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
     const onInputWrapper = useCallback(
       (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         onInput?.(event);
-        setSearchQuery(event.currentTarget.value ?? '');
+        const target = event.target as HTMLTextAreaElement;
+        setSearchQuery(target.value ?? '');
+        target.style.height = `${target.scrollHeight}px`;
       },
       [setSearchQuery, onInput],
     );
 
-    const onKeyDownWrapper = (
-      event: React.KeyboardEvent<HTMLTextAreaElement>,
-    ) => {
-      const target = event.target as HTMLTextAreaElement;
-      onKeyDown?.(event);
+    const onKeyDownWrapper = useCallback(
+      (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        const target = event.target as HTMLTextAreaElement;
+        onKeyDown?.(event);
 
-      // Trigger search on Enter key
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        setSearchQuery(event.currentTarget.value ?? '', true);
-        target.blur();
-      }
-      // Update search query without search on other keys
-      else {
-        setSearchQuery(event.currentTarget.value ?? '', false);
-      }
-
-      // Update height
-      target.style.height = `${target.scrollHeight}px`;
-    };
+        // Trigger search on Enter key
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          setSearchQuery(event.currentTarget.value ?? '', true);
+          target.blur();
+        }
+        // Update search query without search on other keys
+        else {
+          setSearchQuery(event.currentTarget.value ?? '', false);
+        }
+      },
+      [onKeyDown, setSearchQuery],
+    );
 
     // Expand textarea on focus.
-    const onTextareaFocus = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-      const target = event.target as HTMLTextAreaElement;
-      target.style.height = 'auto';
-      target.style.height = `${target.scrollHeight}px`;
-    };
+    const onTextareaFocus = useCallback(
+      (event: React.FocusEvent<HTMLTextAreaElement>) => {
+        const target = event.target as HTMLTextAreaElement;
+        target.style.height = `${target.scrollHeight}px`;
+      },
+      [],
+    );
 
-    const onTextareaFocusBlur = (
-      event: React.FocusEvent<HTMLTextAreaElement>,
-    ) => {
-      const target = event.target as HTMLTextAreaElement;
-      target.style.height = '';
-    };
+    const onTextareaFocusBlur = useCallback(
+      (event: React.FocusEvent<HTMLTextAreaElement>) => {
+        const target = event.target as HTMLTextAreaElement;
+        target.style.height = '';
+      },
+      [],
+    );
 
     const handleSearch = useCallback(() => {
       setSearchQuery(searchQuery, true);
@@ -139,7 +142,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
                 placeholder={t('search.placeholder')}
                 spellCheck="false"
                 autoCorrect="off"
-                autoCapitalize="off"
+                autoCapitalize="none"
                 {...inputProps}
               />
             </div>

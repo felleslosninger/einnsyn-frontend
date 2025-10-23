@@ -20,7 +20,7 @@
 .searchInputWithIcon {
   .styledInput,
   .input {
-    padding-left: calc(var(--ds-size-3) + var(--ds-size-6) + var(--ds-size-2)); // icon size + gap
+    padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
     padding-right: var(--ds-size-4); // clear-button
   }
 }
@@ -167,7 +167,6 @@
   &:focus-visible {
     box-shadow: none;
     outline: none;
-    overflow-y: auto;
     white-space: pre-wrap;
   }
   
