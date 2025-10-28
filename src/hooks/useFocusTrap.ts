@@ -66,7 +66,11 @@ export function useFocusTrap(
           }
 
           // If the user has selected a field inside the popup, count this as having "tabbed"
-          if (!tabbed && container.contains(document.activeElement) && document.activeElement !== initialFocus) {
+          if (
+            !tabbed &&
+            container.contains(document.activeElement) &&
+            document.activeElement !== initialFocus
+          ) {
             tabbed = true;
           }
 

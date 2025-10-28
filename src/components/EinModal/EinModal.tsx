@@ -11,8 +11,8 @@ import { useScrollwheelTrap } from '~/hooks/useScrollwheelTrap';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import EinPopup from '../EinPopup/EinPopup';
-import styles from './EinModal.module.scss';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
+import styles from './EinModal.module.scss';
 
 type EinModalProps = {
   open: boolean;
