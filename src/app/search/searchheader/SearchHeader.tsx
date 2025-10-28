@@ -44,7 +44,7 @@ export default function SearchHeader() {
         )}
       </form>
 
-      <SearchTabs />
+      <SearchTabs className="header-tabs" />
     </>
   );
 }

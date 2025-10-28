@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import styles from './AnimatedHeader.module.scss';
 
-export default function AnimatedHeader() {
+export default function AnimatedHeader({ className }: { className?: string }) {
   const t = useTranslation();
 
   const searchMessages = useMemo(
@@ -88,11 +89,8 @@ export default function AnimatedHeader() {
   }, [animateToNextText]);
 
   return (
-    <div className={styles.animatedHeader}>
-      <h1 className={styles.animatedText}>
-        {currentText}
-        {/* <span className={styles.cursor}>|</span> */}
-      </h1>
+    <div className={cn(styles.animatedHeader, className)}>
+      <span className={styles.animatedText}>{currentText}</span>
     </div>
   );
 }

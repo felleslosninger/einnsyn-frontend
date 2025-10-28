@@ -12,13 +12,25 @@ import SaksmappeResult from './SaksmappeResult';
 
 import './searchResultStyles.scss';
 
-export default function SearchResult({ item }: { item: Base }) {
+export default function SearchResult({
+  className,
+  item,
+}: {
+  className: string;
+  item: Base;
+}) {
   return (
     <>
-      {isJournalpost(item) && <JournalpostResult item={item} />}
-      {isSaksmappe(item) && <SaksmappeResult item={item} />}
-      {isMoetemappe(item) && <MoetemappeResult item={item} />}
-      {isMoetesak(item) && <MoetesakResult item={item} />}
+      {isJournalpost(item) && (
+        <JournalpostResult className={className} item={item} />
+      )}
+      {isSaksmappe(item) && (
+        <SaksmappeResult className={className} item={item} />
+      )}
+      {isMoetemappe(item) && (
+        <MoetemappeResult className={className} item={item} />
+      )}
+      {isMoetesak(item) && <MoetesakResult className={className} item={item} />}
     </>
   );
 }
