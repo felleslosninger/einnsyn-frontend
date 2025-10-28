@@ -1,13 +1,20 @@
 import type { Moetesak } from '@digdir/einnsyn-sdk';
-import SearchResultSubheader from './common/SearchResultSubheader';
-import { useTranslation } from '~/hooks/useTranslation';
-import { EinLink } from '~/components/EinLink/EinLink';
 import { TasklistIcon } from '@navikt/aksel-icons';
+import { EinLink } from '~/components/EinLink/EinLink';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
+import SearchResultSubheader from './common/SearchResultSubheader';
 
-export default function MoetesakResult({ item }: { item: Moetesak }) {
+export default function MoetesakResult({
+  className,
+  item,
+}: {
+  className?: string;
+  item: Moetesak;
+}) {
   const translate = useTranslation();
   return (
-    <div className="search-result moetesak-result">
+    <div className={cn(className, 'search-result', 'moetesak-result')}>
       <EinLink href="">
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>

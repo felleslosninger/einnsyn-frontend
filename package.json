@@ -7,30 +7,31 @@
     "dev:dev": "NODE_ENV=development API_URL=https://api.einnsyn.dev next dev --turbopack",
     "dev:test": "NODE_ENV=development API_URL=https://api.test.einnsyn.no next dev --turbopack",
     "dev:prod": "NODE_ENV=development API_URL=https://api.einnsyn.no next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
-    "lint": "next lint",
-    "test": "node --test"
+    "lint": "biome ci .",
+    "test": "node --test --import=tsx"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "1.3.0",
-    "@digdir/designsystemet-react": "1.3.0",
-    "@digdir/designsystemet-theme": "1.3.0",
+    "@digdir/designsystemet-css": "1.5.1",
+    "@digdir/designsystemet-react": "1.5.1",
+    "@digdir/designsystemet-theme": "1.5.1",
     "@digdir/einnsyn-sdk": "1.2.0",
-    "@navikt/aksel-icons": "7.29.1",
+    "@navikt/aksel-icons": "7.31.0",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "^1.13.0",
-    "next": "15.5.2",
-    "openid-client": "6.7.1",
+    "next": "15.5.4",
+    "openid-client": "6.8.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "sass": "1.92.0"
+    "sass": "1.93.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.2",
-    "@types/node": "24.3.0",
-    "@types/react": "19.1.12",
+    "@biomejs/biome": "2.2.4",
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

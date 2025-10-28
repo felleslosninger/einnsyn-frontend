@@ -37,13 +37,6 @@ body {
   flex: 1;
 }
 
-header {
-  padding-top: var(--ein-horizontal-spacing);
-
-  @include mq.small-and-medium {
-    padding-top: var(--ds-size-4);
-  }
-}
 
 
 .container-wrapper {
@@ -59,7 +52,6 @@ header {
 
   &.main-content {
     padding-top: var(--ein-horizontal-spacing);
-    border-top: 1px solid var(--ds-color-neutral-border-subtle);
   }
 
   > .container-pre {

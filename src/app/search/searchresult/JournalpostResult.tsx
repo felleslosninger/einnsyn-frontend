@@ -3,16 +3,23 @@ import { ArrowRightIcon, FileIcon } from '@navikt/aksel-icons';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { generateJournalpostURL } from '~/lib/utils/urlGenerators';
 import EnhetLink from './common/EnhetLink';
 import SaksmappeLink from './common/SaksmappeLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
-export default function JournalpostResult({ item }: { item: Journalpost }) {
+export default function JournalpostResult({
+  className,
+  item,
+}: {
+  className?: string;
+  item: Journalpost;
+}) {
   const translate = useTranslation();
 
   return (
-    <div className="search-result journalpost-result">
+    <div className={cn(className, 'search-result', 'journalpost-result')}>
       <EinLink
         className={'journalpost-link'}
         href={generateJournalpostURL(item)}

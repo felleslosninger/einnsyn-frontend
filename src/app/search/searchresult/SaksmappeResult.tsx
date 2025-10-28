@@ -2,6 +2,7 @@ import type { Saksmappe } from '@digdir/einnsyn-sdk';
 import { FolderFileIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 import EnhetLink, { getEnhetHref } from './common/EnhetLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
@@ -18,12 +19,18 @@ export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   return `${enhetHref}/saksmappe/${saksmappe.id}`;
 };
 
-export default function SaksmappeResult({ item }: { item: Saksmappe }) {
+export default function SaksmappeResult({
+  className,
+  item,
+}: {
+  className?: string;
+  item: Saksmappe;
+}) {
   const translate = useTranslation();
   const saksmappeLink = generateSaksmappeURL(item);
   const saksmappeHref = getSaksmappeHref(item);
   return (
-    <div className="search-result saksmappe-result">
+    <div className={cn(className, 'search-result', 'saksmappe-result')}>
       <EinLink
         className={'saksmappe-link'}
         href={saksmappeLink /*saksmappeHref*/}

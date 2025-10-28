@@ -3,25 +3,21 @@
 $arrowSize: 12px;
 $arrowHalfSize: calc($arrowSize / 2);
 
-.ein-popup {
+.einPopup {
   position: absolute;
   z-index: 1000;
   filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.3));
 
 
-  .ein-popup-content {
+  .einPopupContent {
     position: relative;
     z-index: 1;
     border-radius: var(--ds-border-radius-default);
   }
 
-  .ein-popup-content,
+  .einPopupContent,
   &:before {
     background-color: var(--ds-color-neutral-surface-default);
-  }
-
-  &.closed:not(.toClosed, .preClosed) {
-    display: none;
   }
 
   &.open,
@@ -98,4 +94,30 @@ $arrowHalfSize: calc($arrowSize / 2);
   &.toClosed {
     transition: all fx.$transitionDuration fx.$easeOut;
   }
+
+
+  // Transitions
+  // &:global(.ein-transition-init-exit-transition) {
+  //   display: block;
+  //   opacity: 1;
+  //   transform: scale(1);
+  // }
+
+  // &:global(.ein-transition-exit-transition) {
+  //   opacity: 0;
+  //   //transform: scale(0.95);
+  //   transition: all .2s ease-out;
+  // }
+
+  // &:global(.ein-transition-init-enter-transition) {
+  //   display: block;
+  //   opacity: 0;
+  //   //transform: scale(0.95);
+  // }
+  
+  // &:global(.ein-transition-enter-transition) {
+  //   opacity: 1;
+  //   transform: scale(1);
+  //   transition: all .2s ease-out;
+  // }
 }
