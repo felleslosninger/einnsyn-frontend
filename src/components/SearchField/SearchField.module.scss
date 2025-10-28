@@ -1,11 +1,11 @@
+@use '../../styles/easing.scss' as e;
+
 .searchFieldContainer {
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   background: var(--ds-color-neutral-surface-default);
-  //border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  //border-radius: var(--ds-border-radius-md);
 }
 
 .searchInputIcon {
@@ -19,7 +19,8 @@
 
 .searchInputWithIcon {
   .styledInput,
-  .input {
+  .input,
+  .paddedContent {
     padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
     padding-right: var(--ds-size-4); // clear-button
   }
@@ -38,21 +39,20 @@
     flex: 0 0 auto;
     gap: var(--ds-size-3);
     position: relative;
-    align-items: center;
     z-index: 2;
     padding-left: var(--ds-size-3);
     padding-right: var(--ds-size-3);
     background: var(--search-input-surface);
     border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
     border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+    max-height: 80vh;
+    overflow: hidden;
 
     &:has(:focus) {
-      border-color: transparent;
       border-radius: var(--ds-border-radius-md);
-      box-shadow: var(--_ds--focus, var(--dsc-focus-boxShadow));
-      outline: var(--_ds--focus, var(--dsc-focus-outline));
-      outline-offset: var(--_ds--focus, var(--ds-border-width-focus));
-      transition: width 0.2s ease-in-out;
+      box-shadow: var(--dsc-focus-boxShadow);
+      outline: var(--dsc-focus-outline);
+      outline-offset: var(--ds-border-width-focus);
       z-index: 3;
     }
   }
@@ -81,14 +81,25 @@
     }
   }
 
-  &.enhetSelectorContainer {
-  }
-
   .searchIconContainer {
     flex: 0 0 auto;
     width: var(--ds-size-7);
     height: var(--ds-size-7);
   }
+}
+
+.searchInputContainer {
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
+  transition: min-width 0.3s e.$easeOutQuart;  
+}
+
+.enhetSelectorContainer.activeContainer {
+  min-width: 60%;
+}
+
+
+.enhetSelectorContainer {
+  min-width: 22%;
 }
 
 .styledInputContainer {

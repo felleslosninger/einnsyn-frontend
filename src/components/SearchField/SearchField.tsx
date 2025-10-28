@@ -6,13 +6,14 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from '@navikt/aksel-icons';
-import { Fragment, forwardRef, useCallback } from 'react';
+import { Fragment, forwardRef, useCallback, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
 import { EinButton } from '../EinButton/EinButton';
 import EnhetSelector from '~/features/search/searchheader/EnhetSelector';
+import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 
 type SearchFieldProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   className?: string;
@@ -22,6 +23,10 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
   ({ children, className, onInput, onKeyDown, ...inputProps }, ref) => {
     const t = useTranslation();
     const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [activeContainer, setActiveContainer] = useState<string | undefined>(
+      undefined,
+    );
     const placeholder = t('search.placeholder');
 
     const onInputWrapper = useCallback(
@@ -70,6 +75,31 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
       [],
     );
 
+    // Set focus to containing element when focusing on input
+    const onContainerFocus = useCallback(
+      (event: React.FocusEvent<HTMLDivElement>) => {
+        // Figure out which "section" got focus
+        const target = event.target as HTMLDivElement;
+        const container = target.closest(`.${styles.searchInputContainer}`);
+        console.log('FOCUS', container?.className);
+
+        if (container?.matches(`.${styles.searchQueryContainer}`)) {
+          setActiveContainer('searchQuery');
+        } else if (container?.matches(`.${styles.enhetSelectorContainer}`)) {
+          setActiveContainer('enhetSelector');
+        } else {
+          setActiveContainer(undefined);
+        }
+      },
+      [],
+    );
+
+    // Remove focus on all containers when clicking outside
+    const removeFocus = useCallback(() => {
+      setActiveContainer(undefined);
+    }, []);
+    useOnOutsideClick(containerRef, removeFocus);
+
     const handleSearch = useCallback(() => {
       setSearchQuery(searchQuery, true);
     }, [setSearchQuery, searchQuery]);
@@ -78,12 +108,20 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
       setSearchQuery('');
     }, [setSearchQuery]);
 
+    console.log('Active container:', activeContainer);
     return (
-      <div className={cn(styles.searchFieldContainer)}>
+      // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
+      <div
+        className={cn(styles.searchFieldContainer)}
+        onFocus={onContainerFocus}
+        ref={containerRef}
+      >
         <div
           className={cn(
             styles.searchQueryContainer,
             styles.searchInputContainer,
+            styles.searchInputWithIcon,
+            { [styles.activeContainer]: activeContainer === 'searchQuery' },
           )}
         >
           <div className={cn(styles.expandableInputContainer)}>
@@ -93,12 +131,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
               <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
             </div>
 
-            <div
-              className={cn(
-                styles.styledInputContainer,
-                styles.searchInputWithIcon,
-              )}
-            >
+            <div className={cn(styles.styledInputContainer)}>
               <div className={cn(styles.styledInput, className)}>
                 {searchTokens.map((token, index) => (
                   <Fragment key={`${index}-${token.value}`}>
@@ -170,10 +203,25 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
           className={cn(
             styles.enhetSelectorContainer,
             styles.searchInputContainer,
+            styles.searchInputWithIcon,
+            { [styles.activeContainer]: activeContainer === 'enhetSelector' },
           )}
         >
-          <Buildings3Icon title="Enhet" fontSize="1.2rem" />
-          <EnhetSelector />
+          <div className={cn(styles.expandableInputContainer)}>
+            <div
+              className={cn(styles.searchIconContainer, styles.searchInputIcon)}
+            >
+              <Buildings3Icon
+                className={cn(styles.searchIcon)}
+                title="Enhet"
+                fontSize="1.2rem"
+              />
+            </div>
+            <EnhetSelector
+              expanded={activeContainer === 'enhetSelector'}
+              className={styles.paddedContent}
+            />
+          </div>
         </div>
 
         <div

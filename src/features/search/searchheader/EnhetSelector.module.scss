@@ -1,6 +1,11 @@
 .enhetSelector {
   padding-top: var(--ds-size-2);
   padding-bottom: var(--ds-size-2);
+
+  button {
+    color: var(--ds-color-text-default) !important;
+    text-decoration: none !important;
+  }
 }
 
 .enhetSelectorDialog {
