@@ -70,10 +70,7 @@ export const getTranslateFunction =
  */
 export function resolveLanguageCode<
   T extends readonly string[] = LanguageCode[],
->(
-  s = '',
-  acceptedLanguages: readonly T[number][] = supportedLanguages,
-): T[number] | undefined {
+>(s = '', acceptedLanguages: readonly T[number][] = []): T[number] | undefined {
   let bestLanguage = acceptedLanguages?.[0];
   let bestQuality = 0;
   const languages = s.split(',');
