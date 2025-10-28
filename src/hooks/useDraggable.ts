@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from 'react';
+import { type RefObject, useCallback, useEffect } from 'react';
 
 type DragDiff = {
   x: number;
@@ -53,56 +53,59 @@ export function useDraggable({
   let cleanUp: undefined | (() => void);
 
   // Allow dragging the header to close on touch devices
-  const startHeaderDrag = (e: TouchEvent | MouseEvent) => {
-    const startCoords = getCoords(e);
-    const isMouse = isMouseEvent(e);
-    let moved = false;
-    let prevEvent = e;
+  const startHeaderDrag = useCallback(
+    (e: TouchEvent | MouseEvent) => {
+      const startCoords = getCoords(e);
+      const isMouse = isMouseEvent(e);
+      let moved = false;
+      let prevEvent = e;
 
-    const move = (me: TouchEvent | MouseEvent) => {
-      moved = true;
-      prevEvent = me;
-      const coords = getCoords(me);
-      const diff = {
-        x: coords.x - startCoords.x,
-        y: coords.y - startCoords.y,
+      const move = (me: TouchEvent | MouseEvent) => {
+        moved = true;
+        prevEvent = me;
+        const coords = getCoords(me);
+        const diff = {
+          x: coords.x - startCoords.x,
+          y: coords.y - startCoords.y,
+        };
+        onMove?.(diff);
+        if (ref.current) {
+          ref.current.style.transform = `translateX(${diff.x}px) translateY(${diff.y}px)`;
+          ref.current.style.transition = 'all 0s';
+        }
       };
-      onMove?.(diff);
-      if (ref.current) {
-        ref.current.style.transform = `translateX(${diff.x}px) translateY(${diff.y}px)`;
-        ref.current.style.transition = 'all 0s';
-      }
-    };
 
-    cleanUp = () => {
-      document.removeEventListener(isMouse ? 'mousemove' : 'touchmove', move);
-      document.removeEventListener(isMouse ? 'mouseup' : 'touchend', end);
-      cleanUp = undefined;
-    };
+      cleanUp = () => {
+        document.removeEventListener(isMouse ? 'mousemove' : 'touchmove', move);
+        document.removeEventListener(isMouse ? 'mouseup' : 'touchend', end);
+        cleanUp = undefined;
+      };
 
-    const end = () => {
-      // Close if dragged down since start
-      const coords = getCoords(prevEvent);
-      onEnd?.({
-        x: coords.x - startCoords.x,
-        y: coords.y - startCoords.y,
-      });
-      // Prevent click-events to be fired if mouse moved
-      if (moved) {
-        window.addEventListener(
-          'click',
-          function cancelClick(ce) {
-            window.removeEventListener('click', cancelClick, true);
-          },
-          true,
-        );
-      }
-      cleanUp?.();
-    };
+      const end = () => {
+        // Close if dragged down since start
+        const coords = getCoords(prevEvent);
+        onEnd?.({
+          x: coords.x - startCoords.x,
+          y: coords.y - startCoords.y,
+        });
+        // Prevent click-events to be fired if mouse moved
+        if (moved) {
+          window.addEventListener(
+            'click',
+            function cancelClick() {
+              window.removeEventListener('click', cancelClick, true);
+            },
+            true,
+          );
+        }
+        cleanUp?.();
+      };
 
-    document.addEventListener(isMouse ? 'mousemove' : 'touchmove', move);
-    document.addEventListener(isMouse ? 'mouseup' : 'touchend', end);
-  };
+      document.addEventListener(isMouse ? 'mousemove' : 'touchmove', move);
+      document.addEventListener(isMouse ? 'mouseup' : 'touchend', end);
+    },
+    [cleanUp, onEnd, onMove, ref],
+  );
 
   useEffect(() => {
     if (enabled && ref.current) {
@@ -127,5 +130,5 @@ export function useDraggable({
         cleanUp?.();
       };
     }
-  }, [ref, enabled, dragSelector, cleanUp]);
+  }, [ref, enabled, dragSelector, cleanUp, startHeaderDrag]);
 }

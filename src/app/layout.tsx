@@ -25,10 +25,10 @@ type Props = {
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata,
+  _parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { language } = await getSettings();
-  const auth = await getAuth();
+  const _auth = await getAuth();
 
   // fetch post information
 

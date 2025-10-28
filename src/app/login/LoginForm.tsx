@@ -2,23 +2,22 @@
 
 import { Alert, Checkbox } from '@digdir/designsystemet-react';
 import { useActionState, useEffect, useState } from 'react';
-import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
-
 import { eInnsynLoginAction } from '~/actions/authentication/auth.eInnsyn';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
+import { EinLink } from '~/components/EinLink/EinLink';
 import {
   EinModalBody,
   EinModalFooter,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { AnsattportenLogin } from './AnsattportenLogin';
 import styles from './LoginForm.module.scss';
-import { EinLink } from '~/components/EinLink/EinLink';
-import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
@@ -57,7 +56,7 @@ export default function LoginForm() {
     }
   }, [loginState.success, navigation, basepath]);
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (_event: React.KeyboardEvent<HTMLInputElement>) => {
     setDisplayedError(undefined);
   };
 

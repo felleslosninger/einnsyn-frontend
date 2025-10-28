@@ -1,19 +1,17 @@
 'use client';
 
-import type { AuthInfo } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import { cloneElement, useState } from 'react';
+import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
+import { EinButton } from '~/components/EinButton/EinButton';
+import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import LoginButton from './LoginButton';
-
-import { EinButton } from '~/components/EinButton/EinButton';
 import LogoutButton from './LogoutButton';
 import styles from './UserMenu.module.scss';
-import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
-import { EinLink } from '~/components/EinLink/EinLink';
-import cn from '~/lib/utils/className';
 
 export default function ProfileButton() {
   const { authInfo } = useSessionData();
@@ -119,13 +117,11 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         )}
       >
         {authInfo.enhet && (
-          <>
-            <div>
-              <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
-                {t('admin.apiKey.labelPlural')}
-              </EinLink>
-            </div>
-          </>
+          <div>
+            <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
+              {t('admin.apiKey.labelPlural')}
+            </EinLink>
+          </div>
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>

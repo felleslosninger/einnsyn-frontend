@@ -114,6 +114,7 @@ export default function EinModal({
         {children}
       </div>
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
+      {/** biome-ignore lint/a11y/noStaticElementInteractions: Backdrop-click closes modal */}
       <div
         className={cn(styles['ein-modal-backdrop'], 'ein-modal-backdrop')}
         onWheel={() => false}
