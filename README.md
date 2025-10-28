@@ -1,6 +1,6 @@
 # <img src="https://einnsyn.no/8ebf89f8e40d3eb75183.svg" width="180px" alt="eInnsyn"/>
 
-> **⚠️ Work in Progress: Not Ready for Production ⚠️**
+> **⚠️ Work in progress: Not ready for production ⚠️**
 >
 > This repository contains a new front-end application for eInnsyn and is currently under active development.
 
