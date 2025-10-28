@@ -7,7 +7,7 @@ const IV_LENGTH = 12;
 const ALGORITHM = 'aes-256-gcm';
 const KEY = 'abc';
 
-const encrypt = (text: string) => {
+const _encrypt = (text: string) => {
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);
 
@@ -22,7 +22,7 @@ const encrypt = (text: string) => {
   return encryptedCookie.toString('base64');
 };
 
-function decrypt(encryptedText: string): string | null {
+function _decrypt(encryptedText: string): string | null {
   try {
     const parts = encryptedText.split(':');
     if (parts.length !== 3) {
@@ -40,7 +40,7 @@ function decrypt(encryptedText: string): string | null {
     let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
-  } catch (error) {
+  } catch (_error) {
     // ... (error handling)
     return null;
   }

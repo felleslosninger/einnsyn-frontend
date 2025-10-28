@@ -12,7 +12,6 @@ export default function Home() {
   const t = useTranslation();
   const { searchQuery } = useSearchField();
 
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 

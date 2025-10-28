@@ -111,7 +111,7 @@ export const eInnsynLoginAction = async (
       error: 'UnknownError',
       message: 'An unknown error occurred.',
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       ...prevState,
       valid,

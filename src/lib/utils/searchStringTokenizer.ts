@@ -156,8 +156,8 @@ export function tokensToSearchQuery(tokens: Partial<SearchToken>[]): string {
       result += `${token.prefix}:`;
     }
     if (quoted) {
-      // Escape quotes within the value before wrapping it in quotes
-      const escapedValue = value.replace(/"/g, '\\"');
+      // Escape backslashes, then quotes within the value before wrapping it in quotes
+      const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       result += `"${escapedValue}"`;
     } else {
       result += value;

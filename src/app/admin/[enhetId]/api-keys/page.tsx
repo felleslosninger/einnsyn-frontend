@@ -6,7 +6,9 @@ import ApiKeys from './ApiKeys';
 
 export default async function ApiKeysPage({
   params,
-}: { params: Promise<{ enhetId: string }> }) {
+}: {
+  params: Promise<{ enhetId: string }>;
+}) {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
     notFound();
