@@ -117,13 +117,11 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         )}
       >
         {authInfo.enhet && (
-          <>
-            <div>
-              <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
-                {t('admin.apiKey.labelPlural')}
-              </EinLink>
-            </div>
-          </>
+          <div>
+            <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
+              {t('admin.apiKey.labelPlural')}
+            </EinLink>
+          </div>
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>

@@ -22,7 +22,8 @@ const isScrollable = (
   }
 
   const style = window.getComputedStyle(element);
-  const isOverflowScrollable = style.overflowY === 'auto' || style.overflowY === 'scroll';
+  const isOverflowScrollable =
+    style.overflowY === 'auto' || style.overflowY === 'scroll';
 
   if (isOverflowScrollable && element.scrollHeight > element.clientHeight) {
     if (

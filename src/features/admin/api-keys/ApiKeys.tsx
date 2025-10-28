@@ -1,17 +1,16 @@
 'use client';
 
 import type { ApiKey, PaginatedList } from '@digdir/einnsyn-sdk';
+import { PlusCircleIcon } from '@navikt/aksel-icons';
 import { useCallback, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
+import { fetchNextPage } from '~/lib/utils/pagination';
 import AddApiKeyModal from './AddApiKeyModal';
 import ApiKeyItem from './ApiKeyItem';
-
-import { PlusCircleIcon } from '@navikt/aksel-icons';
-import { fetchNextPage } from '~/lib/utils/pagination';
-import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import styles from './ApiKeys.module.scss';
-import cn from '~/lib/utils/className';
 
 export default function ApiKeys({
   apiKeys,

@@ -1,13 +1,12 @@
 import {
   Children,
-  type ReactElement,
   cloneElement,
   isValidElement,
+  type ReactElement,
   useState,
 } from 'react';
-import EinPopup from '../EinPopup/EinPopup';
-
 import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
+import EinPopup from '../EinPopup/EinPopup';
 import styles from './EinTooltip.module.scss';
 
 export default function EinTooltip({

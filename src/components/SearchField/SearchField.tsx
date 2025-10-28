@@ -7,13 +7,13 @@ import {
   XMarkIcon,
 } from '@navikt/aksel-icons';
 import { Fragment, forwardRef, useCallback, useRef, useState } from 'react';
-import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
-import styles from './SearchField.module.scss';
-import { useSearchField } from './SearchFieldProvider';
-import { EinButton } from '../EinButton/EinButton';
 import EnhetSelector from '~/features/search/searchheader/EnhetSelector';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
+import { EinButton } from '../EinButton/EinButton';
+import styles from './SearchField.module.scss';
+import { useSearchField } from './SearchFieldProvider';
 
 type SearchFieldProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   className?: string;

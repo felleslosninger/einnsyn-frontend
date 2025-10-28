@@ -14,7 +14,7 @@ export async function deleteApiKeyAction(formData: FormData) {
 }
 
 export async function addApiKeyAction(
-  previousState: ApiKey | undefined,
+  _previousState: ApiKey | undefined,
   formData: FormData,
 ): Promise<ApiKey | undefined> {
   const apiClient = await cachedApiClient();
@@ -39,7 +39,7 @@ export async function addApiKeyAction(
   try {
     const apiKey = await apiClient.enhet.addApiKey(enhetId, apiKeyData);
     return apiKey;
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to create API key');
   }
 }
