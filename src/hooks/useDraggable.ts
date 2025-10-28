@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useEffect } from 'react';
+import { type RefObject, useCallback, useEffect, useRef } from 'react';
 
 type DragDiff = {
   x: number;
@@ -50,7 +50,7 @@ export function useDraggable({
   onMove,
   onEnd,
 }: DraggableProps) {
-  let cleanUp: undefined | (() => void);
+  const cleanUpRef = useRef<undefined | (() => void)>(undefined);
 
   // Allow dragging the header to close on touch devices
   const startHeaderDrag = useCallback(
@@ -75,10 +75,10 @@ export function useDraggable({
         }
       };
 
-      cleanUp = () => {
+      cleanUpRef.current = () => {
         document.removeEventListener(isMouse ? 'mousemove' : 'touchmove', move);
         document.removeEventListener(isMouse ? 'mouseup' : 'touchend', end);
-        cleanUp = undefined;
+        cleanUpRef.current = undefined;
       };
 
       const end = () => {
@@ -92,19 +92,19 @@ export function useDraggable({
         if (moved) {
           window.addEventListener(
             'click',
-            function cancelClick() {
+            function cancelClick(_e) {
               window.removeEventListener('click', cancelClick, true);
             },
             true,
           );
         }
-        cleanUp?.();
+        cleanUpRef.current?.();
       };
 
       document.addEventListener(isMouse ? 'mousemove' : 'touchmove', move);
       document.addEventListener(isMouse ? 'mouseup' : 'touchend', end);
     },
-    [cleanUp, onEnd, onMove, ref],
+    [onEnd, onMove, ref],
   );
 
   useEffect(() => {
@@ -127,8 +127,8 @@ export function useDraggable({
       return () => {
         document.removeEventListener('mousedown', maybeStartHeaderDrag);
         document.removeEventListener('touchstart', maybeStartHeaderDrag);
-        cleanUp?.();
+        cleanUpRef.current?.();
       };
     }
-  }, [ref, enabled, dragSelector, cleanUp, startHeaderDrag]);
+  }, [ref, enabled, dragSelector, startHeaderDrag]);
 }
