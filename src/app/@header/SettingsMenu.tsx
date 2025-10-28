@@ -2,12 +2,11 @@
 
 import { CogIcon, MonitorIcon, MoonIcon, SunIcon } from '@navikt/aksel-icons';
 import { cloneElement, useState } from 'react';
+import type { Settings } from '~/actions/cookies/settingsCookie';
+import { EinButton } from '~/components/EinButton/EinButton';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
-
-import type { Settings } from '~/actions/cookies/settingsCookie';
-import { EinButton } from '~/components/EinButton/EinButton';
 import cn from '~/lib/utils/className';
 import styles from './SettingsMenu.module.scss';
 

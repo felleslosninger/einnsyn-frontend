@@ -317,9 +317,7 @@ async function updateAuthWithTokens(
       expiresAt:
         tokens.expires_in === undefined
           ? undefined
-          : Math.round(
-              (new Date().getTime() + tokens.expires_in * 1000) / 1000,
-            ),
+          : Math.round((Date.now() + tokens.expires_in * 1000) / 1000),
     },
     cookieSettings,
   );

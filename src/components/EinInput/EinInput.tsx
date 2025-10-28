@@ -5,18 +5,17 @@ import {
   Label,
 } from '@digdir/designsystemet-react';
 import {
+  CheckmarkIcon,
   FilesIcon,
   QuestionmarkIcon,
-  CheckmarkIcon,
 } from '@navikt/aksel-icons';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { logger } from '~/lib/utils/logger';
 import { EinButton } from '../EinButton/EinButton';
 import EinTooltip from '../EinTooltip/EinTooltip';
-
 import styles from './EinInput.module.scss';
-import { useTranslation } from '~/hooks/useTranslation';
-import { useEffect, useRef, useState } from 'react';
-import { logger } from '~/lib/utils/logger';
 
 type EinInputProps = {
   fullWidth?: boolean;

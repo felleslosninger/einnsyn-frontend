@@ -1,4 +1,4 @@
-import { type Saksmappe, isSaksmappe } from '@digdir/einnsyn-sdk';
+import { isSaksmappe, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 
 export default function SaksmappeLink({

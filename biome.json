@@ -1,15 +1,18 @@
 {
   "files": {
-    "includes": [
-      "src/**/*.ts",
-      "src/**/*.tsx"
-    ]
+    "includes": ["src/**/*.ts", "src/**/*.tsx"]
   },
   "javascript": {
     "formatter": {
       "lineWidth": 80,
       "indentStyle": "space",
       "quoteStyle": "single"
+    }
+  },
+  "json": {
+    "formatter": {
+      "lineWidth": 80,
+      "indentStyle": "space"
     }
   }
 }
