@@ -77,8 +77,12 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
                             >
                                 <div className={styles.cellHeader}>
                                     <span className={styles.dateNumber}>{day.dayNumber}</span>
-                                    <span className={styles.moeteCount}> {t('moetemappe.labelPlural').toLowerCase()} </span>
-
+                                    {(() => {
+                                        const count = currentSearchResults.items.filter(item =>
+                                            isMoetemappe(item) && new Date(item.moetedato).toDateString() === day.date.toDateString()
+                                        ).length;
+                                        return `${count} ${count === 1 ? t('moetemappe.label') : t('moetemappe.labelPlural')}`.toLowerCase();
+                                    })()}
                                 </div>
 
                                 {currentSearchResults.items.map((item) => (

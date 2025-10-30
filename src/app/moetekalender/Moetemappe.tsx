@@ -10,9 +10,9 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
             <EinLink href="">
                 <h2 className="ds-heading">{item.offentligTittel}</h2>
             </EinLink>
-            <div className="ds-paragraph" data-size="sm">
-                <span>{item.moetedato}   </span>
-
+            <div className="ds-paragraph" data-size="sm"> { /* TODO: style meeting info */}
+                <span>{new Date(item.moetedato).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span> {item.journalenhet} </span>
             </div>
         </div>
     );

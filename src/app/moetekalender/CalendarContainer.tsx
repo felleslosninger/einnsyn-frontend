@@ -51,16 +51,9 @@ export default function CalendarContainer({
                     currentSearchResults={currentSearchResults} />
             </div>
 
-            {/* <div className="temp">
-                {currentSearchResults.items.length} meetings found
-                <div className="meeting-list">
-                    {currentSearchResults.items.map((item) => (
-                        isMoetemappe(item) && <MoetemappeModule key={item.id} item={item} />
-                    ))}
-                </div>
-            </div> */}
-
             {/* <div className="container-post collapsible" /> */}
         </div>
     );
 }
+
+// TODO: fix calendar searchResults, pagination issues. 
