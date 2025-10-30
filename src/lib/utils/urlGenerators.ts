@@ -20,7 +20,7 @@ export function generateJournalpostURL(journalpost: Journalpost): string {
   } else {
     saksmappe = journalpost.saksmappe;
   }
-  return `/${t('routing.saksmappePath')}/${saksmappe}/${t('journalpost.pathName')}/${journalpost.id}`;
+  return `/${t('routing.saksmappePath')}/${saksmappe}/${journalpost.id}`;
 }
 
 export function generateEnhetUrl(enhet: Enhet): string {

@@ -8,8 +8,8 @@ import {
   isSkjerming,
   type Journalpost,
 } from '@digdir/einnsyn-sdk';
+import SaksmappeCard from '~/app/case/[saksmappe]/[journalpost]/SaksmappeCard';
 import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
-import SaksmappeCard from '~/app/case/[saksmappe]/record/[journalpost]/SaksmappeCard';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';

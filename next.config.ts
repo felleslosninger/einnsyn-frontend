@@ -12,11 +12,11 @@ const nextConfig: NextConfig = {
       source: '/%C3%A1%C5%A1%C5%A1i/:saksmappe',
       destination: '/case/:saksmappe',
     }, {
-      source: '/sak/:saksmappe/journalpost/:journalpost',
-      destination: '/case/:saksmappe/record/:journalpost',
+      source: '/sak/:saksmappe/:journalpost',
+      destination: '/case/:saksmappe/:journalpost',
     }, {
-      source: '/%C3%A1%C5%A1%C5%A1i/:saksmappe/journalapoasta/:journalpost',
-      destination: '/case/:saksmappe/record/:journalpost',
+      source: '/%C3%A1%C5%A1%C5%A1i/:saksmappe/:journalpost',
+      destination: '/case/:saksmappe/:journalpost',
     }]
   }
 };
