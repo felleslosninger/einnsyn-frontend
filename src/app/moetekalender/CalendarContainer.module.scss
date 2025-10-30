@@ -1,7 +1,20 @@
+// Global styles
+:global(.calendar-page) {
+    height: 100vh;
+    overflow: hidden;
+}
+
+// Main container
+.calendarContainer {
+    // height: 85vh; //Fixed size
+}
+
+// Header section
 .calendarHeader {
     position: relative;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
 .navigation {
@@ -12,15 +25,11 @@
     gap: var(--ds-size-2)
 }
 
-.arrowIcon {
-    height: 70%;
-    width: 70%;
-}
-
 .displayHeading {
     width: 100%;
 }
 
+// Navigation elements
 .datePicker {
     display: flex;
 }
@@ -34,6 +43,95 @@
     width: 100%;
 }
 
+.arrowIcon {
+    height: 70%;
+    width: 70%;
+}
+
+// Dropdown elements
 .checkbox {
     padding: var(--ds-size-2) var(--ds-size-4);
+}
+
+// Table container
+.tableContainer {
+    flex-grow: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+// Table styles
+.meetingTable {
+    width: 100%;
+    border-collapse: collapse;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.head {
+    position: sticky;
+    top: 0;
+    z-index: 7;
+}
+
+.headerRow :global(th) {
+    padding: 12px;
+    font-weight: 600;
+}
+
+.body {
+    flex-grow: 1;
+}
+
+.body :global(tr) {
+    position: relative;
+}
+
+// Table rows and cells
+.row {
+    border-bottom: 1px solid var(--ds-color-neutral-border-default);
+}
+
+.row :global(td) {
+    border-right: 1px solid var(--ds-color-neutral-border-default);
+    padding: 8px;
+    vertical-align: top;
+    position: relative;
+    height: 300px;
+
+    &:last-child {
+        border-right: none;
+    }
+
+    &:first-child {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    &:last-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+// Calendar-specific styles
+.otherMonth {
+    background-color: var(--ds-color-neutral-background-tinted);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.cellHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dateNumber {
+    font-weight: bold;
+    color: var(--ds-color-neutral-text-default);
+}
+
+.moeteCount {
+    font-size: var(--ds-font-size-small);
+    color: var(--ds-color-neutral-text-subtle);
 }

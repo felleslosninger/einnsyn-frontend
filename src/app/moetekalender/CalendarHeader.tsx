@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 
 import cn from '~/lib/utils/className';
@@ -21,6 +21,38 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
     const [open, setOpen] = useState(false);
 
     // const [expandAll, setExpandAll] = useState(false);
+
+
+    const viewHeading = useMemo(() => {
+        const getWeekNumber = (date: Date): number => {
+            const tempDate = new Date(date.getTime());
+            tempDate.setHours(0, 0, 0, 0);
+            tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+            const week1 = new Date(tempDate.getFullYear(), 0, 4);
+            return 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        };
+
+        switch (selectedView) {
+            case 'month':
+                return `${t(`moetekalender.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+
+            case 'week':
+                {
+                    const weekNumber = getWeekNumber(selectedDate);
+                    return `${t('moetekalender.viewOptions.week')} ${weekNumber}`;
+                }
+
+            case 'day':
+                return selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                });
+
+            default:
+                return '';
+        }
+    }, [selectedView, selectedDate, t]);
 
     return (
         <div className={cn('calendarHeader', styles.calendarHeader)}>
@@ -124,7 +156,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                 <Heading
                     data-size="md"
                     level={1}>
-                    Oktober 2025
+                    {viewHeading}
                 </Heading>
             </div>
         </div>

@@ -1,8 +1,9 @@
 import { Table } from '@digdir/designsystemet-react';
 import styles from './CalendarBody.module.scss';
 import { useTranslation } from '~/hooks/useTranslation';
+import { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 
-export default function DayView({ selectedDate, displayWeekends }: { selectedDate: Date; displayWeekends: boolean }) {
+export default function DayView({ selectedDate, displayWeekends, currentSearchResults }: { selectedDate: Date; displayWeekends: boolean; currentSearchResults: PaginatedList<Base> }) {
     const t = useTranslation();
 
     return (

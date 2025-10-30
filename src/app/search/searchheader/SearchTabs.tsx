@@ -16,14 +16,14 @@ export default function SearchTabs() {
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
+    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === 'Moetekalender') {
-      return '/moetekalender';
+      return `/moetekalender?entity=Moetemappe`;
     }
     if (entityName === 'Statistics') {
       return '/statistics';
     }
 
-    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {
@@ -100,9 +100,9 @@ export default function SearchTabs() {
         </EinLink>
       </div>
 
-      {/* <div className={cn(styles.searchFilter, 'search-filter')}>
+      <div className={cn(styles.searchFilter, 'search-filter')}>
         <SearchFilterDropdown />
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { Table } from '@digdir/designsystemet-react';
-import styles from '../CalendarBody.module.scss';
+import styles from '../CalendarContainer.module.scss';
 import { useTranslation } from '~/hooks/useTranslation';
+import { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 
-export default function WeekView({ selectedDate, displayWeekends }: { selectedDate: Date; displayWeekends: boolean }) {
+export default function WeekView({ selectedDate, displayWeekends, currentSearchResults }: { selectedDate: Date; displayWeekends: boolean; currentSearchResults: PaginatedList<Base> }) {
     const t = useTranslation();
 
     const getFirstDayOfWeek = (date: Date) => {
@@ -54,9 +55,9 @@ export default function WeekView({ selectedDate, displayWeekends }: { selectedDa
             </Table.Head>
             <Table.Body className={styles.body}>
                 <Table.Row className={styles.row}>
-                    {calendarDays.map((day, dayIndex) => (
+                    {calendarDays.map((day) => (
                         <Table.Cell
-                            key={dayIndex}
+                            key={day.date.getTime()}
                             className={`
                                 ${day.isToday ? styles.today : ''}
                             `}

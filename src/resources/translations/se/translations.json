@@ -157,18 +157,18 @@
     "saturday": "Lávvardat"
   },
   "months": {
-    "january": "Ođđajagemánnu",
-    "february": "Guovvamánnu",
-    "march": "Njukčamánnu",
-    "april": "Cuoŋománnu",
-    "may": "Miessemánnu",
-    "june": "Geassemánnu",
-    "july": "Suiodnemánnu",
-    "august": "Borgemánnu",
-    "september": "Čakčamánnu",
-    "october": "Golggotmánnu",
-    "november": "Skábmamánnu",
-    "december": "Juovlamánnu"
+    "0": "Ođđajagemánnu",
+    "1": "Guovvamánnu",
+    "2": "Njukčamánnu",
+    "3": "Cuoŋománnu",
+    "4": "Miessemánnu",
+    "5": "Geassemánnu",
+    "6": "Suiodnemánnu",
+    "7": "Borgemánnu",
+    "8": "Čakčamánnu",
+    "9": "Golggotmánnu",
+    "10": "Skábmamánnu",
+    "11": "Juovlamánnu"
   }
 },
   "searchFilters": {

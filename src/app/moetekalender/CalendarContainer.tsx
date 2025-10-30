@@ -1,15 +1,29 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
-import { Button, Dropdown, Heading } from '@digdir/designsystemet-react';
-import { ChevronDownIcon, ChevronUpIcon } from '@navikt/aksel-icons';
+
 import CalendarHeader from './CalendarHeader';
 import CalendarBody from './CalendarBody';
+import MoetemappeModule from './Moetemappe';
+import { isMoetemappe } from '@digdir/einnsyn-sdk';
 
-export default function CalendarContainer() {
+export default function CalendarContainer({
+    searchResults
+}: {
+    searchResults: PaginatedList<Base>;
+}) {
+    const [currentSearchResults, setCurrentSearchResults] =
+        useState<PaginatedList<Base>>(searchResults);
+
+    // Update currentSearchResults when searchResults prop changes (new search)
+    useEffect(() => {
+        setCurrentSearchResults(searchResults);
+    }, [searchResults]);
+
+
     const [selectedView, setSelectedView] = useState('month');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [displayWeekends, setDisplayWeekends] = useState(false);
@@ -33,11 +47,20 @@ export default function CalendarContainer() {
                 <CalendarBody
                     selectedView={selectedView}
                     selectedDate={selectedDate}
-                    displayWeekends={displayWeekends} />
-
+                    displayWeekends={displayWeekends}
+                    currentSearchResults={currentSearchResults} />
             </div>
 
-            <div className="container-post collapsible" />
+            {/* <div className="temp">
+                {currentSearchResults.items.length} meetings found
+                <div className="meeting-list">
+                    {currentSearchResults.items.map((item) => (
+                        isMoetemappe(item) && <MoetemappeModule key={item.id} item={item} />
+                    ))}
+                </div>
+            </div> */}
+
+            {/* <div className="container-post collapsible" /> */}
         </div>
     );
 }
