@@ -1,8 +1,8 @@
-import { cookies } from 'next/headers';
-import { type NextRequest, NextResponse } from 'next/server';
-import { maybeRefreshToken } from './actions/authentication/auth';
+import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { maybeRefreshToken } from "./actions/authentication/auth";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // This will update the auth cookie if needed
   await maybeRefreshToken();
 
@@ -32,6 +32,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Don't match Next.js internal paths or static assets
-    '/((?!_next|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp)$).*)',
+    "/((?!_next|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp)$).*)",
   ],
 };
