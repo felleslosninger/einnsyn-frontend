@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { maybeRefreshToken } from './actions/authentication/auth';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // This will update the auth cookie if needed
   await maybeRefreshToken();
 
