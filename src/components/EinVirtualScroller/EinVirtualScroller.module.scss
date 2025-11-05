@@ -1,0 +1,14 @@
+.virtualScroller {
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+}
+
+.paddingTop,
+.paddingBottom {
+  width: 100%;
+}
+
+.item {
+  width: 100%;
+}
