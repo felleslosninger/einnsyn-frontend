@@ -1,11 +1,13 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 import { Button, Checkbox, Divider, Dropdown, Heading } from '@digdir/designsystemet-react';
 import { CalendarIcon, ChevronDownIcon, ChevronUpIcon } from '@navikt/aksel-icons';
+import { DateFilter } from '~/app/search/searchheader/filter/DateFilter';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 interface CalendarHeaderProps {
     selectedView: string;
@@ -19,6 +21,17 @@ interface CalendarHeaderProps {
 export default function CalendarHeader({ selectedView, setSelectedView, selectedDate, setSelectedDate, displayWeekends, setDisplayWeekends }: CalendarHeaderProps) {
     const t = useTranslation();
     const [open, setOpen] = useState(false);
+
+    const { getProperty, setProperty } = useSearchField();
+
+    const getSetter = useCallback(
+        (property: string) => (value: string | undefined) =>
+            setProperty(property, value),
+        [setProperty],
+    );
+
+    const setMoeteDato = useMemo(() => getSetter('moetedato'), [getSetter]);
+
 
     // const [expandAll, setExpandAll] = useState(false);
 
@@ -53,6 +66,12 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                 return '';
         }
     }, [selectedView, selectedDate, t]);
+
+    const changeMonth = (offset: number) => {
+        const newDate = new Date(selectedDate);
+        newDate.setMonth(newDate.getMonth() + offset);
+        setSelectedDate(newDate);
+    }
 
     return (
         <div className={cn('calendarHeader', styles.calendarHeader)}>
@@ -101,35 +120,17 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                 </Dropdown.TriggerContext>
 
                 <div className={cn('datePicker', styles.datePicker)}>
-                    <Dropdown.TriggerContext>
-                        <Dropdown.Trigger
-                            className={cn('calendarButton', styles.calendarButton)}
-                            data-color="neutral"
-                            variant="secondary"
-                            data-size="sm"
-                            type="button">
-                            <CalendarIcon className={cn('calendarIcon', styles.calendarIcon)} />
-                        </Dropdown.Trigger>
-
-                        <Dropdown
-                            data-color="neutral"
-                            data-size="sm"
-                            placement="bottom-start">
-                            <input type="date" onChange={(e) => setSelectedDate(new Date(e.target.value))} />
-                        </Dropdown>
-                    </Dropdown.TriggerContext>
-
-                    <Button
-                        data-color="neutral"
-                        data-size="sm"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => { setSelectedDate(new Date()); }}
-                    >
-                        {t('moetekalender.viewOptions.today')}
-                    </Button>
+                    <div className={styles.dateField}>
+                        <label className={styles.dateLabel}>
+                            <input
+                                type="date"
+                                className={cn(styles.dateInput)}
+                                value={selectedDate.toISOString().split('T')[0]}
+                                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                            />
+                        </label>
+                    </div>
                 </div>
-
 
                 <Button
                     data-color="neutral"
@@ -137,6 +138,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                     icon
                     type="button"
                     variant="tertiary"
+                    onClick={() => changeMonth(-1)} // Previous Month
                 >
                     <ChevronDownIcon className={cn(styles.arrowIcon)} />
                 </Button>
@@ -147,6 +149,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                     icon
                     type="button"
                     variant="tertiary"
+                    onClick={() => changeMonth(1)} // Next Month
                 >
                     <ChevronUpIcon className={cn(styles.arrowIcon)} />
                 </Button>

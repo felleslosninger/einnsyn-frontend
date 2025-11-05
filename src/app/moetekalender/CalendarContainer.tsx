@@ -1,6 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
+
+import { isMoetemappe } from '@digdir/einnsyn-sdk';
+import { fetchNextPage } from '~/lib/utils/pagination';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
@@ -8,7 +11,6 @@ import styles from './CalendarContainer.module.scss';
 import CalendarHeader from './CalendarHeader';
 import CalendarBody from './CalendarBody';
 import MoetemappeModule from './Moetemappe';
-import { isMoetemappe } from '@digdir/einnsyn-sdk';
 
 export default function CalendarContainer({
     searchResults
@@ -18,10 +20,35 @@ export default function CalendarContainer({
     const [currentSearchResults, setCurrentSearchResults] =
         useState<PaginatedList<Base>>(searchResults);
 
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    const fetchAllResults = useCallback(async (initialResults: PaginatedList<Base>) => {
+        let allResults = initialResults;
+
+        if (initialResults.next) {
+            setIsLoadingMore(true);
+            while (allResults.next) {
+                try {
+                    const nextPage = await fetchNextPage(allResults);
+                    allResults = nextPage;
+                    setCurrentSearchResults(nextPage);
+                } catch (error) {
+                    console.error('Error fetching more results:', error);
+                    break;
+                }
+            }
+            setIsLoadingMore(false);
+        }
+    }, []);
+
+
     // Update currentSearchResults when searchResults prop changes (new search)
     useEffect(() => {
         setCurrentSearchResults(searchResults);
-    }, [searchResults]);
+        if (searchResults.next) {
+            fetchAllResults(searchResults);
+        }
+    }, [searchResults, fetchAllResults]);
 
 
     const [selectedView, setSelectedView] = useState('month');
@@ -56,4 +83,4 @@ export default function CalendarContainer({
     );
 }
 
-// TODO: fix calendar searchResults, pagination issues. 
+// TODO: only fetch resutls for displayed date range

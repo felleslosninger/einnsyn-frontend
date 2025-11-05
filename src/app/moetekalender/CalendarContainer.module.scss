@@ -32,6 +32,7 @@
 // Navigation elements
 .datePicker {
     display: flex;
+
 }
 
 .calendarButton {
@@ -46,6 +47,40 @@
 .arrowIcon {
     height: 70%;
     width: 70%;
+}
+
+.dateLabel {
+    display: flex;
+    gap: calc(var(--ein-horizontal-spacing));
+    padding: 0 var(--ds-size-3);
+    background: var(--ds-color-neutral-surface-default);
+    border-style: solid;
+    border-color: var(--ds-color-neutral-border-default);
+    border-width: round(up, var(--ds-border-width-default), 1px);
+    border-radius: var(--ds-border-radius-md);
+    align-items: center;
+
+    span {
+        flex-grow: 1;
+    }
+}
+
+.dateInput {
+    flex-grow: 0;
+
+    // Remove default styles
+    border: none;
+    background: transparent;
+    color: var(--ds-color-neutral-text-subtle);
+    font-size: var(--ds-body-sm-font-size);
+    height: 40.5px;
+
+    // Remove default focus styles
+    &:focus,
+    &:focus-visible {
+        box-shadow: none;
+        outline: none;
+    }
 }
 
 // Dropdown elements
@@ -133,5 +168,29 @@
 
 .moeteCount {
     font-size: var(--ds-font-size-small);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+// Meeting component styles
+.moetemappemodule {
+    background-color: var(--ds-color-neutral-surface-tinted);
+    margin-bottom: 5px;
+
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.moduleHeading,
+.moduleInfo {
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
 }
