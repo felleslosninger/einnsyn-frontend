@@ -10,8 +10,10 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 
 import cn from '~/lib/utils/className';
 import styles from './EnhetSelector.module.scss';
+import { EinVirtualScroller } from '~/components/EinVirtualScroller';
+import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
 
-type EnhetNode = { enhet: TrimmedEnhet; children: Set<EnhetNode> };
+export type EnhetNode = { enhet: TrimmedEnhet; children: Set<EnhetNode> };
 
 export default function EnhetSelector({
   className,
@@ -184,20 +186,12 @@ export default function EnhetSelector({
             onChange={updateSearchString}
             placeholder="Finn virksomhet..."
           />
-          {sortedNodes.map(function recurse(node) {
-            return (
-              <div className="enhet" key={node.enhet.id}>
-                <Checkbox
-                  key={node.enhet.id}
-                  value={node.enhet.id}
-                  label={getName(node.enhet)}
-                />
-                <div className="children">
-                  {Array.from(node.children).sort(sortNodes).map(recurse)}
-                </div>
-              </div>
-            );
-          })}
+          <EinVirtualScroller
+            items={sortedNodes}
+            renderItem={(enhet) => (
+              <EnhetSelectorSelectItem enhetNode={enhet} />
+            )}
+          />
         </>
       )}
     </div>
