@@ -1,5 +1,5 @@
 import { Switch } from '@digdir/designsystemet-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import cn from '~/lib/utils/className';
 import styles from './BooleanFilter.module.scss';
 

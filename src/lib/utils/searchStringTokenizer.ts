@@ -1,10 +1,10 @@
 export type SearchToken = {
   value: string;
-  quoted?: boolean;
-  prefix?: string;
+  quoted: boolean;
+  prefix: string | undefined;
+  sign: '+' | '-' | undefined; // Indicates hard inclusion / exclusion
+  focused: boolean;
   locked?: boolean; // Indicates if the token can be modified or not
-  sign?: '+' | '-'; // Indicates hard inclusion / exclusion
-  focused?: boolean;
 };
 
 /**
@@ -50,6 +50,7 @@ export function searchQueryToTokens(
         prefix: currentPrefix,
         quoted,
         sign,
+        focused,
       });
       currentPrefix = undefined;
       currentWord = '';
@@ -143,10 +144,10 @@ export function searchQueryToTokens(
  * @param tokens List of tokens
  * @returns Query string
  */
-export function tokensToSearchQuery(tokens: SearchToken[]): string {
+export function tokensToSearchQuery(tokens: Partial<SearchToken>[]): string {
   const tokenStrings: string[] = [];
   for (const token of tokens) {
-    const { value, quoted = false } = token;
+    const { value = '', quoted = false } = token;
     let result = '';
     if (token.sign) {
       result += token.sign;
@@ -155,8 +156,8 @@ export function tokensToSearchQuery(tokens: SearchToken[]): string {
       result += `${token.prefix}:`;
     }
     if (quoted) {
-      // Escape quotes within the value before wrapping it in quotes
-      const escapedValue = value.replace(/"/g, '\\"');
+      // Escape backslashes, then quotes within the value before wrapping it in quotes
+      const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       result += `"${escapedValue}"`;
     } else {
       result += value;

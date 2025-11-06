@@ -10,10 +10,9 @@ import EinModal, {
 } from '~/components/EinModal/EinModal';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { deleteApiKeyAction } from '../adminActions';
-
-import cn from '~/lib/utils/className';
 import tableStyles from './AddApiKeyModal.module.scss';
 import styles from './ApiKeyItem.module.scss';
 
@@ -61,58 +60,53 @@ export default function ApiKeyItem({
         : '';
 
   return (
-    <>
-      <div className="table-row">
-        <div className="table-cell">{apiKey.name}</div>
-        <div className={cn('table-cell', styles[expiryWarning])}>
-          {' '}
-          {apiKey.expiresAt
-            ? dateFormat(apiKey.expiresAt, languageCode)
-            : t('admin.apiKey.expiresNever')}
-        </div>
-        <div className="table-cell">
-          <EinButton variant="secondary" onClick={handleDeleteClick}>
-            <TrashIcon
-              title={t('admin.apiKey.deleteApiKey')}
-              fontSize="1.5rem"
-            />
-            {t('common.delete')}
-          </EinButton>
-
-          <EinModal open={showDeletePopup} setOpen={setShowDeletePopup}>
-            <EinModalHeader title={t('admin.apiKey.deleteConfirmationTitle')} />
-            <EinModalBody>
-              <form action={handleDelete} className={tableStyles.form}>
-                <div>
-                  {t(
-                    'admin.apiKey.deleteConfirmationMessage',
-                    apiKey.name ?? t('common.unnamed'),
-                  )}
-                </div>
-                <input type="hidden" name="action" value="delete" />
-                <input type="hidden" name="keyId" value={apiKey.id} />
-
-                <div className={tableStyles.confirmButtons}>
-                  <EinButton
-                    onClick={handleCancel}
-                    disabled={isDeleting}
-                    variant="secondary"
-                  >
-                    {t('common.cancel')}
-                  </EinButton>
-                  <EinButton
-                    type="submit"
-                    data-color="danger"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? t('common.deleting') : t('common.delete')}
-                  </EinButton>
-                </div>
-              </form>
-            </EinModalBody>
-          </EinModal>
-        </div>
+    <div className="table-row">
+      <div className="table-cell">{apiKey.name}</div>
+      <div className={cn('table-cell', styles[expiryWarning])}>
+        {' '}
+        {apiKey.expiresAt
+          ? dateFormat(apiKey.expiresAt, languageCode)
+          : t('admin.apiKey.expiresNever')}
       </div>
-    </>
+      <div className="table-cell">
+        <EinButton variant="secondary" onClick={handleDeleteClick}>
+          <TrashIcon title={t('admin.apiKey.deleteApiKey')} fontSize="1.5rem" />
+          {t('common.delete')}
+        </EinButton>
+
+        <EinModal open={showDeletePopup} setOpen={setShowDeletePopup}>
+          <EinModalHeader title={t('admin.apiKey.deleteConfirmationTitle')} />
+          <EinModalBody>
+            <form action={handleDelete} className={tableStyles.form}>
+              <div>
+                {t(
+                  'admin.apiKey.deleteConfirmationMessage',
+                  apiKey.name ?? t('common.unnamed'),
+                )}
+              </div>
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="keyId" value={apiKey.id} />
+
+              <div className={tableStyles.confirmButtons}>
+                <EinButton
+                  onClick={handleCancel}
+                  disabled={isDeleting}
+                  variant="secondary"
+                >
+                  {t('common.cancel')}
+                </EinButton>
+                <EinButton
+                  type="submit"
+                  data-color="danger"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? t('common.deleting') : t('common.delete')}
+                </EinButton>
+              </div>
+            </form>
+          </EinModalBody>
+        </EinModal>
+      </div>
+    </div>
   );
 }

@@ -11,7 +11,7 @@ export async function fetchNextPage<T extends Base>(
   }
 
   const nextPage = await fetchNextPageAction<T>(currentPage.next);
-  
+
   if (!nextPage) {
     return currentPage;
   }
