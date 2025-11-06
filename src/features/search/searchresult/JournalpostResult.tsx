@@ -25,7 +25,9 @@ export default function JournalpostResult({
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
           item={item}
-          icon={<FileIcon title="a11y-title" fontSize="1rem" />}
+          icon={
+            <FileIcon aria-hidden="true" focusable="false" fontSize="1rem" />
+          }
           label={translate('journalpost.label')}
         />
         <div className="journalpost-enhet">

@@ -12,9 +12,9 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import { deleteApiKeyAction } from '../adminActions';
 import tableStyles from './AddApiKeyModal.module.scss';
 import styles from './ApiKeyItem.module.scss';
-import { deleteApiKeyAction } from './actions';
 
 interface ApiKeyItemProps {
   apiKey: ApiKey;

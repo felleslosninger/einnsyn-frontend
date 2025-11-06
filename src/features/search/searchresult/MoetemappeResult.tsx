@@ -20,7 +20,13 @@ export default function MoetemappeResult({
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
-          icon={<MeetingLargeIcon title="a11y-title" fontSize="1.2rem" />}
+          icon={
+            <MeetingLargeIcon
+              aria-hidden="true"
+              focusable="false"
+              fontSize="1.2rem"
+            />
+          }
           item={item}
           label={translate('moetemappe.label')}
         />

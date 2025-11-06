@@ -16,8 +16,8 @@ import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import styles from './Header.module.scss';
-import SettingsMenu from './SettingsMenu';
-import UserMenu from './UserMenu';
+import SettingsMenu from './components/SettingsMenu';
+import UserMenu from './components/UserMenu';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();

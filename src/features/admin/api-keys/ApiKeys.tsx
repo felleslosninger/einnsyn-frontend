@@ -78,7 +78,11 @@ export default function ApiKeys({
             </div>
 
             <EinButton onClick={() => setShowAddModal(true)}>
-              <PlusCircleIcon title="a11y-title" fontSize="1.5rem" />
+              <PlusCircleIcon
+                aria-hidden="true"
+                focusable="false"
+                fontSize="1.5rem"
+              />
               {t('admin.apiKey.addApiKey')}
             </EinButton>
           </div>
