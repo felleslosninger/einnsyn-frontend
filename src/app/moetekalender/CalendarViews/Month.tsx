@@ -1,7 +1,9 @@
-import { Table } from '@digdir/designsystemet-react';
-import styles from '../CalendarContainer.module.scss';
 import { useTranslation } from '~/hooks/useTranslation';
-import { isMoetemappe, PaginatedList, Base } from '@digdir/einnsyn-sdk';
+
+import { Table } from '@digdir/designsystemet-react';
+import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
+
+import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 
 export default function MonthView({ selectedDate, displayWeekends, currentSearchResults }: { selectedDate: Date; displayWeekends: boolean; currentSearchResults: PaginatedList<Base> }) {

@@ -11,5 +11,6 @@ export default async function Moetekalender({
     const { enhet = '' } = await params;
     const urlSearchParams = new URLSearchParams(await searchParams);
     const searchResults = await getSearchResults(enhet, urlSearchParams);
+
     return <CalendarContainer searchResults={searchResults} />;
 }

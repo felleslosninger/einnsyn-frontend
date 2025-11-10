@@ -140,7 +140,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                     variant="tertiary"
                     onClick={() => changeMonth(-1)} // Previous Month
                 >
-                    <ChevronDownIcon className={cn(styles.arrowIcon)} />
+                    <ChevronUpIcon className={cn(styles.arrowIcon)} />
                 </Button>
 
                 <Button
@@ -151,7 +151,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                     variant="tertiary"
                     onClick={() => changeMonth(1)} // Next Month
                 >
-                    <ChevronUpIcon className={cn(styles.arrowIcon)} />
+                    <ChevronDownIcon className={cn(styles.arrowIcon)} />
                 </Button>
             </div>
 

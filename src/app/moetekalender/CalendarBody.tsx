@@ -1,14 +1,13 @@
 'use client';
-import { useState } from 'react';
-import { useTranslation } from '~/hooks/useTranslation';
-import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
-import MonthView from './CalendarViews/Month'
-import WeekView from './CalendarViews/Week'
-import DayView from './CalendarViews/Day'
-
+import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import cn from '~/lib/utils/className';
-import styles from './CalendarContainer.module.scss';
+
 import { Table } from '@digdir/designsystemet-react';
+
+import styles from './CalendarContainer.module.scss';
+import DayView from './CalendarViews/Day';
+import MonthView from './CalendarViews/Month';
+import WeekView from './CalendarViews/Week';
 
 interface CalendarBodyProps {
     selectedView: string;
@@ -18,7 +17,6 @@ interface CalendarBodyProps {
 }
 
 export default function CalendarBody({ selectedView, selectedDate, displayWeekends, currentSearchResults }: CalendarBodyProps) {
-    const t = useTranslation();
 
     return (
         <>
@@ -26,21 +24,21 @@ export default function CalendarBody({ selectedView, selectedDate, displayWeeken
                 <Table
                     stickyHeader
                     data-size='sm'
-                    className={styles.meetingTable}>
+                    className={cn(styles.meetingTable)}>
                     <MonthView selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
                 </Table>
             )}
             {selectedView === 'week' && (
                 <Table
                     stickyHeader
-                    className={styles.meetingTable}>
+                    className={cn(styles.meetingTable)}>
                     <WeekView selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
                 </Table>
             )}
             {selectedView === 'day' && (
                 <Table
                     stickyHeader
-                    className={styles.meetingTable}>
+                    className={cn(styles.meetingTable)}>
                     <DayView selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
                 </Table>
             )}
