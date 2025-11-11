@@ -1,4 +1,4 @@
-import { Checkbox } from '@digdir/designsystemet-react';
+import { EinButton } from '~/components/EinButton/EinButton';
 import type { EnhetNode } from './EnhetSelector';
 
 export function EnhetSelectorSelectItem({
@@ -9,12 +9,7 @@ export function EnhetSelectorSelectItem({
   const enhet = enhetNode.enhet;
   return (
     <div className="enhet" key={enhet.id}>
-      <Checkbox
-        key={enhet.id}
-        value={enhet.id}
-        //label={getName(node.enhet)}
-        label={enhet.name.nb}
-      />
+      <EinButton>{enhet.name.nb}</EinButton>
     </div>
   );
 }

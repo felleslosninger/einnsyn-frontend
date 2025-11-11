@@ -1,16 +1,16 @@
 'use client';
 
-import { Checkbox } from '@digdir/designsystemet-react';
+import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { cachedEnhetList, type TrimmedEnhet } from '~/actions/api/enhetActions';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
+import { EinVirtualScroller } from '~/components/EinVirtualScroller';
 import { useOptimisticSearchParams } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-
 import cn from '~/lib/utils/className';
 import styles from './EnhetSelector.module.scss';
-import { EinVirtualScroller } from '~/components/EinVirtualScroller';
+import searchFieldStyles from './SearchField.module.scss';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
 
 export type EnhetNode = { enhet: TrimmedEnhet; children: Set<EnhetNode> };
@@ -41,7 +41,6 @@ export default function EnhetSelector({
     // (this mutates the list, but it's an acceptable trade-off for performance)
     for (const enhet of enhetList) {
       if (enhet.parentId && !map.has(enhet.parentId)) {
-        console.log('Remove parentId for enhet', enhet.name);
         enhet.parentId = null;
       }
     }
@@ -171,28 +170,38 @@ export default function EnhetSelector({
 
   return (
     <div className={cn(styles.enhetSelector, className)}>
-      <EinButton
-        onClick={toggleOpen}
-        style="link"
-        className={styles.enhetSelectorButton}
-      >
-        {label}
-      </EinButton>
+      <div className={cn(searchFieldStyles.searchFieldButton)}>
+        <EinButton style="link" className={cn(searchFieldStyles.paddedContent)}>
+          <div className={cn(searchFieldStyles.searchInputIcon)}>
+            <Buildings3Icon
+              className={cn(styles.searchIcon)}
+              title="Enhet"
+              fontSize="1.2rem"
+            />
+          </div>
+          Virksomheter
+        </EinButton>
+      </div>
 
       {expanded && (
-        <>
-          <EinInput
-            value={searchString}
-            onChange={updateSearchString}
-            placeholder="Finn virksomhet..."
-          />
-          <EinVirtualScroller
-            items={sortedNodes}
-            renderItem={(enhet) => (
-              <EnhetSelectorSelectItem enhetNode={enhet} />
-            )}
-          />
-        </>
+        <div className={cn(styles.enhetSelectorDropdown)}>
+          <div className={cn(styles.enhetSelectorDropdownList)}>
+            <EinInput
+              value={searchString}
+              onChange={updateSearchString}
+              placeholder="Finn virksomhet..."
+            />
+            <EinVirtualScroller
+              items={sortedNodes}
+              renderItem={(enhet) => (
+                <EnhetSelectorSelectItem enhetNode={enhet} />
+              )}
+            />
+          </div>
+          <div className={cn(styles.enhetSelectorDropdownList)}>
+            Remove these
+          </div>
+        </div>
       )}
     </div>
   );

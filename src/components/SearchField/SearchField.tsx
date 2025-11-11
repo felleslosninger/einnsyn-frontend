@@ -7,7 +7,7 @@ import {
   XMarkIcon,
 } from '@navikt/aksel-icons';
 import { Fragment, forwardRef, useCallback, useRef, useState } from 'react';
-import EnhetSelector from '~/features/search/searchheader/EnhetSelector';
+import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -208,19 +208,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
           )}
         >
           <div className={cn(styles.expandableInputContainer)}>
-            <div
-              className={cn(styles.searchIconContainer, styles.searchInputIcon)}
-            >
-              <Buildings3Icon
-                className={cn(styles.searchIcon)}
-                title="Enhet"
-                fontSize="1.2rem"
-              />
-            </div>
-            <EnhetSelector
-              expanded={activeContainer === 'enhetSelector'}
-              className={styles.paddedContent}
-            />
+            <EnhetSelector expanded={activeContainer === 'enhetSelector'} />
           </div>
         </div>
 

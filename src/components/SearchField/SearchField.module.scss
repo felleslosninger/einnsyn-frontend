@@ -43,8 +43,12 @@
     padding-left: var(--ds-size-3);
     padding-right: var(--ds-size-3);
     background: var(--search-input-surface);
-    border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+    border-color: var(--ds-color-neutral-border-subtle);
+    border-style: solid;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: var(--ds-border-width-default);
+    border-bottom-width: var(--ds-border-width-default);
     max-height: 80vh;
     overflow: hidden;
 
@@ -54,6 +58,7 @@
       outline: var(--dsc-focus-outline);
       outline-offset: var(--ds-border-width-focus);
       z-index: 3;
+      border-color: transparent;
     }
   }
 
@@ -71,13 +76,9 @@
     border: none;
 
     .expandableInputContainer {
-      border-left: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+      border-left-width: var(--ds-border-width-default);
       border-top-left-radius: var(--ds-border-radius-md);
       border-bottom-left-radius: var(--ds-border-radius-md);
-
-      &:has(:focus) {
-        border-color: transparent;
-      }
     }
   }
 
