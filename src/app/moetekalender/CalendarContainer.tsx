@@ -5,39 +5,14 @@ import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 import { isMoetemappe } from '@digdir/einnsyn-sdk';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { getDateRange } from './DateRange';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
 import CalendarHeader from './CalendarHeader';
 import CalendarBody from './CalendarBody';
-import MoetemappeModule from './Moetemappe';
 
-
-const getDateRange = (selectedDate: Date, view: string) => {
-    const start = new Date(selectedDate);
-    const end = new Date(selectedDate);
-
-    switch (view) {
-        case 'month':
-            start.setDate(1);
-            end.setMonth(end.getMonth() + 1);
-            end.setDate(0);
-            break;
-        case 'week': {
-            const dayOfWeek = start.getDay();
-            start.setDate(start.getDate() - dayOfWeek);
-            end.setDate(start.getDate() + 6);
-            break;
-        }
-        case 'day':
-            break;
-        default:
-            break;
-    }
-
-    return { start, end };
-};
 
 const formatDateForUrl = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -151,10 +126,10 @@ export default function CalendarContainer({
 }
 
 
-//TODO: Get meetings from all dates shown (not just current month)
 //TODO: Fix display of many meetings on same day
 //TODO: Automatically display weekend if there are meetings on weekend days
 //TODO: Loading state while fetching all results
 //TODO: Utilize full page width for calendar
-//TODO: Implement week, day and dynamic view 
+//TODO: Implement dynamic view 
 //TODO: Order meetings by time 
+//TODO: Fix arrow nav for week and day views

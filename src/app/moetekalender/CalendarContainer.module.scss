@@ -151,7 +151,14 @@
     }
 }
 
+.weekrow :global(td),
+.dayrow :global(td) {
+    min-height: 70vh;
+    height: 70vh;
+}
+
 // Calendar-specific styles
+
 .otherMonth {
     background-color: var(--ds-color-neutral-background-tinted);
     color: var(--ds-color-neutral-text-subtle);
@@ -192,6 +199,12 @@
     padding-right: 12px;
 }
 
+.moduleHeading {
+    color: var(--ds-color-neutral-text-default)
+}
+
 .moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
 }
+
+.parentNameLabel {}

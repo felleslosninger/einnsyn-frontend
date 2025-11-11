@@ -1,7 +1,10 @@
-import { Table } from '@digdir/designsystemet-react';
-import styles from '../CalendarContainer.module.scss';
 import { useTranslation } from '~/hooks/useTranslation';
-import { PaginatedList, Base } from '@digdir/einnsyn-sdk';
+
+import { Table } from '@digdir/designsystemet-react';
+import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
+
+import styles from '../CalendarContainer.module.scss';
+import MoetemappeModule from '../Moetemappe';
 
 export default function WeekView({ selectedDate, displayWeekends, currentSearchResults }: { selectedDate: Date; displayWeekends: boolean; currentSearchResults: PaginatedList<Base> }) {
     const t = useTranslation();
@@ -54,7 +57,7 @@ export default function WeekView({ selectedDate, displayWeekends, currentSearchR
                 </Table.Row>
             </Table.Head>
             <Table.Body className={styles.body}>
-                <Table.Row className={styles.row}>
+                <Table.Row className={`${styles.row} ${styles.weekrow}`}>
                     {calendarDays.map((day) => (
                         <Table.Cell
                             key={day.date.getTime()}
@@ -62,7 +65,19 @@ export default function WeekView({ selectedDate, displayWeekends, currentSearchR
                                 ${day.isToday ? styles.today : ''}
                             `}
                         >
-                            {day.dayNumber}
+                            <div className={styles.cellHeader}>
+                                <span className={styles.dateNumber}>{day.dayNumber}</span>
+                                {(() => {
+                                    const count = currentSearchResults.items.filter(item =>
+                                        isMoetemappe(item) && new Date(item.moetedato).toDateString() === day.date.toDateString()
+                                    ).length;
+                                    return `${count} ${count === 1 ? t('moetemappe.label') : t('moetemappe.labelPlural')}`.toLowerCase();
+                                })()}
+                            </div>
+
+                            {currentSearchResults.items.map((item) => (
+                                (isMoetemappe(item) && (new Date(item.moetedato).toDateString() === day.date.toDateString())) && <MoetemappeModule key={item.id} item={item} />
+                            ))}
                         </Table.Cell>
                     ))}
                 </Table.Row>
