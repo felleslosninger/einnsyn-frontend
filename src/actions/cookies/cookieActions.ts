@@ -22,7 +22,7 @@ export async function getCookie<T>(cookieName: string): Promise<T | null> {
   try {
     const json = cookie?.value ? JSON.parse(cookie.value) : null;
     return json as T;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

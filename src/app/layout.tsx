@@ -4,14 +4,14 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
-import Footer from '~/app/_footer/Footer';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
+import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
+import Footer from '~/features/footer/Footer';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
-import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 
 export const viewport = {
   width: 'device-width',
@@ -25,10 +25,10 @@ type Props = {
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata,
+  _parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { language } = await getSettings();
-  const auth = await getAuth();
+  const _auth = await getAuth();
 
   // fetch post information
 

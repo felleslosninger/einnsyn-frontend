@@ -8,7 +8,7 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import {
@@ -29,7 +29,6 @@ interface SearchFieldContextType {
   setSearchQuery: (query: string, push?: boolean) => void;
   pushSearchQuery: (query: string) => void;
 }
-
 
 const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
@@ -65,7 +64,10 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         searchParams.delete('q');
       }
       const newSearchParamsString = searchParams.toString();
-      navigation.push(`${optimisticPathname}?${newSearchParamsString}`);
+      // TODO: Translations for /search path
+      const pathName =
+        optimisticPathname === '/' ? '/search' : optimisticPathname;
+      navigation.push(`${pathName}?${newSearchParamsString}`);
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );
@@ -101,7 +103,13 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
           newTokens[tokenIndex] = { ...newTokens[tokenIndex], value };
         }
       } else if (value !== undefined && value !== null) {
-        newTokens.push({ prefix: property, value });
+        newTokens.push({
+          prefix: property,
+          value,
+          quoted: false, // TODO: Determine if quoting is needed
+          sign: undefined,
+          focused: false,
+        });
       }
 
       // Convert tokens to correct translation

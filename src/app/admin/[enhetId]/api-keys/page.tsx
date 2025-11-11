@@ -2,11 +2,13 @@ import { notFound } from 'next/navigation';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { logger } from '~/lib/utils/logger';
-import ApiKeys from './ApiKeys';
+import ApiKeys from '../../../../features/admin/api-keys/ApiKeys';
 
 export default async function ApiKeysPage({
   params,
-}: { params: Promise<{ enhetId: string }> }) {
+}: {
+  params: Promise<{ enhetId: string }>;
+}) {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
     notFound();

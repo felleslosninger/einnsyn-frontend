@@ -41,7 +41,6 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
 
     return (
       <div className={cn(styles.searchFieldContainer)}>
-
         <span className={cn(styles.inputContainer)}>
           <div className={cn(styles.styledInput, className)}>
             {searchTokens.map((token, index) => (
@@ -85,22 +84,25 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
           />
         </span>
 
-        {
-          searchQuery && (
-            <Button
-              className={cn(styles.clearButton)}
-              type="button"
-              onClick={handleClear}
-              aria-label={t('search.clear')}
-              variant='tertiary'
-            >
-              <XMarkIcon title={t('search.clear')} className={cn(styles.clearIcon)} />
-            </Button>
-          )
-        }
-        <div className={cn(styles.actionButtonContainer, {
-          [styles.withBorder]: !!searchQuery
-        })}>
+        {searchQuery && (
+          <Button
+            className={cn(styles.clearButton)}
+            type="button"
+            onClick={handleClear}
+            aria-label={t('search.clear')}
+            variant="tertiary"
+          >
+            <XMarkIcon
+              title={t('search.clear')}
+              className={cn(styles.clearIcon)}
+            />
+          </Button>
+        )}
+        <div
+          className={cn(styles.actionButtonContainer, {
+            [styles.withBorder]: !!searchQuery,
+          })}
+        >
           <button
             className={cn(styles.searchIconButton)}
             type="submit"
@@ -110,7 +112,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
             <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
           </button>
         </div>
-      </div >
+      </div>
     );
   },
 );

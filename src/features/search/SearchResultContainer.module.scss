@@ -1,0 +1,53 @@
+@use '../../styles/easing.scss' as e;
+
+.searchContainer {
+  :global(.search-toolbar) {
+    padding-bottom: var(--ds-size-9);
+  }
+
+  .searchResult {
+    transform-origin: top left;
+  }
+
+  &:global(.ein-transition-init-exit-transition) {
+    opacity: 1;
+  }
+  &:global(.ein-transition-exit-transition) {
+    opacity: .99;
+    transition: transform .5s e.$easeOutQuart;
+
+    .searchResult {
+      opacity: 0;
+      transform: scale(0.96);
+      transition: all 0.25s e.$easeOutQuart;
+      @for $i from 1 through 50 {
+       &:nth-child(#{$i}) {
+          transition-delay: #{($i - 1) * 30}ms;
+        }
+      }
+    }
+  }
+
+  &:global(.ein-transition-init-enter-transition) {
+    opacity: .99;
+    .searchResult {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  &:global(.ein-transition-enter-transition) {
+    opacity: 1;
+    transition: transform .3s e.$easeOutQuart;
+
+    .searchResult {
+      opacity: 1;
+      transform: scale(1);
+      transition: all 0.15s e.$easeOutQuart;
+      @for $i from 1 through 50 {
+        &:nth-child(#{$i}) {
+          transition-delay: #{($i - 1) * 15}ms;
+        }
+      }
+    }
+  }
+}

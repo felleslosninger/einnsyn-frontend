@@ -2,9 +2,9 @@
 
 import type { AuthInfo, Bruker, Enhet } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
+import { logger } from '~/lib/utils/logger';
 import { cachedApiClient } from '../api/getApiClient';
 import { deleteAuthAction, getAuth } from '../cookies/authCookie';
-import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './auth.ansattporten';
 
 export type ExtendedAuthInfo = AuthInfo & {

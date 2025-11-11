@@ -1,6 +1,6 @@
-import Header from './Header';
+import Header from '~/features/header/Header';
 
-export default function HeaderLayout({
+export default async function HeaderLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -67,13 +67,6 @@ export function SessionDataProvider({
     },
   }));
 
-  useEffect(() => {
-    console.log('SessionDataProvider mounted');
-    return () => {
-      console.log('SessionDataProvider unmounted');
-    };
-  }, []);
-
   // Refresh the context (auth info) if we have a change in the auth timestamp
   useEffect(() => {
     if (authIsChanged) {

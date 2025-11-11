@@ -83,7 +83,8 @@ export function domTransitionDuration(
   let propertyIndex = 0;
 
   if (propertyName) {
-    const propertyNames = style.transitionProperty?.trim().split(/\s*,\s/) ?? [];
+    const propertyNames =
+      style.transitionProperty?.trim().split(/\s*,\s/) ?? [];
     propertyIndex = propertyNames.indexOf(propertyName);
     if (propertyIndex < 0) {
       // The best way to fail is to use the first available property

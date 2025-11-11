@@ -9,7 +9,7 @@ export function jwtExpiresIn(jwt: string | undefined): number | undefined {
       exp?: number;
     };
     return payload.exp;
-  } catch (error) {
+  } catch (_error) {
     return undefined;
   }
 }
