@@ -24,7 +24,7 @@
     "openid-client": "6.8.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sass": "1.93.2"
+    "sass": "1.93.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.2",
