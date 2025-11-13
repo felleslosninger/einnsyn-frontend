@@ -1,5 +1,5 @@
 import { cachedApiClient } from '~/actions/api/getApiClient';
-import JournalpostContainer from './JournalpostContainer';
+import JournalpostContainer from '~/features/entities/journalpost/JournalpostContainer';
 
 export default async function Journalpost({
   params,

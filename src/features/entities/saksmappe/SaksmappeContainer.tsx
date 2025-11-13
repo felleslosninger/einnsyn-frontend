@@ -7,9 +7,9 @@ import {
   type PaginatedList,
   type Saksmappe,
 } from '@digdir/einnsyn-sdk';
-import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
-import JournalpostList from '~/app/case/[saksmappe]/JournalpostList';
-import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
+import EnhetCard from '~/features/entities/saksmappe/EnhetCard';
+import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
+import { LabeledField } from '~/features/entities/saksmappe/LabeledField';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './SaksmappeContainer.module.scss';
@@ -32,7 +32,7 @@ export default function SaksmappeContainer({
   const e = saksmappe.administrativEnhetObjekt;
   let enhet: Enhet | undefined;
   if (isEnhet(e)) {
-    enhet = e as Enhet;
+    enhet = e;
   }
 
   return (

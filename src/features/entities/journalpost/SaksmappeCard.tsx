@@ -1,7 +1,7 @@
 'use client';
 import type { Saksmappe } from '@digdir/einnsyn-sdk';
-import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { LabeledField } from '~/features/entities/saksmappe/LabeledField';
 import { useTranslation } from '~/hooks/useTranslation';
 import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 

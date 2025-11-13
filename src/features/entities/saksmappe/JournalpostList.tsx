@@ -2,8 +2,8 @@
 
 import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useState } from 'react';
-import JournalpostRow from '~/app/case/[saksmappe]/JournalpostRow';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import JournalpostRow from '~/features/entities/saksmappe/JournalpostRow';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';

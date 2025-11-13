@@ -1,5 +1,5 @@
 import { cachedApiClient } from '~/actions/api/getApiClient';
-import SaksmappeContainer from './SaksmappeContainer';
+import SaksmappeContainer from '~/features/entities/saksmappe/SaksmappeContainer';
 
 export default async function Saksmappe({
   params,

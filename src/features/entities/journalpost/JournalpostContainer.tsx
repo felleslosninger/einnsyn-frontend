@@ -8,18 +8,18 @@ import {
   isSkjerming,
   type Journalpost,
 } from '@digdir/einnsyn-sdk';
-import SaksmappeCard from '~/app/case/[saksmappe]/[journalpost]/SaksmappeCard';
-import EnhetCard from '~/app/case/[saksmappe]/EnhetCard';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
+import EnhetCard from '~/features/entities/saksmappe/EnhetCard';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { mapJournalpostType } from '~/lib/utils/typeNameMapper';
 import { generateFileUrl } from '~/lib/utils/urlGenerators';
+import SaksmappeCard from './SaksmappeCard';
 import './journalpostContainerStyles.scss';
 import { useState } from 'react';
-import { LabeledField } from '~/app/case/[saksmappe]/LabeledField';
+import { LabeledField } from '~/features/entities/saksmappe/LabeledField';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { getFileIcon } from '~/lib/utils/getFileIcon';
 
@@ -54,13 +54,12 @@ export default function JournalpostContainer({
   const e = journalpost.administrativEnhetObjekt;
   let enhet: Enhet | undefined;
   if (isEnhet(e)) {
-    enhet = e as Enhet;
+    enhet = e;
   }
 
   const mainDocument = journalpost.dokumentbeskrivelse
     ?.filter((db) => typeof db !== 'string')
-    .filter((db) => db.tilknyttetRegistreringSom.endsWith('hoveddokument'))
-    .at(0);
+    .find((db) => db.tilknyttetRegistreringSom.endsWith('hoveddokument'));
 
   const attatchments =
     journalpost.dokumentbeskrivelse
@@ -127,10 +126,7 @@ export default function JournalpostContainer({
           data-variant={'tinted'}
           data-color={'brand3'}
         >
-          {/*
-      todo
-       bestill-knapp
-      */}
+          {/* TODO: bestill-knapp */}
           <LabeledField
             label={t('journalpost.docNumber')}
             value={journalpost.journalpostnummer.toString()}
