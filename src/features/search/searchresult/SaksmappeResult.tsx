@@ -39,7 +39,13 @@ export default function SaksmappeResult({
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
-          icon={<FolderFileIcon title="a11y-title" fontSize="1.2rem" />}
+          icon={
+            <FolderFileIcon
+              aria-hidden="true"
+              focusable="false"
+              fontSize="1.2rem"
+            />
+          }
           item={item}
           label={translate('saksmappe.label')}
         />

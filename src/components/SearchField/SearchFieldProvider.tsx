@@ -103,7 +103,13 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
           newTokens[tokenIndex] = { ...newTokens[tokenIndex], value };
         }
       } else if (value !== undefined && value !== null) {
-        newTokens.push({ prefix: property, value });
+        newTokens.push({
+          prefix: property,
+          value,
+          quoted: false, // TODO: Determine if quoting is needed
+          sign: undefined,
+          focused: false,
+        });
       }
 
       // Convert tokens to correct translation

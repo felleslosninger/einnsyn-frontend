@@ -22,6 +22,7 @@ import {
 } from '~/lib/utils/calculatePopupPosition';
 import cn from '~/lib/utils/className';
 import { getClosestPositionedAncestor } from '~/lib/utils/domClosestPositionedAncestor';
+import { domIsHidden } from '~/lib/utils/domIsHidden';
 import {
   EinTransition,
   type EinTransitionEvents,
@@ -147,7 +148,9 @@ export default function EinPopup(props: EinPopupProps) {
   useEffect(() => {
     if (open) {
       // Update position on window resize
-      updatePopupPosition();
+      if (!domIsHidden(popupRef.current)) {
+        updatePopupPosition();
+      }
       window.addEventListener('resize', updatePopupPosition);
 
       // Clean up the event listener on unmount or when open changes
@@ -155,7 +158,30 @@ export default function EinPopup(props: EinPopupProps) {
         window.removeEventListener('resize', updatePopupPosition);
       };
     }
-  }, [open, updatePopupPosition]);
+  }, [open, popupRef, updatePopupPosition]);
+
+  // Update popup position when it becomes visible
+  useLayoutEffect(() => {
+    const popupElement = popupRef.current;
+    if (open && popupElement && domIsHidden(popupElement)) {
+      popupElement.style.visibility = 'hidden';
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            popupElement.style.visibility = '';
+            updatePopupPosition();
+          }
+        },
+        { threshold: 0.01 },
+      );
+
+      observer.observe(popupElement);
+
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [open, popupRef, updatePopupPosition]);
 
   // If we're animating in, update the position after the content has loaded
   const events: EinTransitionEvents = useMemo(
@@ -202,7 +228,7 @@ export default function EinPopup(props: EinPopupProps) {
   useOnOutsideClick(popupRef, open && closeOnOutsideClick, outsideClickHandler);
 
   // Trap focus when open
-  useFocusTrap(popupRef, trapFocus); //, () => setOpen(false));
+  useFocusTrap(popupRef, trapFocus);
 
   const content = open ? (
     <div

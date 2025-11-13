@@ -7,9 +7,9 @@ import {
   type PaginatedList,
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
+import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
 import { searchQueryToTokens } from '~/lib/utils/searchStringTokenizer';
-import { cachedApiClient } from './getApiClient';
 
 type Journalposttype = FilterParameters['journalposttype'];
 

@@ -20,7 +20,13 @@ export default function MoetesakResult({
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
         <SearchResultSubheader
-          icon={<TasklistIcon title="a11y-title" fontSize="1.2rem" />}
+          icon={
+            <TasklistIcon
+              aria-hidden="true"
+              focusable="false"
+              fontSize="1.2rem"
+            />
+          }
           item={item}
           label={translate('moetesak.label')}
         />

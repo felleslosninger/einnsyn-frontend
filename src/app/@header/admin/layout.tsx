@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
-import AdminTabs from '~/app/admin/AdminTabs';
+import AdminTabs from '~/features/admin/AdminTabs';
 
 export default async function AdminLayout({
   children,

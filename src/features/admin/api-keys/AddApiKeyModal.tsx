@@ -13,8 +13,8 @@ import EinModal, {
 } from '~/components/EinModal/EinModal';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useTranslation } from '~/hooks/useTranslation';
+import { addApiKeyAction } from '../adminActions';
 import styles from './AddApiKeyModal.module.scss';
-import { addApiKeyAction } from './actions';
 
 interface AddApiKeyModalProps {
   open: boolean;

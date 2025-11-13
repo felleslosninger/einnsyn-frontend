@@ -62,6 +62,12 @@
     box-shadow: none;
     outline: none;
   }
+  
+  &::selection,
+  &::-moz-selection {
+    background-color: var(--ds-color-surface-active);
+    color: var(--ds-color-neutral-text-default);
+  }
 }
 
 .searchToken {
