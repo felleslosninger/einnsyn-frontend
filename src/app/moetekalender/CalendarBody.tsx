@@ -39,7 +39,7 @@ export default function CalendarBody({ selectedView, selectedDate, displayWeeken
                 <Table
                     stickyHeader
                     className={cn(styles.meetingTable)}>
-                    <DayView selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
+                    <DayView selectedDate={selectedDate} currentSearchResults={currentSearchResults} />
                 </Table>
             )}
         </>

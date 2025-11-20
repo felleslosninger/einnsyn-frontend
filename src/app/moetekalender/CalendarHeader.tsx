@@ -5,8 +5,8 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 import { Button, Checkbox, Divider, Dropdown, Heading } from '@digdir/designsystemet-react';
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon } from '@navikt/aksel-icons';
-import { DateFilter } from '~/app/search/searchheader/filter/DateFilter';
+import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
+import { DateFilter } from '~/features/search/searchheader/filter/DateFilter';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 interface CalendarHeaderProps {
@@ -67,11 +67,110 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
         }
     }, [selectedView, selectedDate, t]);
 
-    const changeMonth = (offset: number) => {
-        const newDate = new Date(selectedDate);
-        newDate.setMonth(newDate.getMonth() + offset);
-        setSelectedDate(newDate);
-    }
+
+
+    const navButtons = useMemo(() => {
+        const changeMonth = (offset: number) => {
+            const newDate = new Date(selectedDate);
+            newDate.setMonth(newDate.getMonth() + offset);
+            setSelectedDate(newDate);
+        }
+
+        const changeWeek = (offset: number) => {
+            const newDate = new Date(selectedDate);
+            newDate.setDate(newDate.getDate() + offset * 7);
+            setSelectedDate(newDate);
+        }
+
+        const changeDay = (offset: number) => {
+            const newDate = new Date(selectedDate);
+            newDate.setDate(newDate.getDate() + offset);
+            setSelectedDate(newDate);
+        }
+
+        switch (selectedView) {
+            case 'month':
+                return (
+                    <>
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeMonth(-1)} // Previous Month
+                        >
+                            <ChevronUpIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeMonth(1)} // Next Month
+                        >
+                            <ChevronDownIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+                    </>
+                );
+            case 'week':
+                return (
+                    <>
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeWeek(-1)} // Previous Week
+                        >
+                            <ChevronLeftIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeWeek(1)} // Next Week
+                        >
+                            <ChevronRightIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+                    </>
+                );
+            case 'day':
+                return (
+                    <>
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeDay(-1)} // Previous Day
+                        >
+                            <ChevronLeftIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeDay(1)} // Next Day
+                        >
+                            <ChevronRightIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+                    </>
+                );
+            default:
+                return '';
+        }
+    }, [selectedView, selectedDate, setSelectedDate]);
 
     return (
         <div className={cn('calendarHeader', styles.calendarHeader)}>
@@ -112,9 +211,6 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                                 <Checkbox className={styles.checkbox} label={t('moetekalender.viewOptions.displayWeekends')}
                                     onClick={() => { setDisplayWeekends(!displayWeekends) }} />
                             </Dropdown.Item>
-                            <Dropdown.Item>
-                                <Checkbox className={styles.checkbox} label={t('moetekalender.viewOptions.expandAll')} />
-                            </Dropdown.Item>
                         </Dropdown.List>
                     </Dropdown>
                 </Dropdown.TriggerContext>
@@ -132,27 +228,8 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                     </div>
                 </div>
 
-                <Button
-                    data-color="neutral"
-                    data-size="sm"
-                    icon
-                    type="button"
-                    variant="tertiary"
-                    onClick={() => changeMonth(-1)} // Previous Month
-                >
-                    <ChevronUpIcon className={cn(styles.arrowIcon)} />
-                </Button>
+                {navButtons}
 
-                <Button
-                    data-color="neutral"
-                    data-size="sm"
-                    icon
-                    type="button"
-                    variant="tertiary"
-                    onClick={() => changeMonth(1)} // Next Month
-                >
-                    <ChevronDownIcon className={cn(styles.arrowIcon)} />
-                </Button>
             </div>
 
             <div className={cn('displayHeading', styles.displayHeading)}>

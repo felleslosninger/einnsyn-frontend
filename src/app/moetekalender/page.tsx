@@ -1,4 +1,4 @@
-import { getSearchResults } from "~/actions/api/search";
+import { getSearchResults } from "~/features/search/searchActions";
 import CalendarContainer from "~/app/moetekalender/CalendarContainer";
 
 export default async function Moetekalender({

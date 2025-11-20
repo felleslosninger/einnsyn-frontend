@@ -31,28 +31,8 @@ export default function CalendarContainer({
     const [displayWeekends, setDisplayWeekends] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const [allResults, setAllResults] = useState<PaginatedList<Base>>(searchResults);
-    const [isLoadingAll, setIsLoadingAll] = useState(false);
 
-    const fetchAllResults = useCallback(async (initialResults: PaginatedList<Base>) => {
-        setIsLoadingAll(true);
-        let currentResults = initialResults;
 
-        while (currentResults.next) {
-            try {
-                currentResults = await fetchNextPage(currentResults, true);
-            } catch (error) {
-                console.error('Error fetching next page:', error);
-                break;
-            }
-        }
-
-        setAllResults(currentResults);
-        setIsLoadingAll(false);
-    }, []);
-
-    useEffect(() => {
-        fetchAllResults(searchResults);
-    }, [searchResults, fetchAllResults]);
 
     const currentDateRange = useMemo(() => {
         return getDateRange(selectedDate, selectedView);
@@ -63,12 +43,34 @@ export default function CalendarContainer({
         const endDate = formatDateForUrl(currentDateRange.end);
         const dateRangeQuery = `${startDate}/${endDate}`;
 
-        setProperty('moetedato', dateRangeQuery);
-    }, [currentDateRange, setProperty]);
+        const existing = getProperty('moetedato');
+        if (existing !== dateRangeQuery) {
+            setProperty('moetedato', dateRangeQuery);
+        }
+    }, [currentDateRange, setProperty, getProperty]);
+
+    const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
+        let i = 0;
+
+        while (currentResults.next && i < 6) { // Limit pages to avoid infinite loops
+            try {
+                currentResults = await fetchNextPage(currentResults, true);
+                console.log(i);
+                i++;
+            } catch (error) {
+                console.error('Error fetching next page:', error);
+                break;
+            }
+        }
+        setAllResults(currentResults);
+
+    }, []);
+
 
     useEffect(() => {
         updateDateRangeProperty();
-    }, [updateDateRangeProperty]);
+        fetchAllResults(searchResults);
+    }, [searchResults, fetchAllResults, updateDateRangeProperty]);
 
     useEffect(() => {
         if (!isInitialized) {
@@ -85,17 +87,10 @@ export default function CalendarContainer({
             }
             setIsInitialized(true);
         }
-    }, [isInitialized, getProperty]); //only run on mount 
+    }, [isInitialized, getProperty]);
 
-    // useEffect(() => {
-    //     if (!isInitialized) {
-    //         const entity = getProperty('entity');
-    //         if (!entity) {
-    //             setProperty('entity', 'Moetemappe', false);
-    //         }
-    //     }
-    //     setIsInitialized(true);
-    // }, [isInitialized, getProperty, setProperty]); // Only run on mount
+
+
 
     return (
         <div className={cn(
@@ -132,4 +127,6 @@ export default function CalendarContainer({
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
 //TODO: Order meetings by time 
-//TODO: Fix arrow nav for week and day views
+//TODO: Remove date filter when leaving moetekalender
+//TODO: Fix duplicate run of fetchAllResults
+//TODO: Move files to correct spots

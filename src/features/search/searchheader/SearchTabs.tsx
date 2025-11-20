@@ -1,5 +1,5 @@
 'use client';
-
+import { useEffect, useRef } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import {
   useOptimisticPathname,
@@ -9,23 +9,34 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 export default function SearchTabs({ className }: { className?: string }) {
   const searchParams = useOptimisticSearchParams();
   const pathname = useOptimisticPathname();
   const t = useTranslation();
 
+  const { getProperty, setProperty } = useSearchField();
+  const prevPathRef = useRef(pathname);
+
+  // TODO: Get this to work...
+  useEffect(() => {
+    if (prevPathRef.current === '/moetekalender' && pathname === '/search') {
+      setProperty('moetedato', null);
+      console.log("moetedato: " + getProperty('moetedato') + " prevPathRef: " + prevPathRef.current + " pathname: " + pathname); //temp log
+    }
+
+    prevPathRef.current = pathname;
+  }, [pathname, setProperty, getProperty]);
+
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
-    if (entityName === 'Moetekalender') {
-      return `/moetekalender?entity=Moetemappe`;
-    }
-    if (entityName === 'Statistics') {
-      return '/statistics';
-    }
 
     if (entityName === '') {
       searchParamsCopy.delete('entity');
+    } else if (entityName === 'Moetekalender') {
+      searchParamsCopy.set('entity', 'Moetemappe');
+      return `/moetekalender?${searchParamsCopy.toString()}`;
     } else {
       searchParamsCopy.set('entity', entityName);
     }
@@ -37,15 +48,12 @@ export default function SearchTabs({ className }: { className?: string }) {
 
     if (tabName === 'Moetekalender' && pathname === '/moetekalender') {
       classes.push('active');
-    } else if (tabName === 'Statistics' && pathname === '/statistics') {
-      classes.push('active');
     } else if (pathname === '/search') {
       const activeTab = searchParams?.get('entity') || '';
       if (activeTab === tabName) {
         classes.push('active');
       }
     }
-
     return classes.join(' ');
   };
 
@@ -91,12 +99,6 @@ export default function SearchTabs({ className }: { className?: string }) {
           href={getLinkUrl('Moetekalender')}
         >
           {t('moetekalender.label')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Statistics')}
-          href={getLinkUrl('Statistics')}
-        >
-          {t('statistics.label')}
         </EinLink>
       </div>
 
