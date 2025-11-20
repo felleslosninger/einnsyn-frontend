@@ -113,11 +113,11 @@ export default function EnhetSelector({
       }
 
       // Remove DUMMYENHET
-      const filteredEnhetList = enhetList.filter(
-        (enhet) => enhet.enhetstype !== 'DUMMYENHET',
-      );
+      // const filteredEnhetList = enhetList.filter(
+      //   (enhet) => enhet.enhetstype !== 'DUMMYENHET',
+      // );
       // Remove root
-      // const filteredEnhetList = enhetList.filter((enhet) => !!enhet.parent);
+      const filteredEnhetList = enhetList.filter((enhet) => !!enhet.parent);
 
       // Remove parent.id where .parent doesn't exist in the list (after filtering DUMMYENHET)
       const map = new Map<string, TrimmedEnhet>();
@@ -364,9 +364,8 @@ export default function EnhetSelector({
               >
                 {visibleEnhetNodeList.map((enhetNode, index) => (
                   <EnhetSelectorSelectItem
-                    key={enhetNode.enhet.id}
+                    key={`add-${enhetNode.enhet.id}`}
                     enhet={enhetNode.enhet}
-                    index={index}
                     onClick={() => addEnhetHandler(enhetNode.enhet)}
                     isFocused={
                       focusedList === 'available' && focusedIndex === index
@@ -374,8 +373,6 @@ export default function EnhetSelector({
                     isSelected={selectedEnhetList.some(
                       (e) => e.id === enhetNode.enhet.id,
                     )}
-                    // Pass data-index to element for the event handler to find
-                    data-index={index}
                   />
                 ))}
               </VList>
@@ -389,15 +386,13 @@ export default function EnhetSelector({
               >
                 {selectedEnhetList.map((enhet, index) => (
                   <EnhetSelectorSelectItem
-                    key={enhet.id}
+                    key={`remove-${enhet.id}`}
                     enhet={enhet}
-                    index={index}
                     remove={true}
                     onClick={() => removeEnhetHandler(enhet)}
                     isFocused={
                       focusedList === 'selected' && focusedIndex === index
                     }
-                    data-index={index}
                   />
                 ))}
               </VList>

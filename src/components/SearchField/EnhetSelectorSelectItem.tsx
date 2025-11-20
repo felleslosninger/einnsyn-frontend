@@ -10,7 +10,6 @@ interface EnhetSelectorSelectItemProps {
   enhet: TrimmedEnhet;
   remove?: boolean;
   isFocused?: boolean;
-  index: number;
   onClick?: () => void;
   // isSelected denotes if this item is actually chosen, not just highlighted
   isSelected?: boolean;
@@ -19,48 +18,42 @@ interface EnhetSelectorSelectItemProps {
 export const EnhetSelectorSelectItem = forwardRef<
   HTMLDivElement,
   EnhetSelectorSelectItemProps
->(
-  (
-    { enhet, remove, isFocused = false, index, onClick, isSelected = false },
-    ref,
-  ) => {
-    const ancestors = useAncestorsAsString(enhet as Enhet, ' / ');
-    const name = useName(enhet as Enhet);
+>(({ enhet, remove, isFocused = false, onClick, isSelected = false }, ref) => {
+  const ancestors = useAncestorsAsString(enhet as Enhet, ' / ');
+  const name = useName(enhet as Enhet);
 
-    return (
-      <div
-        ref={ref}
-        role="option"
-        tabIndex={-1}
-        aria-selected={isSelected}
-        data-focused={isFocused}
-        data-index={index}
-        onClick={onClick}
-        onKeyUp={onClick}
-        className={cn(styles.selectorListItem, {
-          [styles.focusedListItem]: isFocused,
-          [styles.selectedListItem]: isSelected,
-        })}
-      >
-        <span className={styles.selectorListText}>
-          <span className={styles.ancestors}>{ancestors}</span>
-          <span>{name}</span>
+  return (
+    <div
+      ref={ref}
+      role="option"
+      tabIndex={-1}
+      aria-selected={isSelected}
+      data-focused={isFocused}
+      onClick={onClick}
+      onKeyUp={onClick}
+      className={cn(styles.selectorListItem, {
+        [styles.focusedListItem]: isFocused,
+        [styles.selectedListItem]: isSelected,
+      })}
+    >
+      <span className={styles.selectorListText}>
+        <span className={styles.ancestors}>{ancestors}</span>
+        <span>{name}</span>
+      </span>
+
+      {!remove && (
+        <span className={styles.addRemoveIcon}>
+          <PlusIcon title="Add" fontSize="1.5rem" />
         </span>
+      )}
 
-        {!remove && (
-          <span className={styles.addRemoveIcon}>
-            <PlusIcon title="Add" fontSize="1.5rem" />
-          </span>
-        )}
-
-        {remove && (
-          <span className={styles.addRemoveIcon}>
-            <XMarkIcon title="Remove" fontSize="1.5rem" />
-          </span>
-        )}
-      </div>
-    );
-  },
-);
+      {remove && (
+        <span className={styles.addRemoveIcon}>
+          <XMarkIcon title="Remove" fontSize="1.5rem" />
+        </span>
+      )}
+    </div>
+  );
+});
 
 EnhetSelectorSelectItem.displayName = 'EnhetSelectorSelectItem';
