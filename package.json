@@ -20,11 +20,12 @@
     "@navikt/aksel-icons": "7.32.5",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "2.1.0",
-    "next": "16.0.1",
+    "next": "16.0.3",
     "openid-client": "6.8.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sass": "1.93.2"
+    "sass": "1.93.2",
+    "virtua": "^0.47.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.2",

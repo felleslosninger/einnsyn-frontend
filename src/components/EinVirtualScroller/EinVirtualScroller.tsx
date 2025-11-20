@@ -1,4 +1,5 @@
 import {
+  type HTMLAttributes,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,24 +10,28 @@ import cn from '~/lib/utils/className';
 import styles from './EinVirtualScroller.module.scss';
 
 type EinVirtualScrollerProps<T> = {
-  className?: string;
   items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
+  renderItem: (
+    item: T,
+    index: number,
+    ref: (el: HTMLLIElement | null) => void,
+  ) => React.ReactNode;
   renderMargin?: number;
   estimatedItemHeight?: number;
-};
+} & HTMLAttributes<HTMLUListElement>;
 
 export function EinVirtualScroller<T>({
   className,
   items,
   renderItem,
   renderMargin = 20,
-  estimatedItemHeight = 50,
+  estimatedItemHeight: _estimatedItemHeight = 50,
+  ...rest
 }: EinVirtualScrollerProps<T>) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const topPaddingRef = useRef<HTMLDivElement>(null);
-  const bottomPaddingRef = useRef<HTMLDivElement>(null);
-  const renderedItemsRef = useRef<Map<number, HTMLDivElement>>(new Map());
+  const containerRef = useRef<HTMLUListElement>(null);
+  const topPaddingRef = useRef<HTMLLIElement>(null);
+  const bottomPaddingRef = useRef<HTMLLIElement>(null);
+  const renderedItemsRef = useRef<Map<number, HTMLLIElement>>(new Map());
   const itemHeightsRef = useRef<Map<number, number>>(new Map());
   const containerHeightRef = useRef<number>(0);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -37,6 +42,8 @@ export function EinVirtualScroller<T>({
   });
   const [topPadding, setTopPadding] = useState(0);
   const [bottomPadding, setBottomPadding] = useState(0);
+  const [estimatedItemHeight, setEnhetListimatedItemHeight] =
+    useState(_estimatedItemHeight);
 
   // Get height of an item (use measured height or estimated)
   const getItemHeight = useCallback(
@@ -109,7 +116,7 @@ export function EinVirtualScroller<T>({
       let needsRecalc = false;
 
       for (const entry of entries) {
-        const target = entry.target as HTMLDivElement;
+        const target = entry.target as HTMLElement;
         const index = parseInt(target.dataset.index ?? '-1', 10);
 
         if (index >= 0) {
@@ -118,7 +125,6 @@ export function EinVirtualScroller<T>({
           const oldHeight = itemHeightsRef.current.get(index);
 
           if (oldHeight !== newHeight) {
-            console.log('Set height of item', index, 'to', newHeight);
             itemHeightsRef.current.set(index, newHeight);
             needsRecalc = true;
           }
@@ -149,7 +155,6 @@ export function EinVirtualScroller<T>({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            console.log('Padding intersecting, recalculating visible range');
             calculateVisibleRange();
           }
         }
@@ -219,71 +224,68 @@ export function EinVirtualScroller<T>({
         renderedItemsRef.current.get(i)?.offsetHeight ?? estimatedItemHeight;
       const thisDiff = currentHeight - prevHeight;
       if (Math.abs(thisDiff) > 0) {
-        console.log(
-          'Item',
-          i,
-          'height changed from',
-          prevHeight,
-          'to',
-          currentHeight,
-        );
         itemHeightsRef.current.set(i, currentHeight);
         heightDiff += currentHeight - prevHeight;
       }
     }
 
     if (heightDiff !== 0) {
-      console.log(
-        'Adjusting scrollTop by',
-        heightDiff,
-        'due to item height changes',
-      );
       container.scrollTop += heightDiff;
     }
   }, [estimatedItemHeight, getItemHeight, visibleRange, renderMargin]);
+
+  // Scroll to top when items change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ...
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollTop = 0;
+    }
+  }, [items]);
 
   // Render visible items
   const visibleItems = [];
   for (let i = visibleRange.start; i < visibleRange.end; i++) {
     if (i >= 0 && i < items.length) {
       visibleItems.push(
-        <div
-          key={i}
-          className={styles.item}
-          data-index={i}
-          ref={(el) => {
-            const observer = resizeObserverRef.current;
-            if (el) {
-              renderedItemsRef.current.set(i, el);
-              observer?.observe(el);
-            } else {
-              const oldEl = renderedItemsRef.current.get(i);
-              if (oldEl && observer) {
-                observer.unobserve(oldEl);
-              }
-              renderedItemsRef.current.delete(i);
+        renderItem(items[i], i, (el) => {
+          const observer = resizeObserverRef.current;
+          if (el) {
+            renderedItemsRef.current.set(i, el);
+            observer?.observe(el);
+          } else {
+            const oldEl = renderedItemsRef.current.get(i);
+            if (oldEl && observer) {
+              observer.unobserve(oldEl);
             }
-          }}
-        >
-          {renderItem(items[i], i)}
-        </div>,
+            renderedItemsRef.current.delete(i);
+          }
+        }),
       );
     }
   }
 
   return (
-    <div className={cn(className, styles.virtualScroller)} ref={containerRef}>
-      <div
+    <ul
+      // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: tabIndex is set
+      role="listbox"
+      tabIndex={0}
+      aria-multiselectable="true"
+      className={cn(className, styles.virtualScroller)}
+      ref={containerRef}
+      {...rest}
+    >
+      <li
         className={styles.paddingTop}
         ref={topPaddingRef}
         style={{ height: `${topPadding}px` }}
       />
       {visibleItems}
-      <div
+      <li
         className={styles.paddingBottom}
         ref={bottomPaddingRef}
         style={{ height: `${bottomPadding}px` }}
       />
-    </div>
+    </ul>
   );
 }

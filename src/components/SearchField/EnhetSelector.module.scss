@@ -1,3 +1,5 @@
+@use '../../styles/effects.scss' as fx;
+
 .enhetSelector {
   display: flex;
   flex-direction: column;
@@ -12,15 +14,120 @@
   }
 }
 
+.enhetSelectorButton:global(.style-link) {
+  width: 100%;
+  white-space: nowrap;
+  overflow: ellipsis;
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: var(--ds-size-8);
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      var(--search-input-surface)
+    );
+    border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
+    pointer-events: none;
+  }
+}
+
 .enhetSelectorDropdown {
   margin-top: var(--ds-size-3);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: var(--ds-size-4);
   width: 100%;
-  max-height: 300px;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.enhetSelectorDropdownListContainer {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.enhetSelectorFilterInput {
+  flex: 0;
+  input {
+    margin-top: var(--ds-size-6);
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+
+  }
+}
+
+.enhetSelectorSelectedLabel {
+  padding: var(--ds-size-2) 0;
 }
 
 .enhetSelectorDropdownList {
-  width: 50%;
+  flex: 1;
+  padding: 0 var(--ds-size-2) 0 0;
+  margin: 0;
+  border-radius: var(--ds-border-radius-md);
+
+  .selectorListItem {
+    position: relative;
+    margin: 0;
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+    cursor: pointer;
+    list-style-type: none;
+
+    &:first-child,
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .selectorListText,
+    .addRemoveIcon {
+      display: block;
+    }
+
+    .selectorListText {
+      flex: 1;
+    }
+
+    .addRemoveIcon {
+      display: flex;
+      align-items: center;
+      svg {
+        transition: opacity 0.2s fx.$easeOut;
+      }
+    }
+
+
+    .ancestors {
+      font-size: .9rem;
+      display: block;
+      color: var(--ds-color-neutral-text-subtle);
+    }
+  }
+}
+
+.selectorListItem {
+  display: flex;
+  align-items: center;
+  padding: var(--ds-size-4) var(--ds-size-2);
+
+  &.selectedListItem {
+    color: var(--ds-color-neutral-text-subtle);
+    .addRemoveIcon svg {
+      //transform: rotate(45deg);
+      opacity: 0;
+    }
+  }
+
+  &:hover,
+  &.focusedListItem,
+  &.active {
+    border-radius: var(--ds-border-radius-md);
+    background-color: var(--ds-color-accent-surface-hover);
+  }
 }

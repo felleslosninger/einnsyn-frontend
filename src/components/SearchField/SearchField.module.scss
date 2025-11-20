@@ -51,16 +51,20 @@
     border-bottom-width: var(--ds-border-width-default);
     max-height: 80vh;
     overflow: hidden;
-
-    &:has(:focus) {
-      border-radius: var(--ds-border-radius-md);
-      box-shadow: var(--dsc-focus-boxShadow);
-      outline: var(--dsc-focus-outline);
-      outline-offset: var(--ds-border-width-focus);
-      z-index: 3;
-      border-color: transparent;
-    }
   }
+
+  &:not(:has(.expandableInputContainer)):has(:focus),
+  .expandableInputContainer:has(:focus),
+  &.activeContainer:not(:has(.expandableInputContainer)),
+  &.activeContainer .expandableInputContainer {
+    border-radius: var(--ds-border-radius-md);
+    box-shadow: var(--dsc-focus-boxShadow);
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    z-index: 3;
+    border-color: transparent;
+  }
+
 
   .expandableInputContainer {
     position: absolute;
@@ -95,7 +99,7 @@
 }
 
 .enhetSelectorContainer.activeContainer {
-  min-width: 60%;
+  min-width: 80%;
 }
 
 

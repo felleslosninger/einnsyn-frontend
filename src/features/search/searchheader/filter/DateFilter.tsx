@@ -106,7 +106,7 @@ export function DateFilter({
   return (
     <EinDropdown
       trigger={label}
-      showChevron
+      showChevronRight
       className={cn(styles.dateFilter, className, 'dropdown-option')}
       preferredPosition={[
         'rightTop',

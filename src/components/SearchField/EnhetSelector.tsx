@@ -3,13 +3,13 @@
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { VList, type VListHandle } from 'virtua';
 import {
   cachedTrimmedEnhetList,
   type TrimmedEnhet,
 } from '~/actions/api/enhetActions';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
-import { EinVirtualScroller } from '~/components/EinVirtualScroller';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import cn from '~/lib/utils/className';
@@ -27,9 +27,11 @@ export type EnhetNode = {
 export default function EnhetSelector({
   className,
   expanded = false,
+  close,
 }: {
   className?: string;
   expanded?: boolean;
+  close?: () => void;
 }) {
   const languageCode = useLanguageCode();
   const navigation = useNavigation();
@@ -45,8 +47,13 @@ export default function EnhetSelector({
     'available',
   );
   const [focusedIndex, setFocusedIndex] = useState(0);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Refs for virtua handles
+  const availableListRef = useRef<VListHandle>(null);
+  const selectedListRef = useRef<VListHandle>(null);
 
   const selectedEnhetList = useMemo(() => {
     const selectedEnhetIds =
@@ -94,12 +101,8 @@ export default function EnhetSelector({
   // Get a sorted tree structure of enheter, filtered by search string
   const visibleEnhetNodeList: EnhetNode[] = useMemo(() => {
     const filteredList = filterEnhetList(enhetNodeList, searchString);
-    const filteredListWithoutSelected = filteredList.filter(
-      (node) =>
-        !selectedEnhetList.find((selected) => selected.id === node.enhet.id),
-    );
-    return filteredListWithoutSelected;
-  }, [enhetNodeList, searchString, selectedEnhetList]);
+    return filteredList;
+  }, [enhetNodeList, searchString]);
 
   // Fetch enhet list on mount
   useEffect(() => {
@@ -185,35 +188,23 @@ export default function EnhetSelector({
   );
 
   const addEnhetHandler = useCallback(
-    (e: React.MouseEvent<HTMLUListElement>) => {
-      const li = (e.target as HTMLElement).closest('li');
-      const index = Number(li?.dataset.index);
-      if (Number.isNaN(index)) return;
-      const enhetNode = visibleEnhetNodeList[index];
-      if (!enhetNode) return;
-
+    (enhet: TrimmedEnhet) => {
       const prevSelected = selectedEnhetList;
-      const filtered = prevSelected.filter((n) => n.id !== enhetNode.enhet.id);
+      const filtered = prevSelected.filter((n) => n.id !== enhet.id);
       if (filtered.length !== prevSelected.length) {
-        // Remove node if already selected
-        setSelectedEnhetList(filtered);
+        // // Remove node if already selected
+        // setSelectedEnhetList(filtered);
         return;
       }
 
       // Append node if not selected
-      setSelectedEnhetList([...prevSelected, enhetNode.enhet]);
+      setSelectedEnhetList([...prevSelected, enhet]);
     },
-    [selectedEnhetList, setSelectedEnhetList, visibleEnhetNodeList],
+    [selectedEnhetList, setSelectedEnhetList],
   );
 
   const removeEnhetHandler = useCallback(
-    (e: React.MouseEvent<HTMLUListElement>) => {
-      const li = (e.target as HTMLElement).closest('li');
-      const index = Number(li?.dataset.index);
-      if (Number.isNaN(index)) return;
-      const enhet = selectedEnhetList[index];
-      if (!enhet) return;
-
+    (enhet: TrimmedEnhet) => {
       const prevSelected = selectedEnhetList;
       const filtered = prevSelected.filter((n) => n.id !== enhet.id);
       if (filtered.length !== prevSelected.length) {
@@ -223,6 +214,21 @@ export default function EnhetSelector({
     },
     [selectedEnhetList, setSelectedEnhetList],
   );
+
+  // Scroll to focused item when index changes
+  useEffect(() => {
+    if (!expanded) {
+      return;
+    }
+
+    const options = { align: 'nearest' } as const;
+
+    if (focusedList === 'available' && availableListRef.current) {
+      availableListRef.current.scrollToIndex(focusedIndex, options);
+    } else if (focusedList === 'selected' && selectedListRef.current) {
+      selectedListRef.current.scrollToIndex(focusedIndex, options);
+    }
+  }, [focusedIndex, focusedList, expanded]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -245,7 +251,9 @@ export default function EnhetSelector({
         case 'Tab':
           e.preventDefault();
           setFocusedList((prev) =>
-            prev === 'available' ? 'selected' : 'available',
+            prev === 'available' && focusedIndex >= 0
+              ? 'selected'
+              : 'available',
           );
           setFocusedIndex(0);
           break;
@@ -273,7 +281,16 @@ export default function EnhetSelector({
               selectedEnhetList.filter((n) => n.id !== enhet.id),
             );
           }
-          setFocusedIndex(0);
+          break;
+        case 'Escape':
+          if (focusedIndex >= 0) {
+            setFocusedIndex(-1);
+            setFocusedList('available');
+            inputRef.current?.focus();
+          } else {
+            close?.();
+          }
+          e.preventDefault();
           break;
       }
     };
@@ -284,6 +301,7 @@ export default function EnhetSelector({
       return () => container.removeEventListener('keydown', handleKeyDown);
     }
   }, [
+    close,
     expanded,
     focusedList,
     focusedIndex,
@@ -297,6 +315,8 @@ export default function EnhetSelector({
   useEffect(() => {
     setFocusedIndex(-1);
     setFocusedList('available');
+    // Ensure scroll resets to top on search change
+    availableListRef.current?.scrollToIndex(0, { align: 'start' });
   }, [searchString]);
 
   return (
@@ -335,40 +355,52 @@ export default function EnhetSelector({
             ref={inputRef}
           />
           <div className={cn(styles.enhetSelectorDropdown)}>
+            {/* Available List */}
             <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-              <EinVirtualScroller
+              <VList
+                ref={availableListRef}
                 className={cn(styles.enhetSelectorDropdownList)}
-                items={visibleEnhetNodeList}
-                onClick={addEnhetHandler}
-                renderItem={(enhetNode, index, ref) => (
+                style={{ contain: 'content' }}
+              >
+                {visibleEnhetNodeList.map((enhetNode, index) => (
                   <EnhetSelectorSelectItem
+                    key={enhetNode.enhet.id}
                     enhet={enhetNode.enhet}
                     index={index}
-                    focused={
+                    onClick={() => addEnhetHandler(enhetNode.enhet)}
+                    isFocused={
                       focusedList === 'available' && focusedIndex === index
                     }
-                    forwardRef={ref}
+                    isSelected={selectedEnhetList.some(
+                      (e) => e.id === enhetNode.enhet.id,
+                    )}
+                    // Pass data-index to element for the event handler to find
+                    data-index={index}
                   />
-                )}
-              />
+                ))}
+              </VList>
             </div>
+
+            {/* Selected List */}
             <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-              <EinVirtualScroller
+              <VList
+                ref={selectedListRef}
                 className={cn(styles.enhetSelectorDropdownList)}
-                items={selectedEnhetList}
-                onClick={removeEnhetHandler}
-                renderItem={(enhet, index, ref) => (
+              >
+                {selectedEnhetList.map((enhet, index) => (
                   <EnhetSelectorSelectItem
+                    key={enhet.id}
                     enhet={enhet}
                     index={index}
                     remove={true}
-                    focused={
+                    onClick={() => removeEnhetHandler(enhet)}
+                    isFocused={
                       focusedList === 'selected' && focusedIndex === index
                     }
-                    forwardRef={ref}
+                    data-index={index}
                   />
-                )}
-              />
+                ))}
+              </VList>
             </div>
           </div>
         </>

@@ -81,7 +81,6 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
         // Figure out which "section" got focus
         const target = event.target as HTMLDivElement;
         const container = target.closest(`.${styles.searchInputContainer}`);
-        console.log('FOCUS', container?.className);
 
         if (container?.matches(`.${styles.searchQueryContainer}`)) {
           setActiveContainer('searchQuery');
@@ -108,7 +107,10 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
       setSearchQuery('');
     }, [setSearchQuery]);
 
-    console.log('Active container:', activeContainer);
+    const closeEnhetSelector = useCallback(() => {
+      setActiveContainer(undefined);
+    }, []);
+
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
       <div
@@ -208,7 +210,10 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
           )}
         >
           <div className={cn(styles.expandableInputContainer)}>
-            <EnhetSelector expanded={activeContainer === 'enhetSelector'} />
+            <EnhetSelector
+              expanded={activeContainer === 'enhetSelector'}
+              close={closeEnhetSelector}
+            />
           </div>
         </div>
 
