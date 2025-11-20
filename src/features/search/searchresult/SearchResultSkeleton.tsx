@@ -3,14 +3,7 @@
 import { Skeleton } from '@digdir/designsystemet-react';
 import { useEffect, useState } from 'react';
 import cn from '~/lib/utils/className';
-
-function rand(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function filler(min: number, max: number) {
-  return 'x'.repeat(rand(min, max));
-}
+import { skeletonString } from '~/lib/utils/skeletonUtils';
 
 export function SearchResultSkeleton({ className }: { className?: string }) {
   const [data, setData] = useState({
@@ -22,10 +15,10 @@ export function SearchResultSkeleton({ className }: { className?: string }) {
 
   useEffect(() => {
     setData({
-      title: filler(30, 80),
-      meta1: filler(20, 50),
-      meta2: filler(20, 50),
-      meta3: filler(20, 50),
+      title: skeletonString(30, 60),
+      meta1: skeletonString(20, 50),
+      meta2: skeletonString(20, 50),
+      meta3: skeletonString(20, 50),
     });
   }, []);
 

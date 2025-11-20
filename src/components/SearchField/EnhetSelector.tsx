@@ -1,5 +1,6 @@
 'use client';
 
+import { Skeleton } from '@digdir/designsystemet-react';
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,7 +13,9 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
+import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
 import searchFieldStyles from './SearchField.module.scss';
@@ -20,7 +23,6 @@ import searchFieldStyles from './SearchField.module.scss';
 export type EnhetNode = {
   currentName: string;
   enhet: TrimmedEnhet;
-  children: Set<EnhetNode>;
   score: number;
 };
 
@@ -37,6 +39,7 @@ export default function EnhetSelector({
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
   const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
+  const [loading, setLoading] = useState(true);
   const [searchString, setSearchString] = useState('');
   const [enhetList, setEnhetList] = useState<TrimmedEnhet[]>([]);
   const [enhetMap, setEnhetMap] = useState<Map<string, TrimmedEnhet>>(
@@ -100,14 +103,18 @@ export default function EnhetSelector({
 
   // Get a sorted tree structure of enheter, filtered by search string
   const visibleEnhetNodeList: EnhetNode[] = useMemo(() => {
-    const filteredList = filterEnhetList(enhetNodeList, searchString);
+    const filteredList = filterEnhetList(
+      enhetNodeList,
+      searchString,
+      languageCode,
+    );
     return filteredList;
-  }, [enhetNodeList, searchString]);
+  }, [enhetNodeList, searchString, languageCode]);
 
   // Fetch enhet list on mount
   useEffect(() => {
     let unmounted = false;
-    cachedTrimmedEnhetList().then((enhetList) => {
+    cachedTrimmedEnhetList().then((unfilteredEnhetList) => {
       if (unmounted) {
         return;
       }
@@ -117,11 +124,11 @@ export default function EnhetSelector({
       //   (enhet) => enhet.enhetstype !== 'DUMMYENHET',
       // );
       // Remove root
-      const filteredEnhetList = enhetList.filter((enhet) => !!enhet.parent);
+      const enhetList = unfilteredEnhetList.filter((enhet) => !!enhet.parent);
 
       // Remove parent.id where .parent doesn't exist in the list (after filtering DUMMYENHET)
       const map = new Map<string, TrimmedEnhet>();
-      filteredEnhetList.forEach((enhet) => {
+      enhetList.forEach((enhet) => {
         map.set(enhet.id, enhet);
       });
 
@@ -140,37 +147,41 @@ export default function EnhetSelector({
           return undefined;
         }
 
-        return Object.freeze({
+        const resolvedEnhet = Object.freeze({
           ...enhet,
           parent: (typeof enhet.parent === 'string'
             ? resolveEnhet(enhet.parent)
             : enhet.parent) as Enhet,
         });
+
+        resolvedEnhetMap.set(id, resolvedEnhet);
+        return resolvedEnhet;
       };
 
-      const resolvedEnhetList = filteredEnhetList
+      const resolvedEnhetList = enhetList
         .map((enhet) => {
           return resolveEnhet(enhet.id);
         })
         .filter((enhet) => enhet !== undefined);
 
       setEnhetList(resolvedEnhetList);
-      setEnhetMap(map);
+      setEnhetMap(resolvedEnhetMap);
+      setLoading(false);
     });
     return () => {
       unmounted = true;
     };
   }, []);
 
-  // Update enhet node list
+  // Update enhet node list when language changes
   useEffect(() => {
-    const enhetNodeLIst = enhetList.map((enhet) => ({
+    const enhetNodeList = enhetList.map((enhet) => ({
       currentName: getName(enhet),
       enhet,
       children: new Set<EnhetNode>(),
-      score: -1,
+      score: enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1,
     }));
-    setEnhetNodeList(enhetNodeLIst);
+    setEnhetNodeList(enhetNodeList);
   }, [enhetList, getName]);
 
   // Get label for input field
@@ -249,13 +260,15 @@ export default function EnhetSelector({
           setFocusedIndex((prev) => Math.max(prev - 1, 0));
           break;
         case 'Tab':
-          e.preventDefault();
-          setFocusedList((prev) =>
-            prev === 'available' && focusedIndex >= 0
-              ? 'selected'
-              : 'available',
-          );
-          setFocusedIndex(0);
+          if (focusedIndex >= 0) {
+            e.preventDefault();
+            setFocusedList((prev) =>
+              prev === 'available' && focusedIndex >= 0
+                ? 'selected'
+                : 'available',
+            );
+            setFocusedIndex(0);
+          }
           break;
         case 'Enter':
           e.preventDefault();
@@ -319,14 +332,25 @@ export default function EnhetSelector({
     availableListRef.current?.scrollToIndex(0, { align: 'start' });
   }, [searchString]);
 
+  const renderSkeleton = () => {
+    const name = skeletonString(10, 60);
+
+    return (
+      <div className={cn(styles.selectorListItem)}>
+        <span className={styles.selectorListText}>
+          <span>
+            <Skeleton>{name}</Skeleton>
+          </span>
+        </span>
+      </div>
+    );
+  };
+
   return (
-    <div
-      className={cn(styles.enhetSelector, className)}
-      ref={containerRef}
-      tabIndex={expanded ? 0 : -1}
-    >
+    <div className={cn(styles.enhetSelector, className)} ref={containerRef}>
       <div className={cn(searchFieldStyles.searchFieldButton)}>
         <EinButton
+          tabIndex={expanded ? -1 : 0}
           style="link"
           className={cn(
             searchFieldStyles.paddedContent,
@@ -375,6 +399,7 @@ export default function EnhetSelector({
                     )}
                   />
                 ))}
+                {loading && [0, 1, 2, 3].map(() => renderSkeleton())}
               </VList>
             </div>
 
@@ -410,7 +435,11 @@ export default function EnhetSelector({
  * @param searchWord
  * @returns
  */
-function getScore(enhet: TrimmedEnhet, searchWord: string) {
+function getScore(
+  enhet: TrimmedEnhet,
+  searchWord: string,
+  currentLanguageCode: LanguageCode,
+) {
   let score = 0;
   let depth = 1;
 
@@ -422,20 +451,28 @@ function getScore(enhet: TrimmedEnhet, searchWord: string) {
   };
 
   if (enhet.enhetstype !== 'DUMMYENHET') {
+    // Prioritize current language. Other languages should give a match, but only barely.
+    const languageWeights = {
+      nb: currentLanguageCode === 'nb' ? 1.0 : 0.1,
+      nn: currentLanguageCode === 'nn' ? 1.0 : 0.1,
+      se: currentLanguageCode === 'se' ? 1.0 : 0.1,
+      en: currentLanguageCode === 'en' ? 1.0 : 0.1,
+    };
+
     // Match
     const matches = [
-      name.nb.indexOf(searchWord),
-      name.nn?.indexOf(searchWord) ?? -1,
-      name.se?.indexOf(searchWord) ?? -1,
-      name.en?.indexOf(searchWord) ?? -1,
-    ].filter((i) => i >= 0);
+      { index: name.nb.indexOf(searchWord), weight: languageWeights.nb },
+      { index: name.nn?.indexOf(searchWord) ?? -1, weight: languageWeights.nn },
+      { index: name.se?.indexOf(searchWord) ?? -1, weight: languageWeights.se },
+      { index: name.en?.indexOf(searchWord) ?? -1, weight: languageWeights.en },
+    ].filter((m) => m.index >= 0);
 
-    if (matches.length > 0) {
-      // Early match (lower number) gives higher score
-      const lowestMatch = Math.min(...matches);
-      // Score decreases linearly: position 0 = 10, position 10 = 9, position 100 = 1
-      score += Math.max(1, 10 - lowestMatch / 10);
-    }
+    const bestScore = matches.reduce((currentScore, match) => {
+      const thisScore = Math.max(1, 10 - match.index / 10) * match.weight;
+      return thisScore > currentScore ? thisScore : currentScore;
+    }, 0);
+
+    score += bestScore;
   }
 
   // Recursively check parents for matches
@@ -443,6 +480,7 @@ function getScore(enhet: TrimmedEnhet, searchWord: string) {
     const [parentScore, parentDepth] = getScore(
       enhet.parent as TrimmedEnhet,
       searchWord,
+      currentLanguageCode,
     );
     if (parentScore > 0) {
       // Parent match gives lower score
@@ -454,8 +492,12 @@ function getScore(enhet: TrimmedEnhet, searchWord: string) {
   return [score, depth];
 }
 
-function filterEnhetList(allNodes: EnhetNode[], searchString: string) {
-  if (!searchString) {
+function filterEnhetList(
+  allNodes: EnhetNode[],
+  searchString: string,
+  currentLanguageCode: LanguageCode,
+): EnhetNode[] {
+  if (searchString.trim().length === 0) {
     return allNodes.sort(sortNodes);
   }
 
@@ -469,12 +511,21 @@ function filterEnhetList(allNodes: EnhetNode[], searchString: string) {
       let score = 0;
 
       for (const word of searchWords) {
-        const [wordScore, depth] = getScore(enhetNode.enhet, word);
+        const [wordScore, depth] = getScore(
+          enhetNode.enhet,
+          word,
+          currentLanguageCode,
+        );
         if (wordScore <= 0) {
           score = 0;
           break;
         }
         score += wordScore / Math.max(1, depth); // Prioritize "shallow" matches higher
+      }
+
+      // Reduce score for DUMMYENHET
+      if (enhetNode.enhet.enhetstype === 'DUMMYENHET') {
+        score *= 0.5;
       }
 
       return {
@@ -490,24 +541,35 @@ function filterEnhetList(allNodes: EnhetNode[], searchString: string) {
     .sort(sortNodes);
 }
 
+const depthCache = new Map<string, number>();
+// Get depth of enhet in hierarchy, with caching
+function getDepth(enhet: TrimmedEnhet): number {
+  const cachedDepth = depthCache.get(enhet.id);
+  if (cachedDepth !== undefined) {
+    return cachedDepth;
+  }
+
+  const depth = isEnhet(enhet.parent)
+    ? 1 + getDepth(enhet.parent as TrimmedEnhet)
+    : 0;
+
+  depthCache.set(enhet.id, depth);
+  return depth;
+}
+
 function sortNodes(a: EnhetNode, b: EnhetNode) {
   // Sort by score
   if (a.score !== b.score) {
     return b.score - a.score;
   }
 
-  // Sort by parent existence. Nodes with parents come after nodes without parents.
-  const aParent = a.enhet.parent;
-  const bParent = b.enhet.parent;
-  const aParentId = typeof aParent === 'string' ? aParent : aParent?.id;
-  const bParentId = typeof bParent === 'string' ? bParent : bParent?.id;
-  if (aParentId && !bParentId) {
-    return 1;
-  }
-  if (!aParentId && bParentId) {
-    return -1;
+  // Sort by parent depth. Fewer ancestors (shallower) first
+  const aDepth = getDepth(a.enhet);
+  const bDepth = getDepth(b.enhet);
+  if (aDepth !== bDepth) {
+    return aDepth - bDepth;
   }
 
   // Sort by currently active name
-  return a.currentName?.localeCompare(b.currentName) ?? 0;
+  return a.currentName?.localeCompare(b.currentName, 'no') ?? 0;
 }

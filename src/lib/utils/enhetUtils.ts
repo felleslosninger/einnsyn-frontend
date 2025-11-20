@@ -1,7 +1,7 @@
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
+import { useMemo } from 'react';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import type { LanguageCode } from '../translation/translation';
-import { useMemo } from 'react';
 
 export const getAncestors = (enhet: Enhet) => {
   const ancestors: Enhet[] = [];

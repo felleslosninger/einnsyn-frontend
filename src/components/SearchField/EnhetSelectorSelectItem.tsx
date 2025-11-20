@@ -37,7 +37,7 @@ export const EnhetSelectorSelectItem = forwardRef<
       })}
     >
       <span className={styles.selectorListText}>
-        <span className={styles.ancestors}>{ancestors}</span>
+        {ancestors && <span className={styles.ancestors}>{ancestors}</span>}
         <span>{name}</span>
       </span>
 
