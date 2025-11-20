@@ -9,12 +9,26 @@
     // height: 85vh; //Fixed size
 }
 
+.calendarContent {}
+
 // Header section
 .calendarHeader {
     position: relative;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    padding: var(--ds-size-4);
+}
+
+.calendarBody {
+    background-color: var(--ds-color-neutral-background-tinted);
+    margin-bottom: 5px;
+    padding: var(--ds-size-4);
+
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .navigation {
@@ -114,6 +128,7 @@
 .headerRow :global(th) {
     padding: 12px;
     font-weight: 600;
+    background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .body {
@@ -125,30 +140,15 @@
 }
 
 // Table rows and cells
-.row {
-    border-bottom: 1px solid var(--ds-color-neutral-border-default);
-}
+.row {}
 
 .row :global(td) {
-    border-right: 1px solid var(--ds-color-neutral-border-default);
+    border: 1px solid var(--ds-color-neutral-border-subtle);
     padding: 8px;
     vertical-align: top;
     position: relative;
     height: 300px;
 
-    &:last-child {
-        border-right: none;
-    }
-
-    &:first-child {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-    }
-
-    &:last-child {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
 }
 
 .weekrow :global(td),
@@ -167,6 +167,7 @@
 .cellHeader {
     display: flex;
     justify-content: space-between;
+    padding: var(--ds-size-2);
 }
 
 .dateNumber {
@@ -181,7 +182,7 @@
 
 // Meeting component styles
 .moetemappemodule {
-    background-color: var(--ds-color-neutral-surface-tinted);
+    background-color: var(--ds-color-neutral-surface-default);
     margin-bottom: 5px;
 
     border-bottom-left-radius: 5px;

@@ -100,7 +100,7 @@ export default function CalendarContainer({
         )}>
             <div className="container-pre collapsible" />
 
-            <div className="container">
+            <div className={cn('calendar-content', styles.calendarContent)}>
                 <CalendarHeader
                     selectedView={selectedView}
                     setSelectedView={setSelectedView}
@@ -108,11 +108,13 @@ export default function CalendarContainer({
                     setSelectedDate={setSelectedDate}
                     displayWeekends={displayWeekends}
                     setDisplayWeekends={setDisplayWeekends} />
-                <CalendarBody
-                    selectedView={selectedView}
-                    selectedDate={selectedDate}
-                    displayWeekends={displayWeekends}
-                    currentSearchResults={allResults} />
+                <div className={cn(styles.calendarBody)}>
+                    <CalendarBody
+                        selectedView={selectedView}
+                        selectedDate={selectedDate}
+                        displayWeekends={displayWeekends}
+                        currentSearchResults={allResults} />
+                </div>
             </div>
 
             {/* <div className="container-post collapsible" /> */}
@@ -130,3 +132,4 @@ export default function CalendarContainer({
 //TODO: Remove date filter when leaving moetekalender
 //TODO: Fix duplicate run of fetchAllResults
 //TODO: Move files to correct spots
+//TODO: Fix bug, month changes on refresh
