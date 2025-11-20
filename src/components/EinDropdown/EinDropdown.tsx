@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDownIcon } from '@navikt/aksel-icons';
+import { ChevronDownIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 import {
   type ReactNode,
   useCallback,
@@ -25,6 +25,8 @@ export type EinDropdownProps = {
   disabled?: boolean;
   closeOnItemClick?: boolean;
   showChevron?: boolean;
+  showChevronRight?: boolean;
+  showChevronDown?: boolean;
   preferredPosition?: PopupPosition[];
 };
 
@@ -38,6 +40,8 @@ export default function EinDropdown({
   disabled = false,
   closeOnItemClick = true,
   showChevron = false,
+  showChevronRight = false,
+  showChevronDown = !showChevronRight && showChevron,
   preferredPosition,
 }: EinDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -110,9 +114,16 @@ export default function EinDropdown({
         )}
       >
         <span className={styles.triggerContent}>{trigger}</span>
-        {showChevron && (
+        {showChevronDown && (
           <ChevronDownIcon
             className={cn(styles.chevron, { [styles.rotated]: isOpen })}
+          />
+        )}
+        {showChevronRight && (
+          <ChevronRightIcon
+            className={cn(styles.chevron, styles.chevronRight, {
+              [styles.rotated]: isOpen,
+            })}
           />
         )}
       </EinButton>
