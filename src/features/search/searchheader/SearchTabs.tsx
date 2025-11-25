@@ -19,15 +19,13 @@ export default function SearchTabs({ className }: { className?: string }) {
   const { getProperty, setProperty } = useSearchField();
   const prevPathRef = useRef(pathname);
 
-  // TODO: Get this to work...
   useEffect(() => {
     if (prevPathRef.current === '/moetekalender' && pathname === '/search') {
       setProperty('moetedato', null);
-      console.log("moetedato: " + getProperty('moetedato') + " prevPathRef: " + prevPathRef.current + " pathname: " + pathname); //temp log
     }
 
     prevPathRef.current = pathname;
-  }, [pathname, setProperty, getProperty]);
+  }, [pathname, setProperty]);
 
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);

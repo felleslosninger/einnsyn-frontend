@@ -1,5 +1,5 @@
 import { getSearchResults } from "~/features/search/searchActions";
-import CalendarContainer from "~/app/moetekalender/CalendarContainer";
+import CalendarContainer from "~/features/moetekalender/CalendarContainer";
 
 export default async function Moetekalender({
     params,

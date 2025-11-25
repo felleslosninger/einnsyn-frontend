@@ -1,21 +1,34 @@
 'use client';
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
+import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { isMoetemappe } from '@digdir/einnsyn-sdk';
-import { fetchNextPage } from '~/lib/utils/pagination';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { fetchNextPage } from '~/lib/utils/pagination';
 import { getDateRange } from './DateRange';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
-import CalendarHeader from './CalendarHeader';
 import CalendarBody from './CalendarBody';
+import CalendarHeader from './CalendarHeader';
+
+import { isMoetemappe } from '@digdir/einnsyn-sdk';
 
 
 const formatDateForUrl = (date: Date) => {
     return date.toISOString().split('T')[0];
+};
+
+const hasWeekendMeetings = (results: PaginatedList<Base>) => {
+    return results.items.some(item => {
+        if (isMoetemappe(item)) {
+            const meetingDate = item.moetedato ? new Date(item.moetedato) : null;
+            if (!meetingDate) return false;
+            const day = meetingDate.getDay();
+            return day === 0 || day === 6;
+        }
+        return false;
+    });
 };
 
 
@@ -27,12 +40,27 @@ export default function CalendarContainer({
     const { getProperty, setProperty } = useSearchField();
 
     const [selectedView, setSelectedView] = useState('month');
-    const [selectedDate, setSelectedDate] = useState(new Date());
     const [displayWeekends, setDisplayWeekends] = useState(false);
-    const [isInitialized, setIsInitialized] = useState(false);
     const [allResults, setAllResults] = useState<PaginatedList<Base>>(searchResults);
 
+    if (!displayWeekends && hasWeekendMeetings(allResults)) {
+        setDisplayWeekends(true);
+    }
 
+
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const moetedato = getProperty('moetedato');
+        if (moetedato) {
+            const dateMatch = moetedato.match(/(\d{4}-\d{2}-\d{2})/);
+            if (dateMatch) {
+                const parsedDate = new Date(dateMatch[1]);
+                if (!Number.isNaN(parsedDate.getTime())) {
+                    return parsedDate;
+                }
+            }
+        }
+        return new Date();
+    });
 
     const currentDateRange = useMemo(() => {
         return getDateRange(selectedDate, selectedView);
@@ -49,10 +77,12 @@ export default function CalendarContainer({
         }
     }, [currentDateRange, setProperty, getProperty]);
 
+
+
     const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
         let i = 0;
 
-        while (currentResults.next && i < 6) { // Limit pages to avoid infinite loops
+        while (currentResults.next && i < 6) { // Temporary limit pages to avoid infinite loops
             try {
                 currentResults = await fetchNextPage(currentResults, true);
                 console.log(i);
@@ -71,26 +101,6 @@ export default function CalendarContainer({
         updateDateRangeProperty();
         fetchAllResults(searchResults);
     }, [searchResults, fetchAllResults, updateDateRangeProperty]);
-
-    useEffect(() => {
-        if (!isInitialized) {
-            const moetedato = getProperty('moetedato');
-            if (moetedato) {
-                const dateMatch = moetedato.match(/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
-                if (dateMatch) {
-                    const [, startDateStr] = dateMatch;
-                    const parsedDate = new Date(startDateStr);
-                    if (!Number.isNaN(parsedDate.getTime())) {
-                        setSelectedDate(parsedDate);
-                    }
-                }
-            }
-            setIsInitialized(true);
-        }
-    }, [isInitialized, getProperty]);
-
-
-
 
     return (
         <div className={cn(
@@ -124,12 +134,13 @@ export default function CalendarContainer({
 
 
 //TODO: Fix display of many meetings on same day
-//TODO: Automatically display weekend if there are meetings on weekend days
-//TODO: Loading state while fetching all results
+//TODO: Fix sticky header hiding behind search header
+
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
-//TODO: Order meetings by time 
-//TODO: Remove date filter when leaving moetekalender
+//TODO: Order meetings by time
+
 //TODO: Fix duplicate run of fetchAllResults
-//TODO: Move files to correct spots
 //TODO: Fix bug, month changes on refresh
+
+//TODO: Combine daterange logic with calendar generation logic? 

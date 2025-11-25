@@ -129,6 +129,8 @@
     padding: 12px;
     font-weight: 600;
     background-color: var(--ds-color-neutral-background-tinted);
+    color: var(--ds-color-neutral-text-subtle);
+    border-bottom: 2px solid #F45F63;
 }
 
 .body {
@@ -189,6 +191,8 @@
     border-bottom-right-radius: 5px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+
+    box-shadow: 1px 1px 5px 1px #002C541A;
 }
 
 .moduleHeading,

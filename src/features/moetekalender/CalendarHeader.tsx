@@ -1,13 +1,11 @@
 'use client';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 
+import { Button, Checkbox, Divider, Dropdown, Heading } from '@digdir/designsystemet-react';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon } from '@navikt/aksel-icons';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
-import { Button, Checkbox, Divider, Dropdown, Heading } from '@digdir/designsystemet-react';
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
-import { DateFilter } from '~/features/search/searchheader/filter/DateFilter';
-import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 interface CalendarHeaderProps {
     selectedView: string;
@@ -21,20 +19,6 @@ interface CalendarHeaderProps {
 export default function CalendarHeader({ selectedView, setSelectedView, selectedDate, setSelectedDate, displayWeekends, setDisplayWeekends }: CalendarHeaderProps) {
     const t = useTranslation();
     const [open, setOpen] = useState(false);
-
-    const { getProperty, setProperty } = useSearchField();
-
-    const getSetter = useCallback(
-        (property: string) => (value: string | undefined) =>
-            setProperty(property, value),
-        [setProperty],
-    );
-
-    const setMoeteDato = useMemo(() => getSetter('moetedato'), [getSetter]);
-
-
-    // const [expandAll, setExpandAll] = useState(false);
-
 
     const viewHeading = useMemo(() => {
         const getWeekNumber = (date: Date): number => {
@@ -208,7 +192,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                             </Dropdown.Item>
                             <Divider />
                             <Dropdown.Item>
-                                <Checkbox className={styles.checkbox} label={t('moetekalender.viewOptions.displayWeekends')}
+                                <Checkbox className={styles.checkbox} label={t('moetekalender.viewOptions.displayWeekends')} checked={displayWeekends}
                                     onClick={() => { setDisplayWeekends(!displayWeekends) }} />
                             </Dropdown.Item>
                         </Dropdown.List>

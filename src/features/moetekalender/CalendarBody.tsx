@@ -8,6 +8,7 @@ import styles from './CalendarContainer.module.scss';
 import DayView from './CalendarViews/Day';
 import MonthView from './CalendarViews/Month';
 import WeekView from './CalendarViews/Week';
+import Dynamic from './CalendarViews/Dynamic';
 
 interface CalendarBodyProps {
     selectedView: string;
@@ -41,6 +42,9 @@ export default function CalendarBody({ selectedView, selectedDate, displayWeeken
                     className={cn(styles.meetingTable)}>
                     <DayView selectedDate={selectedDate} currentSearchResults={currentSearchResults} />
                 </Table>
+            )}
+            {selectedView === 'dynamic' && (
+                <Dynamic selectedDate={selectedDate} currentSearchResults={currentSearchResults} displayWeekends />
             )}
         </>
     );
