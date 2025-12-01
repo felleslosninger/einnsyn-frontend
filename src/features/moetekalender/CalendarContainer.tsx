@@ -58,15 +58,18 @@ export default function CalendarContainer({
         setDisplayWeekends(true);
     }
 
-
     const [selectedDate, setSelectedDate] = useState(() => {
         const moetedato = getProperty('moetedato');
         if (moetedato) {
-            const dateMatch = moetedato.match(/(\d{4}-\d{2}-\d{2})/);
+            const dateMatch = moetedato.match(/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
             if (dateMatch) {
-                const parsedDate = new Date(dateMatch[1]);
-                if (!Number.isNaN(parsedDate.getTime())) {
-                    return parsedDate;
+                const startDate = new Date(dateMatch[1]);
+                const endDate = new Date(dateMatch[2]);
+
+                if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime())) {
+                    // Use the middle date of the range to determine the correct month
+                    const middleTime = (startDate.getTime() + endDate.getTime()) / 2;
+                    return new Date(middleTime);
                 }
             }
         }
@@ -151,6 +154,5 @@ export default function CalendarContainer({
 //TODO: Implement dynamic view 
 
 //TODO: Fix duplicate run of fetchAllResults
-//TODO: Fix bug, month changes on refresh
 
 //TODO: Combine daterange logic with calendar generation logic? 
