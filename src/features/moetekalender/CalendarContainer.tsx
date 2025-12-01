@@ -67,7 +67,7 @@ export default function CalendarContainer({
                 const endDate = new Date(dateMatch[2]);
 
                 if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime())) {
-                    // Use the middle date of the range to determine the correct month
+                    // Use the middle date of the range to determine the correct view
                     const middleTime = (startDate.getTime() + endDate.getTime()) / 2;
                     return new Date(middleTime);
                 }
@@ -96,7 +96,7 @@ export default function CalendarContainer({
     const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
         let i = 0;
 
-        while (currentResults.next && i < 6) { // Temporary limit pages to avoid infinite loops
+        while (currentResults.next && i < 6) { // TODO: Remove temporary limit pages to avoid infinite loops
             try {
                 currentResults = await fetchNextPage(currentResults, true);
                 console.log(i);
@@ -148,11 +148,10 @@ export default function CalendarContainer({
 
 
 //TODO: Fix display of many meetings on same day
-//TODO: Fix sticky header hiding behind search header
+
+//TODO: Allow user to hide weekends even if meetings exist on weekends
 
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
 
 //TODO: Fix duplicate run of fetchAllResults
-
-//TODO: Combine daterange logic with calendar generation logic? 

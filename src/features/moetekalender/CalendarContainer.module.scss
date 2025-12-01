@@ -41,6 +41,7 @@
 
 .displayHeading {
     width: 100%;
+
 }
 
 // Navigation elements
@@ -121,7 +122,7 @@
 
 .head {
     position: sticky;
-    top: 0;
+    top: 68px; //TODO: Make dynamic based on header height (mobile view)
     z-index: 7;
 }
 

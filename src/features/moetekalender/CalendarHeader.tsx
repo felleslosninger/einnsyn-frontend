@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 
 import { Button, Checkbox, Divider, Dropdown, Heading } from '@digdir/designsystemet-react';

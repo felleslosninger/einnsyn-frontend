@@ -1,8 +1,10 @@
 import { useTranslation } from '~/hooks/useTranslation';
+import { useEffect, useState } from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
 import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
 import { sortMeetingsByTime } from '../CalendarContainer'
+import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 
@@ -51,7 +53,7 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
 
     return (
         <>
-            <Table.Head className={styles.head}>
+            <Table.Head className={cn('head', styles.head)}>
                 <Table.Row className={styles.headerRow}>
                     <Table.HeaderCell>{t('moetekalender.days.monday')}</Table.HeaderCell>
                     <Table.HeaderCell>{t('moetekalender.days.tuesday')}</Table.HeaderCell>

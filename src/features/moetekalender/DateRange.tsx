@@ -10,18 +10,8 @@ export function getDateRange(selectedDate: Date, view: string) {
             const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             start.setDate(firstDayOfMonth.getDate() - daysToSubtract);
 
-            const current = new Date(start);
-            const weeksToShow = 6;
-
-            for (let week = 0; week < weeksToShow; week++) {
-                for (let day = 0; day < 7; day++) {
-                    current.setDate(current.getDate() + 1);
-                }
-
-            }
-
-            end.setTime(current.getTime());
-            end.setDate(end.getDate() - 1);
+            end.setTime(start.getTime());
+            end.setDate(end.getDate() + 41);
 
             break;
         }
