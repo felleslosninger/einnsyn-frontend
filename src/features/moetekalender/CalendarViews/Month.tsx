@@ -2,7 +2,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 
 import { Table } from '@digdir/designsystemet-react';
 import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
-
+import { sortMeetingsByTime } from '../CalendarContainer'
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 
@@ -87,9 +87,15 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
                                     })()}
                                 </div>
 
-                                {currentSearchResults.items.map((item) => (
-                                    (isMoetemappe(item) && (new Date(item.moetedato).toDateString() === day.date.toDateString())) && <MoetemappeModule key={item.id} item={item} />
+                                {sortMeetingsByTime(
+                                    currentSearchResults.items.filter((item) =>
+                                        isMoetemappe(item) &&
+                                        new Date(item.moetedato).toDateString() === day.date.toDateString()
+                                    )
+                                ).map((item) => (
+                                    isMoetemappe(item) && <MoetemappeModule key={item.id} item={item} />
                                 ))}
+
                             </Table.Cell>
                         ))}
                     </Table.Row>

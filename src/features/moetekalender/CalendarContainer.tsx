@@ -31,6 +31,17 @@ const hasWeekendMeetings = (results: PaginatedList<Base>) => {
     });
 };
 
+export const sortMeetingsByTime = (items: Base[]) => {
+    return items.sort((a, b) => {
+        if (!isMoetemappe(a) || !isMoetemappe(b)) return 0;
+
+        const timeA = a.moetedato ? new Date(a.moetedato).getTime() : 0;
+        const timeB = b.moetedato ? new Date(b.moetedato).getTime() : 0;
+
+        return timeA - timeB;
+    });
+};
+
 
 export default function CalendarContainer({
     searchResults
@@ -138,7 +149,6 @@ export default function CalendarContainer({
 
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
-//TODO: Order meetings by time
 
 //TODO: Fix duplicate run of fetchAllResults
 //TODO: Fix bug, month changes on refresh
