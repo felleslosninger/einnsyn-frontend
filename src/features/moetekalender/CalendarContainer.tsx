@@ -51,12 +51,9 @@ export default function CalendarContainer({
     const { getProperty, setProperty } = useSearchField();
 
     const [selectedView, setSelectedView] = useState('month');
-    const [displayWeekends, setDisplayWeekends] = useState(false);
+    const [displayWeekends, setDisplayWeekends] = useState(() => hasWeekendMeetings(searchResults));
     const [allResults, setAllResults] = useState<PaginatedList<Base>>(searchResults);
 
-    if (!displayWeekends && hasWeekendMeetings(allResults)) {
-        setDisplayWeekends(true);
-    }
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const moetedato = getProperty('moetedato');
@@ -148,8 +145,6 @@ export default function CalendarContainer({
 
 
 //TODO: Fix display of many meetings on same day
-
-//TODO: Allow user to hide weekends even if meetings exist on weekends
 
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
