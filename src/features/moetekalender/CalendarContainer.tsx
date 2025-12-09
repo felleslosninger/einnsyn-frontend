@@ -64,7 +64,6 @@ export default function CalendarContainer({
                 const endDate = new Date(dateMatch[2]);
 
                 if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime())) {
-                    // Use the middle date of the range to determine the correct view
                     const middleTime = (startDate.getTime() + endDate.getTime()) / 2;
                     return new Date(middleTime);
                 }
@@ -92,6 +91,12 @@ export default function CalendarContainer({
 
     const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
         let i = 0;
+        const moetedato = getProperty('moetedato');
+        console.log('Fetching all results for date range:', moetedato);
+        if (!moetedato) {
+            setAllResults(currentResults);
+            return;
+        }
 
         while (currentResults.next && i < 6) { // TODO: Remove temporary limit pages to avoid infinite loops
             try {
@@ -105,13 +110,20 @@ export default function CalendarContainer({
         }
         setAllResults(currentResults);
 
-    }, []);
+    }, [getProperty]);
 
+    useEffect(() => {
+        hasWeekendMeetings(searchResults) ? setDisplayWeekends(true) : null;
+    }, [searchResults]);
 
     useEffect(() => {
         updateDateRangeProperty();
+    }, [updateDateRangeProperty]);
+
+    useEffect(() => {
         fetchAllResults(searchResults);
-    }, [searchResults, fetchAllResults, updateDateRangeProperty]);
+    }, [searchResults, fetchAllResults]);
+
 
     return (
         <div className={cn(
@@ -149,4 +161,6 @@ export default function CalendarContainer({
 //TODO: Utilize full page width for calendar
 //TODO: Implement dynamic view 
 
-//TODO: Fix duplicate run of fetchAllResults
+//TODO: Fix infinite run on inital load
+//TODO: Fix header overlap on mobile view
+//TODO: fix change of view on reload

@@ -138,6 +138,7 @@
     "label": "Meeting calendar",
     "labelPlural": "Meeting calendars",
     "viewOptions": {
+      "dynamic": "Dynamic",
       "month": "Month",
       "week": "Week",
       "day": "Day",

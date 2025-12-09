@@ -30,6 +30,9 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
         };
 
         switch (selectedView) {
+            case 'dynamic':
+                return `${t(`moetekalender.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+
             case 'month':
                 return `${t(`moetekalender.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
 
@@ -73,6 +76,33 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
         }
 
         switch (selectedView) {
+            case 'dynamic':
+                return (
+                    <>
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeWeek(-3)} // Previous Month
+                        >
+                            <ChevronUpIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+
+                        <Button
+                            data-color="neutral"
+                            data-size="sm"
+                            icon
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => changeWeek(3)} // Next Month
+                        >
+                            <ChevronDownIcon className={cn(styles.arrowIcon)} />
+                        </Button>
+                    </>
+                );
+
             case 'month':
                 return (
                     <>
@@ -175,6 +205,11 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                         open={open} onClose={() => setOpen(false)}>
 
                         <Dropdown.List>
+                            <Dropdown.Item>
+                                <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('dynamic'); }}>
+                                    {t('moetekalender.viewOptions.dynamic')}
+                                </Dropdown.Button>
+                            </Dropdown.Item>
                             <Dropdown.Item>
                                 <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('month'); }}>
                                     {t('moetekalender.viewOptions.month')}

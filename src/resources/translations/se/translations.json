@@ -138,6 +138,7 @@
   "label": "Čuohppesáddanbassi",
   "labelPlural": "Čuohppesáddanbassit",
   "viewOptions": {
+    "dynamic": "Dynamalaš",
     "month": "Mánnu",
     "week": "Vahkku",
     "day": "Beaivi",

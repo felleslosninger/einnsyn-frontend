@@ -6,10 +6,13 @@
 
 // Main container
 .calendarContainer {
-    // height: 85vh; //Fixed size
+    height: 100%;
 }
 
-.calendarContent {}
+.calendarContent {
+    height: 100%;
+    width: 100%;
+}
 
 // Header section
 .calendarHeader {
@@ -24,6 +27,7 @@
     background-color: var(--ds-color-neutral-background-tinted);
     margin-bottom: 5px;
     padding: var(--ds-size-4);
+    height: calc(100vh - 350px); // TODO: Adjust based on header height
 
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
@@ -183,6 +187,92 @@
     color: var(--ds-color-neutral-text-subtle);
 }
 
+//Dynamic view styles
+.dynamicCalendarWrapper {
+    width: 100%;
+    // overflow: hidden; // ensure overflow is hidden
+    height: 100%;
+}
+
+.calendarGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    height: 100%;
+}
+
+.dynCalendarHeader {
+    display: grid;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+/* Week rows */
+.weekRow {
+    display: grid;
+    width: 100%;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+/* Show 7 columns if weekends are enabled */
+.withWeekends .weekRow,
+.withWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(7, 1fr);
+}
+
+/* Show 5 columns if weekends disabled */
+.noWeekends .weekRow,
+.noWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.dayHeaderCell {
+    padding: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--ds-color-neutral-background-tinted);
+    border-radius: 4px;
+}
+
+.dayHeaderText {
+    font-size: 0.875rem;
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+
+.dayHeaderCell {
+    padding: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--ds-color-neutral-background-tinted);
+    border-radius: 4px;
+}
+
+.dayHeaderText {
+    font-size: 0.875rem;
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+/* Calendar day cell */
+.dayCell {
+    // aspect-ratio: 1 / 1; // ensures square cells
+    border-radius: 4px;
+    background: var(--color-surface);
+    padding: 0.25rem;
+    overflow-y: hidden;
+    display: flex;
+    min-height: 0;
+    aspect-ratio: 100% / min(50% * width);
+    flex-direction: column;
+}
+
+.dateText {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+
 // Meeting component styles
 .moetemappemodule {
     background-color: var(--ds-color-neutral-surface-default);
@@ -194,6 +284,9 @@
     border-top-right-radius: 5px;
 
     box-shadow: 1px 1px 5px 1px #002C541A;
+    width: 100%;
+
+    font-size: var(--ds-body-sm-font-size); //TODO: Fix font size
 }
 
 .moduleHeading,

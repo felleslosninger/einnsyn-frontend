@@ -16,15 +16,19 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
 
             </div>
             <div className={cn('moduleInfo', styles.moduleInfo)}>
-                {/* <span>{new Date(item.moetedato).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}</span> */}
-                <span className={styles.parentNameLabel}>
+                <div className={styles.parentNameLabel}>
                     {typeof item.utvalgObjekt === 'string'
                         ? ''
                         : (typeof item.utvalgObjekt.parent === 'string'
                             ? item.utvalgObjekt.parent
-                            : item.utvalgObjekt.parent?.navn || '')
+                            : item.utvalgObjekt.parent?.navn || '') //TODO: remove if filtered by parent
                     }
-                </span>
+                </div>
+                <div>
+                    <span>{new Date(item.moetedato).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}</span>
+
+                    <span>{item.moetested && item.moetested.length > 0 ? (' - ' + item.moetested) : ''}</span>
+                </div>
             </div>
         </div>
     );

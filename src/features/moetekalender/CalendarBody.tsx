@@ -44,7 +44,7 @@ export default function CalendarBody({ selectedView, selectedDate, displayWeeken
                 </Table>
             )}
             {selectedView === 'dynamic' && (
-                <Dynamic selectedDate={selectedDate} currentSearchResults={currentSearchResults} displayWeekends />
+                <Dynamic selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
             )}
         </>
     );

@@ -138,6 +138,7 @@
     "label": "Møtekalender",
     "labelPlural": "Møtekalendere",
     "viewOptions": {
+      "dynamic": "Dynamisk",
       "month": "Måned",
       "week": "Uke",
       "day": "Dag",
