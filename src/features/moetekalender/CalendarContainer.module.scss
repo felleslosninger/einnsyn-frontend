@@ -190,15 +190,23 @@
 //Dynamic view styles
 .dynamicCalendarWrapper {
     width: 100%;
-    // overflow: hidden; // ensure overflow is hidden
-    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.dynamicCalendarWrapper::-webkit-scrollbar {
+    display: none;
 }
 
 .calendarGrid {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    height: 100%;
 }
 
 .dynCalendarHeader {
@@ -213,6 +221,7 @@
     width: 100%;
     gap: 0.25rem;
     flex: 1;
+    min-height: 250px;
 }
 
 /* Show 7 columns if weekends are enabled */

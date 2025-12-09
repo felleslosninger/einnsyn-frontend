@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: ignore temp.*/
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 
@@ -21,20 +22,23 @@ export default function DynamicView({
 }) {
     const t = useTranslation();
 
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+    const daysPerWeek = displayWeekends ? 7 : 5;
     const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
     const startDate = new Date(firstDayOfMonth);
     const dayOfWeek = firstDayOfMonth.getDay();
     const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const max_weeks = 20;
+    const buffer_weeks = 3;
     startDate.setDate(firstDayOfMonth.getDate() - daysToSubtract);
 
-    // --- Generate a 3-week grid starting from the week of selectedDate ---
-
-    const calendarGrid = useMemo(() => {
+    // INITIAL GRID 
+    const initialGrid = useMemo(() => {
         const firstWeekStart = startOfWeek(selectedDate);
-        const daysPerWeek = displayWeekends ? 7 : 5;
-        const weeksToShow = 3; //TODO: autoconfigure based on container height?
-        const current = new Date(firstWeekStart);
+        const container = scrollRef.current;
+        const weeksToShow = container?.clientHeight ? Math.ceil(container.clientHeight / 250) : 6;
 
+        const current = new Date(firstWeekStart);
         const weeks = [];
 
         for (let week = 0; week < weeksToShow; week++) {
@@ -63,10 +67,101 @@ export default function DynamicView({
         }
 
         return weeks;
-    }, [selectedDate, displayWeekends]);
+    }, [selectedDate, displayWeekends, daysPerWeek]);
+
+    // STATE
+    const [weeks, setWeeks] = useState(initialGrid);
+
+    useEffect(() => {
+        setWeeks(initialGrid);
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.clientHeight;
+        }
+    }, [initialGrid]);
+
+    const generateNextWeek = useCallback((lastDate: Date) => {
+        const newWeek: any[] = [];
+        const cursor = new Date(lastDate);
+
+        cursor.setDate(cursor.getDate() + 1);
+        for (let day = 0; day < daysPerWeek; day++) {
+            newWeek.push({
+                date: new Date(cursor),
+                isCurrentMonth: cursor.getMonth() === selectedDate.getMonth(),
+                isToday: cursor.toDateString() === new Date().toDateString(),
+                dayNumber: cursor.getDate(),
+            });
+            cursor.setDate(cursor.getDate() + 1);
+        }
+
+        if (!displayWeekends) {
+            cursor.setDate(cursor.getDate() + 2);
+        }
+
+        return newWeek;
+    }, [daysPerWeek, displayWeekends, selectedDate]);
+
+    const generatePreviousWeek = useCallback((firstDate: Date) => {
+        const newWeek: any[] = [];
+        const cursor = new Date(firstDate);
+
+        cursor.setDate(cursor.getDate() - (daysPerWeek + (displayWeekends ? 0 : 2)));
+
+        for (let day = 0; day < daysPerWeek; day++) {
+            newWeek.push({
+                date: new Date(cursor),
+                isCurrentMonth: cursor.getMonth() === selectedDate.getMonth(),
+                isToday: cursor.toDateString() === new Date().toDateString(),
+                dayNumber: cursor.getDate(),
+            });
+            cursor.setDate(cursor.getDate() + 1);
+        }
+
+        return newWeek;
+    }, [daysPerWeek, displayWeekends, selectedDate]);
+
+
+    //SCROLL HANDLER
+    const handleScroll = useCallback(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const threshold = 100;
+
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - threshold) {
+            const lastWeek = weeks[weeks.length - 1];
+            const lastDay = lastWeek[lastWeek.length - 1].date;
+
+            setWeeks((prev) => [...prev, generateNextWeek(lastDay)]);
+        }
+
+        if (container.scrollTop <= threshold) {
+            const firstWeek = weeks[0];
+            const firstDay = firstWeek[0].date;
+
+            const prevHeight = container.scrollHeight;
+
+            setWeeks((prev) => [generatePreviousWeek(firstDay), ...prev]);
+
+            requestAnimationFrame(() => {
+                const newHeight = container.scrollHeight;
+                const diff = newHeight - prevHeight;
+                container.scrollTop = diff + container.scrollTop;
+            });
+        }
+    }, [weeks, generateNextWeek, generatePreviousWeek]);
+
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (container) {
+            console.log('Container height:', container.clientHeight);
+            console.log('Scroll height:', container.scrollHeight);
+            console.log('Can scroll:', container.scrollHeight > container.clientHeight);
+        }
+    }, []);
 
     return (
-        <div className={styles.dynamicCalendarWrapper}>
+        <div ref={scrollRef} className={cn(styles.dynamicCalendarWrapper)} onScroll={handleScroll}>
             <div
                 className={cn(
                     styles.calendarGrid,
@@ -74,7 +169,7 @@ export default function DynamicView({
                 )}
             >
                 <div className={styles.dynCalendarHeader}>
-                    {calendarGrid[0].map((day) => (
+                    {weeks[0].map((day) => (
                         <div key={day.date.toISOString()} className={styles.dayHeaderCell}>
                             <span className={styles.dayHeaderText}>
                                 {t(`moetekalender.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
@@ -82,7 +177,7 @@ export default function DynamicView({
                         </div>
                     ))}
                 </div>
-                {calendarGrid.map((week, weekIndex) => (
+                {weeks.map((week, weekIndex) => (
                     <div key={`week-${weekIndex}`} className={styles.weekRow}>
                         {week.map((day) => (
                             <div
@@ -115,3 +210,12 @@ export default function DynamicView({
         </div>
     );
 }
+
+//TODOLIST:
+// - Show weeknumber?
+// - Autoconfigure number of weeks based on container height
+// - Improve performance by removing offscreen weeks
+// - Better styling of meeting modules
+// - Update daterange when scrolling (without unnecessary re-renders)
+// - Snap to week on scroll
+// - Fix upward scrolling jump
