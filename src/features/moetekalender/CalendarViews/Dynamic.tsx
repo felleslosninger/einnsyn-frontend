@@ -28,7 +28,7 @@ export default function DynamicView({
     const startDate = new Date(firstDayOfMonth);
     const dayOfWeek = firstDayOfMonth.getDay();
     const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const max_weeks = 20;
+    const max_weeks = 12;
     const buffer_weeks = 3;
     startDate.setDate(firstDayOfMonth.getDate() - daysToSubtract);
 
@@ -127,38 +127,78 @@ export default function DynamicView({
         if (!container) return;
 
         const threshold = 100;
+        const weekHeight = 250; // Approximate height of a week row
+        const scrollTop = container.scrollTop;
+        const visibleWeekIndex = Math.floor(scrollTop / weekHeight);
 
+        // Load more weeks when scrolling down
         if (container.scrollTop + container.clientHeight >= container.scrollHeight - threshold) {
             const lastWeek = weeks[weeks.length - 1];
             const lastDay = lastWeek[lastWeek.length - 1].date;
 
-            setWeeks((prev) => [...prev, generateNextWeek(lastDay)]);
+            setWeeks((prev) => {
+                const newWeeks = [...prev, generateNextWeek(lastDay)];
+
+                // Remove old weeks from the top if exceeding max
+                if (newWeeks.length > max_weeks) {
+                    const removeCount = visibleWeekIndex - buffer_weeks;
+                    if (removeCount > 0) {
+                        const removed = newWeeks.splice(0, removeCount);
+                        console.log('Removed weeks from top:', removed.length); //TODO: remove temp log
+                        // Adjust scroll position to compensate for removed weeks
+                        requestAnimationFrame(() => {
+                            if (container) {
+                                container.scrollTop = scrollTop - (removed.length * weekHeight);
+                            }
+                        });
+                    }
+                }
+
+                return newWeeks;
+            });
         }
 
+        // Load more weeks when scrolling up
         if (container.scrollTop <= threshold) {
-            const firstWeek = weeks[0];
-            const firstDay = firstWeek[0].date;
+            setWeeks((prev) => {
+                const firstWeek = prev[0];
+                const firstDay = firstWeek[0].date;
+                const prevScrollHeight = container.scrollHeight;
 
-            const prevHeight = container.scrollHeight;
+                const newWeeks = [generatePreviousWeek(firstDay), ...prev];
 
-            setWeeks((prev) => [generatePreviousWeek(firstDay), ...prev]);
+                // Remove old weeks from the bottom if exceeding max
+                if (newWeeks.length > max_weeks) {
+                    // Calculate how many weeks from the end we should remove
+                    const totalWeeks = newWeeks.length;
+                    const keepUntilIndex = visibleWeekIndex + buffer_weeks + 1; // +1 because we just added one at top
+                    const removeCount = totalWeeks - keepUntilIndex;
+
+                    if (removeCount > 0) {
+                        newWeeks.splice(-removeCount);
+                        console.log('Removing weeks from bottom:', removeCount);
+                    }
+                }
+
+                // Adjust scroll position after adding week at top
+                requestAnimationFrame(() => {
+                    if (container) {
+                        const newScrollHeight = container.scrollHeight;
+                        const heightDiff = newScrollHeight - prevScrollHeight;
+                        container.scrollTop = scrollTop + heightDiff;
+                    }
+                });
+
+                return newWeeks;
+            });
 
             requestAnimationFrame(() => {
                 const newHeight = container.scrollHeight;
-                const diff = newHeight - prevHeight;
+                const diff = newHeight;
                 container.scrollTop = diff + container.scrollTop;
             });
         }
     }, [weeks, generateNextWeek, generatePreviousWeek]);
-
-    useEffect(() => {
-        const container = scrollRef.current;
-        if (container) {
-            console.log('Container height:', container.clientHeight);
-            console.log('Scroll height:', container.scrollHeight);
-            console.log('Can scroll:', container.scrollHeight > container.clientHeight);
-        }
-    }, []);
 
     return (
         <div ref={scrollRef} className={cn(styles.dynamicCalendarWrapper)} onScroll={handleScroll}>
