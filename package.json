@@ -20,7 +20,7 @@
     "@navikt/aksel-icons": "7.35.0",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "2.1.0",
-    "next": "^16.0.7",
+    "next": "^16.0.9",
     "openid-client": "6.8.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
