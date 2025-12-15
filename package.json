@@ -13,7 +13,7 @@
     "test": "node --test --import=tsx"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "1.7.3",
+    "@digdir/designsystemet-css": "1.8.0",
     "@digdir/designsystemet-react": "1.7.3",
     "@digdir/designsystemet-theme": "1.7.3",
     "@digdir/einnsyn-sdk": "1.2.0",
