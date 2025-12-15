@@ -17,7 +17,7 @@
     "@digdir/designsystemet-react": "1.7.3",
     "@digdir/designsystemet-theme": "1.7.3",
     "@digdir/einnsyn-sdk": "1.2.0",
-    "@navikt/aksel-icons": "7.35.0",
+    "@navikt/aksel-icons": "7.35.2",
     "@opentelemetry/api": "^1.9.0",
     "@vercel/otel": "2.1.0",
     "next": "^16.0.10",
