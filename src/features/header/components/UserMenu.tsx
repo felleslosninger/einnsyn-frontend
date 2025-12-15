@@ -66,7 +66,7 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div>
+    <div className={'header-dropdown-content-section'}>
       <p>{t('site.loggedInAs', authInfo.email)}</p>
       <LogoutButton />
     </div>
