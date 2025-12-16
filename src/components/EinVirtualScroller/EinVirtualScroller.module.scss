@@ -1,0 +1,17 @@
+.virtualScroller {
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+}
+
+li.paddingTop,
+li.paddingBottom {
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+.item {
+  width: 100%;
+}
