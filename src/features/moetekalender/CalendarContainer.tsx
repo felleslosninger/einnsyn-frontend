@@ -50,10 +50,9 @@ export default function CalendarContainer({
 }) {
     const { getProperty, setProperty } = useSearchField();
 
-    const [selectedView, setSelectedView] = useState('month');
+    const [selectedView, setSelectedView] = useState('dynamic');
     const [displayWeekends, setDisplayWeekends] = useState(() => hasWeekendMeetings(searchResults));
     const [allResults, setAllResults] = useState<PaginatedList<Base>>(searchResults);
-
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const moetedato = getProperty('moetedato');
@@ -146,7 +145,8 @@ export default function CalendarContainer({
                         selectedView={selectedView}
                         selectedDate={selectedDate}
                         displayWeekends={displayWeekends}
-                        currentSearchResults={allResults} />
+                        currentSearchResults={allResults}
+                        setSelectedDate={setSelectedDate} />
                 </div>
             </div>
 
@@ -162,5 +162,5 @@ export default function CalendarContainer({
 //TODO: Implement dynamic view 
 
 //TODO: Fix infinite run on inital load
-//TODO: Fix header overlap on mobile view
+//TODO: Fix mobile view
 //TODO: fix change of view on reload

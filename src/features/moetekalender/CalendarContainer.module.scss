@@ -194,14 +194,16 @@
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
+    overflow-anchor: auto;
+    ;
 
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    // -ms-overflow-style: none;
+    // scrollbar-width: none;
 }
 
-.dynamicCalendarWrapper::-webkit-scrollbar {
-    display: none;
-}
+// .dynamicCalendarWrapper::-webkit-scrollbar {
+//     display: none;
+// }
 
 .calendarGrid {
     display: flex;
@@ -210,6 +212,9 @@
 }
 
 .dynCalendarHeader {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: grid;
     width: 100%;
     gap: 0.25rem;
@@ -221,7 +226,7 @@
     width: 100%;
     gap: 0.25rem;
     flex: 1;
-    min-height: 250px;
+    min-height: 300px;
 }
 
 /* Show 7 columns if weekends are enabled */

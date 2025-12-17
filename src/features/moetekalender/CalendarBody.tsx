@@ -15,9 +15,10 @@ interface CalendarBodyProps {
     selectedDate: Date;
     displayWeekends: boolean;
     currentSearchResults: PaginatedList<Base>;
+    setSelectedDate: (date: Date) => void;
 }
 
-export default function CalendarBody({ selectedView, selectedDate, displayWeekends, currentSearchResults }: CalendarBodyProps) {
+export default function CalendarBody({ selectedView, selectedDate, displayWeekends, currentSearchResults, setSelectedDate }: CalendarBodyProps) {
 
     return (
         <>
@@ -44,7 +45,7 @@ export default function CalendarBody({ selectedView, selectedDate, displayWeeken
                 </Table>
             )}
             {selectedView === 'dynamic' && (
-                <Dynamic selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} />
+                <Dynamic selectedDate={selectedDate} displayWeekends={displayWeekends} currentSearchResults={currentSearchResults} setSelectedDate={setSelectedDate} />
             )}
         </>
     );

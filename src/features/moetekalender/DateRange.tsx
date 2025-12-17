@@ -7,17 +7,17 @@ export function getDateRange(selectedDate: Date, view: string) {
             const dayOfWeek = start.getDay();
             const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             start.setDate(start.getDate() - mondayBasedDay);
-            end.setDate(start.getDate() + 21);
+            end.setDate(start.getDate() + 40);
             break;
         }
         case 'month': {
             const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-            start.setTime(firstDayOfMonth.getTime());
+            start.setDate(firstDayOfMonth.getDate());
             const dayOfWeek = firstDayOfMonth.getDay();
             const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             start.setDate(firstDayOfMonth.getDate() - daysToSubtract);
 
-            end.setTime(start.getTime());
+            end.setDate(start.getDate());
             end.setDate(end.getDate() + 41);
 
             break;
@@ -27,7 +27,7 @@ export function getDateRange(selectedDate: Date, view: string) {
             const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
             start.setDate(start.getDate() - mondayBasedDay);
             end.setDate(start.getDate() + 6);
-            break; //TODO: use getStartOfWeek util?
+            break;
         }
         case 'day':
             break;

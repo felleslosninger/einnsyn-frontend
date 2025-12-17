@@ -7,66 +7,64 @@ import styles from '../CalendarContainer.module.scss';
 import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
 import { isMoetemappe } from '@digdir/einnsyn-sdk';
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { startOfWeek } from '~/lib/utils/getStartOfWeek';
 import { sortMeetingsByTime } from '../CalendarContainer';
 import MoetemappeModule from '../Moetemappe';
 
 export default function DynamicView({
     selectedDate,
     displayWeekends,
-    currentSearchResults
+    currentSearchResults,
+    setSelectedDate
 }: {
     selectedDate: Date;
     displayWeekends: boolean;
     currentSearchResults: PaginatedList<Base>;
+    setSelectedDate: (date: Date) => void;
 }) {
     const t = useTranslation();
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const daysPerWeek = displayWeekends ? 7 : 5;
-    const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-    const startDate = new Date(firstDayOfMonth);
-    const dayOfWeek = firstDayOfMonth.getDay();
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const max_weeks = 12;
-    const buffer_weeks = 3;
-    startDate.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+    const weekHeight = 300;
+    const lastReportedDateRef = useRef(selectedDate);
 
     // INITIAL GRID 
     const initialGrid = useMemo(() => {
-        const firstWeekStart = startOfWeek(selectedDate);
-        const container = scrollRef.current;
-        const weeksToShow = container?.clientHeight ? Math.ceil(container.clientHeight / 250) : 6;
+        const weeksArr = [];
 
-        const current = new Date(firstWeekStart);
-        const weeks = [];
+        const start = new Date(selectedDate);
+        const dayOfWeek = start.getDay();
+        const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-        for (let week = 0; week < weeksToShow; week++) {
+        start.setDate(start.getDate() + daysToMonday); // move to monday
+        start.setDate(start.getDate() - 4 * 7); // 4 weeks back
+
+        const cursor = new Date(start);
+
+        for (let week = -4; week < 4; week++) {
             const days = [];
-
             for (let day = 0; day < daysPerWeek; day++) {
-                const isCurrentMonth = current.getMonth() === selectedDate.getMonth();
-                const isToday = current.toDateString() === new Date().toDateString();
+                const isCurrentMonth = cursor.getMonth() === selectedDate.getMonth();
+                const isToday = cursor.toDateString() === new Date().toDateString();
 
                 days.push({
-                    date: new Date(current),
-                    dayNumber: current.getDate(),
+                    date: new Date(cursor),
+                    dayNumber: cursor.getDate(),
                     isCurrentMonth,
                     isToday
-                })
+                });
 
-                current.setDate(current.getDate() + 1);
-
+                cursor.setDate(cursor.getDate() + 1);
             }
 
             if (!displayWeekends) {
-                current.setDate(current.getDate() + 2);
+                cursor.setDate(cursor.getDate() + 2);
             }
-
-            weeks.push(days);
+            weeksArr.push(days);
         }
+        return weeksArr;
 
-        return weeks;
     }, [selectedDate, displayWeekends, daysPerWeek]);
 
     // STATE
@@ -74,9 +72,11 @@ export default function DynamicView({
 
     useEffect(() => {
         setWeeks(initialGrid);
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.clientHeight;
-        }
+        requestAnimationFrame(() => {
+            if (scrollRef.current) {
+                scrollRef.current.scrollTop = 4 * weekHeight;
+            }
+        });
     }, [initialGrid]);
 
     const generateNextWeek = useCallback((lastDate: Date) => {
@@ -127,9 +127,7 @@ export default function DynamicView({
         if (!container) return;
 
         const threshold = 100;
-        const weekHeight = 250; // Approximate height of a week row
         const scrollTop = container.scrollTop;
-        const visibleWeekIndex = Math.floor(scrollTop / weekHeight);
 
         // Load more weeks when scrolling down
         if (container.scrollTop + container.clientHeight >= container.scrollHeight - threshold) {
@@ -141,7 +139,7 @@ export default function DynamicView({
 
                 // Remove old weeks from the top if exceeding max
                 if (newWeeks.length > max_weeks) {
-                    const removeCount = visibleWeekIndex - buffer_weeks;
+                    const removeCount = newWeeks.length - max_weeks;
                     if (removeCount > 0) {
                         const removed = newWeeks.splice(0, removeCount);
                         console.log('Removed weeks from top:', removed.length); //TODO: remove temp log
@@ -163,16 +161,12 @@ export default function DynamicView({
             setWeeks((prev) => {
                 const firstWeek = prev[0];
                 const firstDay = firstWeek[0].date;
-                const prevScrollHeight = container.scrollHeight;
 
                 const newWeeks = [generatePreviousWeek(firstDay), ...prev];
 
                 // Remove old weeks from the bottom if exceeding max
                 if (newWeeks.length > max_weeks) {
-                    // Calculate how many weeks from the end we should remove
-                    const totalWeeks = newWeeks.length;
-                    const keepUntilIndex = visibleWeekIndex + buffer_weeks + 1; // +1 because we just added one at top
-                    const removeCount = totalWeeks - keepUntilIndex;
+                    const removeCount = newWeeks.length - max_weeks;
 
                     if (removeCount > 0) {
                         newWeeks.splice(-removeCount);
@@ -181,24 +175,74 @@ export default function DynamicView({
                 }
 
                 // Adjust scroll position after adding week at top
-                requestAnimationFrame(() => {
-                    if (container) {
-                        const newScrollHeight = container.scrollHeight;
-                        const heightDiff = newScrollHeight - prevScrollHeight;
-                        container.scrollTop = scrollTop + heightDiff;
-                    }
-                });
+                // requestAnimationFrame(() => {
+                //     if (container) {
+                //         const newScrollHeight = container.scrollHeight;
+                //         const heightDiff = newScrollHeight - prevScrollHeight;
+                //         container.scrollTop = scrollTop + heightDiff;
+                //     }
+                // });
 
                 return newWeeks;
             });
-
-            requestAnimationFrame(() => {
-                const newHeight = container.scrollHeight;
-                const diff = newHeight;
-                container.scrollTop = diff + container.scrollTop;
-            });
         }
     }, [weeks, generateNextWeek, generatePreviousWeek]);
+
+    //TODO: If a date is displayed that is not in date range, update date range. SetSelectedDate should be first day displayed
+    const updateSelectedDateOnScroll = useCallback(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const scrollTop = container.scrollTop;
+        const visibleWeekIndex = Math.floor(scrollTop / weekHeight);
+
+        if (visibleWeekIndex >= 0 && visibleWeekIndex < weeks.length) {
+            const visibleWeek = weeks[visibleWeekIndex];
+            const newDate = visibleWeek[0].date;
+
+            if (lastReportedDateRef.current.toDateString() !== newDate.toDateString()) {
+                lastReportedDateRef.current = newDate;
+                setSelectedDate(new Date(newDate));
+            }
+        }
+    }, [weeks, setSelectedDate]);
+
+    // Add after the handleScroll function
+    const handleScrollEnd = useCallback(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const scrollTop = container.scrollTop;
+        const nearestWeekTop = Math.round(scrollTop / weekHeight) * weekHeight;
+
+        container.scrollTo({
+            top: nearestWeekTop,
+            behavior: 'smooth'
+        });
+
+        updateSelectedDateOnScroll();
+    }, [updateSelectedDateOnScroll]);
+
+    // Add debounced scroll end detection
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        let scrollTimeout: NodeJS.Timeout;
+
+        const onScroll = () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(handleScrollEnd, 150);
+        };
+
+        container.addEventListener('scroll', onScroll, { passive: true });
+
+        return () => {
+            clearTimeout(scrollTimeout);
+            container.removeEventListener('scroll', onScroll);
+        };
+    }, [handleScrollEnd]);
+
 
     return (
         <div ref={scrollRef} className={cn(styles.dynamicCalendarWrapper)} onScroll={handleScroll}>
@@ -217,8 +261,8 @@ export default function DynamicView({
                         </div>
                     ))}
                 </div>
-                {weeks.map((week, weekIndex) => (
-                    <div key={`week-${weekIndex}`} className={styles.weekRow}>
+                {weeks.map((week) => (
+                    <div key={week[0].date.toISOString()} className={styles.weekRow}>
                         {week.map((day) => (
                             <div
                                 key={day.date.toISOString()}
@@ -252,10 +296,10 @@ export default function DynamicView({
 }
 
 //TODOLIST:
-// - Show weeknumber?
-// - Autoconfigure number of weeks based on container height
-// - Improve performance by removing offscreen weeks
-// - Better styling of meeting modules
-// - Update daterange when scrolling (without unnecessary re-renders)
-// - Snap to week on scroll
-// - Fix upward scrolling jump
+// - Autoconfigure number of weeks based on container height (and weekheight?)
+// - Use einTransition? for scroll handler?
+// - make daterange the same as weekArr? 
+
+// - Fix visual glitches 
+
+// on scroll, set selected date to first visible date (not hidden) and update date range accordingly. And bounce back to nearest week top
