@@ -129,10 +129,17 @@ export default function CalendarContainer({
             'container-wrapper',
             'main-content',
             styles.calendarContainer,
+            selectedView === 'month' ? styles.monthView :
+                selectedView === 'week' ? styles.weekView :
+                    selectedView === 'day' ? styles.dayView :
+                        styles.calendarContainer
         )}>
             <div className="container-pre collapsible" />
 
-            <div className={cn('calendar-content', styles.calendarContent)}>
+            <div className={cn('calendar-content', styles.calendarContent, selectedView === 'month' ? styles.monthView :
+                selectedView === 'week' ? styles.weekView :
+                    selectedView === 'day' ? styles.dayView :
+                        styles.dynamicView)}>
                 <CalendarHeader
                     selectedView={selectedView}
                     setSelectedView={setSelectedView}
@@ -154,7 +161,6 @@ export default function CalendarContainer({
         </div>
     );
 }
-
 
 //TODO: Fix display of many meetings on same day
 

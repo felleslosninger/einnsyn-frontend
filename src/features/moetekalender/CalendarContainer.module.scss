@@ -4,11 +4,6 @@
     overflow: hidden;
 }
 
-// Main container
-.calendarContainer {
-    height: 100%;
-}
-
 .calendarContent {
     height: 100%;
     width: 100%;
@@ -20,19 +15,10 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    padding: var(--ds-size-4);
 }
 
-.calendarBody {
-    background-color: var(--ds-color-neutral-background-tinted);
-    margin-bottom: 5px;
-    padding: var(--ds-size-4);
-    height: calc(100vh - 350px); // TODO: Adjust based on header height
-
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+.displayHeading {
+    width: 100%;
 }
 
 .navigation {
@@ -40,18 +26,12 @@
     align-items: center;
     justify-content: flex-end;
     width: 100%;
-    gap: var(--ds-size-2)
-}
-
-.displayHeading {
-    width: 100%;
-
+    gap: var(--ds-size-2);
 }
 
 // Navigation elements
 .datePicker {
     display: flex;
-
 }
 
 .calendarButton {
@@ -86,8 +66,6 @@
 
 .dateInput {
     flex-grow: 0;
-
-    // Remove default styles
     border: none;
     background: transparent;
     color: var(--ds-color-neutral-text-subtle);
@@ -107,103 +85,13 @@
     padding: var(--ds-size-2) var(--ds-size-4);
 }
 
-// Table container
-.tableContainer {
-    flex-grow: 1;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-// Table styles
-.meetingTable {
-    width: 100%;
-    border-collapse: collapse;
-    flex-grow: 1;
-    overflow: auto;
-    table-layout: fixed;
-}
-
-.head {
-    position: sticky;
-    top: 68px; //TODO: Make dynamic based on header height (mobile view)
-    z-index: 7;
-}
-
-.headerRow :global(th) {
-    padding: 12px;
-    font-weight: 600;
+// Calendar body
+.calendarBody {
     background-color: var(--ds-color-neutral-background-tinted);
-    color: var(--ds-color-neutral-text-subtle);
-    border-bottom: 2px solid #F45F63;
+    padding: var(--ds-size-4);
+    // height: calc(100vh - 340px); // TODO: Adjust based on header height and calendar height. 
+    border-radius: 10px;
 }
-
-.body {
-    flex-grow: 1;
-}
-
-.body :global(tr) {
-    position: relative;
-}
-
-// Table rows and cells
-.row {}
-
-.row :global(td) {
-    border: 1px solid var(--ds-color-neutral-border-subtle);
-    padding: 8px;
-    vertical-align: top;
-    position: relative;
-    height: 300px;
-
-}
-
-.weekrow :global(td),
-.dayrow :global(td) {
-    min-height: 70vh;
-    height: 70vh;
-}
-
-// Calendar-specific styles
-
-.otherMonth {
-    background-color: var(--ds-color-neutral-background-tinted);
-    color: var(--ds-color-neutral-text-subtle);
-}
-
-.cellHeader {
-    display: flex;
-    justify-content: space-between;
-    padding: var(--ds-size-2);
-}
-
-.dateNumber {
-    font-weight: bold;
-    color: var(--ds-color-neutral-text-default);
-}
-
-.moeteCount {
-    font-size: var(--ds-font-size-small);
-    color: var(--ds-color-neutral-text-subtle);
-}
-
-//Dynamic view styles
-.dynamicCalendarWrapper {
-    width: 100%;
-    max-height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    overflow-anchor: auto;
-    ;
-
-    // -ms-overflow-style: none;
-    // scrollbar-width: none;
-}
-
-// .dynamicCalendarWrapper::-webkit-scrollbar {
-//     display: none;
-// }
 
 .calendarGrid {
     display: flex;
@@ -214,13 +102,12 @@
 .dynCalendarHeader {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 9;
     display: grid;
     width: 100%;
     gap: 0.25rem;
 }
 
-/* Week rows */
 .weekRow {
     display: grid;
     width: 100%;
@@ -229,20 +116,18 @@
     min-height: 300px;
 }
 
-/* Show 7 columns if weekends are enabled */
+/* Week rows */
 .withWeekends .weekRow,
 .withWeekends .dynCalendarHeader {
     grid-template-columns: repeat(7, 1fr);
 }
 
-/* Show 5 columns if weekends disabled */
 .noWeekends .weekRow,
 .noWeekends .dynCalendarHeader {
     grid-template-columns: repeat(5, 1fr);
 }
 
 .dayHeaderCell {
-    padding: 0.5rem;
     text-align: center;
     font-weight: 600;
     background-color: var(--ds-color-neutral-background-tinted);
@@ -254,31 +139,15 @@
     color: var(--ds-color-neutral-text-subtle);
 }
 
-
-.dayHeaderCell {
-    padding: 0.5rem;
-    text-align: center;
-    font-weight: 600;
-    background-color: var(--ds-color-neutral-background-tinted);
-    border-radius: 4px;
-}
-
-.dayHeaderText {
-    font-size: 0.875rem;
-    color: var(--ds-color-neutral-text-subtle);
-}
-
-/* Calendar day cell */
 .dayCell {
-    // aspect-ratio: 1 / 1; // ensures square cells
     border-radius: 4px;
     background: var(--color-surface);
     padding: 0.25rem;
     overflow-y: hidden;
     display: flex;
     min-height: 0;
-    aspect-ratio: 100% / min(50% * width);
     flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .dateText {
@@ -286,21 +155,31 @@
     opacity: 0.8;
 }
 
+.dynamicCalendarWrapper {
+    width: 100%;
+    max-height: 100%;
+    height: calc(100vh - 340px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    overflow-anchor: auto;
+
+    // -ms-overflow-style: none;
+    // scrollbar-width: none;
+}
+
+// .dynamicCalendarWrapper::-webkit-scrollbar {
+//     display: none;
+// }
 
 // Meeting component styles
 .moetemappemodule {
     background-color: var(--ds-color-neutral-surface-default);
     margin-bottom: 5px;
-
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-
+    border-radius: 5px;
     box-shadow: 1px 1px 5px 1px #002C541A;
     width: 100%;
-
-    font-size: var(--ds-body-sm-font-size); //TODO: Fix font size
+    font-size: var(--ds-body-sm-font-size);
 }
 
 .moduleHeading,
@@ -319,5 +198,3 @@
 .moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
 }
-
-.parentNameLabel {}

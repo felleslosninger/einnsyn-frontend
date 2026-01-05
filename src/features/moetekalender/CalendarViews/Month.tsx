@@ -1,7 +1,4 @@
 import { useTranslation } from '~/hooks/useTranslation';
-import { useEffect, useState } from 'react';
-
-import { Table } from '@digdir/designsystemet-react';
 import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
 import { sortMeetingsByTime } from '../CalendarContainer'
 import cn from '~/lib/utils/className';
@@ -52,57 +49,86 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
     const calendarWeeks = generateCalendarDays();
 
     return (
-        <>
-            <Table.Head className={cn('head', styles.head)}>
-                <Table.Row className={styles.headerRow}>
-                    <Table.HeaderCell>{t('moetekalender.days.monday')}</Table.HeaderCell>
-                    <Table.HeaderCell>{t('moetekalender.days.tuesday')}</Table.HeaderCell>
-                    <Table.HeaderCell>{t('moetekalender.days.wednesday')}</Table.HeaderCell>
-                    <Table.HeaderCell>{t('moetekalender.days.thursday')}</Table.HeaderCell>
-                    <Table.HeaderCell>{t('moetekalender.days.friday')}</Table.HeaderCell>
+        <div className={styles.monthCalendarWrapper}>
+            <div
+                className={cn(
+                    styles.calendarGrid,
+                    displayWeekends ? styles.withWeekends : styles.noWeekends
+                )}
+            >
+                <div className={styles.dynCalendarHeader}>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t('moetekalender.days.monday')}
+                        </span>
+                    </div>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t('moetekalender.days.tuesday')}
+                        </span>
+                    </div>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t('moetekalender.days.wednesday')}
+                        </span>
+                    </div>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t('moetekalender.days.thursday')}
+                        </span>
+                    </div>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t('moetekalender.days.friday')}
+                        </span>
+                    </div>
                     {displayWeekends && (
                         <>
-                            <Table.HeaderCell>{t('moetekalender.days.saturday')}</Table.HeaderCell>
-                            <Table.HeaderCell>{t('moetekalender.days.sunday')}</Table.HeaderCell>
+                            <div className={styles.dayHeaderCell}>
+                                <span className={styles.dayHeaderText}>
+                                    {t('moetekalender.days.saturday')}
+                                </span>
+                            </div>
+                            <div className={styles.dayHeaderCell}>
+                                <span className={styles.dayHeaderText}>
+                                    {t('moetekalender.days.sunday')}
+                                </span>
+                            </div>
                         </>
                     )}
-                </Table.Row>
-            </Table.Head>
-            <Table.Body className={styles.body}>
+                </div>
+
                 {calendarWeeks.map((week) => (
-                    <Table.Row key={week[0].date.toISOString()} className={styles.row}>
+                    <div key={week[0].date.toISOString()} className={styles.weekRow}>
                         {week.map((day) => (
-                            <Table.Cell
+                            <div
                                 key={day.date.toISOString()}
-                                className={`
-                                    ${!day.isCurrentMonth ? styles.otherMonth : ''}
-                                    ${day.isToday ? styles.today : ''}
-                                `}
+                                className={cn(
+                                    styles.dayCell,
+                                    !day.isCurrentMonth ? styles.otherMonth : '',
+                                    day.isToday ? styles.today : ''
+                                )}
                             >
-                                <div className={styles.cellHeader}>
-                                    <span className={styles.dateNumber}>{day.dayNumber}</span>
-                                    {(() => {
-                                        const count = currentSearchResults.items.filter(item =>
-                                            isMoetemappe(item) && new Date(item.moetedato).toDateString() === day.date.toDateString()
-                                        ).length;
-                                        return `${count} ${count === 1 ? t('moetemappe.label') : t('moetemappe.labelPlural')}`.toLowerCase();
-                                    })()}
-                                </div>
+                                <span className={styles.dateText}>
+                                    {day.date.getDate()}
+                                    {day.date.getDate() === 1 && (
+                                        <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                    )}
+                                </span>
 
                                 {sortMeetingsByTime(
                                     currentSearchResults.items.filter((item) =>
                                         isMoetemappe(item) &&
                                         new Date(item.moetedato).toDateString() === day.date.toDateString()
                                     )
-                                ).map((item) => (
-                                    isMoetemappe(item) && <MoetemappeModule key={item.id} item={item} />
-                                ))}
-
-                            </Table.Cell>
+                                ).map((item) =>
+                                    isMoetemappe(item) ? <MoetemappeModule key={item.id} item={item} /> : null
+                                )}
+                            </div>
                         ))}
-                    </Table.Row>
+                    </div>
                 ))}
-            </Table.Body>
-        </>
+            </div>
+        </div>
     );
 }

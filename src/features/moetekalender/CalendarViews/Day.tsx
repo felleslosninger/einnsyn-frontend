@@ -1,8 +1,7 @@
 import { useTranslation } from '~/hooks/useTranslation';
-
-import { Table } from '@digdir/designsystemet-react';
 import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
-
+import { sortMeetingsByTime } from '../CalendarContainer';
+import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 
@@ -12,34 +11,45 @@ export default function DayView({ selectedDate, currentSearchResults }: { select
     const day = {
         date: selectedDate,
         dayNumber: selectedDate.getDate(),
+        isToday: selectedDate.toDateString() === new Date().toDateString()
     };
 
-    return (
-        <>
-            <Table.Head>
-                <Table.Row>
-                    <Table.HeaderCell>{t('moetekalender.days.monday')}</Table.HeaderCell>
-                </Table.Row>
-            </Table.Head>
-            <Table.Body>
-                <Table.Row className={`${styles.row} ${styles.dayrow}`}>
-                    <Table.Cell>
-                        <div className={styles.cellHeader}>
-                            <span className={styles.dateNumber}>{day.dayNumber}</span>
-                            {(() => {
-                                const count = currentSearchResults.items.filter(item =>
-                                    isMoetemappe(item) && new Date(item.moetedato).toDateString() === day.date.toDateString()
-                                ).length;
-                                return `${count} ${count === 1 ? t('moetemappe.label') : t('moetemappe.labelPlural')}`.toLowerCase();
-                            })()}
-                        </div>
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
 
-                        {currentSearchResults.items.map((item) => (
-                            (isMoetemappe(item) && (new Date(item.moetedato).toDateString() === day.date.toDateString())) && <MoetemappeModule key={item.id} item={item} />
-                        ))}
-                    </Table.Cell>
-                </Table.Row>
-            </Table.Body>
-        </>
+    return (
+        <div className={styles.dayCalendarWrapper}>
+            <div className={styles.calendarGrid}>
+                <div className={styles.dynCalendarHeader}>
+                    <div className={styles.dayHeaderCell}>
+                        <span className={styles.dayHeaderText}>
+                            {t(`moetekalender.days.${dayName}`)}
+                        </span>
+                    </div>
+                </div>
+
+                <div className={styles.singleDayRow}>
+                    <div
+                        className={cn(
+                            styles.dayCell,
+                            styles.singleDay,
+                            day.isToday ? styles.today : ''
+                        )}
+                    >
+                        <span className={styles.dateText}>
+                            {day.dayNumber}
+                        </span>
+
+                        {sortMeetingsByTime(
+                            currentSearchResults.items.filter((item) =>
+                                isMoetemappe(item) &&
+                                new Date(item.moetedato).toDateString() === day.date.toDateString()
+                            )
+                        ).map((item) =>
+                            isMoetemappe(item) ? <MoetemappeModule key={item.id} item={item} /> : null
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

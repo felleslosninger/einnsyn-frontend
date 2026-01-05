@@ -25,7 +25,7 @@ export default function DynamicView({
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const daysPerWeek = displayWeekends ? 7 : 5;
-    const max_weeks = 12;
+    const max_weeks = 17;
     const weekHeight = 300;
     const lastReportedDateRef = useRef(selectedDate);
 
@@ -42,7 +42,7 @@ export default function DynamicView({
 
         const cursor = new Date(start);
 
-        for (let week = -4; week < 4; week++) {
+        for (let week = -4; week < 8; week++) {
             const days = [];
             for (let day = 0; day < daysPerWeek; day++) {
                 const isCurrentMonth = cursor.getMonth() === selectedDate.getMonth();
@@ -174,15 +174,6 @@ export default function DynamicView({
                     }
                 }
 
-                // Adjust scroll position after adding week at top
-                // requestAnimationFrame(() => {
-                //     if (container) {
-                //         const newScrollHeight = container.scrollHeight;
-                //         const heightDiff = newScrollHeight - prevScrollHeight;
-                //         container.scrollTop = scrollTop + heightDiff;
-                //     }
-                // });
-
                 return newWeeks;
             });
         }
@@ -299,6 +290,7 @@ export default function DynamicView({
 // - Autoconfigure number of weeks based on container height (and weekheight?)
 // - Use einTransition? for scroll handler?
 // - make daterange the same as weekArr? 
+// fix weekheight to be dynamic 
 
 // - Fix visual glitches 
 
