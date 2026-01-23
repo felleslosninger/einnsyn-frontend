@@ -106,6 +106,7 @@
     display: grid;
     width: 100%;
     gap: 0.25rem;
+    background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .weekRow {
@@ -114,6 +115,11 @@
     gap: 0.25rem;
     flex: 1;
     min-height: 300px;
+}
+
+.dynWeekRow {
+    max-height: 300px;
+    overflow: hidden;
 }
 
 /* Week rows */
@@ -132,6 +138,7 @@
     font-weight: 600;
     background-color: var(--ds-color-neutral-background-tinted);
     border-radius: 4px;
+    box-shadow: none;
 }
 
 .dayHeaderText {
@@ -150,6 +157,10 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
+.currentMonth {
+    font-weight: 600;
+}
+
 .dateText {
     font-size: 0.75rem;
     opacity: 0.8;
@@ -157,8 +168,8 @@
 
 .dynamicCalendarWrapper {
     width: 100%;
-    max-height: 100%;
     height: calc(100vh - 340px);
+    min-height: 600px;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
@@ -179,7 +190,9 @@
     border-radius: 5px;
     box-shadow: 1px 1px 5px 1px #002C541A;
     width: 100%;
-    font-size: var(--ds-body-sm-font-size);
+    font-size: var(--ds-body-xs-font-size);
+    font-weight: 400;
+    text-wrap: nowrap;
 }
 
 .moduleHeading,
@@ -197,4 +210,33 @@
 
 .moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
+}
+
+.showMoreButton {
+    color: var(--ds-color-text-default);
+    font-family: var(--ds-font-family);
+    font-size: var(--ds-font-size-1);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 130%;
+    /* 23.4px */
+    letter-spacing: 0.09px;
+    margin: auto auto 0 auto;
+
+    margin-bottom: 0;
+    display: flex;
+    height: var(--ds-size-12);
+    width: 136px;
+    padding: 0 var(--ds-size-0);
+    justify-content: center;
+    align-items: center;
+    gap: var(--ds-size-2);
+
+    border-radius: var(--ds-border-radius-full);
+    border: 2px solid var(--ds-color-background-default);
+    background: rgba(255, 255, 255, 0.80);
+
+    /* einnsyn sm */
+    // box-shadow: 4px 8px 16px 0 rgba(19, 74, 124, 0.15);
+    box-shadow: 1px 1px 5px 1px rgba(19, 74, 124, 0.15);
 }

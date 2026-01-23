@@ -24,11 +24,11 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
                             : item.utvalgObjekt.parent?.navn || '') //TODO: remove if filtered by parent
                     }
                 </div>
-                <div>
+                {/* <div>
                     <span>{new Date(item.moetedato).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}</span>
 
                     <span>{item.moetested && item.moetested.length > 0 ? (' - ' + item.moetested) : ''}</span>
-                </div>
+                </div> */}
             </div>
         </div>
     );

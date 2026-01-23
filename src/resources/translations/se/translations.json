@@ -146,7 +146,8 @@
     "displayWeekends": "Váldde vahkku­beaivviid",
     "hideWeekends": "Skihkko vahkku­beaivviid",
     "expandAll": "Loahtte guokte",
-    "collapseAll": "Skihtte guokte"
+    "collapseAll": "Skihtte guokte",
+    "showMore": "Čájet eanet"
   },
   "days": {
     "sunday": "Sotnabeaivi",

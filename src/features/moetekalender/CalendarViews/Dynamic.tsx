@@ -25,9 +25,11 @@ export default function DynamicView({
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const daysPerWeek = displayWeekends ? 7 : 5;
-    const max_weeks = 17;
-    const weekHeight = 300;
+    const max_weeks = 30;
+    const weekHeight = 305;
     const lastReportedDateRef = useRef(selectedDate);
+    const inView = [];
+    const max_meetings_per_day = 4;
 
     // INITIAL GRID 
     const initialGrid = useMemo(() => {
@@ -42,7 +44,7 @@ export default function DynamicView({
 
         const cursor = new Date(start);
 
-        for (let week = -4; week < 8; week++) {
+        for (let week = -10; week < max_weeks; week++) {
             const days = [];
             for (let day = 0; day < daysPerWeek; day++) {
                 const isCurrentMonth = cursor.getMonth() === selectedDate.getMonth();
@@ -253,32 +255,57 @@ export default function DynamicView({
                     ))}
                 </div>
                 {weeks.map((week) => (
-                    <div key={week[0].date.toISOString()} className={styles.weekRow}>
-                        {week.map((day) => (
-                            <div
-                                key={day.date.toISOString()}
-                                className={cn(
-                                    styles.dayCell,
-                                    !day.isCurrentMonth ? styles.otherMonth : '',
-                                    day.isToday ? styles.today : '')}
-                            >
-                                <span className={styles.dateText}>
-                                    {day.date.getDate()}
-                                    {day.date.getDate() === 1 && (
-                                        <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
-                                    )}
-                                </span>
+                    <div key={week[0].date.toISOString()} className={cn(styles.weekRow, styles.dynWeekRow)}>
+                        {week.map((day) => {
+                            const dayMeetings = sortMeetingsByTime(
+                                currentSearchResults.items.filter((item) =>
+                                    isMoetemappe(item) &&
+                                    new Date(item.moetedato).toDateString() === day.date.toDateString()
+                                )
+                            );
 
-                                {sortMeetingsByTime(
-                                    currentSearchResults.items.filter((item) =>
-                                        isMoetemappe(item) &&
-                                        new Date(item.moetedato).toDateString() === day.date.toDateString()
-                                    )
-                                ).map((item) =>
-                                    isMoetemappe(item) ? <MoetemappeModule key={item.id} item={item} /> : null
-                                )}
-                            </div>
-                        ))}
+                            const visibleMeetings = dayMeetings.slice(0, max_meetings_per_day);
+                            const hiddenCount = dayMeetings.length - max_meetings_per_day;
+
+                            return (
+                                <div
+                                    key={day.date.toISOString()}
+                                    className={cn(
+                                        styles.dayCell,
+                                        day.isCurrentMonth ? styles.currentMonth : '',
+                                        day.isToday ? styles.today : '')}
+                                >
+                                    <span className={styles.dateText}>
+                                        {day.date.getDate()}
+                                        {day.date.getDate() === 1 && (
+                                            <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                        )}
+                                        {/* {day.date.getDate() === selectedDate.getDate() && (
+                                            <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                        )} */}
+                                    </span>
+
+                                    {visibleMeetings.map((item) =>
+                                        isMoetemappe(item) ? <MoetemappeModule key={item.id} item={item} /> : null
+                                    )}
+
+                                    {hiddenCount > 0 && (
+                                        <button
+                                            type="button"
+                                            className={styles.showMoreButton}
+                                            onClick={() => {
+                                                setSelectedDate(new Date(day.date));
+                                                window.dispatchEvent(new CustomEvent('switchToWeekView', {
+                                                    detail: { date: day.date }
+                                                }));
+                                            }}
+                                        >
+                                            {t('moetekalender.viewOptions.showMore')}
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 ))}
             </div>
@@ -289,9 +316,8 @@ export default function DynamicView({
 //TODOLIST:
 // - Autoconfigure number of weeks based on container height (and weekheight?)
 // - Use einTransition? for scroll handler?
+// - useLoadingCounter?
+// - optimize generate week functions? memoize?
 // - make daterange the same as weekArr? 
-// fix weekheight to be dynamic 
-
-// - Fix visual glitches 
-
-// on scroll, set selected date to first visible date (not hidden) and update date range accordingly. And bounce back to nearest week top
+// - fix weekheight to be dynamic 
+// - add show more, if many meetings on one day

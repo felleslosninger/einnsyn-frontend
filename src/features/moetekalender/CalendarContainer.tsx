@@ -86,8 +86,6 @@ export default function CalendarContainer({
         }
     }, [currentDateRange, setProperty, getProperty]);
 
-
-
     const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
         let i = 0;
         const moetedato = getProperty('moetedato');
@@ -97,9 +95,10 @@ export default function CalendarContainer({
             return;
         }
 
-        while (currentResults.next && i < 6) { // TODO: Remove temporary limit pages to avoid infinite loops
+        while (currentResults.next && i < 10) { // TODO: Remove temporary limit pages to avoid infinite loops
             try {
                 currentResults = await fetchNextPage(currentResults, true);
+                setAllResults(currentResults);
                 console.log(i);
                 i++;
             } catch (error) {
@@ -122,6 +121,20 @@ export default function CalendarContainer({
     useEffect(() => {
         fetchAllResults(searchResults);
     }, [searchResults, fetchAllResults]);
+
+    useEffect(() => {
+        const handleSwitchToWeekView = (event: CustomEvent) => {
+            setSelectedView('week');
+            if (event.detail && event.detail.date) {
+                setSelectedDate(new Date(event.detail.date));
+            }
+        };
+        window.addEventListener('switchToWeekView', handleSwitchToWeekView as EventListener);
+
+        return () => {
+            window.removeEventListener('switchToWeekView', handleSwitchToWeekView as EventListener);
+        };
+    }, []);
 
 
     return (
@@ -163,9 +176,6 @@ export default function CalendarContainer({
 }
 
 //TODO: Fix display of many meetings on same day
-
-//TODO: Utilize full page width for calendar
-//TODO: Implement dynamic view 
 
 //TODO: Fix infinite run on inital load
 //TODO: Fix mobile view

@@ -57,45 +57,13 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
                 )}
             >
                 <div className={styles.dynCalendarHeader}>
-                    <div className={styles.dayHeaderCell}>
-                        <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.monday')}
-                        </span>
-                    </div>
-                    <div className={styles.dayHeaderCell}>
-                        <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.tuesday')}
-                        </span>
-                    </div>
-                    <div className={styles.dayHeaderCell}>
-                        <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.wednesday')}
-                        </span>
-                    </div>
-                    <div className={styles.dayHeaderCell}>
-                        <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.thursday')}
-                        </span>
-                    </div>
-                    <div className={styles.dayHeaderCell}>
-                        <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.friday')}
-                        </span>
-                    </div>
-                    {displayWeekends && (
-                        <>
-                            <div className={styles.dayHeaderCell}>
-                                <span className={styles.dayHeaderText}>
-                                    {t('moetekalender.days.saturday')}
-                                </span>
-                            </div>
-                            <div className={styles.dayHeaderCell}>
-                                <span className={styles.dayHeaderText}>
-                                    {t('moetekalender.days.sunday')}
-                                </span>
-                            </div>
-                        </>
-                    )}
+                    {calendarWeeks[0].map((day) => (
+                        <div key={day.date.toISOString()} className={styles.dayHeaderCell}>
+                            <span className={styles.dayHeaderText}>
+                                {t(`moetekalender.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
+                            </span>
+                        </div>
+                    ))}
                 </div>
 
                 {calendarWeeks.map((week) => (

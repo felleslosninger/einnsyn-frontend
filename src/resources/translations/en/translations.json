@@ -146,7 +146,8 @@
       "displayWeekends": "Display weekends",
       "hideWeekends": "Hide weekends",
       "expandAll": "Expand all",
-      "collapseAll": "Collapse all"
+      "collapseAll": "Collapse all",
+      "showMore": "Show more"
     },
     "days": {
       "sunday": "Sunday",

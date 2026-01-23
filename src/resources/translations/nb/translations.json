@@ -146,7 +146,8 @@
       "displayWeekends": "Vis helger",
       "hideWeekends": "Skjul helger",
       "expandAll": "Utvid alle",
-      "collapseAll": "Skjul alle"
+      "collapseAll": "Skjul alle",
+      "showMore": "Vis mer"
     },
     "days": {
       "sunday": "Søndag",
