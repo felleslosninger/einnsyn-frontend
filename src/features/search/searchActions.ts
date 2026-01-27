@@ -9,7 +9,10 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
-import { searchQueryToTokens } from '~/lib/utils/searchStringTokenizer';
+import {
+  searchQueryToTokens,
+  tokensToSearchQuery,
+} from '~/lib/utils/searchStringTokenizer';
 
 type Journalposttype = FilterParameters['journalposttype'];
 
@@ -68,12 +71,9 @@ export const getSearchResults = async (
   if (searchParams.has('q')) {
     const searchTokens = searchQueryToTokens(searchParams.get('q') ?? '');
 
-    // Add regular search words
-    const query = searchTokens
-      .filter((token) => !token.prefix)
-      .map((token) => token.value)
-      .join(' ');
-    apiQuery.query = query;
+    // Add regular search words (preserving quotes)
+    const filteredTokens = searchTokens.filter((token) => !token.prefix);
+    apiQuery.query = tokensToSearchQuery(filteredTokens);
 
     // Fulltext
     const fulltext = searchTokens.some(
