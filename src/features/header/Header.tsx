@@ -156,7 +156,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
         {fixedHeader && headerHeight !== null && (
           <div aria-hidden="true" style={{ height: `${headerHeight}px` }} />
         )}
-        <header ref={headerRef} className={className}>
+        <header ref={headerRef} className={cn(className, 'pane')}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>
             <div
               className={cn(

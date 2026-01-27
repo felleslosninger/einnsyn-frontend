@@ -1,0 +1,16 @@
+body {
+  background-color: var(--ds-color-neutral-background-default);
+  background-image: url(/graphics/layout-forte/gradient-bg-2.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  .pane {
+    background: var(--ds-color-neutral-background-default);
+    background: rgb(from var(--ds-color-neutral-background-default) r g b / 20%);
+    backdrop-filter: blur(180px);
+  }
+  .hard-surface {
+    background: var(--ds-color-neutral-background-default);
+  }
+
+}

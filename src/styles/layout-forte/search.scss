@@ -1,0 +1,16 @@
+  .search-field-container {
+    padding-right: size/5;
+    padding-left: size/5;
+    gap: 16;
+    angle: 0 deg;
+    opacity: 1;
+    border-radius: var(--ds-border-radius-full);
+    border-width: 1px;
+
+
+    box-shadow: 1px 2px 8px 4px #134A7C66 inset;
+    box-shadow: 0px 1px 2px 0px #092D4966 inset;
+
+    border: 3px solid green;
+
+  }

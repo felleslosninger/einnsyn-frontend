@@ -4,6 +4,8 @@
 @use './headerDropdown.scss';
 @use './headerTabs.scss';
 
+@use './layout-forte/index.scss';
+
 :root {
   --ein-vertical-spacing: var(--ds-size-8);
   --ein-horizontal-spacing: var(--ds-size-8);

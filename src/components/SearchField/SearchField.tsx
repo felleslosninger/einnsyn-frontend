@@ -14,6 +14,7 @@ import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
+import { useEnhetSelector } from './useEnhetSelector';
 
 type SearchFieldProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   className?: string;
@@ -27,7 +28,13 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
     const [activeContainer, setActiveContainer] = useState<string | undefined>(
       undefined,
     );
-    const placeholder = t('search.placeholder');
+
+    const enhetSelectorExpanded = activeContainer === 'enhetSelector';
+    const { label: enhetSelectorLabel, selector: enhetSelector } =
+      useEnhetSelector({
+        expanded: enhetSelectorExpanded,
+        close: () => setActiveContainer(undefined),
+      });
 
     const onInputWrapper = useCallback(
       (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -89,6 +96,9 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
         } else {
           setActiveContainer(undefined);
         }
+
+        console.log('onContainerFocus ' + container?.className);
+        console.log(event.target.className);
       },
       [],
     );
@@ -107,124 +117,168 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
       setSearchQuery('');
     }, [setSearchQuery]);
 
-    const closeEnhetSelector = useCallback(() => {
-      setActiveContainer(undefined);
-    }, []);
-
     return (
-      // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
-      <div
-        className={cn(styles.searchFieldContainer)}
-        onFocus={onContainerFocus}
-        ref={containerRef}
-      >
+      <div className={cn(styles.searchFieldAnchor, 'search-field-anchor')}>
         <div
-          className={cn(
-            styles.searchQueryContainer,
-            styles.searchInputContainer,
-            styles.searchInputWithIcon,
-            { [styles.activeContainer]: activeContainer === 'searchQuery' },
-          )}
+          className={cn(styles.searchFieldContainer, 'search-field-container')}
+          ref={containerRef}
         >
-          <div className={cn(styles.expandableInputContainer)}>
+          <div
+            className={cn(
+              styles.searchInputAndButtonContainer,
+              'search-input-and-button-container',
+            )}
+          >
+            {/** biome-ignore lint/a11y/noStaticElementInteractions: Allow handler for bubbled events */}
             <div
-              className={cn(styles.searchIconContainer, styles.searchInputIcon)}
+              className={cn(styles.searchField, 'search-field')}
+              onFocus={onContainerFocus}
             >
-              <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
-            </div>
+              <div
+                className={cn(
+                  styles.searchQueryContainer,
+                  styles.searchInputContainer,
+                  styles.searchInputWithIcon,
+                  {
+                    [styles.activeContainer]: activeContainer === 'searchQuery',
+                  },
+                )}
+              >
+                <div
+                  className={cn(
+                    styles.searchIconContainer,
+                    styles.searchInputIcon,
+                  )}
+                >
+                  <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
+                </div>
 
-            <div className={cn(styles.styledInputContainer)}>
-              <div className={cn(styles.styledInput, className)}>
-                {searchTokens.map((token, index) => (
-                  <Fragment key={`${index}-${token.value}`}>
-                    <span
-                      className={cn(styles.searchToken, {
-                        [styles.prefixedToken]: !!token.prefix,
-                        [styles.includeToken]: token.sign === '+',
-                        [styles.excludeToken]: token.sign === '-',
-                        [styles.quotedToken]: !!token.quoted,
-                      })}
-                    >
-                      {token.sign && (
-                        <span className={cn(styles.tokenSign)}>
-                          {token.sign}
+                <div className={cn(styles.styledInputContainer)}>
+                  <div className={cn(styles.styledInput, className)}>
+                    {searchTokens.map((token, index) => (
+                      <Fragment key={`${index}-${token.value}`}>
+                        <span
+                          className={cn(styles.searchToken, {
+                            [styles.prefixedToken]: !!token.prefix,
+                            [styles.includeToken]: token.sign === '+',
+                            [styles.excludeToken]: token.sign === '-',
+                            [styles.quotedToken]: !!token.quoted,
+                          })}
+                        >
+                          {token.sign && (
+                            <span className={cn(styles.tokenSign)}>
+                              {token.sign}
+                            </span>
+                          )}
+                          {token.prefix && (
+                            <span className={cn(styles.tokenPrefix)}>
+                              {token.prefix}:
+                            </span>
+                          )}
+                          <span className={cn(styles.tokenValue)}>
+                            {token.quoted && '"'}
+                            {token.value}
+                            {token.quoted && '"'}
+                          </span>
                         </span>
-                      )}
-                      {token.prefix && (
-                        <span className={cn(styles.tokenPrefix)}>
-                          {token.prefix}:
-                        </span>
-                      )}
-                      <span className={cn(styles.tokenValue)}>
-                        {token.quoted && '"'}
-                        {token.value}
-                        {token.quoted && '"'}
-                      </span>
-                    </span>
-                    {index < searchTokens.length - 1 && ' '}
-                  </Fragment>
-                ))}
+                        {index < searchTokens.length - 1 && ' '}
+                      </Fragment>
+                    ))}
+                  </div>
+
+                  <textarea
+                    ref={ref}
+                    value={searchQuery}
+                    onInput={onInputWrapper}
+                    onKeyDown={onKeyDownWrapper}
+                    onFocus={onTextareaFocus}
+                    onBlur={onTextareaFocusBlur}
+                    className={cn(styles.input, className)}
+                    placeholder={t('search.placeholder')}
+                    spellCheck="false"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    {...inputProps}
+                  />
+                </div>
+
+                {searchQuery && (
+                  <Button
+                    className={cn(styles.clearButton)}
+                    type="button"
+                    onClick={handleClear}
+                    aria-label={t('search.clear')}
+                    variant="tertiary"
+                  >
+                    <XMarkIcon
+                      title={t('search.clear')}
+                      className={cn(styles.clearIcon)}
+                    />
+                  </Button>
+                )}
               </div>
 
-              <textarea
-                ref={ref}
-                value={searchQuery}
-                onInput={onInputWrapper}
-                onKeyDown={onKeyDownWrapper}
-                onFocus={onTextareaFocus}
-                onBlur={onTextareaFocusBlur}
-                className={cn(styles.input, className)}
-                placeholder={t('search.placeholder')}
-                spellCheck="false"
-                autoCorrect="off"
-                autoCapitalize="none"
-                {...inputProps}
-              />
+              <div className={styles.spacer} />
+
+              <div
+                className={cn(
+                  styles.enhetSelectorContainer,
+                  styles.searchInputContainer,
+                  styles.searchInputWithIcon,
+                  {
+                    [styles.activeContainer]: enhetSelectorExpanded,
+                  },
+                )}
+              >
+                <EinButton
+                  style="link"
+                  className={cn(
+                    styles.paddedContent,
+                    styles.enhetSelectorButton,
+                  )}
+                >
+                  <div className={cn(styles.searchInputIcon)}>
+                    <Buildings3Icon
+                      className={cn(styles.searchIcon)}
+                      title="Enhet"
+                      fontSize="1.2rem"
+                    />
+                  </div>
+                  {enhetSelectorLabel}
+                </EinButton>
+              </div>
             </div>
 
-            {searchQuery && (
-              <Button
-                className={cn(styles.clearButton)}
-                type="button"
-                onClick={handleClear}
-                aria-label={t('search.clear')}
-                variant="tertiary"
+            <div
+              className={cn(
+                styles.actionContainer,
+                'search-field-action-container',
+              )}
+            >
+              <div
+                className={cn(styles.actionButtonContainer, {
+                  [styles.withBorder]: !!searchQuery,
+                })}
               >
-                <XMarkIcon
-                  title={t('search.clear')}
-                  className={cn(styles.clearIcon)}
-                />
-              </Button>
+                <EinButton
+                  variant="primary"
+                  type="submit"
+                  onClick={handleSearch}
+                >
+                  {t('search.button')}
+                </EinButton>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              styles.dropdownContainer,
+              'search-field-dropdown-container',
             )}
+          >
+            {enhetSelectorExpanded && enhetSelector}
           </div>
-        </div>
-
-        <div className={styles.spacer} />
-
-        <div
-          className={cn(
-            styles.enhetSelectorContainer,
-            styles.searchInputContainer,
-            styles.searchInputWithIcon,
-            { [styles.activeContainer]: activeContainer === 'enhetSelector' },
-          )}
-        >
-          <div className={cn(styles.expandableInputContainer)}>
-            <EnhetSelector
-              expanded={activeContainer === 'enhetSelector'}
-              close={closeEnhetSelector}
-            />
-          </div>
-        </div>
-
-        <div
-          className={cn(styles.actionButtonContainer, {
-            [styles.withBorder]: !!searchQuery,
-          })}
-        >
-          <EinButton variant="primary" type="submit" onClick={handleSearch}>
-            {t('search.button')}
-          </EinButton>
         </div>
       </div>
     );

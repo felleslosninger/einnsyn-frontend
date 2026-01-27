@@ -1,11 +1,71 @@
 @use '../../styles/easing.scss' as e;
 
-.searchFieldContainer {
+// An anchor div to set the height of the search field correctly, while
+// allowing the inner containers to expand as needed.
+.searchFieldAnchor {
   position: relative;
+  z-index: 1;
+  width: 100%;
+  // Padding-top + Input line height + Padding-bottom
+  height: calc(
+    var(--ds-size-2) + var(--ds-border-width-default) + // Padding-top
+    (var(--ds-body-md-line-height) * 1rem) + // Input line height
+    var(--ds-size-2) + var(--ds-border-width-default) // Padding-bottom
+  );
+}
+
+.searchFieldContainer {
+  width: 100%;
+  background: var(--ds-color-neutral-background-default);
+
+  // "padding" for active/focus border
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: inherit;
+    transition:
+      inset 0.15s e.$easeOutQuart,
+      border-color 0.15s e.$easeOutQuart;
+    border: var(--ds-border-width-default) solid transparent;
+  }
+
+  &:has(.activeContainer) {
+    position: absolute;
+    z-index: 10;
+    border-radius: var(--ds-border-radius-md);
+
+    &::before {
+      inset: calc(-1 * var(--ds-size-6));
+      border-color: var(--ds-color-neutral-border-subtle);
+    }
+  }
+
+  button {
+    min-height: var(--ds-size-12);
+  }
+}
+
+.searchField {
+  position: relative;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  background: var(--ds-color-neutral-surface-default);
+  z-index: 1;
+  border-top-left-radius: var(--ds-border-radius-default);
+  border-bottom-left-radius: var(--ds-border-radius-default);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  border-right: none;
+}
+
+.dropdownContainer {
+  max-height: 300px;
+  overflow: auto;
+  display: flex;
 }
 
 .searchInputIcon {
@@ -18,72 +78,29 @@
 }
 
 .searchInputWithIcon {
+  flex: 0 0 auto;
+  max-width: 300px;
+
   .styledInput,
   .input,
   .paddedContent {
     padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
-    padding-right: var(--ds-size-4); // clear-button
+    padding-right: calc(var(--ds-size-4) + var(--ds-size-3)); // clear-button
   }
 }
 
 .searchInputContainer {
   --search-input-surface: var(--ds-color-neutral-surface-default, #fff);
   position: relative;
-  height: var(--ds-size-12);
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
+  transition: min-width 0.3s e.$easeOutQuart;  
 
-  // If we have an expandable container, add focus styles to it, if not, add to this container
-  &:not(:has(.expandableInputContainer)),
-  .expandableInputContainer {
-    display: flex;
-    flex-direction: row;
-    flex: 0 0 auto;
-    gap: var(--ds-size-3);
-    position: relative;
-    z-index: 2;
-    padding-left: var(--ds-size-3);
-    padding-right: var(--ds-size-3);
-    background: var(--search-input-surface);
-    border-color: var(--ds-color-neutral-border-subtle);
-    border-style: solid;
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: var(--ds-border-width-default);
-    border-bottom-width: var(--ds-border-width-default);
-    max-height: 80vh;
-    overflow: hidden;
-  }
-
-  &:not(:has(.expandableInputContainer)):has(:focus),
-  .expandableInputContainer:has(:focus),
-  &.activeContainer:not(:has(.expandableInputContainer)),
-  &.activeContainer .expandableInputContainer {
-    border-radius: var(--ds-border-radius-md);
-    box-shadow: var(--dsc-focus-boxShadow);
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
-    z-index: 3;
-    border-color: transparent;
-  }
-
-
-  .expandableInputContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    min-height: 100%;
-  }
 
   &.searchQueryContainer {
     flex: 1 1 auto;
     min-width: 0;
+    max-width: 100%;
     border: none;
-
-    .expandableInputContainer {
-      border-left-width: var(--ds-border-width-default);
-      border-top-left-radius: var(--ds-border-radius-md);
-      border-bottom-left-radius: var(--ds-border-radius-md);
-    }
   }
 
   .searchIconContainer {
@@ -93,25 +110,23 @@
   }
 }
 
-.searchInputContainer {
-  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
-  transition: min-width 0.3s e.$easeOutQuart;  
+.searchInputAndButtonContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .enhetSelectorContainer.activeContainer {
-  min-width: 80%;
-}
-
-
-.enhetSelectorContainer {
-  min-width: 22%;
+  min-width: calc(100% - var(--ds-size-12)); // Leave space for the other field (query string / enhet)
 }
 
 .styledInputContainer {
   position: relative;
   z-index: 0;
   width: 100%;
-  height: 100%;
   overflow: hidden;
 
   .input {
@@ -135,9 +150,9 @@
   font-size: inherit;
   line-height: inherit;
   letter-spacing: normal;
-  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
+  padding-top: var(--ds-size-2);
   padding-bottom: var(--ds-size-2);
-  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default)*2 ); // Full height minus borders
+  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2); // Height -
 }
 
 .styledInput {
@@ -160,7 +175,7 @@
       rgba(255, 255, 255, 0),
       var(--search-input-surface)
     );
-    border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
+    //border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
     pointer-events: none;
 }
 
@@ -220,13 +235,11 @@
 .spacer {
   position: relative;
   width: var(--ds-border-width-default);
-  height: var(--ds-size-12);
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2);
   &::after {
     content: "";
     display: block;
-    width: 100%;
+    width: var(--ds-border-width-default);
     height: 60%;
     background: var(--ds-color-neutral-border-subtle);
     position: absolute;
@@ -237,7 +250,7 @@
 
 .clearButton {
   position: absolute;
-  top: var(--ds-size-1);
+  top: 0;
   right: var(--ds-size-2);
   
   display: flex;

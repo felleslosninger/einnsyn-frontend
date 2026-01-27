@@ -54,6 +54,7 @@ export default function SearchResultContainer({
         className={cn(
           'container-wrapper',
           'main-content',
+          'hard-surface',
           styles.searchContainer,
         )}
       >
