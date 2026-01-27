@@ -157,7 +157,9 @@ export function tokensToSearchQuery(tokens: Partial<SearchToken>[]): string {
     }
     if (quoted) {
       // Escape backslashes, then quotes within the value before wrapping it in quotes
-      const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const escapedValue = value
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"');
       result += `"${escapedValue}"`;
     } else {
       result += value;
