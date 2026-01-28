@@ -15,7 +15,8 @@ const getAncestors = (enhet: Enhet) => {
 
 export const getEnhetHref = (enhet: Enhet) => {
   const ancestors = getAncestors(enhet);
-  return ancestors.map((ancestor) => ancestor.id).join('/');
+  return `/${ancestors.map((ancestor) => ancestor.id).join('-')}`;
+  // return `/${enhet.id}`;
 };
 
 const getName = (languageCode: string, enhet: Enhet) => {
