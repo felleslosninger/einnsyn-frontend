@@ -70,7 +70,7 @@ export default async function Layout({
               <div className="einnsyn-body">
                 {header}
                 <main className="content-flex-grow">{children}</main>
-                <Footer />
+                {/* <Footer /> */}
                 <ModalWrapper>{modal}</ModalWrapper>
                 <ThemeManager />
               </div>

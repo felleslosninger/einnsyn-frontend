@@ -169,7 +169,11 @@ export default function Header({ children }: { children: React.ReactNode }) {
                 <Logo />
               </EinLink>
             </div>
-            <div className={cn(styles.container, 'container')}>{children}</div>
+            <div className={cn(styles.container, 'container')}>
+              <div>
+                <span> <EinLink href="/login"> Logg inn</EinLink> for å administrere API-nøkkel til din virksomhet</span>
+              </div>
+            </div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
                 <SettingsMenu />
