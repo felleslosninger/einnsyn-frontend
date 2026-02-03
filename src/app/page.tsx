@@ -9,7 +9,13 @@ export default async function Root() {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
     return (
-      <AnsattportenLogin></AnsattportenLogin>
+      <div className="container-wrapper" >
+        <div className="container-pre" />
+        <div className="container">
+          <AnsattportenLogin></AnsattportenLogin>
+        </div>
+        <div className="container-post" />
+      </div>
     );
   }
   const apiClient = await cachedApiClient();
@@ -22,5 +28,13 @@ export default async function Root() {
     });
     notFound();
   });
-  return <ApiKeys apiKeys={apiKeys} />;
+  return (
+    <div className="container-wrapper" >
+      <div className="container-pre" />
+      <div className="container">
+        <ApiKeys apiKeys={apiKeys} />
+      </div>
+      <div className="container-post" />
+    </div>
+  );
 }
