@@ -17,6 +17,7 @@ import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import SettingsMenu from './components/SettingsMenu';
 import UserMenu from './components/UserMenu';
+import { AnsattportenLogin } from '../login/AnsattportenLogin';
 import styles from './Header.module.scss';
 
 export default function Header({ children }: { children: React.ReactNode }) {
@@ -171,7 +172,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
             </div>
             <div className={cn(styles.container, 'container')}>
               <div>
-                <span> <EinLink href="/login"> Logg inn</EinLink> for å administrere API-nøkkel til din virksomhet</span>
+                <span> <AnsattportenLogin /> for å administrere API-nøkkel til din virksomhet</span>
               </div>
             </div>
             <div className={cn(styles.containerPost, 'container-post')}>

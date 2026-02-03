@@ -18,7 +18,6 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { AnsattportenLogin } from './AnsattportenLogin';
 import styles from './LoginForm.module.scss';
-import { login } from './loginActions';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
@@ -31,7 +30,6 @@ export default function LoginForm() {
   const [displayedError, setDisplayedError] = useState<string | undefined>();
   const navigation = useNavigation();
   const basepath = useModalBasepath();
-  const { authInfo } = useSessionData();
 
   const [loginState, formAction, isPending] = useActionState(
     eInnsynLoginAction,
@@ -51,14 +49,11 @@ export default function LoginForm() {
     }
   }, [isPending, loginState.error, t]);
 
-  // Redirect to api-keys if login is successful
   useEffect(() => {
-    if (loginState.success && authInfo?.type === 'Enhet') {
-      navigation.push(`/admin/${authInfo.orgnummer}/api-keys`);
-    } else if (loginState.success) {
+    if (loginState.success) {
       navigation.push(basepath);
     }
-  }, [loginState.success, navigation, authInfo, basepath]);
+  }, [loginState.success, navigation, basepath]);
 
   const onKeyDown = (_event: React.KeyboardEvent<HTMLInputElement>) => {
     setDisplayedError(undefined);
