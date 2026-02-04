@@ -230,13 +230,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
                   },
                 )}
               >
-                <EinButton
-                  style="link"
-                  className={cn(
-                    styles.paddedContent,
-                    styles.enhetSelectorButton,
-                  )}
-                >
+                <div className={cn(styles.styledInput)}>
                   <div className={cn(styles.searchInputIcon)}>
                     <Buildings3Icon
                       className={cn(styles.searchIcon)}
@@ -245,7 +239,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
                     />
                   </div>
                   {enhetSelectorLabel}
-                </EinButton>
+                </div>
               </div>
             </div>
 
