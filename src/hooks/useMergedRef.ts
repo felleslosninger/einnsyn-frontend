@@ -1,19 +1,23 @@
-import { type Ref, useEffect, useRef } from 'react';
+import { type Ref, useCallback } from 'react';
 
 /**
  * A helper hook to combine multiple refs.
  */
 export function useMergedRefs<T>(...refs: (Ref<T> | undefined)[]) {
-  const targetRef = useRef<T>(null);
-  useEffect(() => {
-    refs.forEach((ref) => {
-      if (!ref) return;
-      if (typeof ref === 'function') {
-        ref(targetRef.current);
-      } else {
-        (ref as React.RefObject<T | null>).current = targetRef.current;
-      }
-    });
-  }, [refs]);
-  return targetRef;
+  return useCallback(
+    (value: T | null) => {
+      refs.forEach((ref) => {
+        if (!ref) {
+          return;
+        }
+        if (typeof ref === 'function') {
+          ref(value);
+        } else {
+          ref.current = value;
+        }
+      });
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: use refs as dependency array
+    refs,
+  );
 }
