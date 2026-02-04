@@ -26,6 +26,7 @@
       "label": "API key",
       "labelPlural": "API keys",
       "intro": "API keys can be used to authorize external applications to programmatically access, create, and update content on behalf of your organization. Each key is unique to your organization and provides a secure way to integrate with external services and automate content management workflows.",
+      "login": "Log in to manage API keys",
       "addApiKey": "Create API key",
       "deleteApiKey": "Delete API key",
       "keyName": "Key name",

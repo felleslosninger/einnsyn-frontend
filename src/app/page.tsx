@@ -4,6 +4,7 @@ import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { logger } from '~/lib/utils/logger';
 import ApiKeys from '../features/admin/api-keys/ApiKeys';
 import { AnsattportenLogin } from '~/features/login/AnsattportenLogin';
+import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
 
 export default async function Root() {
   const authInfo = await cachedAuthInfo();
@@ -12,7 +13,7 @@ export default async function Root() {
       <div className="container-wrapper" >
         <div className="container-pre" />
         <div className="container">
-          <AnsattportenLogin></AnsattportenLogin>
+          <ApiKeyLogin />
         </div>
         <div className="container-post" />
       </div>
