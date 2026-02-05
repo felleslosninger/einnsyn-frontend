@@ -2,7 +2,6 @@
 
 import { Alert } from '@digdir/designsystemet-react';
 import type { ApiKey } from '@digdir/einnsyn-sdk';
-import { useParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinCheckbox } from '~/components/EinCheckbox/EinCheckbox';
@@ -11,6 +10,7 @@ import EinModal, {
   EinModalBody,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useTranslation } from '~/hooks/useTranslation';
 import { addApiKeyAction } from '../adminActions';
@@ -28,7 +28,8 @@ export default function AddApiKeyModal({
   addApiKeyHandler,
 }: AddApiKeyModalProps) {
   const t = useTranslation();
-  const { enhetId } = useParams<{ enhetId: string }>() ?? {};
+  const { authInfo } = useSessionData();
+  const { orgnummer } = authInfo ?? {};
   const [addedKey, addApiKey, isPending] = useActionState(
     addApiKeyAction,
     undefined,
@@ -88,7 +89,7 @@ export default function AddApiKeyModal({
       </div>
     ) : (
       <form className={styles.form} action={addApiKey}>
-        <input type="hidden" name="enhetId" value={enhetId} />
+        <input type="hidden" name="enhetId" value={orgnummer} />
         <EinInput
           name="name"
           label={t('admin.apiKey.keyName')}
