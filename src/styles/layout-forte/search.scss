@@ -1,16 +1,45 @@
-  .search-field-container {
-    padding-right: size/5;
-    padding-left: size/5;
-    gap: 16;
-    angle: 0 deg;
-    opacity: 1;
-    border-radius: var(--ds-border-radius-full);
-    border-width: 1px;
+@use '../../styles/easing.scss' as e;
 
+.search-field-container {
+  padding-right: size/5;
+  padding-left: size/5;
+  gap: 16;
+  opacity: 1;
+  border-radius: var(--ds-border-radius-full);
+  border: none;
+  box-shadow: 
+    1px 2px 6px 3px rgba(19, 74, 124, 0.2) inset, 
+    0px 1px 2px 0px rgba(9, 45, 73, 0.2) inset;
 
-    box-shadow: 1px 2px 8px 4px #134A7C66 inset;
-    box-shadow: 0px 1px 2px 0px #092D4966 inset;
-
-    border: 3px solid green;
-
+  // "padding" for active/focus border
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: inherit;
+    transition:
+      inset 0.15s e.$easeOutQuart,
+      border-color 0.15s e.$easeOutQuart;
+    border: var(--ds-border-width-default) solid transparent;
   }
+  &:has(.active-container) {
+    &::before {
+      inset: calc(-1 * var(--ds-size-6));
+      border-color: var(--ds-color-neutral-border-subtle);
+    }
+  }
+
+  .search-field {
+    border-top-left-radius: var(--ds-border-radius-full);
+    border-bottom-left-radius: var(--ds-border-radius-full);
+    border-width: 0;
+  }
+
+  .search-field-action-container {
+    border-radius: var(--ds-border-radius-full);
+    overflow: hidden;
+  }
+}
+

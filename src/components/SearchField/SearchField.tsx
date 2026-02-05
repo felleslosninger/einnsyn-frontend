@@ -141,6 +141,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
                   styles.searchInputWithIcon,
                   {
                     [styles.activeContainer]: activeContainer === 'searchQuery',
+                    'active-container': activeContainer === 'searchQuery',
                   },
                 )}
               >

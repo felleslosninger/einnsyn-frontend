@@ -18,29 +18,10 @@
   width: 100%;
   background: var(--ds-color-neutral-background-default);
 
-  // "padding" for active/focus border
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: inherit;
-    transition:
-      inset 0.15s e.$easeOutQuart,
-      border-color 0.15s e.$easeOutQuart;
-    border: var(--ds-border-width-default) solid transparent;
-  }
-
-  &:has(.activeContainer) {
+  &:has(.active-container) {
     position: absolute;
     z-index: 10;
     border-radius: var(--ds-border-radius-md);
-
-    &::before {
-      inset: calc(-1 * var(--ds-size-6));
-      border-color: var(--ds-color-neutral-border-subtle);
-    }
   }
 
   button {
