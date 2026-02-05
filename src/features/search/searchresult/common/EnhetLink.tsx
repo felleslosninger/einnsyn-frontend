@@ -2,21 +2,7 @@ import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-
-const getAncestors = (enhet: Enhet) => {
-  const ancestors: Enhet[] = [];
-  let current: Enhet | string | undefined = enhet;
-  while (isEnhet(current) && current.enhetstype !== 'DUMMYENHET') {
-    ancestors.unshift(current);
-    current = current.parent;
-  }
-  return ancestors;
-};
-
-export const getEnhetHref = (enhet: Enhet) => {
-  const ancestors = getAncestors(enhet);
-  return ancestors.map((ancestor) => ancestor.id).join('/');
-};
+import { getAncestors, getEnhetHref } from '~/lib/utils/enhetUtils';
 
 const getName = (languageCode: string, enhet: Enhet) => {
   let enhetName = enhet.navn;

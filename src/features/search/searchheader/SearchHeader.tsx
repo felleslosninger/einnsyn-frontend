@@ -1,8 +1,6 @@
 'use client';
 
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback } from 'react';
-import { EinButton } from '~/components/EinButton/EinButton';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
@@ -28,12 +26,7 @@ export default function SearchHeader() {
         onSubmit={onSubmit}
         action={optimisticPathname}
       >
-        <SearchField name="q" autoComplete="off">
-          <EinButton style="link" data-size="sm">
-            <Buildings3Icon title="Enhet" fontSize="1.2rem" />{' '}
-            <span className="text">Alle virksomheter</span>
-          </EinButton>
-        </SearchField>
+        <SearchField name="q" autoComplete="off" />
 
         {/* Include current query parameters as hidden inputs */}
         {Array.from(optimisticSearchParams?.entries() ?? []).map(

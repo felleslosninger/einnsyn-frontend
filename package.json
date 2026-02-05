@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development next dev --turbopack",
+    "dev": "NODE_ENV=development API_URL=http://localhost:8080 next dev --turbopack",
     "dev:dev": "NODE_ENV=development API_URL=https://api.einnsyn.dev next dev --turbopack",
     "dev:test": "NODE_ENV=development API_URL=https://api.test.einnsyn.no next dev --turbopack",
     "dev:prod": "NODE_ENV=development API_URL=https://api.einnsyn.no next dev --turbopack",
@@ -24,7 +24,8 @@
     "openid-client": "6.8.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "sass": "1.94.2"
+    "sass": "1.94.2",
+    "virtua": "^0.47.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
