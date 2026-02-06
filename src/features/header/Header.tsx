@@ -18,6 +18,7 @@ import { domTransitionend } from '~/lib/utils/domTransitionend';
 import SettingsMenu from './components/SettingsMenu';
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
+import MeetingcalendarButton from './components/MeetingcalendarButton';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
@@ -172,6 +173,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
             <div className={cn(styles.container, 'container')}>{children}</div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
+                <MeetingcalendarButton />
                 <SettingsMenu />
                 <UserMenu />
               </div>

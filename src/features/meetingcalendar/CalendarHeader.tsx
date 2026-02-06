@@ -31,15 +31,15 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
 
         switch (selectedView) {
             case 'dynamic':
-                return `${t(`moetekalender.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+                return `${t(`meetingcalendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
 
             case 'month':
-                return `${t(`moetekalender.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+                return `${t(`meetingcalendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
 
             case 'week':
                 {
                     const weekNumber = getWeekNumber(selectedDate);
-                    return `${t('moetekalender.viewOptions.week')} ${weekNumber}`;
+                    return `${t('meetingcalendar.viewOptions.week')} ${weekNumber}`;
                 }
 
             case 'day':
@@ -188,6 +188,14 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
 
     return (
         <div className={cn('calendarHeader', styles.calendarHeader)}>
+            <div className={cn('displayHeading', styles.displayHeading)}>
+                <Heading
+                    data-size="md"
+                    level={1}>
+                    {viewHeading}
+                </Heading>
+            </div>
+
             <div className={cn('navigation', styles.navigation)}>
                 <Dropdown.TriggerContext>
                     <Dropdown.Trigger
@@ -195,7 +203,7 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                         data-size="sm"
                         variant="secondary"
                         onClick={() => setOpen(!open)}>
-                        {t(`moetekalender.viewOptions.${selectedView}`)}
+                        {t(`meetingcalendar.viewOptions.${selectedView}`)}
                         {open ? <ChevronDownIcon aria-hidden /> : <ChevronUpIcon aria-hidden />}
                     </Dropdown.Trigger>
                     <Dropdown
@@ -207,27 +215,27 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
                         <Dropdown.List>
                             <Dropdown.Item>
                                 <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('dynamic'); }}>
-                                    {t('moetekalender.viewOptions.dynamic')}
+                                    {t('meetingcalendar.viewOptions.dynamic')}
                                 </Dropdown.Button>
                             </Dropdown.Item>
                             <Dropdown.Item>
                                 <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('month'); }}>
-                                    {t('moetekalender.viewOptions.month')}
+                                    {t('meetingcalendar.viewOptions.month')}
                                 </Dropdown.Button>
                             </Dropdown.Item>
                             <Dropdown.Item>
                                 <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('week'); }}>
-                                    {t('moetekalender.viewOptions.week')}
+                                    {t('meetingcalendar.viewOptions.week')}
                                 </Dropdown.Button>
                             </Dropdown.Item>
                             <Dropdown.Item>
                                 <Dropdown.Button onClick={() => { setOpen(false); setSelectedView('day'); }}>
-                                    {t('moetekalender.viewOptions.day')}
+                                    {t('meetingcalendar.viewOptions.day')}
                                 </Dropdown.Button>
                             </Dropdown.Item>
                             <Divider />
                             <Dropdown.Item>
-                                <Checkbox className={styles.checkbox} label={t('moetekalender.viewOptions.displayWeekends')} checked={displayWeekends}
+                                <Checkbox className={styles.checkbox} label={t('meetingcalendar.viewOptions.displayWeekends')} checked={displayWeekends}
                                     onClick={() => { setDisplayWeekends(!displayWeekends) }} />
                             </Dropdown.Item>
                         </Dropdown.List>
@@ -249,14 +257,6 @@ export default function CalendarHeader({ selectedView, setSelectedView, selected
 
                 {navButtons}
 
-            </div>
-
-            <div className={cn('displayHeading', styles.displayHeading)}>
-                <Heading
-                    data-size="md"
-                    level={1}>
-                    {viewHeading}
-                </Heading>
             </div>
         </div>
     );

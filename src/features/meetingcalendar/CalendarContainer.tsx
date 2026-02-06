@@ -95,7 +95,7 @@ export default function CalendarContainer({
             return;
         }
 
-        while (currentResults.next && i < 10) { // TODO: Remove temporary limit pages to avoid infinite loops
+        while (currentResults.next && i < 15) { // TODO: Remove temporary limit pages to avoid infinite loops
             try {
                 currentResults = await fetchNextPage(currentResults, true);
                 setAllResults(currentResults);

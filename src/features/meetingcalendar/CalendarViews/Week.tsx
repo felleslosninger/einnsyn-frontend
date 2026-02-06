@@ -49,39 +49,39 @@ export default function WeekView({ selectedDate, displayWeekends, currentSearchR
                 <div className={styles.dynCalendarHeader}>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.monday')}
+                            {t('meetingcalendar.days.monday')}
                         </span>
                     </div>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.tuesday')}
+                            {t('meetingcalendar.days.tuesday')}
                         </span>
                     </div>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.wednesday')}
+                            {t('meetingcalendar.days.wednesday')}
                         </span>
                     </div>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.thursday')}
+                            {t('meetingcalendar.days.thursday')}
                         </span>
                     </div>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t('moetekalender.days.friday')}
+                            {t('meetingcalendar.days.friday')}
                         </span>
                     </div>
                     {displayWeekends && (
                         <>
                             <div className={styles.dayHeaderCell}>
                                 <span className={styles.dayHeaderText}>
-                                    {t('moetekalender.days.saturday')}
+                                    {t('meetingcalendar.days.saturday')}
                                 </span>
                             </div>
                             <div className={styles.dayHeaderCell}>
                                 <span className={styles.dayHeaderText}>
-                                    {t('moetekalender.days.sunday')}
+                                    {t('meetingcalendar.days.sunday')}
                                 </span>
                             </div>
                         </>

@@ -22,7 +22,7 @@ export default function DayView({ selectedDate, currentSearchResults }: { select
                 <div className={styles.dynCalendarHeader}>
                     <div className={styles.dayHeaderCell}>
                         <span className={styles.dayHeaderText}>
-                            {t(`moetekalender.days.${dayName}`)}
+                            {t(`meetingcalendar.days.${dayName}`)}
                         </span>
                     </div>
                 </div>

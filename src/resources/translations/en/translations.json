@@ -134,7 +134,7 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
-    "moetekalender": {
+    "meetingcalendar": {
     "label": "Meeting calendar",
     "labelPlural": "Meeting calendars",
     "viewOptions": {

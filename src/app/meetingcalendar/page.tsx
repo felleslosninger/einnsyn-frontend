@@ -1,7 +1,7 @@
 import { getSearchResults } from "~/features/search/searchActions";
-import CalendarContainer from "~/features/moetekalender/CalendarContainer";
+import CalendarContainer from "~/features/meetingcalendar/CalendarContainer";
 
-export default async function Moetekalender({
+export default async function Meetingcalendar({
     params,
     searchParams,
 }: {

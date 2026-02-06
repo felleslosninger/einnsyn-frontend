@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+
 import { EinLink } from '~/components/EinLink/EinLink';
 import {
   useOptimisticPathname,
@@ -9,48 +9,27 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
-import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 
 export default function SearchTabs({ className }: { className?: string }) {
   const searchParams = useOptimisticSearchParams();
   const pathname = useOptimisticPathname();
   const t = useTranslation();
 
-  const { getProperty, setProperty } = useSearchField();
-  const prevPathRef = useRef(pathname);
-
-  useEffect(() => {
-    if (prevPathRef.current === '/moetekalender' && pathname === '/search') {
-      setProperty('moetedato', null);
-    }
-
-    prevPathRef.current = pathname;
-  }, [pathname, setProperty]);
-
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
-
     if (entityName === '') {
       searchParamsCopy.delete('entity');
-    } else if (entityName === 'Moetekalender') {
-      searchParamsCopy.set('entity', 'Moetemappe');
-      return `/moetekalender?${searchParamsCopy.toString()}`;
     } else {
       searchParamsCopy.set('entity', entityName);
     }
-    return `/search?${searchParamsCopy.toString()}`;
+    return `${pathname}?${searchParamsCopy.toString()}`;
   };
 
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
-
-    if (tabName === 'Moetekalender' && pathname === '/moetekalender') {
+    const activeTab = searchParams?.get('entity') || '';
+    if (activeTab === tabName) {
       classes.push('active');
-    } else if (pathname === '/search') {
-      const activeTab = searchParams?.get('entity') || '';
-      if (activeTab === tabName) {
-        classes.push('active');
-      }
     }
     return classes.join(' ');
   };
@@ -88,15 +67,6 @@ export default function SearchTabs({ className }: { className?: string }) {
           href={getLinkUrl('Moetesak')}
         >
           {t('moetesak.labelPlural')}
-        </EinLink>
-      </div>
-
-      <div className={cn(styles.otherTabs)}>
-        <EinLink
-          className={getLinkClassName('Moetekalender')}
-          href={getLinkUrl('Moetekalender')}
-        >
-          {t('moetekalender.label')}
         </EinLink>
       </div>
 

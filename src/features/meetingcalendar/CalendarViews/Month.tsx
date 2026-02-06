@@ -60,7 +60,7 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
                     {calendarWeeks[0].map((day) => (
                         <div key={day.date.toISOString()} className={styles.dayHeaderCell}>
                             <span className={styles.dayHeaderText}>
-                                {t(`moetekalender.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
+                                {t(`meetingcalendar.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
                             </span>
                         </div>
                     ))}
@@ -80,7 +80,7 @@ export default function MonthView({ selectedDate, displayWeekends, currentSearch
                                 <span className={styles.dateText}>
                                     {day.date.getDate()}
                                     {day.date.getDate() === 1 && (
-                                        <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                        <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
                                     )}
                                 </span>
 

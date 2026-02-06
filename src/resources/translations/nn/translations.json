@@ -134,7 +134,7 @@
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
   },
-  "moetekalender": {
+  "meetingcalendar": {
     "label": "Møtekalender",
     "labelPlural": "Møtekalendere",
     "viewOptions": {

@@ -25,7 +25,7 @@ export default function DynamicView({
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const daysPerWeek = displayWeekends ? 7 : 5;
-    const max_weeks = 30;
+    const max_weeks = 20;
     const weekHeight = 305;
     const lastReportedDateRef = useRef(selectedDate);
     const inView = [];
@@ -249,7 +249,7 @@ export default function DynamicView({
                     {weeks[0].map((day) => (
                         <div key={day.date.toISOString()} className={styles.dayHeaderCell}>
                             <span className={styles.dayHeaderText}>
-                                {t(`moetekalender.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
+                                {t(`meetingcalendar.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`)}
                             </span>
                         </div>
                     ))}
@@ -278,10 +278,10 @@ export default function DynamicView({
                                     <span className={styles.dateText}>
                                         {day.date.getDate()}
                                         {day.date.getDate() === 1 && (
-                                            <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                            <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
                                         )}
                                         {/* {day.date.getDate() === selectedDate.getDate() && (
-                                            <> {t(`moetekalender.months.${day.date.getMonth()}`)}</>
+                                            <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
                                         )} */}
                                     </span>
 
@@ -300,7 +300,7 @@ export default function DynamicView({
                                                 }));
                                             }}
                                         >
-                                            {t('moetekalender.viewOptions.showMore')}
+                                            {t('meetingcalendar.viewOptions.showMore')}
                                         </button>
                                     )}
                                 </div>

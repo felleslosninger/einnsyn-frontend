@@ -13,8 +13,9 @@
 .calendarHeader {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-shrink: 0;
+    padding: var(--ds-size-2);
 }
 
 .displayHeading {
