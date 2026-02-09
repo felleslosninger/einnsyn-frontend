@@ -1,3 +1,3 @@
 export default function MonthView() {
-    return;
+  return;
 }

@@ -14,165 +14,195 @@ import CalendarHeader from './CalendarHeader';
 
 import { isMoetemappe } from '@digdir/einnsyn-sdk';
 
-
 const formatDateForUrl = (date: Date) => {
-    return date.toISOString().split('T')[0];
+  return date.toISOString().split('T')[0];
 };
 
 const hasWeekendMeetings = (results: PaginatedList<Base>) => {
-    return results.items.some(item => {
-        if (isMoetemappe(item)) {
-            const meetingDate = item.moetedato ? new Date(item.moetedato) : null;
-            if (!meetingDate) return false;
-            const day = meetingDate.getDay();
-            return day === 0 || day === 6;
-        }
-        return false;
-    });
+  return results.items.some((item) => {
+    if (isMoetemappe(item)) {
+      const meetingDate = item.moetedato ? new Date(item.moetedato) : null;
+      if (!meetingDate) return false;
+      const day = meetingDate.getDay();
+      return day === 0 || day === 6;
+    }
+    return false;
+  });
 };
 
 export const sortMeetingsByTime = (items: Base[]) => {
-    return items.sort((a, b) => {
-        if (!isMoetemappe(a) || !isMoetemappe(b)) return 0;
+  return items.sort((a, b) => {
+    if (!isMoetemappe(a) || !isMoetemappe(b)) return 0;
 
-        const timeA = a.moetedato ? new Date(a.moetedato).getTime() : 0;
-        const timeB = b.moetedato ? new Date(b.moetedato).getTime() : 0;
+    const timeA = a.moetedato ? new Date(a.moetedato).getTime() : 0;
+    const timeB = b.moetedato ? new Date(b.moetedato).getTime() : 0;
 
-        return timeA - timeB;
-    });
+    return timeA - timeB;
+  });
 };
 
-
 export default function CalendarContainer({
-    searchResults
+  searchResults,
 }: {
-    searchResults: PaginatedList<Base>;
+  searchResults: PaginatedList<Base>;
 }) {
-    const { getProperty, setProperty } = useSearchField();
+  const { getProperty, setProperty } = useSearchField();
 
-    const [selectedView, setSelectedView] = useState('dynamic');
-    const [displayWeekends, setDisplayWeekends] = useState(() => hasWeekendMeetings(searchResults));
-    const [allResults, setAllResults] = useState<PaginatedList<Base>>(searchResults);
+  const [selectedView, setSelectedView] = useState('dynamic');
+  const [displayWeekends, setDisplayWeekends] = useState(() =>
+    hasWeekendMeetings(searchResults),
+  );
+  const [allResults, setAllResults] =
+    useState<PaginatedList<Base>>(searchResults);
 
-    const [selectedDate, setSelectedDate] = useState(() => {
-        const moetedato = getProperty('moetedato');
-        if (moetedato) {
-            const dateMatch = moetedato.match(/(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/);
-            if (dateMatch) {
-                const startDate = new Date(dateMatch[1]);
-                const endDate = new Date(dateMatch[2]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const moetedato = getProperty('moetedato');
+    if (moetedato) {
+      const dateMatch = moetedato.match(
+        /(\d{4}-\d{2}-\d{2})\/(\d{4}-\d{2}-\d{2})/,
+      );
+      if (dateMatch) {
+        const startDate = new Date(dateMatch[1]);
+        const endDate = new Date(dateMatch[2]);
 
-                if (!Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime())) {
-                    const middleTime = (startDate.getTime() + endDate.getTime()) / 2;
-                    return new Date(middleTime);
-                }
-            }
+        if (
+          !Number.isNaN(startDate.getTime()) &&
+          !Number.isNaN(endDate.getTime())
+        ) {
+          const middleTime = (startDate.getTime() + endDate.getTime()) / 2;
+          return new Date(middleTime);
         }
-        return new Date();
-    });
+      }
+    }
+    return new Date();
+  });
 
-    const currentDateRange = useMemo(() => {
-        return getDateRange(selectedDate, selectedView);
-    }, [selectedDate, selectedView]);
+  const currentDateRange = useMemo(() => {
+    return getDateRange(selectedDate, selectedView);
+  }, [selectedDate, selectedView]);
 
-    const updateDateRangeProperty = useCallback(() => {
-        const startDate = formatDateForUrl(currentDateRange.start);
-        const endDate = formatDateForUrl(currentDateRange.end);
-        const dateRangeQuery = `${startDate}/${endDate}`;
+  const updateDateRangeProperty = useCallback(() => {
+    const startDate = formatDateForUrl(currentDateRange.start);
+    const endDate = formatDateForUrl(currentDateRange.end);
+    const dateRangeQuery = `${startDate}/${endDate}`;
 
-        const existing = getProperty('moetedato');
-        if (existing !== dateRangeQuery) {
-            setProperty('moetedato', dateRangeQuery);
-        }
-    }, [currentDateRange, setProperty, getProperty]);
+    const existing = getProperty('moetedato');
+    if (existing !== dateRangeQuery) {
+      setProperty('moetedato', dateRangeQuery);
+    }
+  }, [currentDateRange, setProperty, getProperty]);
 
-    const fetchAllResults = useCallback(async (currentResults: PaginatedList<Base>) => {
-        let i = 0;
-        const moetedato = getProperty('moetedato');
-        console.log('Fetching all results for date range:', moetedato);
-        if (!moetedato) {
-            setAllResults(currentResults);
-            return;
-        }
-
-        while (currentResults.next && i < 15) { // TODO: Remove temporary limit pages to avoid infinite loops
-            try {
-                currentResults = await fetchNextPage(currentResults, true);
-                setAllResults(currentResults);
-                console.log(i);
-                i++;
-            } catch (error) {
-                console.error('Error fetching next page:', error);
-                break;
-            }
-        }
+  const fetchAllResults = useCallback(
+    async (currentResults: PaginatedList<Base>) => {
+      let i = 0;
+      const moetedato = getProperty('moetedato');
+      console.log('Fetching all results for date range:', moetedato);
+      if (!moetedato) {
         setAllResults(currentResults);
+        return;
+      }
 
-    }, [getProperty]);
+      while (currentResults.next && i < 15) {
+        // TODO: Remove temporary limit pages to avoid infinite loops
+        try {
+          currentResults = await fetchNextPage(currentResults, true);
+          setAllResults(currentResults);
+          console.log(i);
+          i++;
+        } catch (error) {
+          console.error('Error fetching next page:', error);
+          break;
+        }
+      }
+      setAllResults(currentResults);
+    },
+    [getProperty],
+  );
 
-    useEffect(() => {
-        hasWeekendMeetings(searchResults) ? setDisplayWeekends(true) : null;
-    }, [searchResults]);
+  useEffect(() => {
+    hasWeekendMeetings(searchResults) ? setDisplayWeekends(true) : null;
+  }, [searchResults]);
 
-    useEffect(() => {
-        updateDateRangeProperty();
-    }, [updateDateRangeProperty]);
+  useEffect(() => {
+    updateDateRangeProperty();
+  }, [updateDateRangeProperty]);
 
-    useEffect(() => {
-        fetchAllResults(searchResults);
-    }, [searchResults, fetchAllResults]);
+  useEffect(() => {
+    fetchAllResults(searchResults);
+  }, [searchResults, fetchAllResults]);
 
-    useEffect(() => {
-        const handleSwitchToWeekView = (event: CustomEvent) => {
-            setSelectedView('week');
-            if (event.detail && event.detail.date) {
-                setSelectedDate(new Date(event.detail.date));
-            }
-        };
-        window.addEventListener('switchToWeekView', handleSwitchToWeekView as EventListener);
-
-        return () => {
-            window.removeEventListener('switchToWeekView', handleSwitchToWeekView as EventListener);
-        };
-    }, []);
-
-
-    return (
-        <div className={cn(
-            'container-wrapper',
-            'main-content',
-            styles.calendarContainer,
-            selectedView === 'month' ? styles.monthView :
-                selectedView === 'week' ? styles.weekView :
-                    selectedView === 'day' ? styles.dayView :
-                        styles.calendarContainer
-        )}>
-            <div className="container-pre collapsible" />
-
-            <div className={cn('calendar-content', styles.calendarContent, selectedView === 'month' ? styles.monthView :
-                selectedView === 'week' ? styles.weekView :
-                    selectedView === 'day' ? styles.dayView :
-                        styles.dynamicView)}>
-                <CalendarHeader
-                    selectedView={selectedView}
-                    setSelectedView={setSelectedView}
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    displayWeekends={displayWeekends}
-                    setDisplayWeekends={setDisplayWeekends} />
-                <div className={cn(styles.calendarBody)}>
-                    <CalendarBody
-                        selectedView={selectedView}
-                        selectedDate={selectedDate}
-                        displayWeekends={displayWeekends}
-                        currentSearchResults={allResults}
-                        setSelectedDate={setSelectedDate} />
-                </div>
-            </div>
-
-            {/* <div className="container-post collapsible" /> */}
-        </div>
+  useEffect(() => {
+    const handleSwitchToWeekView = (event: CustomEvent) => {
+      setSelectedView('week');
+      if (event.detail && event.detail.date) {
+        setSelectedDate(new Date(event.detail.date));
+      }
+    };
+    window.addEventListener(
+      'switchToWeekView',
+      handleSwitchToWeekView as EventListener,
     );
+
+    return () => {
+      window.removeEventListener(
+        'switchToWeekView',
+        handleSwitchToWeekView as EventListener,
+      );
+    };
+  }, []);
+
+  return (
+    <div
+      className={cn(
+        'container-wrapper',
+        'main-content',
+        styles.calendarContainer,
+        selectedView === 'month'
+          ? styles.monthView
+          : selectedView === 'week'
+            ? styles.weekView
+            : selectedView === 'day'
+              ? styles.dayView
+              : styles.calendarContainer,
+      )}
+    >
+      <div className="container-pre collapsible" />
+
+      <div
+        className={cn(
+          'calendar-content',
+          styles.calendarContent,
+          selectedView === 'month'
+            ? styles.monthView
+            : selectedView === 'week'
+              ? styles.weekView
+              : selectedView === 'day'
+                ? styles.dayView
+                : styles.dynamicView,
+        )}
+      >
+        <CalendarHeader
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          displayWeekends={displayWeekends}
+          setDisplayWeekends={setDisplayWeekends}
+        />
+        <div className={cn(styles.calendarBody)}>
+          <CalendarBody
+            selectedView={selectedView}
+            selectedDate={selectedDate}
+            displayWeekends={displayWeekends}
+            currentSearchResults={allResults}
+            setSelectedDate={setSelectedDate}
+          />
+        </div>
+      </div>
+
+      {/* <div className="container-post collapsible" /> */}
+    </div>
+  );
 }
 
 //TODO: Fix display of many meetings on same day

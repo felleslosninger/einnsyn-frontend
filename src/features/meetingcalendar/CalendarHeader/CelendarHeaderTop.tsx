@@ -7,33 +7,33 @@ import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import SearchTabs from '~/features/search/searchheader/SearchTabs';
 
 export default function CalendarHeader() {
-    const { optimisticPathname, optimisticSearchParams } = useNavigation();
-    const { searchQuery, pushSearchQuery } = useSearchField();
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const { searchQuery, pushSearchQuery } = useSearchField();
 
-    const onSubmit = useCallback(
-        (event: React.FormEvent<HTMLFormElement>) => {
-            pushSearchQuery(searchQuery);
-            event.preventDefault();
-        },
-        [searchQuery, pushSearchQuery],
-    );
+  const onSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      pushSearchQuery(searchQuery);
+      event.preventDefault();
+    },
+    [searchQuery, pushSearchQuery],
+  );
 
-    return (
-        <form
-            className="search-form"
-            method="get"
-            onSubmit={onSubmit}
-            action={optimisticPathname}
-        >
-            <SearchField name="q" autoComplete="off" />
+  return (
+    <form
+      className="search-form"
+      method="get"
+      onSubmit={onSubmit}
+      action={optimisticPathname}
+    >
+      <SearchField name="q" autoComplete="off" />
 
-            {/* Include current query parameters as hidden inputs */}
-            {Array.from(optimisticSearchParams?.entries() ?? []).map(
-                ([key, value]) =>
-                    key !== 'q' && (
-                        <input key={key} type="hidden" name={key} value={value} />
-                    ),
-            )}
-        </form>
-    );
+      {/* Include current query parameters as hidden inputs */}
+      {Array.from(optimisticSearchParams?.entries() ?? []).map(
+        ([key, value]) =>
+          key !== 'q' && (
+            <input key={key} type="hidden" name={key} value={value} />
+          ),
+      )}
+    </form>
+  );
 }
