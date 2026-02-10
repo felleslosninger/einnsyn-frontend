@@ -1,19 +1,21 @@
 'use client';
-import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
+import type { Moetemappe } from '@digdir/einnsyn-sdk';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
 import DayView from './CalendarViews/Day';
+import Dynamic from './CalendarViews/Dynamic';
 import MonthView from './CalendarViews/Month';
 import WeekView from './CalendarViews/Week';
-import Dynamic from './CalendarViews/Dynamic';
+import type { CalendarView } from './calendarHelpers';
 
 interface CalendarBodyProps {
-  selectedView: string;
+  selectedView: CalendarView;
   selectedDate: Date;
   displayWeekends: boolean;
-  currentSearchResults: PaginatedList<Base>;
+  currentCalendarResults: Moetemappe[];
+  setSelectedView: (view: CalendarView) => void;
   setSelectedDate: (date: Date) => void;
 }
 
@@ -21,7 +23,8 @@ export default function CalendarBody({
   selectedView,
   selectedDate,
   displayWeekends,
-  currentSearchResults,
+  currentCalendarResults,
+  setSelectedView,
   setSelectedDate,
 }: CalendarBodyProps) {
   return (
@@ -41,27 +44,28 @@ export default function CalendarBody({
         <MonthView
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
-          currentSearchResults={currentSearchResults}
+          currentCalendarResults={currentCalendarResults}
         />
       )}
       {selectedView === 'week' && (
         <WeekView
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
-          currentSearchResults={currentSearchResults}
+          currentCalendarResults={currentCalendarResults}
         />
       )}
       {selectedView === 'day' && (
         <DayView
           selectedDate={selectedDate}
-          currentSearchResults={currentSearchResults}
+          currentCalendarResults={currentCalendarResults}
         />
       )}
       {selectedView === 'dynamic' && (
         <Dynamic
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
-          currentSearchResults={currentSearchResults}
+          currentCalendarResults={currentCalendarResults}
+          setSelectedView={setSelectedView}
           setSelectedDate={setSelectedDate}
         />
       )}

@@ -1,5 +1,6 @@
-import { getSearchResults } from '~/features/search/searchActions';
 import CalendarContainer from '~/features/meetingcalendar/CalendarContainer';
+import { getCalendarResults } from '~/features/meetingcalendar/calendarActions';
+import { resolveCalendarDateRange } from '~/features/meetingcalendar/calendarHelpers';
 
 export default async function Meetingcalendar({
   params,
@@ -10,7 +11,12 @@ export default async function Meetingcalendar({
 }) {
   const { enhet = '' } = await params;
   const urlSearchParams = new URLSearchParams(await searchParams);
-  const searchResults = await getSearchResults(enhet, urlSearchParams);
+  const dateRange = resolveCalendarDateRange(urlSearchParams);
+  const calendarResults = await getCalendarResults(
+    enhet,
+    urlSearchParams,
+    dateRange,
+  );
 
-  return <CalendarContainer searchResults={searchResults} />;
+  return <CalendarContainer calendarResults={calendarResults} />;
 }

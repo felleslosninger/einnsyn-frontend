@@ -1,6 +1,4 @@
 'use client';
-import { useMemo, useState, useEffect } from 'react';
-import { useTranslation } from '~/hooks/useTranslation';
 
 import {
   Button,
@@ -15,12 +13,15 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from '@navikt/aksel-icons';
+import { useMemo, useState } from 'react';
+import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
+import type { CalendarView } from './calendarHelpers';
 
 interface CalendarHeaderProps {
-  selectedView: string;
-  setSelectedView: (view: string) => void;
+  selectedView: CalendarView;
+  setSelectedView: (view: CalendarView) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   displayWeekends: boolean;
