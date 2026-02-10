@@ -5,6 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import { getDateRange } from './DateRange';
+import {
+  useNavigation,
+  useOptimisticPathname,
+} from '~/components/NavigationProvider/NavigationProvider';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
@@ -47,8 +51,18 @@ export default function CalendarContainer({
   searchResults: PaginatedList<Base>;
 }) {
   const { getProperty, setProperty } = useSearchField();
+  const navigation = useNavigation();
+  const pathname = useOptimisticPathname();
 
-  const [selectedView, setSelectedView] = useState('dynamic');
+  const validViews = ['dynamic', 'week', 'month', 'day'];
+
+  // Derive view from URL instead of storing in state
+  const viewFromParams = navigation.searchParams.get('view');
+  const selectedView =
+    viewFromParams && validViews.includes(viewFromParams)
+      ? viewFromParams
+      : 'dynamic';
+
   const [displayWeekends, setDisplayWeekends] = useState(() =>
     hasWeekendMeetings(searchResults),
   );
@@ -76,6 +90,17 @@ export default function CalendarContainer({
     }
     return new Date();
   });
+
+  // Function to update view in URL
+  const setSelectedView = useCallback(
+    (newView: string) => {
+      const params = new URLSearchParams(navigation.searchParams);
+      params.set('view', newView);
+      const newUrl = `${pathname}?${params.toString()}`;
+      navigation.replace(newUrl, { scroll: false });
+    },
+    [navigation, pathname],
+  );
 
   const currentDateRange = useMemo(() => {
     return getDateRange(selectedDate, selectedView);
@@ -149,7 +174,7 @@ export default function CalendarContainer({
         handleSwitchToWeekView as EventListener,
       );
     };
-  }, []);
+  }, [setSelectedView]);
 
   return (
     <div
@@ -204,9 +229,3 @@ export default function CalendarContainer({
     </div>
   );
 }
-
-//TODO: Fix display of many meetings on same day
-
-//TODO: Fix infinite run on inital load
-//TODO: Fix mobile view
-//TODO: fix change of view on reload
