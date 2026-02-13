@@ -10,69 +10,18 @@ import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
+import { StyledInput } from './StyledInput';
 
-type SearchFieldProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+type SearchFieldProps = {
   className?: string;
 };
 
-export const SearchField = ({
-  className,
-  onInput,
-  onKeyDown,
-  ...inputProps
-}) => {
+export const SearchField = ({ className }: SearchFieldProps) => {
   const t = useTranslation();
-  const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { searchQuery, setSearchQuery } = useSearchField();
   const [activeContainer, setActiveContainer] = useState<string | undefined>(
     undefined,
-  );
-  const placeholder = t('search.placeholder');
-
-  const onInputWrapper = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onInput?.(event);
-      const target = event.target as HTMLTextAreaElement;
-      setSearchQuery(target.value ?? '');
-      target.style.height = `${target.scrollHeight}px`;
-    },
-    [setSearchQuery, onInput],
-  );
-
-  const onKeyDownWrapper = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      const target = event.target as HTMLTextAreaElement;
-      onKeyDown?.(event);
-
-      // Trigger search on Enter key
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        setSearchQuery(event.currentTarget.value ?? '', true);
-        target.blur();
-      }
-      // Update search query without search on other keys
-      else {
-        setSearchQuery(event.currentTarget.value ?? '', false);
-      }
-    },
-    [onKeyDown, setSearchQuery],
-  );
-
-  // Expand textarea on focus.
-  const onTextareaFocus = useCallback(
-    (event: React.FocusEvent<HTMLTextAreaElement>) => {
-      const target = event.target as HTMLTextAreaElement;
-      target.style.height = `${target.scrollHeight}px`;
-    },
-    [],
-  );
-
-  const onTextareaFocusBlur = useCallback(
-    (event: React.FocusEvent<HTMLTextAreaElement>) => {
-      const target = event.target as HTMLTextAreaElement;
-      target.style.height = '';
-    },
-    [],
   );
 
   // Set focus to containing element when focusing on input
@@ -111,10 +60,13 @@ export const SearchField = ({
     setActiveContainer(undefined);
   }, []);
 
+  const showClearButton =
+    !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
     <div
-      className={cn(styles.searchFieldContainer)}
+      className={cn(styles.searchFieldContainer, className)}
       onFocus={onContainerFocus}
       ref={containerRef}
     >
@@ -127,15 +79,14 @@ export const SearchField = ({
         )}
       >
         <div className={cn(styles.expandableInputContainer)}>
-          <div
-            className={cn(styles.searchIconContainer, styles.searchInputIcon)}
-          >
-            <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
-          </div>
+          <StyledInput
+            icon={<MagnifyingGlassIcon className={cn(styles.searchIcon)} />}
+            value={searchQuery}
+            setValue={setSearchQuery}
+            name="q"
+          />
 
-          <StyledInput name="q" />
-
-          {searchQuery && (
+          {showClearButton && (
             <Button
               className={cn(styles.clearButton)}
               type="button"

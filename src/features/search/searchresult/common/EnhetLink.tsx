@@ -2,21 +2,8 @@ import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-import { getAncestors, getEnhetHref } from '~/lib/utils/enhetUtils';
-
-const getName = (languageCode: string, enhet: Enhet) => {
-  let enhetName = enhet.navn;
-  if (languageCode === 'nb' && enhet.navn) {
-    enhetName = enhet.navn;
-  } else if (languageCode === 'en' && enhet.navnEngelsk) {
-    enhetName = enhet.navnEngelsk;
-  } else if (languageCode === 'nn' && enhet.navnNynorsk) {
-    enhetName = enhet.navnNynorsk;
-  } else if (languageCode === 'se' && enhet.navnSami) {
-    enhetName = enhet.navnSami;
-  }
-  return enhetName;
-};
+import cn from '~/lib/utils/className';
+import { getAncestors, getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 
 export default function EnhetLink({
   enhet,
@@ -43,9 +30,10 @@ export default function EnhetLink({
       <EinLink
         data-color="neutral"
         href={getEnhetHref(enhet)}
-        className="enhet-link"
+        className={cn('enhet-link', className)}
+        {...props}
       >
-        {getName(languageCode, enhet)}
+        {getName(enhet, languageCode)}
       </EinLink>
       {index < ancestors.length - 1 && <span> / </span>}
     </Fragment>

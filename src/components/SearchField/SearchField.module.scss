@@ -18,8 +18,6 @@
 }
 
 .searchInputWithIcon {
-  .styledInput,
-  .input,
   .paddedContent {
     padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
     padding-right: var(--ds-size-4); // clear-button
@@ -84,12 +82,6 @@
       border-top-left-radius: var(--ds-border-radius-md);
       border-bottom-left-radius: var(--ds-border-radius-md);
     }
-  }
-
-  .searchIconContainer {
-    flex: 0 0 auto;
-    width: var(--ds-size-7);
-    height: var(--ds-size-7);
   }
 }
 
@@ -239,6 +231,7 @@
   position: absolute;
   top: var(--ds-size-1);
   right: var(--ds-size-2);
+  z-index: 4;
   
   display: flex;
   align-items: center;

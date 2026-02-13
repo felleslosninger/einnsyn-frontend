@@ -1,4 +1,4 @@
-import SearchHeader from '~/features/search/searchheader/SearchHeader';
+import { SearchHeader } from '~/features/search';
 
 export default function EnhetHeader() {
   return <SearchHeader />;

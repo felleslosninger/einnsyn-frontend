@@ -8,7 +8,7 @@ import { NavigationProvider } from '~/components/NavigationProvider/NavigationPr
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
-import Footer from '~/features/footer/Footer';
+import { Footer } from '~/features/footer';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
