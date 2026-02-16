@@ -3,9 +3,9 @@
 import {
   Button,
   Checkbox,
-  Divider,
   Dropdown,
   Heading,
+  Switch,
 } from '@digdir/designsystemet-react';
 import {
   ChevronDownIcon,
@@ -219,6 +219,11 @@ export default function CalendarHeader({
       </div>
 
       <div className={cn('navigation', styles.navigation)}>
+        <Switch
+          label={t('meetingcalendar.viewOptions.displayWeekends')}
+          checked={displayWeekends}
+          onChange={() => setDisplayWeekends(!displayWeekends)}
+        />
         <Dropdown.TriggerContext>
           <Dropdown.Trigger
             data-color="neutral"
@@ -281,21 +286,9 @@ export default function CalendarHeader({
                   {t('meetingcalendar.viewOptions.day')}
                 </Dropdown.Button>
               </Dropdown.Item>
-              <Divider />
-              <Dropdown.Item>
-                <Checkbox
-                  className={styles.checkbox}
-                  label={t('meetingcalendar.viewOptions.displayWeekends')}
-                  checked={displayWeekends}
-                  onClick={() => {
-                    setDisplayWeekends(!displayWeekends);
-                  }}
-                />
-              </Dropdown.Item>
             </Dropdown.List>
           </Dropdown>
         </Dropdown.TriggerContext>
-
         <div className={cn('datePicker', styles.datePicker)}>
           <div className={styles.dateField}>
             <label className={styles.dateLabel}>
@@ -308,7 +301,6 @@ export default function CalendarHeader({
             </label>
           </div>
         </div>
-
         {navButtons}
       </div>
     </div>

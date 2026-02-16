@@ -16,11 +16,11 @@ export default function SearchTabs({ className }: { className?: string }) {
   const t = useTranslation();
 
   const getLinkUrl = (entityName: string) => {
+    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === 'meetingcalendar') {
-      return '/meetingcalendar';
+      return `/meetingcalendar?${searchParamsCopy.toString()}`;
     }
 
-    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {

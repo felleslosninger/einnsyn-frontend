@@ -11,8 +11,10 @@ import {
   type CalendarView,
   getSelectedCalendarDate,
   getSelectedCalendarView,
+  getSelectedWeekendToggle,
   SELECTED_DATE_KEY,
   SELECTED_VIEW_KEY,
+  SELECTED_WEEKEND_TOGGLE_KEY,
   toDateString,
 } from './calendarHelpers';
 
@@ -43,6 +45,11 @@ export default function CalendarContainer({
     [optimisticSearchParams],
   );
 
+  const displayWeekends = useMemo(
+    () => getSelectedWeekendToggle(optimisticSearchParams),
+    [optimisticSearchParams],
+  );
+
   const setSearchParam = useCallback(
     (key: string, value: string) => {
       const nextSearchParams = new URLSearchParams(
@@ -69,13 +76,19 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
-  const [displayWeekends, setDisplayWeekends] = useState(() =>
-    hasWeekendMeetings(calendarResults),
+  const setDisplayWeekends = useCallback(
+    (shouldDisplay: boolean) =>
+      setSearchParam(
+        SELECTED_WEEKEND_TOGGLE_KEY,
+        shouldDisplay ? 'true' : 'false',
+      ),
+    [setSearchParam],
   );
 
-  useEffect(() => {
-    setDisplayWeekends(hasWeekendMeetings(calendarResults));
-  }, [calendarResults]);
+  //TODO: Implement warning about existing weekend meetings.
+  // useEffect(() => {
+  //   setWeekendWarning(hasWeekendMeetings(calendarResults));
+  // }, [calendarResults]);
 
   return (
     <div
@@ -92,7 +105,7 @@ export default function CalendarContainer({
               : styles.calendarContainer,
       )}
     >
-      <div className="container-pre collapsible" />
+      {/* <div className="container-pre collapsible" /> */}
 
       <div
         className={cn(

@@ -3,6 +3,7 @@ import { getDateRange } from './DateRange';
 
 export const SELECTED_VIEW_KEY = 'view';
 export const SELECTED_DATE_KEY = 'date';
+export const SELECTED_WEEKEND_TOGGLE_KEY = 'showWeekends';
 const LEGACY_SELECTED_VIEW_KEY = 'cv';
 const LEGACY_SELECTED_DATE_KEY = 'cd';
 
@@ -113,4 +114,13 @@ export const resolveCalendarDateRange = (
     from: toDateString(dateRange.start),
     to: toDateString(dateRange.end),
   };
+};
+
+
+export const getSelectedWeekendToggle = (
+  searchParams: URLSearchParams,
+): boolean => {
+  const value = searchParams.get(SELECTED_WEEKEND_TOGGLE_KEY);
+  // Default to false if not set, return true only if explicitly 'true'
+  return value === 'true';
 };
