@@ -1,5 +1,5 @@
-import CalendarHeader from '~/features/meetingcalendar/CalendarHeader/CelendarHeaderTop';
+import SearchHeader from '~/features/search/searchheader/SearchHeader';
 
 export default function EnhetHeader() {
-  return <CalendarHeader />;
+  return <SearchHeader />;
 }

@@ -135,8 +135,10 @@
     "labelPlural": "Čoahkkináššit"
   },
 "meetingcalendar": {
-  "label": "Čuohppesáddanbassi",
-  "labelPlural": "Čuohppesáddanbassit",
+  "label": "čoahkkinkaleandar",
+  "labelPlural": "čoahkkinkaleandarat",
+  "shortLabel": "kaleandar",
+  "shortLabelPlural": "kaleandarat",
   "viewOptions": {
     "dynamic": "Dynamalaš",
     "month": "Mánnu",

@@ -24,10 +24,10 @@ export default function DynamicView({
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const daysPerWeek = displayWeekends ? 7 : 5;
-  const max_weeks = 20;
+  const max_weeks = 8;
   const weekHeight = 305;
   const lastReportedDateRef = useRef(selectedDate);
-  const max_meetings_per_day = 4;
+  const max_meetings_per_day = 3;
 
   // INITIAL GRID
   const initialGrid = useMemo(() => {
@@ -38,11 +38,11 @@ export default function DynamicView({
     const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
     start.setDate(start.getDate() + daysToMonday); // move to monday
-    start.setDate(start.getDate() - 4 * 7); // 4 weeks back
+    start.setDate(start.getDate() - 1 * 7);
 
     const cursor = new Date(start);
 
-    for (let week = -10; week < max_weeks; week++) {
+    for (let week = -1; week < max_weeks; week++) {
       const days = [];
       for (let day = 0; day < daysPerWeek; day++) {
         const isCurrentMonth = cursor.getMonth() === selectedDate.getMonth();
@@ -151,7 +151,6 @@ export default function DynamicView({
           const removeCount = newWeeks.length - max_weeks;
           if (removeCount > 0) {
             const removed = newWeeks.splice(0, removeCount);
-            console.log('Removed weeks from top:', removed.length); //TODO: remove temp log
             // Adjust scroll position to compensate for removed weeks
             requestAnimationFrame(() => {
               if (container) {
@@ -179,7 +178,6 @@ export default function DynamicView({
 
           if (removeCount > 0) {
             newWeeks.splice(-removeCount);
-            console.log('Removing weeks from bottom:', removeCount);
           }
         }
 
@@ -308,9 +306,6 @@ export default function DynamicView({
                     {day.date.getDate() === 1 && (
                       <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
                     )}
-                    {/* {day.date.getDate() === selectedDate.getDate() && (
-                                            <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
-                                        )} */}
                   </span>
 
                   {visibleMeetings.map((item) => (
@@ -338,12 +333,3 @@ export default function DynamicView({
     </div>
   );
 }
-
-//TODOLIST:
-// - Autoconfigure number of weeks based on container height (and weekheight?)
-// - Use einTransition? for scroll handler?
-// - useLoadingCounter?
-// - optimize generate week functions? memoize?
-// - make daterange the same as weekArr?
-// - fix weekheight to be dynamic
-// - add show more, if many meetings on one day

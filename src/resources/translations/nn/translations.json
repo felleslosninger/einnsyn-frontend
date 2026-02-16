@@ -137,6 +137,8 @@
   "meetingcalendar": {
     "label": "Møtekalender",
     "labelPlural": "Møtekalendere",
+    "shortLabel": "Kalender",
+    "shortLabelPlural": "Kalendere",
     "viewOptions": {
       "dynamic": "Dynamisk",
       "month": "Månad",

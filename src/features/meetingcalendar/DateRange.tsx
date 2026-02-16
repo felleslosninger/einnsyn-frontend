@@ -6,8 +6,8 @@ export function getDateRange(selectedDate: Date, view: string) {
     case 'dynamic': {
       const dayOfWeek = start.getDay();
       const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      start.setDate(start.getDate() - 7 - mondayBasedDay);
-      end.setDate(start.getDate() + 14);
+      start.setDate(start.getDate() - mondayBasedDay);
+      end.setDate(start.getDate() + 28);
       break;
     }
     case 'month': {
