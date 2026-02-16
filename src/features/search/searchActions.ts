@@ -36,23 +36,27 @@ const isSearchableEntity = (
   );
 };
 
-/**
- * Get a PaginatedList of search results
+/** Build a SearchParameters object based on an enhetSlug and URLSearchParams.
  *
- * @param api
- * @param searchParams
+ * @param enhetSlug
+ * @param urlSearchParams
  * @returns
  */
-export const getSearchResults = async (
+export const buildSearchParameters = async (
   enhetSlug: string,
-  searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
-  const apiQuery: SearchParameters = {};
+  urlSearchParams: URLSearchParams | string,
+): Promise<SearchParameters> => {
+  const searchParameters: SearchParameters = {};
+  const resolvedSearchParams =
+    typeof urlSearchParams === 'string'
+      ? new URLSearchParams(urlSearchParams)
+      : urlSearchParams;
 
   // Combine Entity filter from path and searchParams
-  if (searchParams.has('entity')) {
-    apiQuery.entity = searchParams.getAll('entity').filter(isSearchableEntity);
+  if (resolvedSearchParams.has('entity')) {
+    searchParameters.entity = resolvedSearchParams
+      .getAll('entity')
+      .filter(isSearchableEntity);
   }
 
   // Combine Enhet filter from path and searchParams
@@ -60,27 +64,29 @@ export const getSearchResults = async (
   if (enhetSlug) {
     enhet.push(enhetSlug);
   }
-  if (searchParams.has('enhet')) {
-    enhet.push(...(searchParams.get('enhet') ?? '').split(','));
+  if (resolvedSearchParams.has('enhet')) {
+    enhet.push(...(resolvedSearchParams.get('enhet') ?? '').split(','));
   }
   if (enhet.length) {
-    apiQuery.administrativEnhet = enhet;
+    searchParameters.administrativEnhet = enhet;
   }
 
   // Build the query object based on the searchParams
-  if (searchParams.has('q')) {
-    const searchTokens = searchQueryToTokens(searchParams.get('q') ?? '');
+  if (resolvedSearchParams.has('q')) {
+    const searchTokens = searchQueryToTokens(
+      resolvedSearchParams.get('q') ?? '',
+    );
 
     // Add regular search words (preserving quotes)
     const filteredTokens = searchTokens.filter((token) => !token.prefix);
-    apiQuery.query = tokensToSearchQuery(filteredTokens);
+    searchParameters.query = tokensToSearchQuery(filteredTokens);
 
     // Fulltext
     const fulltext = searchTokens.some(
       (token) => token.prefix === 'fulltext' && token.value === 'true',
     );
     if (fulltext) {
-      apiQuery.fulltext = true;
+      searchParameters.fulltext = true;
     }
 
     // publisertDato
@@ -90,10 +96,10 @@ export const getSearchResults = async (
     if (publisertDato) {
       const [from, to] = publisertDato.value.split('/');
       if (from) {
-        apiQuery.publisertDatoFrom = toISOString(from);
+        searchParameters.publisertDatoFrom = toISOString(from);
       }
       if (to) {
-        apiQuery.publisertDatoTo = toISOString(to, true);
+        searchParameters.publisertDatoTo = toISOString(to, true);
       }
     }
 
@@ -104,10 +110,10 @@ export const getSearchResults = async (
     if (oppdatertDato) {
       const [from, to] = oppdatertDato.value.split('/');
       if (from) {
-        apiQuery.oppdatertDatoFrom = toISOString(from);
+        searchParameters.oppdatertDatoFrom = toISOString(from);
       }
       if (to) {
-        apiQuery.oppdatertDatoTo = toISOString(to, true);
+        searchParameters.oppdatertDatoTo = toISOString(to, true);
       }
     }
 
@@ -118,10 +124,10 @@ export const getSearchResults = async (
     if (moetedato) {
       const [from, to] = moetedato.value.split('/');
       if (from) {
-        apiQuery.moetedatoFrom = toISOString(from);
+        searchParameters.moetedatoFrom = toISOString(from);
       }
       if (to) {
-        apiQuery.moetedatoTo = toISOString(to, true);
+        searchParameters.moetedatoTo = toISOString(to, true);
       }
     }
 
@@ -145,23 +151,39 @@ export const getSearchResults = async (
       if (wantedTypes.includes('saksframlegg')) {
         queryTypes.push('saksframlegg');
       }
-      apiQuery.journalposttype = queryTypes;
+      searchParameters.journalposttype = queryTypes;
     }
-
-    logger.debug('Search API query', apiQuery);
   }
 
+  return searchParameters;
+};
+
+/**
+ * Get a PaginatedList of search results
+ *
+ * @param api
+ * @param searchParams
+ * @returns
+ */
+export const getSearchResults = async (
+  enhetSlug: string,
+  searchParams: URLSearchParams,
+) => {
+  const api = await cachedApiClient();
+
+  const searchParameters = await buildSearchParameters(enhetSlug, searchParams);
+  logger.debug('Search API query', searchParameters);
+
   try {
-    apiQuery.expand = [
+    searchParameters.expand = [
       'administrativEnhetObjekt.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',
     ];
-    const searchResults = await api.search.search(apiQuery);
+    const searchResults = await api.search.search(searchParameters);
     return searchResults;
   } catch (error) {
-    // TODO: Handle the error
     if (error instanceof EInnsynError) {
       logger.error('Error fetching search results', error);
     }
@@ -169,6 +191,13 @@ export const getSearchResults = async (
   }
 };
 
+/**
+ * Convert a date string to ISO format, handling both absolute and relative date formats.
+ *
+ * @param date
+ * @param endOfDay
+ * @returns
+ */
 const toISOString = (date: string, endOfDay = false): string => {
   // Detect relative dates (-1D, -2W, -3M, -4Y)
   const relativeDateMatch = date.match(/^-(\d+)([hHdDwWmMyY])$/);

@@ -1,24 +1,23 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: ignore temp.*/
+import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-
 import styles from '../CalendarContainer.module.scss';
-
-import type { PaginatedList, Base } from '@digdir/einnsyn-sdk';
-import { isMoetemappe } from '@digdir/einnsyn-sdk';
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { sortMeetingsByTime } from '../CalendarContainer';
+import type { CalendarView } from '../calendarHelpers';
 import MoetemappeModule from '../Moetemappe';
 
 export default function DynamicView({
   selectedDate,
   displayWeekends,
-  currentSearchResults,
+  currentCalendarResults,
+  setSelectedView,
   setSelectedDate,
 }: {
   selectedDate: Date;
   displayWeekends: boolean;
-  currentSearchResults: PaginatedList<Base>;
+  currentCalendarResults: Moetemappe[];
+  setSelectedView: (view: CalendarView) => void;
   setSelectedDate: (date: Date) => void;
 }) {
   const t = useTranslation();
@@ -28,7 +27,6 @@ export default function DynamicView({
   const max_weeks = 20;
   const weekHeight = 305;
   const lastReportedDateRef = useRef(selectedDate);
-  const inView = [];
   const max_meetings_per_day = 4;
 
   // INITIAL GRID
@@ -202,9 +200,16 @@ export default function DynamicView({
       const visibleWeek = weeks[visibleWeekIndex];
       const newDate = visibleWeek[0].date;
 
-      if (
-        lastReportedDateRef.current.toDateString() !== newDate.toDateString()
-      ) {
+      // Update selected date only if the week has changed
+      const currentWeekIndex = weeks.findIndex((week) =>
+        week.some(
+          (day) =>
+            day.date.toDateString() ===
+            lastReportedDateRef.current.toDateString(),
+        ),
+      );
+
+      if (currentWeekIndex !== visibleWeekIndex) {
         lastReportedDateRef.current = newDate;
         setSelectedDate(new Date(newDate));
       }
@@ -276,13 +281,11 @@ export default function DynamicView({
             className={cn(styles.weekRow, styles.dynWeekRow)}
           >
             {week.map((day) => {
-              const dayMeetings = sortMeetingsByTime(
-                currentSearchResults.items.filter(
-                  (item) =>
-                    isMoetemappe(item) &&
-                    new Date(item.moetedato).toDateString() ===
-                      day.date.toDateString(),
-                ),
+              const dayMeetings = currentCalendarResults.filter(
+                (item) =>
+                  item.moetedato &&
+                  new Date(item.moetedato).toDateString() ===
+                    day.date.toDateString(),
               );
 
               const visibleMeetings = dayMeetings.slice(
@@ -310,11 +313,9 @@ export default function DynamicView({
                                         )} */}
                   </span>
 
-                  {visibleMeetings.map((item) =>
-                    isMoetemappe(item) ? (
-                      <MoetemappeModule key={item.id} item={item} />
-                    ) : null,
-                  )}
+                  {visibleMeetings.map((item) => (
+                    <MoetemappeModule key={item.id} item={item} />
+                  ))}
 
                   {hiddenCount > 0 && (
                     <button
@@ -322,11 +323,7 @@ export default function DynamicView({
                       className={styles.showMoreButton}
                       onClick={() => {
                         setSelectedDate(new Date(day.date));
-                        window.dispatchEvent(
-                          new CustomEvent('switchToWeekView', {
-                            detail: { date: day.date },
-                          }),
-                        );
+                        setSelectedView('week');
                       }}
                     >
                       {t('meetingcalendar.viewOptions.showMore')}

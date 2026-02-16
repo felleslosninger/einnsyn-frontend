@@ -1,16 +1,15 @@
+import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useTranslation } from '~/hooks/useTranslation';
-import { Base, isMoetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
-import { sortMeetingsByTime } from '../CalendarContainer';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 
 export default function DayView({
   selectedDate,
-  currentSearchResults,
+  currentCalendarResults,
 }: {
   selectedDate: Date;
-  currentSearchResults: PaginatedList<Base>;
+  currentCalendarResults: Moetemappe[];
 }) {
   const t = useTranslation();
 
@@ -45,18 +44,16 @@ export default function DayView({
           >
             <span className={styles.dateText}>{day.dayNumber}</span>
 
-            {sortMeetingsByTime(
-              currentSearchResults.items.filter(
+            {currentCalendarResults
+              .filter(
                 (item) =>
-                  isMoetemappe(item) &&
+                  item.moetedato &&
                   new Date(item.moetedato).toDateString() ===
                     day.date.toDateString(),
-              ),
-            ).map((item) =>
-              isMoetemappe(item) ? (
+              )
+              .map((item) => (
                 <MoetemappeModule key={item.id} item={item} />
-              ) : null,
-            )}
+              ))}
           </div>
         </div>
       </div>
