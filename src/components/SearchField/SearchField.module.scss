@@ -63,12 +63,18 @@
     border-color: transparent;
   }
 
+  &:not(:has(.expandableInputContainer)):has(textarea:focus),
+  .expandableInputContainer:has(textarea:focus) {
+    overflow: visible;
+  }
+
 
   .expandableInputContainer {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
+    height: var(--styled-input-expanded-height, auto);
     min-height: 100%;
   }
 

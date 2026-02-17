@@ -9,8 +9,6 @@ import {
   cachedTrimmedEnhetList,
   type TrimmedEnhet,
 } from '~/actions/api/enhetActions';
-import { EinButton } from '~/components/EinButton/EinButton';
-import { EinInput } from '~/components/EinInput/EinInput';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import type { LanguageCode } from '~/lib/translation/translation';
@@ -18,7 +16,14 @@ import cn from '~/lib/utils/className';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
-import searchFieldStyles from './SearchField.module.scss';
+import {
+  enhetParamToQuery,
+  getActiveEnhetFilterSegment,
+  getEnhetIdsFromQuery,
+  insertEnhetToken,
+  removeEnhetToken,
+} from './enhetTokenInputUtils';
+import { StyledInput } from './StyledInput';
 
 export type EnhetNode = {
   currentName: string;
@@ -40,7 +45,12 @@ export default function EnhetSelector({
   const { optimisticSearchParams, optimisticPathname } = navigation;
   const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
   const [loading, setLoading] = useState(true);
-  const [searchString, setSearchString] = useState('');
+  const enhetTokenQuery = useMemo(
+    () => enhetParamToQuery(enhetSearchQuery),
+    [enhetSearchQuery],
+  );
+  const [inputValue, setInputValue] = useState(enhetTokenQuery);
+  const [caretPosition, setCaretPosition] = useState(enhetTokenQuery.length);
   const [enhetList, setEnhetList] = useState<TrimmedEnhet[]>([]);
   const [enhetMap, setEnhetMap] = useState<Map<string, TrimmedEnhet>>(
     new Map(),
@@ -52,40 +62,60 @@ export default function EnhetSelector({
   const [focusedIndex, setFocusedIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Refs for virtua handles
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
 
+  const selectedEnhetIds = useMemo(
+    () => getEnhetIdsFromQuery(inputValue),
+    [inputValue],
+  );
+
   const selectedEnhetList = useMemo(() => {
-    const selectedEnhetIds =
-      typeof enhetSearchQuery === 'string' && enhetSearchQuery !== ''
-        ? enhetSearchQuery.split(',')
-        : [];
     return selectedEnhetIds
       .map((id) => enhetMap.get(id))
       .filter((e): e is TrimmedEnhet => e !== undefined);
-  }, [enhetSearchQuery, enhetMap]);
+  }, [selectedEnhetIds, enhetMap]);
+  const selectedEnhetParam = useMemo(
+    () => selectedEnhetIds.join(','),
+    [selectedEnhetIds],
+  );
 
   // Update search query
-  const setSelectedEnhetList = useCallback(
-    (newSelectedEnhetList: TrimmedEnhet[]) => {
+  const setSelectedEnhetIds = useCallback(
+    (newSelectedEnhetIds: string[]) => {
       const newSearchParams = new URLSearchParams(
         optimisticSearchParams.toString(),
       );
       newSearchParams.delete('enhet');
-      const newEnhetParam = newSelectedEnhetList
-        .map((enhet) => enhet.id)
-        .join(',');
+      const newEnhetParam = newSelectedEnhetIds.join(',');
       if (newEnhetParam.length > 0) {
         newSearchParams.set('enhet', newEnhetParam);
       }
       const newSearchParamsString = newSearchParams.toString();
       navigation.push(`${optimisticPathname}?${newSearchParamsString}`);
     },
-    [navigation.push, optimisticPathname, optimisticSearchParams],
+    [navigation, optimisticPathname, optimisticSearchParams],
   );
+
+  const updateInputValue = useCallback(
+    (nextInputValue: string) => {
+      setInputValue(nextInputValue);
+      const nextEnhetIds = getEnhetIdsFromQuery(nextInputValue);
+      const nextEnhetParam = nextEnhetIds.join(',');
+      if (nextEnhetParam !== selectedEnhetParam) {
+        setSelectedEnhetIds(nextEnhetIds);
+      }
+    },
+    [selectedEnhetParam, setSelectedEnhetIds],
+  );
+
+  useEffect(() => {
+    setInputValue(enhetTokenQuery);
+    setCaretPosition(enhetTokenQuery.length);
+  }, [enhetTokenQuery]);
 
   // Get the name of an Enhet in the current language
   const getName = useCallback(
@@ -100,6 +130,12 @@ export default function EnhetSelector({
     },
     [languageCode],
   );
+
+  const activeFilterSegment = useMemo(
+    () => getActiveEnhetFilterSegment(inputValue, caretPosition),
+    [inputValue, caretPosition],
+  );
+  const searchString = activeFilterSegment.value;
 
   // Get a sorted tree structure of enheter, filtered by search string
   const visibleEnhetNodeList: EnhetNode[] = useMemo(() => {
@@ -184,46 +220,62 @@ export default function EnhetSelector({
     setEnhetNodeList(enhetNodeList);
   }, [enhetList, getName]);
 
-  // Get label for input field
-  const label = useMemo(() => {
-    return selectedEnhetList.length > 0
-      ? selectedEnhetList.map((enhet) => getName(enhet)).join(', ')
-      : 'Alle virksomheter';
-  }, [selectedEnhetList, getName]);
+  const updateCaretPosition = useCallback(
+    (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
+      setCaretPosition(event.currentTarget.selectionStart ?? 0);
+    },
+    [],
+  );
 
-  const updateSearchString = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchString(e.target.value);
+  const onInputKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+      setCaretPosition(event.currentTarget.selectionStart ?? 0);
     },
     [],
   );
 
   const addEnhetHandler = useCallback(
     (enhet: TrimmedEnhet) => {
-      const prevSelected = selectedEnhetList;
-      const filtered = prevSelected.filter((n) => n.id !== enhet.id);
-      if (filtered.length !== prevSelected.length) {
-        // // Remove node if already selected
-        // setSelectedEnhetList(filtered);
+      const insertion = insertEnhetToken(inputValue, caretPosition, enhet.id);
+      if (insertion.query === inputValue) {
         return;
       }
 
-      // Append node if not selected
-      setSelectedEnhetList([...prevSelected, enhet]);
+      updateInputValue(insertion.query);
+      setCaretPosition(insertion.caretPosition);
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+        inputRef.current?.setSelectionRange(
+          insertion.caretPosition,
+          insertion.caretPosition,
+        );
+      });
     },
-    [selectedEnhetList, setSelectedEnhetList],
+    [caretPosition, inputValue, updateInputValue],
   );
 
   const removeEnhetHandler = useCallback(
     (enhet: TrimmedEnhet) => {
-      const prevSelected = selectedEnhetList;
-      const filtered = prevSelected.filter((n) => n.id !== enhet.id);
-      if (filtered.length !== prevSelected.length) {
-        setSelectedEnhetList(filtered);
+      const nextInputValue = removeEnhetToken(inputValue, enhet.id);
+      if (nextInputValue === inputValue) {
         return;
       }
+
+      updateInputValue(nextInputValue);
+      const nextCaretPosition = Math.min(caretPosition, nextInputValue.length);
+      setCaretPosition(nextCaretPosition);
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+        inputRef.current?.setSelectionRange(
+          nextCaretPosition,
+          nextCaretPosition,
+        );
+      });
     },
-    [selectedEnhetList, setSelectedEnhetList],
+    [caretPosition, inputValue, updateInputValue],
   );
 
   // Scroll to focused item when index changes
@@ -276,23 +328,12 @@ export default function EnhetSelector({
             focusedList === 'available' &&
             visibleEnhetNodeList[focusedIndex]
           ) {
-            const enhetNode = visibleEnhetNodeList[focusedIndex];
-            const filtered = selectedEnhetList.filter(
-              (n) => n.id !== enhetNode.enhet.id,
-            );
-            if (filtered.length !== selectedEnhetList.length) {
-              setSelectedEnhetList(filtered);
-            } else {
-              setSelectedEnhetList([...selectedEnhetList, enhetNode.enhet]);
-            }
+            addEnhetHandler(visibleEnhetNodeList[focusedIndex].enhet);
           } else if (
             focusedList === 'selected' &&
             selectedEnhetList[focusedIndex]
           ) {
-            const enhet = selectedEnhetList[focusedIndex];
-            setSelectedEnhetList(
-              selectedEnhetList.filter((n) => n.id !== enhet.id),
-            );
+            removeEnhetHandler(selectedEnhetList[focusedIndex]);
           }
           break;
         case 'Escape':
@@ -320,7 +361,8 @@ export default function EnhetSelector({
     focusedIndex,
     visibleEnhetNodeList,
     selectedEnhetList,
-    setSelectedEnhetList,
+    addEnhetHandler,
+    removeEnhetHandler,
   ]);
 
   // Reset focus when search string changes
@@ -348,82 +390,72 @@ export default function EnhetSelector({
 
   return (
     <div className={cn(styles.enhetSelector, className)} ref={containerRef}>
-      <div className={cn(searchFieldStyles.searchFieldButton)}>
-        <EinButton
-          tabIndex={expanded ? -1 : 0}
-          style="link"
-          className={cn(
-            searchFieldStyles.paddedContent,
-            styles.enhetSelectorButton,
-          )}
-        >
-          <div className={cn(searchFieldStyles.searchInputIcon)}>
-            <Buildings3Icon
-              className={cn(styles.searchIcon)}
-              title="Enhet"
-              fontSize="1.2rem"
-            />
-          </div>
-          {label}
-        </EinButton>
-      </div>
+      <StyledInput
+        ref={inputRef}
+        className={cn(styles.enhetSelectorInput)}
+        expandInFlow={true}
+        icon={
+          <Buildings3Icon
+            className={cn(styles.searchIcon)}
+            title="Enhet"
+            fontSize="1.2rem"
+          />
+        }
+        value={inputValue}
+        setValue={updateInputValue}
+        placeholder="Alle virksomheter"
+        onFocus={updateCaretPosition}
+        onInput={updateCaretPosition}
+        onKeyDown={onInputKeyDown}
+        onKeyUp={updateCaretPosition}
+        onClick={updateCaretPosition}
+        onSelect={updateCaretPosition}
+      />
 
       {expanded && (
-        <>
-          <EinInput
-            className={cn(styles.enhetSelectorFilterInput)}
-            value={searchString}
-            onChange={updateSearchString}
-            placeholder="Finn virksomhet..."
-            autoFocus={true}
-            ref={inputRef}
-          />
-          <div className={cn(styles.enhetSelectorDropdown)}>
-            {/* Available List */}
-            <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-              <VList
-                ref={availableListRef}
-                className={cn(styles.enhetSelectorDropdownList)}
-                style={{ contain: 'content' }}
-              >
-                {visibleEnhetNodeList.map((enhetNode, index) => (
-                  <EnhetSelectorSelectItem
-                    key={`add-${enhetNode.enhet.id}`}
-                    enhet={enhetNode.enhet}
-                    onClick={() => addEnhetHandler(enhetNode.enhet)}
-                    isFocused={
-                      focusedList === 'available' && focusedIndex === index
-                    }
-                    isSelected={selectedEnhetList.some(
-                      (e) => e.id === enhetNode.enhet.id,
-                    )}
-                  />
-                ))}
-                {loading && [0, 1, 2, 3].map(() => renderSkeleton())}
-              </VList>
-            </div>
-
-            {/* Selected List */}
-            <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-              <VList
-                ref={selectedListRef}
-                className={cn(styles.enhetSelectorDropdownList)}
-              >
-                {selectedEnhetList.map((enhet, index) => (
-                  <EnhetSelectorSelectItem
-                    key={`remove-${enhet.id}`}
-                    enhet={enhet}
-                    remove={true}
-                    onClick={() => removeEnhetHandler(enhet)}
-                    isFocused={
-                      focusedList === 'selected' && focusedIndex === index
-                    }
-                  />
-                ))}
-              </VList>
-            </div>
+        <div className={cn(styles.enhetSelectorDropdown)}>
+          {/* Available List */}
+          <div className={cn(styles.enhetSelectorDropdownListContainer)}>
+            <VList
+              ref={availableListRef}
+              className={cn(styles.enhetSelectorDropdownList)}
+              style={{ contain: 'content' }}
+            >
+              {visibleEnhetNodeList.map((enhetNode, index) => (
+                <EnhetSelectorSelectItem
+                  key={`add-${enhetNode.enhet.id}`}
+                  enhet={enhetNode.enhet}
+                  onClick={() => addEnhetHandler(enhetNode.enhet)}
+                  isFocused={
+                    focusedList === 'available' && focusedIndex === index
+                  }
+                  isSelected={selectedEnhetIds.includes(enhetNode.enhet.id)}
+                />
+              ))}
+              {loading && [0, 1, 2, 3].map(() => renderSkeleton())}
+            </VList>
           </div>
-        </>
+
+          {/* Selected List */}
+          <div className={cn(styles.enhetSelectorDropdownListContainer)}>
+            <VList
+              ref={selectedListRef}
+              className={cn(styles.enhetSelectorDropdownList)}
+            >
+              {selectedEnhetList.map((enhet, index) => (
+                <EnhetSelectorSelectItem
+                  key={`remove-${enhet.id}`}
+                  enhet={enhet}
+                  remove={true}
+                  onClick={() => removeEnhetHandler(enhet)}
+                  isFocused={
+                    focusedList === 'selected' && focusedIndex === index
+                  }
+                />
+              ))}
+            </VList>
+          </div>
+        </div>
       )}
     </div>
   );
