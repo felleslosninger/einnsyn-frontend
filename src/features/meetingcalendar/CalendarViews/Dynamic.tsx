@@ -7,6 +7,10 @@ import styles from '../CalendarContainer.module.scss';
 import type { CalendarView } from '../calendarHelpers';
 import MoetemappeModule from '../Moetemappe';
 
+const WEEK_HEIGHT = 305;
+const MAX_WEEKS = 8;
+const MAX_MEETINGS_PER_DAY = 3;
+
 export default function DynamicView({
   selectedDate,
   displayWeekends,
@@ -21,13 +25,10 @@ export default function DynamicView({
   setSelectedDate: (date: Date) => void;
 }) {
   const t = useTranslation();
-
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const daysPerWeek = displayWeekends ? 7 : 5;
-  const max_weeks = 8;
-  const weekHeight = 305;
   const lastReportedDateRef = useRef(selectedDate);
-  const max_meetings_per_day = 3;
+
+  const daysPerWeek = displayWeekends ? 7 : 5;
 
   // INITIAL GRID
   const initialGrid = useMemo(() => {
@@ -38,11 +39,11 @@ export default function DynamicView({
     const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
     start.setDate(start.getDate() + daysToMonday); // move to monday
-    start.setDate(start.getDate() - 1 * 7);
+    start.setDate(start.getDate() - 2 * 7);
 
     const cursor = new Date(start);
 
-    for (let week = -1; week < max_weeks; week++) {
+    for (let week = 0; week < MAX_WEEKS; week++) {
       const days = [];
       for (let day = 0; day < daysPerWeek; day++) {
         const isCurrentMonth = cursor.getMonth() === selectedDate.getMonth();
@@ -73,7 +74,7 @@ export default function DynamicView({
     setWeeks(initialGrid);
     requestAnimationFrame(() => {
       if (scrollRef.current) {
-        scrollRef.current.scrollTop = 4 * weekHeight;
+        scrollRef.current.scrollTop = 2 * WEEK_HEIGHT;
       }
     });
   }, [initialGrid]);
@@ -147,14 +148,14 @@ export default function DynamicView({
         const newWeeks = [...prev, generateNextWeek(lastDay)];
 
         // Remove old weeks from the top if exceeding max
-        if (newWeeks.length > max_weeks) {
-          const removeCount = newWeeks.length - max_weeks;
+        if (newWeeks.length > MAX_WEEKS) {
+          const removeCount = newWeeks.length - MAX_WEEKS;
           if (removeCount > 0) {
             const removed = newWeeks.splice(0, removeCount);
             // Adjust scroll position to compensate for removed weeks
             requestAnimationFrame(() => {
               if (container) {
-                container.scrollTop = scrollTop - removed.length * weekHeight;
+                container.scrollTop = scrollTop - removed.length * WEEK_HEIGHT;
               }
             });
           }
@@ -173,8 +174,8 @@ export default function DynamicView({
         const newWeeks = [generatePreviousWeek(firstDay), ...prev];
 
         // Remove old weeks from the bottom if exceeding max
-        if (newWeeks.length > max_weeks) {
-          const removeCount = newWeeks.length - max_weeks;
+        if (newWeeks.length > MAX_WEEKS) {
+          const removeCount = newWeeks.length - MAX_WEEKS;
 
           if (removeCount > 0) {
             newWeeks.splice(-removeCount);
@@ -192,7 +193,7 @@ export default function DynamicView({
     if (!container) return;
 
     const scrollTop = container.scrollTop;
-    const visibleWeekIndex = Math.floor(scrollTop / weekHeight);
+    const visibleWeekIndex = Math.floor(scrollTop / WEEK_HEIGHT);
 
     if (visibleWeekIndex >= 0 && visibleWeekIndex < weeks.length) {
       const visibleWeek = weeks[visibleWeekIndex];
@@ -220,7 +221,7 @@ export default function DynamicView({
     if (!container) return;
 
     const scrollTop = container.scrollTop;
-    const nearestWeekTop = Math.round(scrollTop / weekHeight) * weekHeight;
+    const nearestWeekTop = Math.round(scrollTop / WEEK_HEIGHT) * WEEK_HEIGHT;
 
     container.scrollTo({
       top: nearestWeekTop,
@@ -288,9 +289,9 @@ export default function DynamicView({
 
               const visibleMeetings = dayMeetings.slice(
                 0,
-                max_meetings_per_day,
+                MAX_MEETINGS_PER_DAY,
               );
-              const hiddenCount = dayMeetings.length - max_meetings_per_day;
+              const hiddenCount = dayMeetings.length - MAX_MEETINGS_PER_DAY;
 
               return (
                 <div
