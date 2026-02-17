@@ -9,7 +9,6 @@ import MoetemappeModule from '../Moetemappe';
 
 const WEEK_HEIGHT = 305;
 const MAX_WEEKS = 8;
-const MAX_MEETINGS_PER_DAY = 3;
 
 export default function DynamicView({
   selectedDate,
@@ -287,12 +286,6 @@ export default function DynamicView({
                     day.date.toDateString(),
               );
 
-              const visibleMeetings = dayMeetings.slice(
-                0,
-                MAX_MEETINGS_PER_DAY,
-              );
-              const hiddenCount = dayMeetings.length - MAX_MEETINGS_PER_DAY;
-
               return (
                 <div
                   key={day.date.toISOString()}
@@ -309,22 +302,9 @@ export default function DynamicView({
                     )}
                   </span>
 
-                  {visibleMeetings.map((item) => (
+                  {dayMeetings.map((item) => (
                     <MoetemappeModule key={item.id} item={item} />
                   ))}
-
-                  {hiddenCount > 0 && (
-                    <button
-                      type="button"
-                      className={styles.showMoreButton}
-                      onClick={() => {
-                        setSelectedDate(new Date(day.date));
-                        setSelectedView('week');
-                      }}
-                    >
-                      {t('meetingcalendar.viewOptions.showMore')}
-                    </button>
-                  )}
                 </div>
               );
             })}

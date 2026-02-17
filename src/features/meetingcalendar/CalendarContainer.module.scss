@@ -151,11 +151,12 @@
     border-radius: 4px;
     background: var(--color-surface);
     padding: 0.25rem;
-    overflow-y: hidden;
     display: flex;
-    min-height: 0;
     flex-direction: column;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 305px;
 }
 
 .currentMonth {
