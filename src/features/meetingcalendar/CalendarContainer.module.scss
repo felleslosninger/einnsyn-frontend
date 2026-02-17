@@ -1,3 +1,21 @@
+//pre and post containers
+
+@media (max-width: 1800px) {
+    .calendarPre {
+        display: none;
+    }
+}
+
+.calendarPre {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.calendarPost {
+    flex-grow: 1;
+    background-color: transparent;
+}
+
 // Global styles
 :global(.calendar-page) {
     height: 100vh;
@@ -6,7 +24,10 @@
 
 .calendarContent {
     height: 100%;
+    flex-basis: 2000px;
+    max-width: 2000px;
     width: 100%;
+    flex-shrink: 1;
 }
 
 // Header section
@@ -150,13 +171,18 @@
 .dayCell {
     border-radius: 4px;
     background: var(--color-surface);
-    padding: 0.25rem;
+    padding: var(--ds-size-2);
+    margin: var(--ds-size-1);
     display: flex;
     flex-direction: column;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow-x: hidden;
+}
+
+.meetingList {
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 305px;
+    max-height: 270px;
 }
 
 .currentMonth {
@@ -176,19 +202,13 @@
     overflow-x: hidden;
     position: relative;
     overflow-anchor: auto;
-
-    // -ms-overflow-style: none;
-    // scrollbar-width: none;
 }
 
-// .dynamicCalendarWrapper::-webkit-scrollbar {
-//     display: none;
-// }
 
 // Meeting component styles
 .moetemappemodule {
     background-color: var(--ds-color-neutral-surface-default);
-    margin-bottom: 5px;
+    margin-bottom: var(--ds-size-2);
     border-radius: 5px;
     box-shadow: 1px 1px 5px 1px #002C541A;
     width: 100%;
@@ -202,39 +222,17 @@
     overflow-x: hidden;
     overflow-y: hidden;
 
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: var(--ds-size-3);
+    padding-right: var(--ds-size-3);
 }
 
 .moduleHeading {
-    color: var(--ds-color-neutral-text-default)
+    color: var(--ds-color-neutral-text-default);
+    font-size: var(--ds-body-sm-font-size);
+    padding: var(--ds-size-2) var(--ds-size-3) var(--ds-size-1) var(--ds-size-3);
 }
 
 .moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
-}
-
-.showMoreButton {
-    color: var(--ds-color-text-default);
-    font-family: var(--ds-font-family);
-    font-size: var(--ds-font-size-1);
-    font-style: normal;
-    font-weight: 400;
-    line-height: 130%;
-    letter-spacing: 0.09px;
-    margin: auto auto 0 auto;
-    margin-bottom: 0;
-    display: flex;
-    height: var(--ds-size-9);
-    width: 110px;
-    padding: 0 var(--ds-size-0);
-    justify-content: center;
-    align-items: center;
-    gap: var(--ds-size-1); // Reduced from size-2
-
-    border-radius: var(--ds-border-radius-full);
-    border: 2px solid var(--ds-color-background-default);
-    background: rgba(255, 255, 255, 0.80);
-
-    box-shadow: 1px 1px 5px 1px rgba(19, 74, 124, 0.15);
+    padding-bottom: var(--ds-size-2);
 }

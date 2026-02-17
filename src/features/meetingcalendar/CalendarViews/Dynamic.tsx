@@ -301,10 +301,11 @@ export default function DynamicView({
                       <> {t(`meetingcalendar.months.${day.date.getMonth()}`)}</>
                     )}
                   </span>
-
-                  {dayMeetings.map((item) => (
-                    <MoetemappeModule key={item.id} item={item} />
-                  ))}
+                  <div className={styles.meetingList}>
+                    {dayMeetings.map((item) => (
+                      <MoetemappeModule key={item.id} item={item} />
+                    ))}
+                  </div>
                 </div>
               );
             })}

@@ -23,10 +23,19 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
               : item.utvalgObjekt.parent?.navn || ''}
         </div>
         {/* <div>
-                    <span>{new Date(item.moetedato).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span>
+            {new Date(item.moetedato).toLocaleTimeString('nb-NO', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
 
-                    <span>{item.moetested && item.moetested.length > 0 ? (' - ' + item.moetested) : ''}</span>
-                </div> */}
+          <span>
+            {item.moetested && item.moetested.length > 0
+              ? ' - ' + item.moetested
+              : ''}
+          </span>
+        </div> */}
       </div>
     </div>
   );
