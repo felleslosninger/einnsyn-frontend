@@ -1,0 +1,83 @@
+name: Deploy Autorisasjon
+
+on:
+  workflow_dispatch:
+    inputs:
+      dev:
+        description: "Deploy to dev"
+        required: true
+        default: true
+        type: boolean
+      test:
+        description: "Deploy to test"
+        required: true
+        default: true
+        type: boolean
+      prod:
+        description: "Deploy to prod"
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches:
+      - autorisasjon
+    paths-ignore:
+      - ".github/**"
+      - ".gitignore"
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    with:
+      image-name: einnsyn-frontend-next
+      application-type: docker
+      lifecycle: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dev == 'true' && 'development' || 'deployment' }}
+    secrets: inherit
+
+  update-image-dev:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dev == 'true' }}
+    with:
+      application-name: einnsyn-frontend-autorisasjon
+      deployment-environment: dev
+      image-name: einnsyn-frontend-next
+      image-version: ${{ needs.build.outputs.image-version }}
+      image-digest: ${{ needs.build.outputs.image-digest }}
+      kubernetes-repo: einnsyn-cd
+      product-name: einnsyn
+      lifecycle: development
+    secrets: inherit
+
+  update-image-test:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
+    needs: build
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.test == 'true') }}
+    with:
+      application-name: einnsyn-frontend-autorisasjon
+      deployment-environment: test
+      image-name: einnsyn-frontend-next
+      image-version: ${{ needs.build.outputs.image-version }}
+      image-digest: ${{ needs.build.outputs.image-digest }}
+      kubernetes-repo: einnsyn-cd
+      product-name: einnsyn
+      lifecycle: deployment
+    secrets: inherit
+
+  update-image-prod:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prod == 'true' }}
+    with:
+      application-name: einnsyn-frontend-autorisasjon
+      deployment-environment: prod
+      image-name: einnsyn-frontend-next
+      image-version: ${{ needs.build.outputs.image-version }}
+      image-digest: ${{ needs.build.outputs.image-digest }}
+      kubernetes-repo: einnsyn-cd
+      product-name: einnsyn
+      lifecycle: deployment
+    secrets: inherit
