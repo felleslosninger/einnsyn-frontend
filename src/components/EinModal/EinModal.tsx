@@ -129,7 +129,7 @@ export function EinModalHeader({
   className,
   children,
   onClose
-}: EinModalHeaderProps & { onClose: () => void }) {
+}: EinModalHeaderProps & { onClose?: () => void }) {
   const t = useTranslation();
   const basepath = useModalBasepath();
   const navigation = useNavigation();
