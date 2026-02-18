@@ -24,7 +24,10 @@ export function ModalWrapper({ children }: { children: React.ReactNode }) {
   // Update path name if we don't have an intercepted path
   useEffect(() => {
     if (!modalIsOpen) {
-      basepath = pathname + (searchParams ? `?${searchParams.toString()}` : '');
+      const isLoginRoute = pathname.includes('/login');
+      if (!isLoginRoute) {
+        basepath = pathname + (searchParams ? `?${searchParams.toString()}` : '');
+      }
     }
   }, [modalIsOpen, pathname, searchParams]);
 

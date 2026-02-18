@@ -26,6 +26,7 @@
       "label": "API-nøkkel",
       "labelPlural": "API-nøkler",
       "intro": "API-nøkler kan benyttes for å autorisere eksterne applikasjoner til å programmatisk aksessere, opprette og oppdatere innhold på vegne av din organisasjon. Hver nøkkel er unik for organisasjonen og gir en sikker måte å integrere med eksterne tjenester og automatisere arbeidsflyter for innholdsstyring.",
+      "login": "Logg inn for å administrere API-nøkler",
       "addApiKey": "Opprett API-nøkkel",
       "deleteApiKey": "Slett API-nøkkel",
       "keyName": "Navn på nøkkel",

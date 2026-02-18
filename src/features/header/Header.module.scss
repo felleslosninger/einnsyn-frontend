@@ -2,18 +2,21 @@
 @use '../../styles/easing.scss' as e;
 
 .header {
-  > .containerWrapper > .containerPre,
-  > .containerWrapper > .container,
-  > .containerWrapper > .containerPost {
+
+  >.containerWrapper>.containerPre,
+  >.containerWrapper>.container,
+  >.containerWrapper>.containerPost {
     transition: padding .2s e.$easeOutQuart;
     padding-top: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-top: var(--ds-size-4);
     }
   }
 
-  > .containerWrapper > .containerPre {
+  >.containerWrapper>.containerPre {
     padding-bottom: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-bottom: var(--ds-size-4);
     }
@@ -29,6 +32,7 @@
 
   position: sticky;
   top: 0;
+
   &.fixed {
     position: fixed;
     box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
@@ -37,20 +41,23 @@
   }
 
   &.scrolled {
-    > .containerWrapper > .containerPre,
-    > .containerWrapper > .container,
-    > .containerWrapper > .containerPost {
+
+    >.containerWrapper>.containerPre,
+    >.containerWrapper>.container,
+    >.containerWrapper>.containerPost {
       // Slower transition
       transition-duration: .4s;
       transition-timing-function: e.$easeInOutQuart;
       padding-top: var(--ds-size-2);
+
       @include mq.small-and-medium {
         padding-top: var(--ds-size-3);
       }
     }
 
-    > .containerWrapper > .containerPre {
+    >.containerWrapper>.containerPre {
       padding-bottom: var(--ds-size-2);
+
       @include mq.small-and-medium {
         padding-top: var(--ds-size-2);
       }
@@ -70,31 +77,30 @@
     display: block;
   }
 
-  &:global(.section-home) {
-    height: 80vh;
-    border-bottom: none;
+  // &:global(.section-home) {
 
-    :global(.container-wrapper) {
-      height: 100%;
-    }
+  //   :global(.container-wrapper) {
+  //     height: 100%;
+  //   }
 
-    :global(.container) {
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      form {
-        width: 100%;
-        max-width: 800px;
-      }
-    }
+  //   :global(.container) {
+  //     width: 100%;
+  //     margin: 0 auto;
+  //     display: flex;
+  //     flex-direction: column;
+  //     justify-content: center;
+  //     align-items: center;
 
-    :global(.header-tabs) {
-      display: none;
-    }
-  }
+  //     form {
+  //       width: 100%;
+  //       max-width: 800px;
+  //     }
+  //   }
+
+  //   :global(.header-tabs) {
+  //     display: none;
+  //   }
+  // }
 }
 
 .logoLink {

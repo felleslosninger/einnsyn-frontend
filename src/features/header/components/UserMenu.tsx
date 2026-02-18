@@ -110,7 +110,7 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         <br />
         <strong>{authInfo.enhet?.navn ?? authInfo.orgnummer}</strong>
       </div>
-      <div
+      {/* <div
         className={cn(
           styles['enhet-dropdown-content-section'],
           'header-dropdown-content-section',
@@ -124,7 +124,7 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
           </div>
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
-      </div>
+      </div> */}
       <div
         className={cn(
           styles['enhet-dropdown-content-section'],

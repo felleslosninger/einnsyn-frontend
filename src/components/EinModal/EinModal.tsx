@@ -128,13 +128,15 @@ export function EinModalHeader({
   title,
   className,
   children,
-}: EinModalHeaderProps) {
+  onClose
+}: EinModalHeaderProps & { onClose: () => void }) {
   const t = useTranslation();
   const basepath = useModalBasepath();
   const navigation = useNavigation();
 
   const closeHandler = (event: React.MouseEvent<HTMLFormElement>) => {
     event.preventDefault();
+    onClose?.();
     navigation.push(basepath);
   };
 
