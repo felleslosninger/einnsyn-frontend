@@ -85,10 +85,11 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
-  //TODO: Implement warning about existing weekend meetings.
-  // useEffect(() => {
-  //   setWeekendWarning(hasWeekendMeetings(calendarResults));
-  // }, [calendarResults]);
+  const [weekendWarning, setWeekendWarning] = useState(false);
+
+  useEffect(() => {
+    setWeekendWarning(hasWeekendMeetings(calendarResults));
+  }, [calendarResults]);
 
   return (
     <div
@@ -127,6 +128,8 @@ export default function CalendarContainer({
           setSelectedDate={setSelectedDate}
           displayWeekends={displayWeekends}
           setDisplayWeekends={setDisplayWeekends}
+          weekendWarning={weekendWarning}
+          currentCalendarResults={calendarResults.length}
         />
         <div className={cn(styles.calendarBody)}>
           <CalendarBody

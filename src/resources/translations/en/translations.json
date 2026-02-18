@@ -139,6 +139,9 @@
     "labelPlural": "Meeting calendars",
     "shortLabel": "Calendar",
     "shortLabelPlural": "Calendars",
+    "validationMessages": {
+      "weekendWarning": "There are weekend meetings scheduled. Display weekends to see them."
+    },
     "viewOptions": {
       "dynamic": "Dynamic",
       "month": "Month",

@@ -6,6 +6,10 @@ import {
   Dropdown,
   Heading,
   Switch,
+  ValidationMessage,
+  Label,
+  Input,
+  Alert,
 } from '@digdir/designsystemet-react';
 import {
   ChevronDownIcon,
@@ -13,7 +17,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from '@navikt/aksel-icons';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
@@ -26,6 +30,8 @@ interface CalendarHeaderProps {
   setSelectedDate: (date: Date) => void;
   displayWeekends: boolean;
   setDisplayWeekends: (display: boolean) => void;
+  weekendWarning: boolean;
+  currentCalendarResults: number;
 }
 
 export default function CalendarHeader({
@@ -35,9 +41,13 @@ export default function CalendarHeader({
   setSelectedDate,
   displayWeekends,
   setDisplayWeekends,
+  weekendWarning,
+  currentCalendarResults,
 }: CalendarHeaderProps) {
   const t = useTranslation();
   const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   const viewHeading = useMemo(() => {
     const getWeekNumber = (date: Date): number => {
@@ -79,6 +89,25 @@ export default function CalendarHeader({
         return '';
     }
   }, [selectedView, selectedDate, t]);
+
+  // Automatically focus and show picker when entering edit mode
+  useEffect(() => {
+    if (isEditing && dateInputRef.current) {
+      dateInputRef.current.focus();
+      // Modern browsers support showing the picker programmatically
+      if ('showPicker' in HTMLInputElement.prototype) {
+        dateInputRef.current.showPicker();
+      }
+    }
+  }, [isEditing]);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = new Date(e.target.value);
+    if (!isNaN(newDate.getTime())) {
+      setSelectedDate(newDate);
+      setIsEditing(false); // Close after selection
+    }
+  };
 
   const navButtons = useMemo(() => {
     const changeMonth = (offset: number) => {
@@ -212,96 +241,113 @@ export default function CalendarHeader({
 
   return (
     <div className={cn('calendarHeader', styles.calendarHeader)}>
-      <div className={cn('displayHeading', styles.displayHeading)}>
-        <Heading data-size="md" level={1}>
-          {viewHeading}
-        </Heading>
+      <div className={cn('headerInfo', styles.headerInfo)}>
+        <span>Viser {currentCalendarResults} søketreff</span>
       </div>
-
-      <div className={cn('navigation', styles.navigation)}>
-        <Switch
-          label={t('meetingcalendar.viewOptions.displayWeekends')}
-          checked={displayWeekends}
-          onChange={() => setDisplayWeekends(!displayWeekends)}
-        />
-        <Dropdown.TriggerContext>
-          <Dropdown.Trigger
-            data-color="neutral"
-            data-size="sm"
-            variant="secondary"
-            onClick={() => setOpen(!open)}
-          >
-            {t(`meetingcalendar.viewOptions.${selectedView}`)}
-            {open ? (
-              <ChevronDownIcon aria-hidden />
-            ) : (
-              <ChevronUpIcon aria-hidden />
-            )}
-          </Dropdown.Trigger>
-          <Dropdown
-            data-color="neutral"
-            data-size="sm"
-            placement="bottom-start"
-            open={open}
-            onClose={() => setOpen(false)}
-          >
-            <Dropdown.List>
-              <Dropdown.Item>
-                <Dropdown.Button
-                  onClick={() => {
-                    setOpen(false);
-                    setSelectedView('dynamic');
-                  }}
-                >
-                  {t('meetingcalendar.viewOptions.dynamic')}
-                </Dropdown.Button>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <Dropdown.Button
-                  onClick={() => {
-                    setOpen(false);
-                    setSelectedView('month');
-                  }}
-                >
-                  {t('meetingcalendar.viewOptions.month')}
-                </Dropdown.Button>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <Dropdown.Button
-                  onClick={() => {
-                    setOpen(false);
-                    setSelectedView('week');
-                  }}
-                >
-                  {t('meetingcalendar.viewOptions.week')}
-                </Dropdown.Button>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <Dropdown.Button
-                  onClick={() => {
-                    setOpen(false);
-                    setSelectedView('day');
-                  }}
-                >
-                  {t('meetingcalendar.viewOptions.day')}
-                </Dropdown.Button>
-              </Dropdown.Item>
-            </Dropdown.List>
-          </Dropdown>
-        </Dropdown.TriggerContext>
-        <div className={cn('datePicker', styles.datePicker)}>
-          <div className={styles.dateField}>
-            <label className={styles.dateLabel}>
-              <input
-                type="date"
-                className={cn(styles.dateInput)}
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
-              />
-            </label>
-          </div>
+      <div className={cn('headerActions', styles.headerActions)}>
+        <div className={cn('displayHeading', styles.displayHeading)}>
+          {isEditing ? (
+            <Input
+              ref={dateInputRef}
+              type="date"
+              className={styles.headingDateInput}
+              value={selectedDate.toISOString().split('T')[0]}
+              onChange={handleDateChange}
+              onBlur={() => setIsEditing(false)} // Return to heading if user clicks away
+            />
+          ) : (
+            <Heading
+              data-size="md"
+              level={1}
+              className={styles.clickableHeading}
+              onClick={() => setIsEditing(true)}
+            >
+              {viewHeading} <ChevronDownIcon aria-hidden />
+            </Heading>
+          )}
         </div>
-        {navButtons}
+        <div className={styles.weekendWarningAlert}>
+          {weekendWarning && !displayWeekends && (
+            <Alert data-color="info" data-size="md">
+              {t('meetingcalendar.validationMessages.weekendWarning')}
+            </Alert>
+          )}
+        </div>
+
+        <div className={cn('navigation', styles.navigation)}>
+          <Switch
+            label={t('meetingcalendar.viewOptions.displayWeekends')}
+            checked={displayWeekends}
+            onChange={() => setDisplayWeekends(!displayWeekends)}
+            data-size="md"
+          />
+          <Dropdown.TriggerContext>
+            <Dropdown.Trigger
+              data-color="neutral"
+              data-size="md"
+              variant="secondary"
+              onClick={() => setOpen(!open)}
+            >
+              {t(`meetingcalendar.viewOptions.${selectedView}`)}
+              {open ? (
+                <ChevronDownIcon aria-hidden />
+              ) : (
+                <ChevronUpIcon aria-hidden />
+              )}
+            </Dropdown.Trigger>
+            <Dropdown
+              data-color="neutral"
+              data-size="md"
+              placement="bottom-start"
+              open={open}
+              onClose={() => setOpen(false)}
+            >
+              <Dropdown.List>
+                <Dropdown.Item>
+                  <Dropdown.Button
+                    onClick={() => {
+                      setOpen(false);
+                      setSelectedView('dynamic');
+                    }}
+                  >
+                    {t('meetingcalendar.viewOptions.dynamic')}
+                  </Dropdown.Button>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <Dropdown.Button
+                    onClick={() => {
+                      setOpen(false);
+                      setSelectedView('month');
+                    }}
+                  >
+                    {t('meetingcalendar.viewOptions.month')}
+                  </Dropdown.Button>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <Dropdown.Button
+                    onClick={() => {
+                      setOpen(false);
+                      setSelectedView('week');
+                    }}
+                  >
+                    {t('meetingcalendar.viewOptions.week')}
+                  </Dropdown.Button>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <Dropdown.Button
+                    onClick={() => {
+                      setOpen(false);
+                      setSelectedView('day');
+                    }}
+                  >
+                    {t('meetingcalendar.viewOptions.day')}
+                  </Dropdown.Button>
+                </Dropdown.Item>
+              </Dropdown.List>
+            </Dropdown>
+          </Dropdown.TriggerContext>
+          {navButtons}
+        </div>
       </div>
     </div>
   );

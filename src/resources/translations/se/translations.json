@@ -139,6 +139,9 @@
   "labelPlural": "čoahkkinkaleandarat",
   "shortLabel": "kaleandar",
   "shortLabelPlural": "kaleandarat",
+  "validationMessages": {
+    "weekendWarning": "Leat plánalaš čoahkkimat vahkuloahpas. Čájet vahkuloahpaid vai oaidnát daid."
+  },
   "viewOptions": {
     "dynamic": "Dynamalaš",
     "month": "Mánnu",

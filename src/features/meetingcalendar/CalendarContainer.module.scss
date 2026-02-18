@@ -34,77 +34,83 @@
 .calendarHeader {
     position: relative;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-shrink: 0;
-    padding: var(--ds-size-2);
+    padding-top: 0;
+    padding-left: var(--ds-size-2);
+    padding-right: var(--ds-size-2);
+    padding-bottom: var(--ds-size-2);
+}
+
+.headerInfo {
+    width: 100%;
+    padding-bottom: var(--ds-size-2);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: var(--ds-size-2);
 }
 
 .displayHeading {
+    width: fit-content;
+    text-wrap: nowrap;
+    min-height: 40px; // Ensure container doesn't collapse
+    display: flex;
+    align-items: center;
+}
+
+.clickableHeading {
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: -8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+}
+
+.headingDateInput {
+    font-family: inherit;
+    font-size: 1.8rem; // Match your Heading 'md' size
+    font-weight: 450;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    outline: none;
+    background: white;
+    color: #000;
+
+    // Ensures the input doesn't jump position
+    height: auto;
+    line-height: normal;
+}
+
+.weekendWarningAlert {
     width: 100%;
+
+    :global(.ds-alert) {
+        padding-block: var(--ds-size-2);
+    }
 }
 
 .navigation {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    width: 100%;
+    width: fit-content;
+    text-wrap: nowrap;
     gap: var(--ds-size-2);
 }
 
-// Navigation elements
-.datePicker {
-    display: flex;
-}
-
-.calendarButton {
-    padding: var(--ds-size-1);
-}
-
-.calendarIcon {
-    height: 100%;
-    width: 100%;
-}
-
 .arrowIcon {
-    height: 70%;
-    width: 70%;
-}
-
-.dateLabel {
-    display: flex;
-    gap: calc(var(--ein-horizontal-spacing));
-    padding: 0 var(--ds-size-3);
-    background: var(--ds-color-neutral-surface-default);
-    border-style: solid;
-    border-color: var(--ds-color-neutral-border-default);
-    border-width: round(up, var(--ds-border-width-default), 1px);
-    border-radius: var(--ds-border-radius-md);
-    align-items: center;
-
-    span {
-        flex-grow: 1;
-    }
-}
-
-.dateInput {
-    flex-grow: 0;
-    border: none;
-    background: transparent;
-    color: var(--ds-color-neutral-text-subtle);
-    font-size: var(--ds-body-sm-font-size);
-    height: 40.5px;
-
-    // Remove default focus styles
-    &:focus,
-    &:focus-visible {
-        box-shadow: none;
-        outline: none;
-    }
-}
-
-// Dropdown elements
-.checkbox {
-    padding: var(--ds-size-2) var(--ds-size-4);
+    height: 80%;
+    width: 80%;
 }
 
 // Calendar body
