@@ -30,7 +30,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
     const placeholder = t('search.placeholder');
 
     const onInputWrapper = useCallback(
-      (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      (event: React.InputEvent<HTMLTextAreaElement>) => {
         onInput?.(event);
         const target = event.target as HTMLTextAreaElement;
         setSearchQuery(target.value ?? '');

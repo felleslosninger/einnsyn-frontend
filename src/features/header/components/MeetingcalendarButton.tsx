@@ -11,7 +11,7 @@ export default function MeetingcalendarButton() {
       href="/meetingcalendar"
       className={cn(styles.loginButton, 'header-button')}
     >
-      <Chip.Button data-color="brand3" asChild>
+      <Chip.Button data-color="brand2" asChild>
         <span>Meeting Calendar</span>
       </Chip.Button>
     </EinLink>

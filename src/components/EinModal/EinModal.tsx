@@ -134,7 +134,7 @@ export function EinModalHeader({
   const basepath = useModalBasepath();
   const navigation = useNavigation();
 
-  const closeHandler = (event: React.MouseEvent<HTMLFormElement>) => {
+  const closeHandler = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     onClose?.();
     navigation.push(basepath);
