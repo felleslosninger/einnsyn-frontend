@@ -5,12 +5,12 @@ import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
 import DayView from './CalendarViews/Day';
-import Dynamic from './CalendarViews/Dynamic';
 import MonthView from './CalendarViews/Month';
 import WeekView from './CalendarViews/Week';
 import type { CalendarView } from './calendarHelpers';
 
 interface CalendarBodyProps {
+  isLoading: boolean;
   selectedView: CalendarView;
   selectedDate: Date;
   displayWeekends: boolean;
@@ -20,6 +20,7 @@ interface CalendarBodyProps {
 }
 
 export default function CalendarBody({
+  isLoading,
   selectedView,
   selectedDate,
   displayWeekends,
@@ -31,24 +32,16 @@ export default function CalendarBody({
     <div
       className={cn(
         styles.calendarBody,
-        selectedView === 'month'
-          ? styles.monthView
-          : selectedView === 'week'
-            ? styles.weekView
-            : selectedView === 'day'
-              ? styles.dayView
-              : styles.dynamicView,
+        selectedView === 'week'
+          ? styles.weekView
+          : selectedView === 'day'
+            ? styles.dayView
+            : styles.monthView,
       )}
     >
-      {selectedView === 'month' && (
-        <MonthView
-          selectedDate={selectedDate}
-          displayWeekends={displayWeekends}
-          currentCalendarResults={currentCalendarResults}
-        />
-      )}
       {selectedView === 'week' && (
         <WeekView
+          isLoading={isLoading}
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}
@@ -56,12 +49,14 @@ export default function CalendarBody({
       )}
       {selectedView === 'day' && (
         <DayView
+          isLoading={isLoading}
           selectedDate={selectedDate}
           currentCalendarResults={currentCalendarResults}
         />
       )}
-      {selectedView === 'dynamic' && (
-        <Dynamic
+      {selectedView === 'month' && (
+        <MonthView
+          isLoading={isLoading}
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}

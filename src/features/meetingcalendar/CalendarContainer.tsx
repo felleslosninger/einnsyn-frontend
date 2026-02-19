@@ -32,6 +32,9 @@ export default function CalendarContainer({
 }: {
   calendarResults: Moetemappe[];
 }) {
+  const { loadingSearchParamsString, searchParamsString, loading } =
+    useNavigation();
+  const isLoading = loading && loadingSearchParamsString !== searchParamsString;
   const { optimisticPathname, optimisticSearchParams, replace } =
     useNavigation();
 
@@ -97,13 +100,11 @@ export default function CalendarContainer({
         'container-wrapper',
         'main-content',
         styles.calendarContainer,
-        selectedView === 'month'
-          ? styles.monthView
-          : selectedView === 'week'
-            ? styles.weekView
-            : selectedView === 'day'
-              ? styles.dayView
-              : styles.calendarContainer,
+        selectedView === 'week'
+          ? styles.weekView
+          : selectedView === 'day'
+            ? styles.dayView
+            : styles.calendarContainer,
       )}
     >
       <div className={cn('calendar-pre collapsible', styles.calendarPre)} />
@@ -112,13 +113,11 @@ export default function CalendarContainer({
         className={cn(
           'calendar-content',
           styles.calendarContent,
-          selectedView === 'month'
-            ? styles.monthView
-            : selectedView === 'week'
-              ? styles.weekView
-              : selectedView === 'day'
-                ? styles.dayView
-                : styles.dynamicView,
+          selectedView === 'week'
+            ? styles.weekView
+            : selectedView === 'day'
+              ? styles.dayView
+              : styles.monthView,
         )}
       >
         <CalendarHeader
@@ -131,8 +130,9 @@ export default function CalendarContainer({
           weekendWarning={weekendWarning}
           currentCalendarResults={calendarResults.length}
         />
-        <div className={cn(styles.calendarBody)}>
+        <div>
           <CalendarBody
+            isLoading={isLoading}
             selectedView={selectedView}
             selectedDate={selectedDate}
             displayWeekends={displayWeekends}

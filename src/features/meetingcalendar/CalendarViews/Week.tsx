@@ -2,13 +2,15 @@ import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
-import MoetemappeModule from '../Moetemappe';
+import MoetemappeModule, { MeetingSkeleton } from '../Moetemappe';
 
 export default function WeekView({
+  isLoading,
   selectedDate,
   displayWeekends,
   currentCalendarResults,
 }: {
+  isLoading: boolean;
   selectedDate: Date;
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
@@ -103,16 +105,22 @@ export default function WeekView({
             >
               <span className={styles.dateText}>{day.dayNumber}</span>
 
-              {currentCalendarResults
-                .filter(
-                  (item) =>
-                    item.moetedato &&
-                    new Date(item.moetedato).toDateString() ===
-                      day.date.toDateString(),
-                )
-                .map((item) => (
-                  <MoetemappeModule key={item.id} item={item} />
-                ))}
+              {isLoading ? (
+                // Render 1-2 skeletons per day to show activity
+                <>
+                  <MeetingSkeleton />
+                  {Math.random() > 0.5 && <MeetingSkeleton />}
+                </>
+              ) : (
+                currentCalendarResults
+                  .filter(
+                    (item) =>
+                      item.moetedato &&
+                      new Date(item.moetedato).toDateString() ===
+                        day.date.toDateString(),
+                  )
+                  .map((item) => <MoetemappeModule key={item.id} item={item} />)
+              )}
             </div>
           ))}
         </div>

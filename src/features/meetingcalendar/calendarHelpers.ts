@@ -7,7 +7,7 @@ export const SELECTED_WEEKEND_TOGGLE_KEY = 'weekends';
 const LEGACY_SELECTED_VIEW_KEY = 'cv';
 const LEGACY_SELECTED_DATE_KEY = 'cd';
 
-export type CalendarView = 'day' | 'week' | 'month' | 'dynamic';
+export type CalendarView = 'day' | 'week' | 'month';
 
 export type DateRange = {
   from: string;
@@ -20,8 +20,7 @@ export const isCalendarView = (
   return (
     value === 'day' ||
     value === 'week' ||
-    value === 'month' ||
-    value === 'dynamic'
+    value === 'month'
   );
 };
 
@@ -96,8 +95,8 @@ export const getSelectedCalendarView = (
     return viewFromQuery;
   }
 
-  // Fall back to 'dynamic' view
-  return 'dynamic';
+  // Fall back to 'month' view
+  return 'month';
 };
 
 /**

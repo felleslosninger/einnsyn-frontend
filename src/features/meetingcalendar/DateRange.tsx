@@ -3,27 +3,11 @@ export function getDateRange(selectedDate: Date, view: string) {
   const end = new Date(selectedDate);
 
   switch (view) {
-    case 'dynamic': {
+    case 'month': {
       const dayOfWeek = start.getDay();
       const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
       start.setDate(start.getDate() - mondayBasedDay);
       end.setDate(start.getDate() + 28);
-      break;
-    }
-    case 'month': {
-      const firstDayOfMonth = new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        1,
-      );
-      start.setDate(firstDayOfMonth.getDate());
-      const dayOfWeek = firstDayOfMonth.getDay();
-      const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      start.setDate(firstDayOfMonth.getDate() - daysToSubtract);
-
-      end.setDate(start.getDate());
-      end.setDate(end.getDate() + 41);
-
       break;
     }
     case 'week': {

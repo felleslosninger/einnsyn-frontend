@@ -1,8 +1,21 @@
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { Skeleton } from '@digdir/designsystemet-react';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
+
+export const MeetingSkeleton = () => (
+  <div style={{ marginBottom: '4px' }}>
+    {/* Mimics the title/box of a meeting */}
+    <Skeleton
+      variant="rectangle"
+      height="40px"
+      width="100%"
+      style={{ borderRadius: '4px' }}
+    />
+  </div>
+);
 
 export default function MoetemappeModule({ item }: { item: Moetemappe }) {
   return (

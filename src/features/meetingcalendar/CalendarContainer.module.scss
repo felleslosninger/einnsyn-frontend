@@ -99,13 +99,13 @@
     }
 }
 
-.navigation {
+.viewOptions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     width: fit-content;
     text-wrap: nowrap;
-    gap: var(--ds-size-2);
+    gap: var(--ds-size-5);
 }
 
 .arrowIcon {
@@ -115,7 +115,9 @@
 
 // Calendar body
 .calendarBody {
-    background-color: var(--ds-color-neutral-background-tinted);
+    background-color: var(--ds-color-neutral-background-default);
+    // background: var(--ds-color-accent-background-tinted);
+    // border: solid 1px var(--ds-color-border-subtle);
     padding: var(--ds-size-4);
     // height: calc(100vh - 340px); // TODO: Adjust based on header height and calendar height. 
     border-radius: 10px;
@@ -134,7 +136,6 @@
     display: grid;
     width: 100%;
     gap: 0.25rem;
-    background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .weekRow {
@@ -164,9 +165,9 @@
 .dayHeaderCell {
     text-align: center;
     font-weight: 600;
-    background-color: var(--ds-color-neutral-background-tinted);
     border-radius: 4px;
     box-shadow: none;
+    background-color: var(--ds-color-neutral-background-default);
 }
 
 .dayHeaderText {
@@ -176,8 +177,6 @@
 
 .dayCell {
     border-radius: 4px;
-    background: var(--color-surface);
-    padding: var(--ds-size-2);
     margin: var(--ds-size-1);
     display: flex;
     flex-direction: column;
@@ -185,10 +184,27 @@
     overflow-x: hidden;
 }
 
+.firstDay {
+    padding: 0;
+}
+
+.dateHeader {
+    :global(.ds-heading) {
+        width: 100%;
+        background-color: var(--ds-color-surface-default);
+        padding: var(--ds-size-2);
+        border-bottom: solid 1px var(--ds-color-border-default);
+        margin-bottom: var(--ds-size-2);
+    }
+}
+
 .meetingList {
+    position: relative; // Needed for pseudo-elements
     overflow-y: auto;
     overflow-x: hidden;
     max-height: 270px;
+    z-index: 2;
+    padding: var(--ds-size-2);
 }
 
 .currentMonth {
@@ -196,7 +212,8 @@
 }
 
 .dateText {
-    font-size: 0.75rem;
+    padding: var(--ds-size-2);
+    font-size: 14px;
     opacity: 0.8;
 }
 
@@ -213,7 +230,7 @@
 
 // Meeting component styles
 .moetemappemodule {
-    background-color: var(--ds-color-neutral-surface-default);
+    background-color: var(--ds-color-accent-surface-tinted);
     margin-bottom: var(--ds-size-2);
     border-radius: 5px;
     box-shadow: 1px 1px 5px 1px #002C541A;
