@@ -1,5 +1,5 @@
 import { searchQueryToTokens } from '~/lib/utils/searchStringTokenizer';
-import { getDateRange } from './DateRange';
+import { getDateRange } from './dateRange';
 
 export const SELECTED_VIEW_KEY = 'view';
 export const SELECTED_DATE_KEY = 'date';

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import cn from '~/lib/utils/className';
 import CalendarBody from './CalendarBody';
@@ -88,10 +88,10 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
-  const [weekendWarning, setWeekendWarning] = useState(false);
+  const [hasWeekendWarning, setHasWeekendWarning] = useState(false);
 
-  useEffect(() => {
-    setWeekendWarning(hasWeekendMeetings(calendarResults));
+  useMemo(() => {
+    setHasWeekendWarning(hasWeekendMeetings(calendarResults));
   }, [calendarResults]);
 
   return (
@@ -127,8 +127,8 @@ export default function CalendarContainer({
           setSelectedDate={setSelectedDate}
           displayWeekends={displayWeekends}
           setDisplayWeekends={setDisplayWeekends}
-          weekendWarning={weekendWarning}
-          currentCalendarResults={calendarResults.length}
+          hasWeekendWarning={hasWeekendWarning}
+          resultCount={calendarResults.length}
         />
         <div>
           <CalendarBody

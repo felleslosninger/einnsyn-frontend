@@ -6,7 +6,7 @@ import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import type { CalendarView } from '../calendarHelpers';
 import MoetemappeModule from '../Moetemappe';
-import { MeetingSkeleton } from '../Moetemappe';
+import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 import { Heading } from '@digdir/designsystemet-react';
 
 const WEEK_HEIGHT = 305;
@@ -190,7 +190,6 @@ export default function DynamicView({
     }
   }, [weeks, generateNextWeek, generatePreviousWeek]);
 
-  //TODO: If a date is displayed that is not in date range, update date range. SetSelectedDate should be first day displayed
   const updateSelectedDateOnScroll = useCallback(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -271,7 +270,7 @@ export default function DynamicView({
             <div key={day.date.toISOString()} className={styles.dayHeaderCell}>
               <span className={styles.dayHeaderText}>
                 {t(
-                  `meetingcalendar.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`,
+                  `calendar.days.${day.date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()}`,
                 )}
               </span>
             </div>
@@ -305,7 +304,7 @@ export default function DynamicView({
                       <Heading level={1} data-size="sm">
                         {day.date.getDate()}
                         {'. '}
-                        {t(`meetingcalendar.months.${day.date.getMonth()}`)}
+                        {t(`calendar.months.${day.date.getMonth()}`)}
                       </Heading>
                     ) : (
                       <span className={styles.dateText}>
@@ -318,8 +317,8 @@ export default function DynamicView({
                     {isLoading ? (
                       // Render 1-2 skeletons per day to show activity
                       <>
-                        <MeetingSkeleton />
-                        {Math.random() > 0.5 && <MeetingSkeleton />}
+                        <MoetemappeSkeleton />
+                        {Math.random() > 0.5 && <MoetemappeSkeleton />}
                       </>
                     ) : (
                       dayMeetings.map((item) => (

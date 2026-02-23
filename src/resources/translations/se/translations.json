@@ -134,11 +134,12 @@
     "label": "Čoahkkinášši",
     "labelPlural": "Čoahkkináššit"
   },
-"meetingcalendar": {
+"calendar": {
   "label": "čoahkkinkaleandar",
   "labelPlural": "čoahkkinkaleandarat",
   "shortLabel": "kaleandar",
   "shortLabelPlural": "kaleandarat",
+  "resultsFound": "Čájeha $1 ohcanbohtosa",
   "validationMessages": {
     "weekendWarning": "Leat plánalaš čoahkkimat vahkuloahpas. Čájet vahkuloahpaid vai oaidnát daid."
   },

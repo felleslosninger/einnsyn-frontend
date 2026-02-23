@@ -1,8 +1,8 @@
-import CalendarContainer from '~/features/meetingcalendar/CalendarContainer';
-import { getCalendarResults } from '~/features/meetingcalendar/calendarActions';
-import { resolveCalendarDateRange } from '~/features/meetingcalendar/calendarHelpers';
+import CalendarContainer from '~/features/calendar/CalendarContainer';
+import { getCalendarResults } from '~/features/calendar/calendarActions';
+import { resolveCalendarDateRange } from '~/features/calendar/calendarHelpers';
 
-export default async function Meetingcalendar({
+export default async function Calendar({
   params,
   searchParams,
 }: {

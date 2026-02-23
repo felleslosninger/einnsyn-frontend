@@ -134,11 +134,12 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
-    "meetingcalendar": {
+    "calendar": {
     "label": "Meeting calendar",
     "labelPlural": "Meeting calendars",
     "shortLabel": "Calendar",
     "shortLabelPlural": "Calendars",
+    "resultsFound": "Showing $1 search results",
     "validationMessages": {
       "weekendWarning": "There are weekend meetings scheduled. Display weekends to see them."
     },

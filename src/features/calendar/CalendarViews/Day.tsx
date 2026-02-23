@@ -3,7 +3,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
-import { MeetingSkeleton } from '../Moetemappe';
+import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 
 export default function DayView({
   isLoading,
@@ -32,7 +32,7 @@ export default function DayView({
         <div className={styles.dynCalendarHeader}>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t(`meetingcalendar.days.${dayName}`)}
+              {t(`calendar.days.${dayName}`)}
             </span>
           </div>
         </div>
@@ -50,8 +50,8 @@ export default function DayView({
             {isLoading ? (
               // Render 1-2 skeletons per day to show activity
               <>
-                <MeetingSkeleton />
-                {Math.random() > 0.5 && <MeetingSkeleton />}
+                <MoetemappeSkeleton />
+                {Math.random() > 0.5 && <MoetemappeSkeleton />}
               </>
             ) : (
               currentCalendarResults

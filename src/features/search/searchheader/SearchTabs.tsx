@@ -17,8 +17,8 @@ export default function SearchTabs({ className }: { className?: string }) {
 
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
-    if (entityName === 'meetingcalendar') {
-      return `/meetingcalendar?${searchParamsCopy.toString()}`;
+    if (entityName === 'calendar') {
+      return `/calendar?${searchParamsCopy.toString()}`;
     }
 
     if (entityName === '') {
@@ -32,7 +32,7 @@ export default function SearchTabs({ className }: { className?: string }) {
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
 
-    if (tabName === 'meetingcalendar' && pathname === '/meetingcalendar') {
+    if (tabName === 'calendar' && pathname === '/calendar') {
       classes.push('active');
     } else if (pathname === '/search') {
       const activeTab = searchParams?.get('entity') || '';
@@ -82,10 +82,10 @@ export default function SearchTabs({ className }: { className?: string }) {
 
       <div className={cn(styles.otherTabs)}>
         <EinLink
-          className={getLinkClassName('meetingcalendar')}
-          href={getLinkUrl('meetingcalendar')}
+          className={getLinkClassName('calendar')}
+          href={getLinkUrl('calendar')}
         >
-          {t('meetingcalendar.shortLabel')}
+          {t('calendar.shortLabel')}
         </EinLink>
       </div>
 

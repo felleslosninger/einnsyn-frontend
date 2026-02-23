@@ -2,25 +2,19 @@
 
 import {
   Button,
-  Checkbox,
-  Dropdown,
   Heading,
   Switch,
-  ValidationMessage,
-  Label,
   Input,
   Alert,
   ToggleGroup,
 } from '@digdir/designsystemet-react';
 import {
-  CalendarIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  PencilIcon,
 } from '@navikt/aksel-icons';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
@@ -33,8 +27,8 @@ interface CalendarHeaderProps {
   setSelectedDate: (date: Date) => void;
   displayWeekends: boolean;
   setDisplayWeekends: (display: boolean) => void;
-  weekendWarning: boolean;
-  currentCalendarResults: number;
+  hasWeekendWarning: boolean;
+  resultCount: number;
 }
 
 export default function CalendarHeader({
@@ -44,11 +38,10 @@ export default function CalendarHeader({
   setSelectedDate,
   displayWeekends,
   setDisplayWeekends,
-  weekendWarning,
-  currentCalendarResults,
+  hasWeekendWarning,
+  resultCount,
 }: CalendarHeaderProps) {
   const t = useTranslation();
-  const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,11 +64,11 @@ export default function CalendarHeader({
 
     switch (selectedView) {
       case 'month':
-        return `${t(`meetingcalendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+        return `${t(`calendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
 
       case 'week': {
         const weekNumber = getWeekNumber(selectedDate);
-        return `${t('meetingcalendar.viewOptions.week')} ${weekNumber}, ${t(`meetingcalendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+        return `${t('calendar.viewOptions.week')} ${weekNumber}, ${t(`calendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
       }
 
       case 'day':
@@ -126,7 +119,7 @@ export default function CalendarHeader({
               icon
               type="button"
               variant="tertiary"
-              onClick={() => changeWeek(-3)} // Previous Month
+              onClick={() => changeMonth(-1)}
             >
               <ChevronUpIcon className={cn(styles.arrowIcon)} />
             </Button>
@@ -137,7 +130,7 @@ export default function CalendarHeader({
               icon
               type="button"
               variant="tertiary"
-              onClick={() => changeWeek(3)} // Next Month
+              onClick={() => changeMonth(1)}
             >
               <ChevronDownIcon className={cn(styles.arrowIcon)} />
             </Button>
@@ -201,12 +194,12 @@ export default function CalendarHeader({
   }, [selectedView, selectedDate, setSelectedDate]);
 
   return (
-    <div className={cn('calendarHeader', styles.calendarHeader)}>
-      <div className={cn('headerInfo', styles.headerInfo)}>
-        <span>Viser {currentCalendarResults} søketreff</span>
+    <div className={cn('calendar-header', styles.calendarHeader)}>
+      <div className={cn('header-info', styles.headerInfo)}>
+        <span>{t('calendar.resultsFound', resultCount.toString())}</span>
       </div>
-      <div className={cn('headerActions', styles.headerActions)}>
-        <div className={cn('displayHeading', styles.displayHeading)}>
+      <div className={cn('header-actions', styles.headerActions)}>
+        <div className={cn('display-heading', styles.displayHeading)}>
           {isEditing ? (
             <Input
               ref={dateInputRef}
@@ -229,16 +222,16 @@ export default function CalendarHeader({
         </div>
         {navButtons}
         <div className={styles.weekendWarningAlert}>
-          {weekendWarning && !displayWeekends && selectedView !== 'day' && (
+          {hasWeekendWarning && !displayWeekends && selectedView !== 'day' && (
             <Alert data-color="warning" data-size="md">
-              {t('meetingcalendar.validationMessages.weekendWarning')}
+              {t('calendar.validationMessages.weekendWarning')}
             </Alert>
           )}
         </div>
 
-        <div className={cn('viewOptions', styles.viewOptions)}>
+        <div className={cn('view-options', styles.viewOptions)}>
           <Switch
-            label={t('meetingcalendar.viewOptions.displayWeekends')}
+            label={t('calendar.viewOptions.displayWeekends')}
             checked={displayWeekends}
             onChange={() => setDisplayWeekends(!displayWeekends)}
             data-size="md"
@@ -249,15 +242,15 @@ export default function CalendarHeader({
             data-size="sm"
           >
             <ToggleGroup.Item value="month">
-              {t('meetingcalendar.viewOptions.month')}
+              {t('calendar.viewOptions.month')}
             </ToggleGroup.Item>
 
             <ToggleGroup.Item value="week">
-              {t('meetingcalendar.viewOptions.week')}
+              {t('calendar.viewOptions.week')}
             </ToggleGroup.Item>
 
             <ToggleGroup.Item value="day">
-              {t('meetingcalendar.viewOptions.day')}
+              {t('calendar.viewOptions.day')}
             </ToggleGroup.Item>
           </ToggleGroup>
         </div>

@@ -2,7 +2,8 @@ import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
-import MoetemappeModule, { MeetingSkeleton } from '../Moetemappe';
+import MoetemappeModule from '../Moetemappe';
+import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 
 export default function WeekView({
   isLoading,
@@ -58,39 +59,39 @@ export default function WeekView({
         <div className={styles.dynCalendarHeader}>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t('meetingcalendar.days.monday')}
+              {t('calendar.days.monday')}
             </span>
           </div>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t('meetingcalendar.days.tuesday')}
+              {t('calendar.days.tuesday')}
             </span>
           </div>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t('meetingcalendar.days.wednesday')}
+              {t('calendar.days.wednesday')}
             </span>
           </div>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t('meetingcalendar.days.thursday')}
+              {t('calendar.days.thursday')}
             </span>
           </div>
           <div className={styles.dayHeaderCell}>
             <span className={styles.dayHeaderText}>
-              {t('meetingcalendar.days.friday')}
+              {t('calendar.days.friday')}
             </span>
           </div>
           {displayWeekends && (
             <>
               <div className={styles.dayHeaderCell}>
                 <span className={styles.dayHeaderText}>
-                  {t('meetingcalendar.days.saturday')}
+                  {t('calendar.days.saturday')}
                 </span>
               </div>
               <div className={styles.dayHeaderCell}>
                 <span className={styles.dayHeaderText}>
-                  {t('meetingcalendar.days.sunday')}
+                  {t('calendar.days.sunday')}
                 </span>
               </div>
             </>
@@ -108,8 +109,8 @@ export default function WeekView({
               {isLoading ? (
                 // Render 1-2 skeletons per day to show activity
                 <>
-                  <MeetingSkeleton />
-                  {Math.random() > 0.5 && <MeetingSkeleton />}
+                  <MoetemappeSkeleton />
+                  {Math.random() > 0.5 && <MoetemappeSkeleton />}
                 </>
               ) : (
                 currentCalendarResults
