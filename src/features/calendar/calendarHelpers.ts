@@ -17,11 +17,7 @@ export type DateRange = {
 export const isCalendarView = (
   value: string | null | undefined,
 ): value is CalendarView => {
-  return (
-    value === 'day' ||
-    value === 'week' ||
-    value === 'month'
-  );
+  return value === 'day' || value === 'week' || value === 'month';
 };
 
 const toDateOrUndefined = (value: string | null | undefined) => {
@@ -114,7 +110,6 @@ export const resolveCalendarDateRange = (
     to: toDateString(dateRange.end),
   };
 };
-
 
 export const getSelectedWeekendToggle = (
   searchParams: URLSearchParams,

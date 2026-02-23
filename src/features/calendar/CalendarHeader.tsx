@@ -1,11 +1,11 @@
 'use client';
 
 import {
+  Alert,
   Button,
   Heading,
-  Switch,
   Input,
-  Alert,
+  Switch,
   ToggleGroup,
 } from '@digdir/designsystemet-react';
 import {

@@ -1,4 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: ignore temp.*/
+
+import { Heading } from '@digdir/designsystemet-react';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -7,7 +9,6 @@ import styles from '../CalendarContainer.module.scss';
 import type { CalendarView } from '../calendarHelpers';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
-import { Heading } from '@digdir/designsystemet-react';
 
 const WEEK_HEIGHT = 305;
 const MAX_WEEKS = 8;
