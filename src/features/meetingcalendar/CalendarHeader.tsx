@@ -90,22 +90,10 @@ export default function CalendarHeader({
     }
   }, [selectedView, selectedDate, t]);
 
-  // Automatically focus and show picker when entering edit mode
-  useEffect(() => {
-    if (isEditing && dateInputRef.current) {
-      dateInputRef.current.focus();
-      // Modern browsers support showing the picker programmatically
-      if ('showPicker' in HTMLInputElement.prototype) {
-        dateInputRef.current.showPicker();
-      }
-    }
-  }, [isEditing]);
-
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = new Date(e.target.value);
     if (!Number.isNaN(newDate.getTime())) {
       setSelectedDate(newDate);
-      setIsEditing(false); // Close after selection
     }
   };
 
@@ -224,9 +212,9 @@ export default function CalendarHeader({
               ref={dateInputRef}
               type="date"
               className={styles.headingDateInput}
-              value={new Date(selectedDate).toISOString().split('T')[0]} // Format as YYYY-MM-DD for date input
+              value={new Date(selectedDate).toISOString().split('T')[0]}
               onChange={handleDateChange}
-              onBlur={() => setIsEditing(false)} // Return to heading if user clicks away
+              onBlur={() => setIsEditing(false)}
             />
           ) : (
             <Heading
