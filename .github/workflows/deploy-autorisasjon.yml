@@ -28,6 +28,9 @@ on:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+permissions:
+  packages: write
+
 jobs:
   build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
