@@ -1,0 +1,261 @@
+//pre and post containers
+
+@media (max-width: 1800px) {
+    .calendarPre {
+        display: none;
+    }
+}
+
+.calendarPre {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.calendarPost {
+    flex-grow: 1;
+    background-color: transparent;
+}
+
+// Global styles
+:global(.calendar-page) {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.calendarContent {
+    height: 100%;
+    flex-basis: 2000px;
+    max-width: 2000px;
+    width: 100%;
+    flex-shrink: 1;
+}
+
+// Header section
+.calendarHeader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding-top: 0;
+    padding-left: var(--ds-size-2);
+    padding-right: var(--ds-size-2);
+    padding-bottom: var(--ds-size-2);
+}
+
+.headerInfo {
+    width: 100%;
+    padding-bottom: var(--ds-size-2);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: var(--ds-size-2);
+}
+
+.displayHeading {
+    width: fit-content;
+    text-wrap: nowrap;
+    min-height: 40px; // Ensure container doesn't collapse
+    display: flex;
+    align-items: center;
+}
+
+.clickableHeading {
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: -8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+}
+
+.headingDateInput {
+    font-family: inherit;
+    font-size: 1.8rem;
+    font-weight: 450;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    outline: none;
+    background: white;
+    color: #000;
+
+    // Ensures the input doesn't jump position
+    height: auto;
+    line-height: normal;
+}
+
+.weekendWarningAlert {
+    width: 100%;
+
+    :global(.ds-alert) {
+        padding-block: var(--ds-size-2);
+    }
+}
+
+.viewOptions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: fit-content;
+    text-wrap: nowrap;
+    gap: var(--ds-size-5);
+}
+
+.arrowIcon {
+    height: 80%;
+    width: 80%;
+}
+
+// Calendar body
+.calendarBody {
+    background-color: var(--ds-color-neutral-background-default);
+    // background: var(--ds-color-accent-background-tinted);
+    // border: solid 1px var(--ds-color-border-subtle);
+    padding: var(--ds-size-4);
+    // height: calc(100vh - 340px); // TODO: Adjust based on header height and calendar height. 
+    border-radius: 10px;
+}
+
+.calendarGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dynCalendarHeader {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    display: grid;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+.weekRow {
+    display: grid;
+    width: 100%;
+    gap: 0.25rem;
+    flex: 1;
+    min-height: 300px;
+}
+
+.dynWeekRow {
+    max-height: 300px;
+    overflow: hidden;
+}
+
+/* Week rows */
+.withWeekends .weekRow,
+.withWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.noWeekends .weekRow,
+.noWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.dayHeaderCell {
+    text-align: center;
+    font-weight: 600;
+    border-radius: 4px;
+    box-shadow: none;
+    background-color: var(--ds-color-neutral-background-default);
+}
+
+.dayHeaderText {
+    font-size: 0.875rem;
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.dayCell {
+    border-radius: 4px;
+    margin: var(--ds-size-1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow-x: hidden;
+}
+
+.firstDay {
+    padding: 0;
+}
+
+.dateHeader {
+    :global(.ds-heading) {
+        width: 100%;
+        background-color: var(--ds-color-surface-default);
+        padding: var(--ds-size-2);
+        border-bottom: solid 1px var(--ds-color-border-default);
+        margin-bottom: var(--ds-size-2);
+    }
+}
+
+.meetingList {
+    position: relative; // Needed for pseudo-elements
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 270px;
+    z-index: 2;
+    padding: var(--ds-size-2);
+}
+
+.currentMonth {
+    font-weight: 600;
+}
+
+.dateText {
+    padding: var(--ds-size-2);
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.dynamicCalendarWrapper {
+    width: 100%;
+    height: calc(100vh - 340px);
+    min-height: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    overflow-anchor: auto;
+}
+
+
+// Meeting component styles
+.moetemappemodule {
+    background-color: var(--ds-color-accent-surface-tinted);
+    margin-bottom: var(--ds-size-2);
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px 1px #002C541A;
+    width: 100%;
+    font-size: var(--ds-body-xs-font-size);
+    font-weight: 400;
+    text-wrap: nowrap;
+}
+
+.moduleHeading,
+.moduleInfo {
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    padding-left: var(--ds-size-3);
+    padding-right: var(--ds-size-3);
+}
+
+.moduleHeading {
+    color: var(--ds-color-neutral-text-default);
+    font-size: var(--ds-body-sm-font-size);
+    padding: var(--ds-size-2) var(--ds-size-3) var(--ds-size-1) var(--ds-size-3);
+}
+
+.moduleInfo {
+    color: var(--ds-color-neutral-text-subtle);
+    padding-bottom: var(--ds-size-2);
+}

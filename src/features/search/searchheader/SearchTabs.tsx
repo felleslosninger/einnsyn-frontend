@@ -17,26 +17,36 @@ export default function SearchTabs({ className }: { className?: string }) {
 
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
+    if (entityName === 'calendar') {
+      return `/calendar?${searchParamsCopy.toString()}`;
+    }
+
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {
       searchParamsCopy.set('entity', entityName);
     }
-    return `${pathname}?${searchParamsCopy.toString()}`;
+    return `/search?${searchParamsCopy.toString()}`;
   };
 
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
-    const activeTab = searchParams?.get('entity') || '';
-    if (activeTab === tabName) {
+
+    if (tabName === 'calendar' && pathname === '/calendar') {
       classes.push('active');
+    } else if (pathname === '/search') {
+      const activeTab = searchParams?.get('entity') || '';
+      if (activeTab === tabName) {
+        classes.push('active');
+      }
     }
+
     return classes.join(' ');
   };
 
   return (
     <div
-      className={cn(styles.tabsContainer, className, 'header-tabs')}
+      className={cn(styles.tabsContainer, 'header-tabs')}
       data-size="sm"
       data-color="neutral"
     >
@@ -70,8 +80,17 @@ export default function SearchTabs({ className }: { className?: string }) {
         </EinLink>
       </div>
 
+      <div className={cn(styles.otherTabs)}>
+        <EinLink
+          className={getLinkClassName('calendar')}
+          href={getLinkUrl('calendar')}
+        >
+          {t('calendar.shortLabel')}
+        </EinLink>
+      </div>
+
       <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown className="header-dropdown" />
+        <SearchFilterDropdown />
       </div>
     </div>
   );
