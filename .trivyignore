@@ -15,3 +15,5 @@ CVE-2026-23950 # tar (via npm)
 
 CVE-2026-24842 # tar (via npm)
 CVE-2026-26960 # tar (via npm)
+
+CVE-2026-26996 # minimatch (from base image)
