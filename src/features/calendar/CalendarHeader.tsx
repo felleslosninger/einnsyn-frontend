@@ -213,8 +213,15 @@ export default function CalendarHeader({
             <Heading
               data-size="md"
               level={1}
+              tabIndex={0}
               className={styles.clickableHeading}
               onClick={() => setIsEditing(true)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setIsEditing(true);
+                }
+              }}
             >
               {viewHeading}
             </Heading>
