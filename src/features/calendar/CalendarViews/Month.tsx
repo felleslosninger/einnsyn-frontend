@@ -31,8 +31,18 @@ export default function DynamicView({
   const t = useTranslation();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastReportedDateRef = useRef(selectedDate);
+  const [cachedResults, setCachedResults] = useState<Moetemappe[]>(
+    currentCalendarResults,
+  );
 
   const daysPerWeek = displayWeekends ? 7 : 5;
+
+  // Only update cache when a real load completes
+  useEffect(() => {
+    if (!isLoading) {
+      setCachedResults(currentCalendarResults);
+    }
+  }, [isLoading, currentCalendarResults]);
 
   // INITIAL GRID
   const initialGrid = useMemo(() => {
@@ -283,7 +293,15 @@ export default function DynamicView({
             className={cn(styles.weekRow, styles.dynWeekRow)}
           >
             {week.map((day) => {
-              const dayMeetings = currentCalendarResults.filter(
+              const dayMeetings = cachedResults.filter(
+                (item) =>
+                  item.moetedato &&
+                  new Date(item.moetedato).toDateString() ===
+                    day.date.toDateString(),
+              );
+
+              // A day needs a skeleton only if it's loading AND has no cached data
+              const dayHasCache = cachedResults.some(
                 (item) =>
                   item.moetedato &&
                   new Date(item.moetedato).toDateString() ===
@@ -315,8 +333,7 @@ export default function DynamicView({
                   </div>
 
                   <div className={styles.meetingList}>
-                    {isLoading ? (
-                      // Render 1-2 skeletons per day to show activity
+                    {isLoading && !dayHasCache ? (
                       <>
                         <MoetemappeSkeleton />
                         {Math.random() > 0.5 && <MoetemappeSkeleton />}
