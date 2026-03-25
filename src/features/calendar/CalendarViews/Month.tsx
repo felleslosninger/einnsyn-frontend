@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
-import type { CalendarView } from '../calendarHelpers';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 
@@ -18,14 +17,12 @@ export default function DynamicView({
   selectedDate,
   displayWeekends,
   currentCalendarResults,
-  setSelectedView,
   setSelectedDate,
 }: {
   isLoading: boolean;
   selectedDate: Date;
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
-  setSelectedView: (view: CalendarView) => void;
   setSelectedDate: (date: Date) => void;
 }) {
   const t = useTranslation();

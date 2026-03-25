@@ -25,7 +25,6 @@ export default function CalendarBody({
   selectedDate,
   displayWeekends,
   currentCalendarResults,
-  setSelectedView,
   setSelectedDate,
 }: CalendarBodyProps) {
   return (
@@ -60,7 +59,6 @@ export default function CalendarBody({
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}
-          setSelectedView={setSelectedView}
           setSelectedDate={setSelectedDate}
         />
       )}

@@ -94,7 +94,7 @@ export const getSelectedCalendarView = (
   // Fall back to 'month' view
   return 'month';
 };
-
+    
 /**
  * Resolve calendar date range from search params.
  * Falls back to the current view's default range when `moetedato` is missing or invalid.

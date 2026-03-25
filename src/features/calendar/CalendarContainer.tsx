@@ -130,17 +130,15 @@ export default function CalendarContainer({
           hasWeekendWarning={hasWeekendWarning}
           resultCount={calendarResults.length}
         />
-        <div>
-          <CalendarBody
-            isLoading={isLoading}
-            selectedView={selectedView}
-            selectedDate={selectedDate}
-            displayWeekends={displayWeekends}
-            currentCalendarResults={calendarResults}
-            setSelectedView={setSelectedView}
-            setSelectedDate={setSelectedDate}
-          />
-        </div>
+        <CalendarBody
+          isLoading={isLoading}
+          selectedView={selectedView}
+          selectedDate={selectedDate}
+          displayWeekends={displayWeekends}
+          currentCalendarResults={calendarResults}
+          setSelectedView={setSelectedView}
+          setSelectedDate={setSelectedDate}
+        />
       </div>
 
       <div className="calendar-post collapsible" />
