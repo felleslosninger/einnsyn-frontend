@@ -11,21 +11,24 @@ import {
   Tag,
 } from '@digdir/designsystemet-react';
 import { useTranslation } from '~/hooks/useTranslation';
+import { useActionState } from 'react';
+import { addOrganizationAction } from './adminActions';
 
 import cn from '~/lib/utils/className';
 import styles from './AddOrganizationForm.module.scss';
 
 export default function AddOrganizationForm() {
   const t = useTranslation();
+  const [state, formAction, isPending] = useActionState(
+    addOrganizationAction,
+    undefined,
+  );
 
   return (
     <div className="container-wrapper main-content">
       <div className="container-pre collapsible" />
       <div className="container">
-        <form
-          className={cn(styles.form, 'form')}
-          onSubmit={(e) => e.preventDefault()}
-        >
+        <form className={cn(styles.form, 'form')} action={formAction}>
           <h1 className="ds-heading" data-size="lg">
             {t('admin.organization.addOrganization')}
           </h1>
@@ -48,17 +51,41 @@ export default function AddOrganizationForm() {
             </Field>
 
             <Field>
-              <Label>{t('admin.organization.name')} på nynorsk</Label>
+              <Label>
+                {t('admin.organization.name')} på nynorsk
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  Valgfritt
+                </Tag>
+              </Label>
               <Input name="navnNynorsk" />
             </Field>
 
             <Field>
-              <Label>{t('admin.organization.name')} på engelsk</Label>
+              <Label>
+                {t('admin.organization.name')} på engelsk{' '}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  Valgfritt
+                </Tag>
+              </Label>
               <Input name="navnEngelsk" />
             </Field>
 
             <Field>
-              <Label>{t('admin.organization.name')} på samisk</Label>
+              <Label>
+                {t('admin.organization.name')} på samisk{' '}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  Valgfritt
+                </Tag>
+              </Label>
               <Input name="navnSami" />
             </Field>
           </Fieldset>
@@ -81,12 +108,28 @@ export default function AddOrganizationForm() {
             </Field>
 
             <Field>
-              <Label>Telefon</Label>
+              <Label>
+                Telefon{' '}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  Valgfritt
+                </Tag>
+              </Label>
               <Input type="tel" name="kontaktpunktTelefon" />
             </Field>
 
             <Field>
-              <Label>Adresse</Label>
+              <Label>
+                Adresse{' '}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  Valgfritt
+                </Tag>
+              </Label>
               <Input type="text" name="kontaktpunktAdresse" />
             </Field>
 
@@ -152,66 +195,52 @@ export default function AddOrganizationForm() {
           </Fieldset>
 
           {/* ── Innstillinger (boolean flags) ────────────────────────────────── */}
-          <Fieldset>
-            <Heading level={2}>Innstillinger</Heading>
+          <Heading level={2}>Innstillinger</Heading>
 
-            <Field>
-              <Label>Håndteres av</Label>
-              <Input type="text" name="handteresAv" />
-            </Field>
+          <Field>
+            <Label>
+              Håndteres av{' '}
+              <Tag
+                data-color="info"
+                style={{ marginInlineStart: 'var(--ds-size-2)' }}
+              >
+                Valgfritt
+              </Tag>
+            </Label>
+            <Input type="text" name="handteresAv" />
+          </Field>
 
-            <Field>
-              <Label>Versjon av order.xml</Label>
-              <Input type="number" name="versjonAvOrderXml" />
-            </Field>
+          <Field>
+            <Label>
+              Versjon av order.xml{' '}
+              <Tag
+                data-color="info"
+                style={{ marginInlineStart: 'var(--ds-size-2)' }}
+              >
+                Valgfritt
+              </Tag>
+            </Label>
+            <Input type="number" name="versjonAvOrderXml" />
+          </Field>
 
-            <Field>
-              <Label>Avsluttet dato</Label>
-              <Input type="date" name="avsluttetDato" />
-            </Field>
+          <Field>
+            <Label>
+              Avsluttet dato{' '}
+              <Tag
+                data-color="info"
+                style={{ marginInlineStart: 'var(--ds-size-2)' }}
+              >
+                Valgfritt
+              </Tag>
+            </Label>
+            <Input type="date" name="avsluttetDato" />
+          </Field>
 
-            <Fieldset>
-              <Fieldset.Legend>Skjult?</Fieldset.Legend>
-              <Fieldset.Description>Forklaring</Fieldset.Description>
-              <div style={{ display: 'flex', gap: 'var(--ds-size-4)' }}>
-                <Radio name="my-inline" label="Ja" value="ja" />
-                <Radio name="my-inline" label="Nei" value="nei" />
-              </div>
-            </Fieldset>
-
-            <Fieldset>
-              <Fieldset.Legend>Er teknisk?</Fieldset.Legend>
-              <Fieldset.Description>Forklaring</Fieldset.Description>
-              <div style={{ display: 'flex', gap: 'var(--ds-size-4)' }}>
-                <Radio name="my-inline" label="Ja" value="ja" />
-                <Radio name="my-inline" label="Nei" value="nei" />
-              </div>
-            </Fieldset>
-
-            <Fieldset>
-              <Fieldset.Legend>Skal konvertere ID?</Fieldset.Legend>
-              <Fieldset.Description>Forklaring</Fieldset.Description>
-              <div style={{ display: 'flex', gap: 'var(--ds-size-4)' }}>
-                <Radio name="my-inline" label="Ja" value="ja" />
-                <Radio name="my-inline" label="Nei" value="nei" />
-              </div>
-            </Fieldset>
-
-            <Fieldset>
-              <Fieldset.Legend>
-                Motta kvittering for publisering?
-              </Fieldset.Legend>
-              <Fieldset.Description>Forklaring</Fieldset.Description>
-              <div style={{ display: 'flex', gap: 'var(--ds-size-4)' }}>
-                <Radio name="my-inline" label="Ja" value="ja" />
-                <Radio name="my-inline" label="Nei" value="nei" />
-              </div>
-            </Fieldset>
-          </Fieldset>
-
-          <Button type="submit">
+          <Button type="submit" disabled={isPending}>
             {t('admin.organization.addOrganization')}
           </Button>
+          {state?.success && <div>Organisasjon opprettet!</div>}
+          {state?.error && <div>{state.error}</div>}
         </form>
       </div>
       <div className="container-post" />
