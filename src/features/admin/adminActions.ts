@@ -99,6 +99,7 @@ export async function addOrganizationAction(
     orderXmlVersjon: str('versjonAvOrderXml')
       ? Number(str('versjonAvOrderXml'))
       : undefined,
+    parent: reqStr('parent'),
   };
 
   try {
