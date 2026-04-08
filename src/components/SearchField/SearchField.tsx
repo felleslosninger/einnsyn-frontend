@@ -18,7 +18,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
     const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
 
     const onInput = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
+      (event: React.InputEvent<HTMLInputElement>) => {
         inputProps.onInput?.(event);
         setSearchQuery(event.currentTarget.value ?? '');
       },
