@@ -17,6 +17,7 @@ import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import SettingsMenu from './components/SettingsMenu';
 import UserMenu from './components/UserMenu';
+import { AnsattportenLogin } from '../login/AnsattportenLogin';
 import styles from './Header.module.scss';
 
 export default function Header({ children }: { children: React.ReactNode }) {
@@ -169,7 +170,9 @@ export default function Header({ children }: { children: React.ReactNode }) {
                 <Logo />
               </EinLink>
             </div>
-            <div className={cn(styles.container, 'container')}>{children}</div>
+            <div className={cn(styles.container, 'container')}>
+
+            </div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
                 <SettingsMenu />

@@ -26,6 +26,7 @@
       "label": "API-čoavdda",
       "labelPlural": "API-čoavdagat",
       "intro": "API-čoavdagiid bokte sáhttet olgguldas applikašuvnnat ožžot lobi prográmmafápmosaččat geavahit, ráhkadit ja beaivádit sisdoalu du organisašuvnna beales. Juohke čoavdda lea sierranas du organisašuvdnii ja addá sihkaris vuogi integreret olgguldas bálvalusaiguin ja automaiseret sisdoallu-bargovugiid.",
+      "login": "Čálit sisa mii galgá geavahit API-čoavdagiid",
       "addApiKey": "Ráhkat API-čoavdaga",
       "deleteApiKey": "Sihko API-čoavdaga",
       "keyName": "Čoavdaga namma",
