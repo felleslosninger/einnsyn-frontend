@@ -19,7 +19,7 @@
     "@digdir/einnsyn-sdk": "^1.3.0",
     "@navikt/aksel-icons": "^8.9.0",
     "@opentelemetry/api": "^1.9.1",
-    "@vercel/otel": "^2.1.1",
+    "@vercel/otel": "^2.1.2",
     "next": "^16.2.2",
     "openid-client": "^6.8.2",
     "react": "^19.2.5",
