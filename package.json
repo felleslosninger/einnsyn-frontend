@@ -21,7 +21,7 @@
     "@opentelemetry/api": "^1.9.1",
     "@vercel/otel": "^2.1.2",
     "next": "^16.2.3",
-    "openid-client": "^6.8.2",
+    "openid-client": "^6.8.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "sass": "^1.99.0"
