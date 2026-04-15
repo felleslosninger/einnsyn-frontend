@@ -125,20 +125,35 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
         )}
         {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
       </div>
-
-      <div
-        className={cn(
-          styles['enhet-dropdown-content-section'],
-          'header-dropdown-content-section',
-        )}
-      >
-        <div>
-          <EinLink href={`/admin/${authInfo.orgnummer}/add-organization`}>
-            {t('admin.organization.addOrganization')}
-          </EinLink>
+      {!authInfo.enhet && (
+        <div
+          className={cn(
+            styles['enhet-dropdown-content-section'],
+            'header-dropdown-content-section',
+          )}
+        >
+          <div>
+            <EinLink href={`/admin/${authInfo.orgnummer}/add-organization`}>
+              {t('admin.organization.addOrganization')}
+            </EinLink>
+          </div>
         </div>
-      </div>
+      )}
 
+      {authInfo.enhet && (
+        <div
+          className={cn(
+            styles['enhet-dropdown-content-section'],
+            'header-dropdown-content-section',
+          )}
+        >
+          <div>
+            <EinLink href={`/admin/${authInfo.orgnummer}/edit-organization`}>
+              {t('admin.organization.editOrganization')}
+            </EinLink>
+          </div>
+        </div>
+      )}
       <div
         className={cn(
           styles['enhet-dropdown-content-section'],

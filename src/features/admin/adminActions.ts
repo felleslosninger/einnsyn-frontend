@@ -3,6 +3,20 @@
 import type { ApiKey, Enhet, EnhetRequest } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 
+function str(formData: FormData, key: string): string | undefined {
+  const val = formData.get(key);
+  return typeof val === 'string' && val.trim() !== '' ? val : undefined;
+}
+
+function reqStr(formData: FormData, key: string): string {
+  return str(formData, key) ?? '';
+}
+
+export async function getEnhetAction(enhetId: string): Promise<Enhet> {
+  const apiClient = await cachedApiClient();
+  return apiClient.enhet.get(enhetId);
+}
+
 export async function deleteApiKeyAction(formData: FormData) {
   const apiClient = await cachedApiClient();
   const keyId = formData.get('keyId');
@@ -110,6 +124,97 @@ export async function addOrganizationAction(
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function editOrganizationAction(
+  _previousState:
+    | { success: boolean; enhet?: Enhet; error?: string }
+    | undefined,
+  formData: FormData,
+): Promise<{ success: boolean; enhet?: Enhet; error?: string }> {
+  const apiClient = await cachedApiClient();
+
+  const str = (key: string): string | undefined => {
+    const val = formData.get(key);
+    return typeof val === 'string' && val.trim() !== '' ? val : undefined;
+  };
+
+  const reqStr = (key: string): string => str(key) ?? '';
+
+  const enhetId = str('enhetId');
+  if (!enhetId) {
+    throw new Error('Enhet ID is required');
+  }
+
+  const enhetstype = reqStr('enhetstype');
+  if (!isEnhetstype(enhetstype)) {
+    throw new Error(`Invalid enhetstype: ${enhetstype}`);
+  }
+
+  // Inside editOrganizationAction
+  const organizationData: Partial<EnhetRequest> = {
+    navn: reqStr('navn'),
+    navnNynorsk: str('navnNynorsk') ?? reqStr('navn'),
+    navnEngelsk: str('navnEngelsk') ?? reqStr('navn'),
+    navnSami: str('navnSami') ?? reqStr('navn'),
+    orgnummer: reqStr('orgnummer'),
+    kontaktpunktAdresse: str('kontaktpunktAdresse'),
+    kontaktpunktEpost: reqStr('kontaktpunktEpost'),
+    kontaktpunktTelefon: str('kontaktpunktTelefon'),
+    innsynskravEpost: reqStr('innsynskravEpost'),
+    enhetstype,
+    handteresAv: str('handteresAv'),
+    parent: reqStr('parent'),
+  };
+
+  try {
+    const enhet = await apiClient.enhet.update(enhetId, organizationData);
+    //workaround as update isnt working...
+    // const enhet = await (apiClient as any).enhet.requester.request({
+    //   method: 'PATCH',
+    //   path: `/enhet/${enhetId}`,
+    //   body: organizationData,
+    // });
+    return { success: true, enhet };
+  } catch (error) {
+    console.error('Failed to update organization:', error);
+    // Log the full error object to see the actual API response
+    if (error && typeof error === 'object' && 'response' in error) {
+      const text = await (error as { response: Response }).response.text();
+      console.error('API response body:', text);
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function deleteOrganizationAction(
+  _prevState: { success: boolean; error?: string } | undefined,
+  formData: FormData,
+) {
+  try {
+    const apiClient = await cachedApiClient();
+
+    const enhetId = formData.get('enhetId');
+    if (typeof enhetId !== 'string') {
+      return { success: false, error: 'Enhet ID is required' };
+    }
+
+    await apiClient.enhet.delete(enhetId);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to delete organization:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Kunne ikke slette organisasjonen',
     };
   }
 }

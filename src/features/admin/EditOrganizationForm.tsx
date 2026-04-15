@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Alert,
   Button,
@@ -13,12 +14,12 @@ import {
   ValidationMessage,
 } from '@digdir/designsystemet-react';
 import { useTranslation } from '~/hooks/useTranslation';
-import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
-import { useActionState, useRef, useState } from 'react';
-import { addOrganizationAction } from './adminActions';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { editOrganizationAction } from './adminActions';
 import cn from '~/lib/utils/className';
 import styles from './AddOrganizationForm.module.scss';
-import { EinLink } from '~/components/EinLink/EinLink';
+import type { Enhet } from '@digdir/einnsyn-sdk';
+import { getEnhetAction } from './adminActions';
 
 type FormErrors = {
   navn?: string;
@@ -28,15 +29,31 @@ type FormErrors = {
   orgnummer?: string;
 };
 
-export default function AddOrganizationForm() {
+export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
   const t = useTranslation();
-  const { authInfo } = useSessionData();
+  const [enhet, setEnhet] = useState<Enhet | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [state, formAction, isPending] = useActionState(
-    addOrganizationAction,
+    editOrganizationAction,
     undefined,
   );
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchEnhet() {
+      try {
+        const data = await getEnhetAction(enhetId);
+        setEnhet(data);
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setLoading(false);
+      }
+    }
+    void fetchEnhet();
+  }, [enhetId]);
 
   function validate(formData: FormData): FormErrors {
     const e: FormErrors = {};
@@ -59,7 +76,6 @@ export default function AddOrganizationForm() {
     if (Object.keys(newErrors).length > 0) {
       e.preventDefault();
       setErrors(newErrors);
-      // Move focus to error summary
       setTimeout(() => errorSummaryRef.current?.focus(), 0);
     } else {
       setErrors({});
@@ -67,6 +83,10 @@ export default function AddOrganizationForm() {
   }
 
   const hasErrors = Object.keys(errors).length > 0;
+
+  if (loading) return <p>Laster organisasjon...</p>;
+  if (fetchError) return <Alert data-color="danger">{fetchError}</Alert>;
+  if (!enhet) return null;
 
   return (
     <div className="container-wrapper main-content">
@@ -79,10 +99,13 @@ export default function AddOrganizationForm() {
           noValidate
           style={{ marginBottom: 'var(--ds-size-18)' }}
         >
+          <input type="hidden" name="enhetId" value={enhetId} />
+
           <h1 className="ds-heading" data-size="lg">
-            {t('admin.organization.addOrganization')}
+            {t('admin.organization.editOrganization')}
           </h1>
-          {/* ── Navn ─────────────────────────────────────────────────────────── */}
+
+          {/* ── Navn ──────────────────────────────────────────────────────────── */}
           <Fieldset>
             <Heading level={2}>{t('admin.organization.name')}</Heading>
 
@@ -96,7 +119,11 @@ export default function AddOrganizationForm() {
                   {t('common.required')}
                 </Tag>
               </Label>
-              <Input name="navn" aria-invalid={!!errors.navn} />
+              <Input
+                name="navn"
+                defaultValue={enhet.navn}
+                aria-invalid={!!errors.navn}
+              />
               {errors.navn && (
                 <ValidationMessage>{errors.navn}</ValidationMessage>
               )}
@@ -112,7 +139,10 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input name="navnNynorsk" />
+              <Input
+                name="navnNynorsk"
+                defaultValue={enhet.navnNynorsk ?? ''}
+              />
             </Field>
 
             <Field>
@@ -125,7 +155,10 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input name="navnEngelsk" />
+              <Input
+                name="navnEngelsk"
+                defaultValue={enhet.navnEngelsk ?? ''}
+              />
             </Field>
 
             <Field>
@@ -138,10 +171,11 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input name="navnSami" />
+              <Input name="navnSami" defaultValue={enhet.navnSami ?? ''} />
             </Field>
           </Fieldset>
-          {/* ── Kontaktpunkt ─────────────────────────────────────────────────── */}
+
+          {/* ── Kontaktpunkt ──────────────────────────────────────────────────── */}
           <Fieldset>
             <Heading level={2}>{t('admin.organization.contactPoint')}</Heading>
 
@@ -158,6 +192,7 @@ export default function AddOrganizationForm() {
               <Input
                 type="email"
                 name="kontaktpunktEpost"
+                defaultValue={enhet.kontaktpunktEpost ?? ''}
                 aria-invalid={!!errors.kontaktpunktEpost}
               />
               {errors.kontaktpunktEpost && (
@@ -177,7 +212,11 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input type="tel" name="kontaktpunktTelefon" />
+              <Input
+                type="tel"
+                name="kontaktpunktTelefon"
+                defaultValue={enhet.kontaktpunktTelefon ?? ''}
+              />
             </Field>
 
             <Field>
@@ -190,7 +229,11 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input type="text" name="kontaktpunktAdresse" />
+              <Input
+                type="text"
+                name="kontaktpunktAdresse"
+                defaultValue={enhet.kontaktpunktAdresse ?? ''}
+              />
             </Field>
 
             <Field>
@@ -206,6 +249,7 @@ export default function AddOrganizationForm() {
               <Input
                 type="email"
                 name="innsynskravEpost"
+                defaultValue={enhet.innsynskravEpost ?? ''}
                 aria-invalid={!!errors.innsynskravEpost}
               />
               {errors.innsynskravEpost && (
@@ -213,7 +257,8 @@ export default function AddOrganizationForm() {
               )}
             </Field>
           </Fieldset>
-          {/* ── Om organisasjonen ────────────────────────────────────────────── */}
+
+          {/* ── Om organisasjonen ─────────────────────────────────────────────── */}
           <Fieldset>
             <Heading level={2}>
               {t('admin.organization.aboutOrganization')}
@@ -231,42 +276,28 @@ export default function AddOrganizationForm() {
               </Label>
               <Select
                 name="enhetstype"
-                defaultValue=""
+                defaultValue={enhet.enhetstype ?? ''}
                 aria-invalid={!!errors.enhetstype}
               >
                 <Select.Option value="" disabled>
                   {t('admin.organization.selectType')}
                 </Select.Option>
-                <Select.Option value="ADMINISTRATIVENHET">
-                  {t('admin.organization.enhetstype.ADMINISTRATIVENHET')}
-                </Select.Option>
-                <Select.Option value="AVDELING">
-                  {t('admin.organization.enhetstype.AVDELING')}
-                </Select.Option>
-                <Select.Option value="BYDEL">
-                  {t('admin.organization.enhetstype.BYDEL')}
-                </Select.Option>
-                <Select.Option value="DUMMYENHET">
-                  {t('admin.organization.enhetstype.DUMMYENHET')}
-                </Select.Option>
-                <Select.Option value="FYLKE">
-                  {t('admin.organization.enhetstype.FYLKE')}
-                </Select.Option>
-                <Select.Option value="KOMMUNE">
-                  {t('admin.organization.enhetstype.KOMMUNE')}
-                </Select.Option>
-                <Select.Option value="ORGAN">
-                  {t('admin.organization.enhetstype.ORGAN')}
-                </Select.Option>
-                <Select.Option value="SEKSJON">
-                  {t('admin.organization.enhetstype.SEKSJON')}
-                </Select.Option>
-                <Select.Option value="UTVALG">
-                  {t('admin.organization.enhetstype.UTVALG')}
-                </Select.Option>
-                <Select.Option value="VIRKSOMHET">
-                  {t('admin.organization.enhetstype.VIRKSOMHET')}
-                </Select.Option>
+                {[
+                  'ADMINISTRATIVENHET',
+                  'AVDELING',
+                  'BYDEL',
+                  'DUMMYENHET',
+                  'FYLKE',
+                  'KOMMUNE',
+                  'ORGAN',
+                  'SEKSJON',
+                  'UTVALG',
+                  'VIRKSOMHET',
+                ].map((type) => (
+                  <Select.Option key={type} value={type}>
+                    {t(`admin.organization.enhetstype.${type}`)}
+                  </Select.Option>
+                ))}
               </Select>
               {errors.enhetstype && (
                 <ValidationMessage>{errors.enhetstype}</ValidationMessage>
@@ -274,13 +305,20 @@ export default function AddOrganizationForm() {
             </Field>
 
             <Field>
-              <Label>{t('admin.organization.orgnummer')}</Label>
+              <Label>
+                {t('admin.organization.orgnummer')}
+                <Tag
+                  data-color="warning"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  {t('common.required')}
+                </Tag>
+              </Label>
               <Input
                 type="text"
                 name="orgnummer"
+                defaultValue={enhet.orgnummer ?? ''}
                 aria-invalid={!!errors.orgnummer}
-                readOnly
-                value={authInfo?.orgnummer}
               />
               {errors.orgnummer && (
                 <ValidationMessage>{errors.orgnummer}</ValidationMessage>
@@ -299,8 +337,7 @@ export default function AddOrganizationForm() {
               </Label>
               <Select
                 name="parent"
-                defaultValue=""
-                aria-invalid={!!errors.enhetstype}
+                defaultValue={enhet.parent?.toString() ?? ''}
               >
                 <Select.Option value="" disabled>
                   Velg forvaltningsnivå...
@@ -316,6 +353,11 @@ export default function AddOrganizationForm() {
                 </Select.Option>
               </Select>
             </Field>
+          </Fieldset>
+
+          {/* ── Innstillinger ─────────────────────────────────────────────────── */}
+          <Fieldset>
+            <Heading level={2}>{t('admin.organization.settings')}</Heading>
 
             <Field>
               <Label>
@@ -327,7 +369,45 @@ export default function AddOrganizationForm() {
                   {t('common.optional')}
                 </Tag>
               </Label>
-              <Input type="text" name="handteresAv" />
+              <Input
+                type="text"
+                name="handteresAv"
+                defaultValue={enhet.handteresAv?.toString() ?? ''}
+              />
+            </Field>
+
+            <Field>
+              <Label>
+                {t('admin.organization.orderXmlVersion')}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  {t('common.optional')}
+                </Tag>
+              </Label>
+              <Input
+                type="number"
+                name="versjonAvOrderXml"
+                defaultValue={enhet.orderXmlVersjon ?? ''}
+              />
+            </Field>
+
+            <Field>
+              <Label>
+                {t('admin.organization.avsluttetDato')}
+                <Tag
+                  data-color="info"
+                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
+                >
+                  {t('common.optional')}
+                </Tag>
+              </Label>
+              <Input
+                type="date"
+                name="avsluttetDato"
+                defaultValue={enhet.avsluttetDato?.split('T')[0] ?? ''}
+              />
             </Field>
           </Fieldset>
 
@@ -359,24 +439,18 @@ export default function AddOrganizationForm() {
               </ErrorSummary.List>
             </ErrorSummary>
           )}
+
           <Button type="submit" disabled={isPending}>
-            {isPending
-              ? t('common.creating')
-              : t('admin.organization.addOrganization')}
+            {isPending ? t('common.saving') : t('common.save')}
           </Button>
+
           {state?.success && (
             <Alert data-color="success">
-              {t('admin.organization.createdSuccess')}
-              <br />
-              {authInfo?.orgnummer && (
-                <EinLink href={`/admin/${authInfo.orgnummer}/api-keys`}>
-                  {t('admin.apiKey.addApiKey')}
-                </EinLink>
-              )}
+              {t('admin.organization.updatedSuccess')}
             </Alert>
           )}
           {state?.error && (
-            <Alert data-color="danger">{`${t('admin.organization.createError')}: ${state.error}`}</Alert>
+            <Alert data-color="danger">{`${t('admin.organization.updateError')}: ${state.error}`}</Alert>
           )}
         </form>
       </div>
