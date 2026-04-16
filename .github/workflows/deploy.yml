@@ -20,10 +20,15 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
 
 jobs:
   build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
     with:
       image-name: einnsyn-frontend-next
       application-type: docker
@@ -33,6 +38,9 @@ jobs:
   update-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: build
+    permissions:
+      contents: read
+      pull-requests: read
     with:
       application-name: einnsyn-frontend-next
       deployment-environment: ${{ github.event.inputs.deployment-environment || 'test' }}
@@ -48,6 +56,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ update-image ]
     if: ${{ inputs.deployment-environment == 'test' || inputs.deployment-environment == null }}
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       dev_pr_count: ${{ steps.count_prs.outputs.DEV_PR_COUNT }}
     steps:
@@ -64,6 +75,9 @@ jobs:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: [count-dev-labels, build]
     if: needs.count-dev-labels.outputs.dev_pr_count == 0
+    permissions:
+      contents: read
+      pull-requests: read
     with:
       application-name: einnsyn-frontend-next
       deployment-environment: "dev"
@@ -77,6 +91,9 @@ jobs:
   update-pr-labels:
     runs-on: ubuntu-latest
     needs: [ update-image ]
+    permissions:
+      contents: read
+      pull-requests: write
     env:
       DEPLOYMENT_ENV: ${{ github.event.inputs.deployment-environment || 'test' }}
     steps:

@@ -18,7 +18,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
     const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
 
     const onInput = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
+      (event: React.InputEvent<HTMLInputElement>) => {
         inputProps.onInput?.(event);
         setSearchQuery(event.currentTarget.value ?? '');
       },
@@ -44,6 +44,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
         <span className={cn(styles.inputContainer)}>
           <div className={cn(styles.styledInput, className)}>
             {searchTokens.map((token, index) => (
+              /* biome-ignore lint/suspicious/noArrayIndexKey: Tokens are reparsed from the query and do not have a stable unique id. */
               <Fragment key={`${index}-${token.value}`}>
                 <span
                   className={cn(styles.searchToken, {
