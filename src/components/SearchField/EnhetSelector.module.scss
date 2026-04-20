@@ -1,9 +1,14 @@
 @use '../../styles/effects.scss' as fx;
 
 .enhetSelector {
+  --styled-input-min-height: calc(
+    var(--ds-size-12) - var(--ds-border-width-default) * 2
+  );
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .searchIcon {
@@ -11,82 +16,304 @@
   height: 100%;
 }
 
+.selectorField {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.summaryButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  width: fit-content;
+  max-width: 100%;
+  min-height: var(--styled-input-min-height);
+  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
+  padding-right: var(--ds-size-4);
+  padding-bottom: var(--ds-size-2);
+  padding-left: calc(var(--ds-size-6) + var(--ds-size-3));
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--ds-color-neutral-text-default);
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  transition:
+    background-color 0.2s fx.$easeOut,
+    color 0.2s fx.$easeOut,
+    width 0.2s fx.$easeOut;
+
+  &:hover {
+    background: transparent;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.summaryButtonActive {
+  &:hover {
+    background: transparent;
+  }
+}
+
+.summaryIcon {
+  position: absolute;
+  top: calc((var(--styled-input-min-height) - var(--ds-size-6)) / 2);
+  left: 0;
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+  pointer-events: none;
+  transition: color 0.2s fx.$easeOut;
+}
+
+.summaryText {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholderText {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.summaryMore {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-size-7);
+  padding: 0 var(--ds-size-2);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.filterField {
+  width: 100%;
+}
+
+.filterFieldInput {
+  width: 100%;
+}
+
+.selectorPopup {
+  position: absolute;
+  top: calc(100% + var(--ds-size-3));
+  right: 0;
+  z-index: 20;
+  width: min(56rem, calc(100vw - 2 * var(--ds-size-4)));
+  max-width: calc(100vw - 2 * var(--ds-size-4));
+  padding: var(--ds-size-4);
+  border: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-lg);
+  background: var(--ds-color-neutral-surface-default);
+  box-shadow: var(--ds-shadow-lg);
+}
+
 .enhetSelectorDropdown {
   margin-top: var(--ds-size-3);
-  display: flex;
-  flex-direction: row;
-  gap: var(--ds-size-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--ds-size-3);
   width: 100%;
   overflow: hidden;
 }
 
+.selectorFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ds-size-3);
+  margin-top: var(--ds-size-4);
+}
+
 .enhetSelectorDropdownListContainer {
-  width: 50%;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-color-neutral-surface-default);
+}
+
+.enhetSelectorDropdownLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-size-2);
+  padding: var(--ds-size-3) var(--ds-size-4);
+  border-bottom: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+  background: var(--ds-color-neutral-surface-tinted);
+}
+
+.enhetSelectorDropdownLabel {
+  margin: 0;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.enhetSelectorDropdownCount {
+  flex: 0 0 auto;
 }
 
 .enhetSelectorDropdownList {
   flex: 1;
-  padding: 0 var(--ds-size-2) 0 0;
+  min-height: 18rem;
+  max-height: min(26rem, 52vh);
+  padding: 0;
   margin: 0;
-  border-radius: var(--ds-border-radius-md);
-
-  .selectorListItem {
-    position: relative;
-    margin: 0;
-    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
-    cursor: pointer;
-    list-style-type: none;
-
-    &:first-child,
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .selectorListText,
-    .addRemoveIcon {
-      display: block;
-    }
-
-    .selectorListText {
-      flex: 1;
-    }
-
-    .addRemoveIcon {
-      display: flex;
-      align-items: center;
-      svg {
-        transition: opacity 0.2s fx.$easeOut;
-      }
-    }
-
-
-    .ancestors {
-      font-size: .9rem;
-      display: block;
-      color: var(--ds-color-neutral-text-subtle);
-    }
-  }
 }
 
 .selectorListItem {
+  position: relative;
   display: flex;
-  align-items: center;
-  padding: var(--ds-size-4) var(--ds-size-2);
+  align-items: flex-start;
+  gap: var(--ds-size-3);
+  padding: var(--ds-size-3) var(--ds-size-4);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  cursor: pointer;
+  list-style-type: none;
+  transition: background-color 0.2s fx.$easeOut;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &.selectedListItem {
     color: var(--ds-color-neutral-text-subtle);
-    .addRemoveIcon svg {
-      //transform: rotate(45deg);
-      opacity: 0;
-    }
+    cursor: default;
   }
 
   &:hover,
   &.focusedListItem,
   &.active {
-    border-radius: var(--ds-border-radius-md);
     background-color: var(--ds-color-accent-surface-hover);
+  }
+
+  &.selectedListItem:hover {
+    background-color: transparent;
+  }
+
+  &.selectedListItem.focusedListItem {
+    background: var(--ds-color-neutral-surface-tinted);
+  }
+}
+
+.selectorListText {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.selectorListName {
+  line-height: 1.35;
+}
+
+.ancestors {
+  display: block;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.85rem;
+  line-height: 1.25;
+}
+
+.addRemoveIcon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--ds-size-6) + var(--ds-size-1));
+  height: calc(var(--ds-size-6) + var(--ds-size-1));
+  align-self: center;
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-subtle);
+  color: var(--ds-color-neutral-text-default);
+  transition:
+    background-color 0.2s fx.$easeOut,
+    box-shadow 0.2s fx.$easeOut,
+    color 0.2s fx.$easeOut,
+    transform 0.2s fx.$easeOut;
+
+  svg {
+    display: block;
+  }
+}
+
+.removeActionIcon {
+  background: var(--ds-color-neutral-surface-tinted);
+}
+
+.selectedActionIcon {
+  background: transparent;
+  box-shadow: none;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.selectorListItem:hover .addRemoveIcon,
+.selectorListItem.focusedListItem .addRemoveIcon,
+.selectorListItem.active .addRemoveIcon {
+  background: var(--ds-color-accent-surface-hover);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-default);
+}
+
+.selectorListItem:hover .selectedActionIcon,
+.selectorListItem.focusedListItem .selectedActionIcon,
+.selectorListItem.active .selectedActionIcon {
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+@media (width < 900px) {
+  .selectorPopup {
+    right: calc(-1 * var(--ds-size-3));
+    width: min(100vw - 2 * var(--ds-size-3), 56rem);
+    max-width: min(100vw - 2 * var(--ds-size-3), 56rem);
+  }
+
+  .enhetSelectorDropdown {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:global(.ds-input).filterFieldInput {
+  width: 100%;
+  min-width: 0;
+}
+
+:global(.ds-input[type='search']).filterFieldInput {
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+:global(.ds-badge).enhetSelectorDropdownCount {
+  &:before {
+    box-shadow: none;
   }
 }

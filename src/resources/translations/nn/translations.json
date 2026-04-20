@@ -73,7 +73,11 @@
     "header": "Søk",
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
-    "clear": "Tøm søk"
+    "clear": "Tøm søk",
+    "enhetPlaceholder": "Alle verksemder",
+    "enhetFilterPlaceholder": "Finn verksemd",
+    "availableEnheter": "Tilgjengelege verksemder",
+    "selectedEnheter": "Valde verksemder"
   },
   "routing": {
     "searchPath": "søk",
@@ -91,6 +95,8 @@
     "create": "Opprett",
     "creating": "Opprettar...",
     "cancel": "Avbryt",
+    "ok": "OK",
+    "select": "Vel",
     "unnamed": "Utan namn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavla",

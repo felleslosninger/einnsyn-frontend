@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@digdir/designsystemet-react';
+import { Button, Heading, Input, Skeleton } from '@digdir/designsystemet-react';
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -11,19 +11,20 @@ import {
 } from '~/actions/api/enhetActions';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useTranslation } from '~/hooks/useTranslation';
 import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
+import { getEnhetHref } from '~/lib/utils/enhetUtils';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
 import {
-  enhetParamToQuery,
-  getActiveEnhetFilterSegment,
-  getEnhetIdsFromQuery,
-  insertEnhetToken,
-  removeEnhetToken,
+  addEnhetId,
+  normalizeEnhetParamValues,
+  parseEnhetParam,
+  removeEnhetId,
+  serializeEnhetParam,
 } from './enhetTokenInputUtils';
-import { StyledInput } from './StyledInput';
 
 export type EnhetNode = {
   currentName: string;
@@ -41,16 +42,12 @@ export default function EnhetSelector({
   close?: () => void;
 }) {
   const languageCode = useLanguageCode();
+  const t = useTranslation();
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
   const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
   const [loading, setLoading] = useState(true);
-  const enhetTokenQuery = useMemo(
-    () => enhetParamToQuery(enhetSearchQuery),
-    [enhetSearchQuery],
-  );
-  const [inputValue, setInputValue] = useState(enhetTokenQuery);
-  const [caretPosition, setCaretPosition] = useState(enhetTokenQuery.length);
+  const [filterValue, setFilterValue] = useState('');
   const [enhetList, setEnhetList] = useState<TrimmedEnhet[]>([]);
   const [enhetMap, setEnhetMap] = useState<Map<string, TrimmedEnhet>>(
     new Map(),
@@ -59,63 +56,48 @@ export default function EnhetSelector({
   const [focusedList, setFocusedList] = useState<'available' | 'selected'>(
     'available',
   );
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  // Refs for virtua handles
+  const inputRef = useRef<HTMLInputElement>(null);
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const previousExpandedRef = useRef(expanded);
 
+  const selectedEnhetQueryValues = useMemo(
+    () => parseEnhetParam(enhetSearchQuery),
+    [enhetSearchQuery],
+  );
   const selectedEnhetIds = useMemo(
-    () => getEnhetIdsFromQuery(inputValue),
-    [inputValue],
+    () =>
+      normalizeEnhetParamValues(
+        selectedEnhetQueryValues.map((value) => {
+          const enhet = enhetMap.get(value);
+          return enhet ? getEnhetHref(enhet) : value;
+        }),
+      ),
+    [enhetMap, selectedEnhetQueryValues],
   );
+  const initialSelectedEnhetIdsRef = useRef<string[]>(selectedEnhetIds);
+  const persistSelectionOnCloseRef = useRef(false);
 
-  const selectedEnhetList = useMemo(() => {
-    return selectedEnhetIds
-      .map((id) => enhetMap.get(id))
-      .filter((e): e is TrimmedEnhet => e !== undefined);
-  }, [selectedEnhetIds, enhetMap]);
-  const selectedEnhetParam = useMemo(
-    () => selectedEnhetIds.join(','),
-    [selectedEnhetIds],
-  );
-
-  // Update search query
   const setSelectedEnhetIds = useCallback(
-    (newSelectedEnhetIds: string[]) => {
+    (nextSelectedEnhetIds: string[]) => {
       const newSearchParams = new URLSearchParams(
         optimisticSearchParams.toString(),
       );
       newSearchParams.delete('enhet');
-      const newEnhetParam = newSelectedEnhetIds.join(',');
-      if (newEnhetParam.length > 0) {
-        newSearchParams.set('enhet', newEnhetParam);
+
+      const enhetParam = serializeEnhetParam(nextSelectedEnhetIds);
+      if (enhetParam.length > 0) {
+        newSearchParams.set('enhet', enhetParam);
       }
-      const newSearchParamsString = newSearchParams.toString();
-      navigation.push(`${optimisticPathname}?${newSearchParamsString}`);
+
+      navigation.push(`${optimisticPathname}?${newSearchParams.toString()}`);
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );
-
-  const updateInputValue = useCallback(
-    (nextInputValue: string) => {
-      setInputValue(nextInputValue);
-      const nextEnhetIds = getEnhetIdsFromQuery(nextInputValue);
-      const nextEnhetParam = nextEnhetIds.join(',');
-      if (nextEnhetParam !== selectedEnhetParam) {
-        setSelectedEnhetIds(nextEnhetIds);
-      }
-    },
-    [selectedEnhetParam, setSelectedEnhetIds],
-  );
-
-  useEffect(() => {
-    setInputValue(enhetTokenQuery);
-    setCaretPosition(enhetTokenQuery.length);
-  }, [enhetTokenQuery]);
 
   // Get the name of an Enhet in the current language
   const getName = useCallback(
@@ -131,21 +113,62 @@ export default function EnhetSelector({
     [languageCode],
   );
 
-  const activeFilterSegment = useMemo(
-    () => getActiveEnhetFilterSegment(inputValue, caretPosition),
-    [inputValue, caretPosition],
-  );
-  const searchString = activeFilterSegment.value;
+  const selectedEnhetList = useMemo(() => {
+    return selectedEnhetIds.map((id) => {
+      const enhet = enhetMap.get(id);
+      return {
+        id,
+        label: enhet ? getName(enhet) : id,
+        enhet,
+      };
+    });
+  }, [enhetMap, getName, selectedEnhetIds]);
 
-  // Get a sorted tree structure of enheter, filtered by search string
-  const visibleEnhetNodeList: EnhetNode[] = useMemo(() => {
-    const filteredList = filterEnhetList(
-      enhetNodeList,
-      searchString,
-      languageCode,
-    );
-    return filteredList;
-  }, [enhetNodeList, searchString, languageCode]);
+  const selectedEnhetItems = useMemo(() => {
+    return selectedEnhetList
+      .map((selectedEnhet) => selectedEnhet.enhet)
+      .filter((enhet): enhet is TrimmedEnhet => enhet !== undefined);
+  }, [selectedEnhetList]);
+  const firstSelectedLabel = selectedEnhetList[0]?.label ?? '';
+  const additionalSelectedCount = Math.max(selectedEnhetList.length - 1, 0);
+  const selectedSummary = useMemo(
+    () =>
+      selectedEnhetList.map((selectedEnhet) => selectedEnhet.label).join(', '),
+    [selectedEnhetList],
+  );
+  const summaryLabel = firstSelectedLabel || t('search.enhetPlaceholder');
+
+  const focusInput = useCallback(() => {
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, []);
+
+  const onSummaryMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      if (!expanded) {
+        return;
+      }
+
+      event.preventDefault();
+      focusInput();
+    },
+    [expanded, focusInput],
+  );
+
+  const removeSelectedEnhetAtIndex = useCallback(
+    (chipIndex: number) => {
+      const enhetId = selectedEnhetIds[chipIndex];
+      if (!enhetId) {
+        return;
+      }
+
+      const nextSelectedEnhetIds = removeEnhetId(selectedEnhetIds, enhetId);
+      setSelectedEnhetIds(nextSelectedEnhetIds);
+      focusInput();
+    },
+    [focusInput, selectedEnhetIds, setSelectedEnhetIds],
+  );
 
   // Fetch enhet list on mount
   useEffect(() => {
@@ -155,27 +178,18 @@ export default function EnhetSelector({
         return;
       }
 
-      // Remove DUMMYENHET
-      // const filteredEnhetList = enhetList.filter(
-      //   (enhet) => enhet.enhetstype !== 'DUMMYENHET',
-      // );
-      // Remove root
-      const enhetList = unfilteredEnhetList.filter((enhet) => !!enhet.parent);
-
-      // Remove parent.id where .parent doesn't exist in the list (after filtering DUMMYENHET)
+      const nextEnhetList = unfilteredEnhetList.filter(
+        (enhet) => !!enhet.parent,
+      );
       const map = new Map<string, TrimmedEnhet>();
-      enhetList.forEach((enhet) => {
+      nextEnhetList.forEach((enhet) => {
         map.set(enhet.id, enhet);
       });
 
-      const resolvedEnhetMap = new Map<string, TrimmedEnhet>();
+      const resolvedEnhetMapById = new Map<string, TrimmedEnhet>();
       const resolveEnhet = (id: string): TrimmedEnhet | undefined => {
-        if (id === undefined) {
-          return undefined;
-        }
-
-        if (resolvedEnhetMap.has(id)) {
-          return resolvedEnhetMap.get(id);
+        if (resolvedEnhetMapById.has(id)) {
+          return resolvedEnhetMapById.get(id);
         }
 
         const enhet = map.get(id);
@@ -190,15 +204,19 @@ export default function EnhetSelector({
             : enhet.parent) as Enhet,
         });
 
-        resolvedEnhetMap.set(id, resolvedEnhet);
+        resolvedEnhetMapById.set(id, resolvedEnhet);
         return resolvedEnhet;
       };
 
-      const resolvedEnhetList = enhetList
-        .map((enhet) => {
-          return resolveEnhet(enhet.id);
-        })
+      const resolvedEnhetList = nextEnhetList
+        .map((enhet) => resolveEnhet(enhet.id))
         .filter((enhet) => enhet !== undefined);
+
+      const resolvedEnhetMap = new Map<string, TrimmedEnhet>();
+      resolvedEnhetList.forEach((enhet) => {
+        resolvedEnhetMap.set(enhet.id, enhet);
+        resolvedEnhetMap.set(getEnhetHref(enhet), enhet);
+      });
 
       setEnhetList(resolvedEnhetList);
       setEnhetMap(resolvedEnhetMap);
@@ -211,74 +229,130 @@ export default function EnhetSelector({
 
   // Update enhet node list when language changes
   useEffect(() => {
-    const enhetNodeList = enhetList.map((enhet) => ({
+    const nextEnhetNodeList = enhetList.map((enhet) => ({
       currentName: getName(enhet),
       enhet,
       children: new Set<EnhetNode>(),
       score: enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1,
     }));
-    setEnhetNodeList(enhetNodeList);
+    setEnhetNodeList(nextEnhetNodeList);
   }, [enhetList, getName]);
 
-  const updateCaretPosition = useCallback(
-    (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
-      setCaretPosition(event.currentTarget.selectionStart ?? 0);
-    },
-    [],
-  );
+  useEffect(() => {
+    const wasExpanded = previousExpandedRef.current;
 
-  const onInputKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
+    if (expanded && !wasExpanded) {
+      initialSelectedEnhetIdsRef.current = selectedEnhetIds;
+      persistSelectionOnCloseRef.current = false;
+      focusInput();
+    }
+
+    if (!expanded && wasExpanded) {
+      setFilterValue('');
+      setFocusedIndex(-1);
+      setFocusedList('available');
+
+      const persistSelection = persistSelectionOnCloseRef.current;
+      persistSelectionOnCloseRef.current = false;
+
+      if (
+        !persistSelection &&
+        !haveSameEnhetIds(selectedEnhetIds, initialSelectedEnhetIdsRef.current)
+      ) {
+        setSelectedEnhetIds(initialSelectedEnhetIdsRef.current);
       }
-      setCaretPosition(event.currentTarget.selectionStart ?? 0);
-    },
-    [],
-  );
+    }
+
+    previousExpandedRef.current = expanded;
+  }, [expanded, focusInput, selectedEnhetIds, setSelectedEnhetIds]);
+
+  const searchString = filterValue;
+
+  // Get a sorted tree structure of enheter, filtered by search string
+  const visibleEnhetNodeList: EnhetNode[] = useMemo(() => {
+    return filterEnhetList(enhetNodeList, searchString, languageCode);
+  }, [enhetNodeList, searchString, languageCode]);
 
   const addEnhetHandler = useCallback(
     (enhet: TrimmedEnhet) => {
-      const insertion = insertEnhetToken(inputValue, caretPosition, enhet.id);
-      if (insertion.query === inputValue) {
+      const nextSelectedEnhetIds = addEnhetId(
+        selectedEnhetIds,
+        getEnhetHref(enhet),
+      );
+      if (nextSelectedEnhetIds === selectedEnhetIds) {
+        focusInput();
         return;
       }
 
-      updateInputValue(insertion.query);
-      setCaretPosition(insertion.caretPosition);
-      requestAnimationFrame(() => {
-        inputRef.current?.focus();
-        inputRef.current?.setSelectionRange(
-          insertion.caretPosition,
-          insertion.caretPosition,
-        );
-      });
+      setSelectedEnhetIds(nextSelectedEnhetIds);
+      focusInput();
     },
-    [caretPosition, inputValue, updateInputValue],
+    [focusInput, selectedEnhetIds, setSelectedEnhetIds],
   );
 
   const removeEnhetHandler = useCallback(
     (enhet: TrimmedEnhet) => {
-      const nextInputValue = removeEnhetToken(inputValue, enhet.id);
-      if (nextInputValue === inputValue) {
+      const enhetIdentifier = getEnhetHref(enhet);
+      const chipIndex = selectedEnhetIds.indexOf(enhetIdentifier);
+      if (chipIndex < 0) {
         return;
       }
 
-      updateInputValue(nextInputValue);
-      const nextCaretPosition = Math.min(caretPosition, nextInputValue.length);
-      setCaretPosition(nextCaretPosition);
-      requestAnimationFrame(() => {
-        inputRef.current?.focus();
-        inputRef.current?.setSelectionRange(
-          nextCaretPosition,
-          nextCaretPosition,
-        );
-      });
+      removeSelectedEnhetAtIndex(chipIndex);
     },
-    [caretPosition, inputValue, updateInputValue],
+    [removeSelectedEnhetAtIndex, selectedEnhetIds],
   );
 
-  // Scroll to focused item when index changes
+  const onInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFilterValue(event.currentTarget.value);
+    },
+    [],
+  );
+
+  const requestClose = useCallback(
+    (persistSelection: boolean) => {
+      persistSelectionOnCloseRef.current = persistSelection;
+      close?.();
+    },
+    [close],
+  );
+
+  const handleCancel = useCallback(() => {
+    requestClose(false);
+  }, [requestClose]);
+
+  const handleConfirm = useCallback(() => {
+    requestClose(true);
+  }, [requestClose]);
+
+  const onInputKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      const {
+        selectionStart = 0,
+        selectionEnd = 0,
+        value,
+      } = event.currentTarget;
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        return;
+      }
+
+      if (
+        event.key === 'Backspace' &&
+        selectionStart === 0 &&
+        selectionEnd === 0 &&
+        value.length === 0 &&
+        selectedEnhetList.length > 0
+      ) {
+        event.preventDefault();
+        removeSelectedEnhetAtIndex(selectedEnhetList.length - 1);
+      }
+    },
+    [removeSelectedEnhetAtIndex, selectedEnhetList.length],
+  );
+
   useEffect(() => {
     if (!expanded) {
       return;
@@ -293,37 +367,68 @@ export default function EnhetSelector({
     }
   }, [focusedIndex, focusedList, expanded]);
 
-  // Handle keyboard navigation
   useEffect(() => {
-    if (!expanded) return;
+    if (!expanded) {
+      return;
+    }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const isFooterAction =
+        target instanceof HTMLElement &&
+        target.closest(`.${styles.selectorFooter}`) !== null;
+
+      if (isFooterAction) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          handleCancel();
+        }
+
+        return;
+      }
+
       const currentList =
-        focusedList === 'available' ? visibleEnhetNodeList : selectedEnhetList;
+        focusedList === 'available' ? visibleEnhetNodeList : selectedEnhetItems;
       const maxIndex = currentList.length - 1;
 
-      switch (e.key) {
+      switch (event.key) {
         case 'ArrowDown':
-          e.preventDefault();
+          event.preventDefault();
           setFocusedIndex((prev) => Math.min(prev + 1, maxIndex));
           break;
         case 'ArrowUp':
-          e.preventDefault();
+          event.preventDefault();
           setFocusedIndex((prev) => Math.max(prev - 1, 0));
           break;
         case 'Tab':
           if (focusedIndex >= 0) {
-            e.preventDefault();
-            setFocusedList((prev) =>
-              prev === 'available' && focusedIndex >= 0
-                ? 'selected'
-                : 'available',
-            );
-            setFocusedIndex(0);
+            event.preventDefault();
+            if (event.shiftKey) {
+              if (focusedList === 'selected') {
+                setFocusedList('available');
+                setFocusedIndex(0);
+              } else {
+                setFocusedIndex(-1);
+                requestAnimationFrame(() => {
+                  inputRef.current?.focus();
+                });
+              }
+              break;
+            }
+
+            if (focusedList === 'available' && selectedEnhetItems.length > 0) {
+              setFocusedList('selected');
+              setFocusedIndex(0);
+            } else {
+              setFocusedIndex(-1);
+              requestAnimationFrame(() => {
+                cancelButtonRef.current?.focus();
+              });
+            }
           }
           break;
         case 'Enter':
-          e.preventDefault();
+          event.preventDefault();
           if (
             focusedList === 'available' &&
             visibleEnhetNodeList[focusedIndex]
@@ -331,9 +436,9 @@ export default function EnhetSelector({
             addEnhetHandler(visibleEnhetNodeList[focusedIndex].enhet);
           } else if (
             focusedList === 'selected' &&
-            selectedEnhetList[focusedIndex]
+            selectedEnhetItems[focusedIndex]
           ) {
-            removeEnhetHandler(selectedEnhetList[focusedIndex]);
+            removeEnhetHandler(selectedEnhetItems[focusedIndex]);
           }
           break;
         case 'Escape':
@@ -342,43 +447,44 @@ export default function EnhetSelector({
             setFocusedList('available');
             inputRef.current?.focus();
           } else {
-            close?.();
+            handleCancel();
           }
-          e.preventDefault();
+          event.preventDefault();
           break;
       }
     };
 
     const container = containerRef.current;
-    if (container) {
-      container.addEventListener('keydown', handleKeyDown);
-      return () => container.removeEventListener('keydown', handleKeyDown);
+    if (!container) {
+      return;
     }
+
+    container.addEventListener('keydown', handleKeyDown);
+    return () => container.removeEventListener('keydown', handleKeyDown);
   }, [
-    close,
-    expanded,
-    focusedList,
-    focusedIndex,
-    visibleEnhetNodeList,
-    selectedEnhetList,
     addEnhetHandler,
+    expanded,
+    focusedIndex,
+    focusedList,
+    handleCancel,
     removeEnhetHandler,
+    selectedEnhetItems.length,
+    selectedEnhetItems,
+    visibleEnhetNodeList,
   ]);
 
-  // Reset focus when search string changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Always update on searchString change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset focus state whenever the search string changes.
   useEffect(() => {
     setFocusedIndex(-1);
     setFocusedList('available');
-    // Ensure scroll resets to top on search change
     availableListRef.current?.scrollToIndex(0, { align: 'start' });
   }, [searchString]);
 
-  const renderSkeleton = () => {
+  const renderSkeleton = (key: string) => {
     const name = skeletonString(10, 60);
 
     return (
-      <div className={cn(styles.selectorListItem)}>
+      <div key={key} className={cn(styles.selectorListItem)}>
         <span className={styles.selectorListText}>
           <span>
             <Skeleton>{name}</Skeleton>
@@ -390,74 +496,147 @@ export default function EnhetSelector({
 
   return (
     <div className={cn(styles.enhetSelector, className)} ref={containerRef}>
-      <StyledInput
-        ref={inputRef}
-        className={cn(styles.enhetSelectorInput)}
-        expandInFlow={true}
-        icon={
-          <Buildings3Icon
-            className={cn(styles.searchIcon)}
-            title="Enhet"
-            fontSize="1.2rem"
-          />
-        }
-        value={inputValue}
-        setValue={updateInputValue}
-        placeholder="Alle virksomheter"
-        onFocus={updateCaretPosition}
-        onInput={updateCaretPosition}
-        onKeyDown={onInputKeyDown}
-        onKeyUp={updateCaretPosition}
-        onClick={updateCaretPosition}
-        onSelect={updateCaretPosition}
-      />
+      <div className={styles.selectorField}>
+        <button
+          type="button"
+          className={cn(styles.summaryButton, {
+            [styles.summaryButtonActive]: expanded,
+          })}
+          aria-label={selectedSummary || t('search.enhetPlaceholder')}
+          aria-expanded={expanded}
+          aria-haspopup="listbox"
+          onClick={focusInput}
+          onMouseDown={onSummaryMouseDown}
+        >
+          <span className={cn(styles.summaryIcon)}>
+            <Buildings3Icon
+              className={cn(styles.searchIcon)}
+              fontSize="1.2rem"
+              aria-hidden="true"
+            />
+          </span>
+          <span
+            className={cn(styles.summaryText, {
+              [styles.placeholderText]: selectedSummary.length === 0,
+            })}
+          >
+            {summaryLabel}
+          </span>
+
+          {additionalSelectedCount > 0 && (
+            <span className={styles.summaryMore} aria-hidden="true">
+              +{additionalSelectedCount}
+            </span>
+          )}
+        </button>
+      </div>
 
       {expanded && (
-        <div className={cn(styles.enhetSelectorDropdown)}>
-          {/* Available List */}
-          <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-            <VList
-              ref={availableListRef}
-              className={cn(styles.enhetSelectorDropdownList)}
-              style={{ contain: 'content' }}
-            >
-              {visibleEnhetNodeList.map((enhetNode, index) => (
-                <EnhetSelectorSelectItem
-                  key={`add-${enhetNode.enhet.id}`}
-                  enhet={enhetNode.enhet}
-                  onClick={() => addEnhetHandler(enhetNode.enhet)}
-                  isFocused={
-                    focusedList === 'available' && focusedIndex === index
-                  }
-                  isSelected={selectedEnhetIds.includes(enhetNode.enhet.id)}
-                />
-              ))}
-              {loading && [0, 1, 2, 3].map(() => renderSkeleton())}
-            </VList>
+        <div className={styles.selectorPopup}>
+          <div className={styles.filterField}>
+            <Input
+              ref={inputRef}
+              className={styles.filterFieldInput}
+              type="search"
+              value={filterValue}
+              onChange={onInputChange}
+              onKeyDown={onInputKeyDown}
+              aria-label={t('search.enhetFilterPlaceholder')}
+              placeholder={t('search.enhetFilterPlaceholder')}
+              spellCheck={false}
+              autoCorrect="off"
+              autoCapitalize="none"
+            />
           </div>
 
-          {/* Selected List */}
-          <div className={cn(styles.enhetSelectorDropdownListContainer)}>
-            <VList
-              ref={selectedListRef}
-              className={cn(styles.enhetSelectorDropdownList)}
+          <div className={styles.enhetSelectorDropdown}>
+            <div className={styles.enhetSelectorDropdownListContainer}>
+              <div className={styles.enhetSelectorDropdownLabelRow}>
+                <Heading
+                  className={styles.enhetSelectorDropdownLabel}
+                  level={2}
+                  data-size="2xs"
+                >
+                  {t('search.availableEnheter')}
+                </Heading>
+              </div>
+              <VList
+                ref={availableListRef}
+                className={styles.enhetSelectorDropdownList}
+                style={{ contain: 'content' }}
+              >
+                {visibleEnhetNodeList.map((enhetNode, index) => (
+                  <EnhetSelectorSelectItem
+                    key={`add-${enhetNode.enhet.id}`}
+                    enhet={enhetNode.enhet}
+                    onClick={() => addEnhetHandler(enhetNode.enhet)}
+                    isFocused={
+                      focusedList === 'available' && focusedIndex === index
+                    }
+                    isSelected={selectedEnhetIds.includes(
+                      getEnhetHref(enhetNode.enhet),
+                    )}
+                  />
+                ))}
+                {loading &&
+                  [0, 1, 2, 3].map((index) =>
+                    renderSkeleton(`loading-available-${index}`),
+                  )}
+              </VList>
+            </div>
+
+            <div className={styles.enhetSelectorDropdownListContainer}>
+              <div className={styles.enhetSelectorDropdownLabelRow}>
+                <Heading
+                  className={styles.enhetSelectorDropdownLabel}
+                  level={2}
+                  data-size="2xs"
+                >
+                  {t('search.selectedEnheter')}
+                </Heading>
+              </div>
+              <VList
+                ref={selectedListRef}
+                className={styles.enhetSelectorDropdownList}
+              >
+                {selectedEnhetItems.map((enhet, index) => (
+                  <EnhetSelectorSelectItem
+                    key={`remove-${enhet.id}`}
+                    enhet={enhet}
+                    remove={true}
+                    onClick={() => removeEnhetHandler(enhet)}
+                    isFocused={
+                      focusedList === 'selected' && focusedIndex === index
+                    }
+                  />
+                ))}
+              </VList>
+            </div>
+          </div>
+
+          <div className={styles.selectorFooter}>
+            <Button
+              ref={cancelButtonRef}
+              type="button"
+              variant="secondary"
+              onClick={handleCancel}
             >
-              {selectedEnhetList.map((enhet, index) => (
-                <EnhetSelectorSelectItem
-                  key={`remove-${enhet.id}`}
-                  enhet={enhet}
-                  remove={true}
-                  onClick={() => removeEnhetHandler(enhet)}
-                  isFocused={
-                    focusedList === 'selected' && focusedIndex === index
-                  }
-                />
-              ))}
-            </VList>
+              {t('common.cancel')}
+            </Button>
+            <Button type="button" onClick={handleConfirm}>
+              {t('common.select')}
+            </Button>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+function haveSameEnhetIds(left: string[], right: string[]) {
+  return (
+    left.length === right.length &&
+    left.every((enhetId, index) => enhetId === right[index])
   );
 }
 
@@ -483,7 +662,6 @@ function getScore(
   };
 
   if (enhet.enhetstype !== 'DUMMYENHET') {
-    // Prioritize current language. Other languages should give a match, but only barely.
     const languageWeights = {
       nb: currentLanguageCode === 'nb' ? 1.0 : 0.1,
       nn: currentLanguageCode === 'nn' ? 1.0 : 0.1,
@@ -491,13 +669,12 @@ function getScore(
       en: currentLanguageCode === 'en' ? 1.0 : 0.1,
     };
 
-    // Match
     const matches = [
       { index: name.nb.indexOf(searchWord), weight: languageWeights.nb },
       { index: name.nn?.indexOf(searchWord) ?? -1, weight: languageWeights.nn },
       { index: name.se?.indexOf(searchWord) ?? -1, weight: languageWeights.se },
       { index: name.en?.indexOf(searchWord) ?? -1, weight: languageWeights.en },
-    ].filter((m) => m.index >= 0);
+    ].filter((match) => match.index >= 0);
 
     const bestScore = matches.reduce((currentScore, match) => {
       const thisScore = Math.max(1, 10 - match.index / 10) * match.weight;
@@ -507,7 +684,6 @@ function getScore(
     score += bestScore;
   }
 
-  // Recursively check parents for matches
   if (isEnhet(enhet.parent)) {
     const [parentScore, parentDepth] = getScore(
       enhet.parent as TrimmedEnhet,
@@ -515,7 +691,6 @@ function getScore(
       currentLanguageCode,
     );
     if (parentScore > 0) {
-      // Parent match gives lower score
       score += parentScore * 0.2;
     }
     depth += parentDepth;
@@ -536,7 +711,7 @@ function filterEnhetList(
   const searchWords = searchString
     .toLowerCase()
     .split(' ')
-    .filter((w) => w.length > 0);
+    .filter((word) => word.length > 0);
 
   return allNodes
     .map((enhetNode) => {
@@ -552,20 +727,15 @@ function filterEnhetList(
           score = 0;
           break;
         }
-        score += wordScore / Math.max(1, depth); // Prioritize "shallow" matches higher
+        score += wordScore / Math.max(1, depth);
       }
 
-      // Reduce score for DUMMYENHET
       if (enhetNode.enhet.enhetstype === 'DUMMYENHET') {
         score *= 0.5;
       }
 
       return {
         ...enhetNode,
-        // enhet: {
-        //   ...enhetNode.enhet,
-        //   navn: enhetNode.currentName + ' ' + score,
-        // },
         score,
       };
     })
@@ -574,7 +744,7 @@ function filterEnhetList(
 }
 
 const depthCache = new Map<string, number>();
-// Get depth of enhet in hierarchy, with caching
+
 function getDepth(enhet: TrimmedEnhet): number {
   const cachedDepth = depthCache.get(enhet.id);
   if (cachedDepth !== undefined) {
@@ -590,18 +760,15 @@ function getDepth(enhet: TrimmedEnhet): number {
 }
 
 function sortNodes(a: EnhetNode, b: EnhetNode) {
-  // Sort by score
   if (a.score !== b.score) {
     return b.score - a.score;
   }
 
-  // Sort by parent depth. Fewer ancestors (shallower) first
   const aDepth = getDepth(a.enhet);
   const bDepth = getDepth(b.enhet);
   if (aDepth !== bDepth) {
     return aDepth - bDepth;
   }
 
-  // Sort by currently active name
   return a.currentName?.localeCompare(b.currentName, 'no') ?? 0;
 }

@@ -66,7 +66,9 @@ export const SearchField = ({ className }: SearchFieldProps) => {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
     <div
-      className={cn(styles.searchFieldContainer, className)}
+      className={cn(styles.searchFieldContainer, className, {
+        [styles.hasActiveContainer]: activeContainer !== undefined,
+      })}
       onFocus={onContainerFocus}
       ref={containerRef}
     >
@@ -84,7 +86,12 @@ export const SearchField = ({ className }: SearchFieldProps) => {
           data-styled-input-expandable="true"
         >
           <StyledInput
-            icon={<MagnifyingGlassIcon className={cn(styles.searchIcon)} />}
+            icon={
+              <MagnifyingGlassIcon
+                className={cn(styles.searchIcon)}
+                aria-hidden="true"
+              />
+            }
             value={searchQuery}
             setValue={setSearchQuery}
             name="q"
@@ -98,10 +105,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
               aria-label={t('search.clear')}
               variant="tertiary"
             >
-              <XMarkIcon
-                title={t('search.clear')}
-                className={cn(styles.clearIcon)}
-              />
+              <XMarkIcon className={cn(styles.clearIcon)} aria-hidden="true" />
             </Button>
           )}
         </div>
@@ -113,9 +117,9 @@ export const SearchField = ({ className }: SearchFieldProps) => {
         className={cn(
           styles.enhetSelectorContainer,
           styles.searchInputContainer,
-          styles.searchInputWithIcon,
           { [styles.activeContainer]: activeContainer === 'enhetSelector' },
         )}
+        data-enhet-selector-container="true"
         data-styled-input-width-animated="true"
       >
         <div className={cn(styles.expandableInputContainer)}>

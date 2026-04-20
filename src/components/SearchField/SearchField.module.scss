@@ -1,11 +1,22 @@
 @use '../../styles/easing.scss' as e;
 
 .searchFieldContainer {
+  --search-field-surface-default: var(--ds-color-neutral-surface-default);
+  --search-field-inactive-surface: var(--search-field-surface-default);
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  background: var(--ds-color-neutral-surface-default);
+  background: var(--search-field-inactive-surface);
+  transition: background-color 0.2s e.$easeOutQuart;
+}
+
+.hasActiveContainer {
+  --search-field-inactive-surface: var(--ds-color-neutral-surface-tinted);
+}
+
+.searchFieldContainer:not(.hasActiveContainer):has(.searchInputContainer:hover) {
+  --search-field-inactive-surface: var(--ds-color-neutral-surface-tinted);
 }
 
 .searchInputIcon {
@@ -25,9 +36,20 @@
 }
 
 .searchInputContainer {
-  --search-input-surface: var(--ds-color-neutral-surface-default, #fff);
+  --search-input-surface: var(
+    --search-field-inactive-surface,
+    var(--ds-color-neutral-surface-default)
+  );
   position: relative;
   height: var(--ds-size-12);
+
+  .searchFieldContainer:not(.hasActiveContainer) &:hover {
+    --search-input-surface: var(--search-field-surface-default);
+  }
+
+  &.activeContainer {
+    --search-input-surface: var(--search-field-surface-default);
+  }
 
   // If we have an expandable container, add focus styles to it, if not, add to this container
   &:not(:has(.expandableInputContainer)),
@@ -49,18 +71,16 @@
     border-bottom-width: var(--ds-border-width-default);
     max-height: 80vh;
     overflow: hidden;
+    transition:
+      background-color 0.2s e.$easeOutQuart,
+      border-color 0.2s e.$easeOutQuart;
   }
 
   &:not(:has(.expandableInputContainer)):has(:focus),
   .expandableInputContainer:has(:focus),
   &.activeContainer:not(:has(.expandableInputContainer)),
   &.activeContainer .expandableInputContainer {
-    border-radius: var(--ds-border-radius-md);
-    box-shadow: var(--dsc-focus-boxShadow);
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
     z-index: 3;
-    border-color: transparent;
   }
 
   &:not(:has(.expandableInputContainer)):has(textarea:focus),
@@ -79,7 +99,7 @@
   }
 
   &.searchQueryContainer {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
     border: none;
 
@@ -96,13 +116,20 @@
   transition: min-width 0.3s e.$easeOutQuart;  
 }
 
-.enhetSelectorContainer.activeContainer {
-  min-width: 80%;
-}
-
-
 .enhetSelectorContainer {
-  min-width: 22%;
+  flex: 0 1 auto;
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6));
+  max-width: 50%;
+  transition: min-width 0.2s e.$easeOutQuart;
+
+  .expandableInputContainer {
+    position: relative;
+    right: auto;
+    overflow: visible;
+    max-height: none;
+    width: fit-content;
+    max-width: 100%;
+  }
 }
 
 .styledInputContainer {
@@ -158,7 +185,7 @@
       rgba(255, 255, 255, 0),
       var(--search-input-surface)
     );
-    border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
+    border-right: var(--ds-size-6) solid var(--search-input-surface);
     pointer-events: none;
 }
 
@@ -219,8 +246,10 @@
   position: relative;
   width: var(--ds-border-width-default);
   height: var(--ds-size-12);
+  background: var(--search-field-inactive-surface);
   border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  transition: background-color 0.2s e.$easeOutQuart;
   &::after {
     content: "";
     display: block;

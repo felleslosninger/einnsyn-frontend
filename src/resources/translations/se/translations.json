@@ -73,7 +73,11 @@
     "header": "Oza",
     "button": "Oza",
     "placeholder": "Oza eInnsynas...",
-    "clear": "Guoros ohcan"
+    "clear": "Guoros ohcan",
+    "enhetPlaceholder": "Buot organisašuvnnat",
+    "enhetFilterPlaceholder": "Oza organisašuvnna",
+    "availableEnheter": "Olamuttus organisašuvnnat",
+    "selectedEnheter": "Válljejuvvon organisašuvnnat"
   },
   "routing": {
     "searchPath": "oza",
@@ -91,6 +95,8 @@
     "create": "Ráhkat",
     "creating": "Ráhkada...",
     "cancel": "Gaskkalduhte",
+    "ok": "OK",
+    "select": "Vállje",
     "unnamed": "Nama haga",
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",

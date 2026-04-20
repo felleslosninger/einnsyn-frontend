@@ -1,5 +1,9 @@
 import type { Enhet } from '@digdir/einnsyn-sdk';
-import { PlusIcon, XMarkIcon } from '@navikt/aksel-icons';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckmarkIcon,
+} from '@navikt/aksel-icons';
 import { forwardRef } from 'react';
 import type { TrimmedEnhet } from '~/actions/api/enhetActions';
 import cn from '~/lib/utils/className';
@@ -21,6 +25,11 @@ export const EnhetSelectorSelectItem = forwardRef<
 >(({ enhet, remove, isFocused = false, onClick, isSelected = false }, ref) => {
   const ancestors = useAncestorsAsString(enhet as Enhet, ' / ');
   const name = useName(enhet as Enhet);
+  const ActionIcon = remove
+    ? ArrowLeftIcon
+    : isSelected
+      ? CheckmarkIcon
+      : ArrowRightIcon;
 
   return (
     <div
@@ -38,20 +47,17 @@ export const EnhetSelectorSelectItem = forwardRef<
     >
       <span className={styles.selectorListText}>
         {ancestors && <span className={styles.ancestors}>{ancestors}</span>}
-        <span>{name}</span>
+        <span className={styles.selectorListName}>{name}</span>
       </span>
 
-      {!remove && (
-        <span className={styles.addRemoveIcon}>
-          <PlusIcon title="Add" fontSize="1.5rem" />
-        </span>
-      )}
-
-      {remove && (
-        <span className={styles.addRemoveIcon}>
-          <XMarkIcon title="Remove" fontSize="1.5rem" />
-        </span>
-      )}
+      <span
+        className={cn(styles.addRemoveIcon, {
+          [styles.removeActionIcon]: Boolean(remove),
+          [styles.selectedActionIcon]: isSelected && !remove,
+        })}
+      >
+        <ActionIcon fontSize="1.25rem" aria-hidden="true" />
+      </span>
     </div>
   );
 });
