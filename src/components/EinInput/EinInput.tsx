@@ -80,17 +80,16 @@ export const EinInput = ({
               className="copy-to-clipboard"
               onClick={copyToClipboardHandler}
               aria-live="polite"
+              aria-label={
+                copied
+                  ? t('common.copiedToClipboard')
+                  : t('common.copyToClipboard')
+              }
             >
               {copied ? (
-                <CheckmarkIcon
-                  title={t('common.copiedToClipboard')}
-                  fontSize="1.5rem"
-                />
+                <CheckmarkIcon fontSize="1.5rem" aria-hidden="true" />
               ) : (
-                <FilesIcon
-                  title={t('common.copyToClipboard')}
-                  fontSize="1.5rem"
-                />
+                <FilesIcon fontSize="1.5rem" aria-hidden="true" />
               )}
             </EinButton>
           )}

@@ -36,9 +36,10 @@ export function SettingsMenuButton({ onClick }: DropdownButtonProps) {
       onClick={onClick}
       variant="tertiary"
       data-color="neutral"
+      aria-label={t('site.settings')}
       className={cn(styles.settingsDropdownButton, 'header-button')}
     >
-      <CogIcon title={t('site.settings')} fontSize="1.5rem" />
+      <CogIcon fontSize="1.5rem" aria-hidden="true" />
     </EinButton>
   );
 }
@@ -121,8 +122,9 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
               type="submit"
               variant="secondary"
               data-color-scheme-selector="light"
+              aria-label={t('site.colorSchemeLight')}
             >
-              <SunIcon title={t('site.colorSchemeLight')} fontSize="1.5rem" />
+              <SunIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
           <form action={() => updateSettings({ colorScheme: 'dark' })}>
@@ -130,8 +132,9 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
               type="submit"
               variant="secondary"
               data-color-scheme-selector="dark"
+              aria-label={t('site.colorSchemeDark')}
             >
-              <MoonIcon title={t('site.colorSchemeDark')} fontSize="1.5rem" />
+              <MoonIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
           <form action={() => updateSettings({ colorScheme: 'auto' })}>
@@ -139,11 +142,9 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
               type="submit"
               variant="secondary"
               data-color-scheme-selector="auto"
+              aria-label={t('site.colorSchemeSystem')}
             >
-              <MonitorIcon
-                title={t('site.colorSchemeSystem')}
-                fontSize="1.5rem"
-              />
+              <MonitorIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
         </div>
