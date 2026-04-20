@@ -13,7 +13,7 @@ export const getAncestors = (enhet: Enhet) => {
   return ancestors;
 };
 
-export const getEnhetHref = (enhet: Enhet) => {
+export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
   return enhet.slug ?? enhet.id;
 };
 

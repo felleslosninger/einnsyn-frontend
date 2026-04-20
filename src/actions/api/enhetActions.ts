@@ -9,6 +9,7 @@ export type TrimmedEnhet = Pick<
   Enhet,
   | 'entity'
   | 'id'
+  | 'slug'
   | 'orgnummer'
   | 'navn'
   | 'navnNynorsk'
@@ -30,6 +31,7 @@ export const getTrimmedEnhetList = async () => {
       trimmedEnhetList.push({
         entity: enhet.entity,
         id: enhet.id,
+        slug: enhet.slug,
         navn: enhet.navn,
         navnNynorsk: enhet.navnNynorsk,
         navnEngelsk: enhet.navnEngelsk,
