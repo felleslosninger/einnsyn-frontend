@@ -1,4 +1,4 @@
-@use '../../styles/effects.scss' as fx;
+@use "../../styles/effects.scss" as fx;
 
 .enhetSelector {
   --styled-input-min-height: calc(
@@ -7,7 +7,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: fit-content;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -18,7 +19,7 @@
 
 .selectorField {
   position: relative;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
 }
 
@@ -27,7 +28,7 @@
   display: flex;
   align-items: center;
   gap: var(--ds-size-3);
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   min-height: var(--styled-input-min-height);
   padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
@@ -75,7 +76,7 @@
 }
 
 .summaryText {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -103,7 +104,23 @@
 }
 
 .filterField {
+  position: relative;
   width: 100%;
+  background: var(--ds-color-neutral-surface-default);
+  padding: var(--ds-size-2) 0;
+}
+
+.filterFieldIcon {
+  position: absolute;
+  top: 50%;
+  left: var(--ds-size-5);
+  z-index: 1;
+  display: flex;
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .filterFieldInput {
@@ -112,33 +129,26 @@
 
 .selectorPopup {
   position: absolute;
-  top: calc(100% + var(--ds-size-3));
+  top: calc(100% + var(--ds-size-2));
   right: 0;
   z-index: 20;
-  width: min(56rem, calc(100vw - 2 * var(--ds-size-4)));
+  width: min(68rem, calc(100vw - 2 * var(--ds-size-4)));
+  min-width: min(48rem, calc(100vw - 2 * var(--ds-size-4)));
   max-width: calc(100vw - 2 * var(--ds-size-4));
-  padding: var(--ds-size-4);
+  overflow: hidden;
   border: var(--ds-border-width-default) solid
     var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-lg);
+  border-radius: var(--ds-border-radius-default);
   background: var(--ds-color-neutral-surface-default);
-  box-shadow: var(--ds-shadow-lg);
+  box-shadow: var(--ds-shadow-xl);
 }
 
 .enhetSelectorDropdown {
-  margin-top: var(--ds-size-3);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--ds-size-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
   width: 100%;
   overflow: hidden;
-}
-
-.selectorFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--ds-size-3);
-  margin-top: var(--ds-size-4);
 }
 
 .enhetSelectorDropdownListContainer {
@@ -146,26 +156,57 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  border: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-md);
+  min-height: 0;
   background: var(--ds-color-neutral-surface-default);
+}
+
+.selectedListContainer {
+  border-left: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
 }
 
 .enhetSelectorDropdownLabelRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ds-size-2);
-  padding: var(--ds-size-3) var(--ds-size-4);
+  gap: var(--ds-size-3);
+  min-height: calc(var(--ds-size-12) + var(--ds-size-1));
+  padding: var(--ds-size-4) var(--ds-size-5);
   border-bottom: var(--ds-border-width-default) solid
     var(--ds-color-neutral-border-subtle);
-  background: var(--ds-color-neutral-surface-tinted);
+  border-top: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
 }
 
 .enhetSelectorDropdownLabel {
   margin: 0;
+  text-transform: uppercase;
+  font-size: var(--ds-font-size-2);
+  letter-spacing: 0.03em;
   color: var(--ds-color-neutral-text-subtle);
+}
+
+.selectedListClearButton {
+  margin-left: auto;
+  padding: 0 var(--ds-size-2) 0 0;
+  border: none;
+  background: transparent;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+  transition: color 0.2s fx.$easeOut;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  &:focus-visible {
+    outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer);
+    outline-offset: var(--ds-border-width-focus);
+  }
 }
 
 .enhetSelectorDropdownCount {
@@ -174,45 +215,51 @@
 
 .enhetSelectorDropdownList {
   flex: 1;
-  min-height: 18rem;
-  max-height: min(26rem, 52vh);
+  min-height: 22rem;
+  max-height: min(30rem, 56vh);
   padding: 0;
   margin: 0;
 }
 
 .selectorListItem {
   position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ds-size-3);
-  padding: var(--ds-size-3) var(--ds-size-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  gap: var(--ds-size-4);
+  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
+  padding: var(--ds-size-4) var(--ds-size-5);
+  border: 0;
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  background: transparent;
+  color: inherit;
   cursor: pointer;
   list-style-type: none;
+  font: inherit;
+  text-align: left;
   transition: background-color 0.2s fx.$easeOut;
+  appearance: none;
 
   &:last-child {
     border-bottom: none;
   }
 
-  &.selectedListItem {
-    color: var(--ds-color-neutral-text-subtle);
-    cursor: default;
-  }
-
   &:hover,
   &.focusedListItem,
   &.active {
-    background-color: var(--ds-color-accent-surface-hover);
+    background-color: var(--ds-color-neutral-surface-tinted);
   }
+}
 
-  &.selectedListItem:hover {
-    background-color: transparent;
-  }
+.availableSelectedListItem {
+  cursor: default;
+  background-color: var(--ds-color-neutral-surface-tinted);
+}
 
-  &.selectedListItem.focusedListItem {
-    background: var(--ds-color-neutral-surface-tinted);
-  }
+.availableSelectedListItem:disabled {
+  color: inherit;
+  opacity: 1;
 }
 
 .selectorListText {
@@ -220,10 +267,12 @@
   flex: 1;
   min-width: 0;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--ds-size-1);
 }
 
 .selectorListName {
+  font-size: 1.05rem;
+  font-weight: 500;
   line-height: 1.35;
 }
 
@@ -234,81 +283,124 @@
   line-height: 1.25;
 }
 
-.addRemoveIcon {
+.selectorListAction {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: calc(var(--ds-size-6) + var(--ds-size-1));
-  height: calc(var(--ds-size-6) + var(--ds-size-1));
-  align-self: center;
+  justify-self: end;
+  gap: var(--ds-size-2);
+  min-height: var(--ds-size-7);
+  padding: 0 var(--ds-size-3);
   border-radius: var(--ds-border-radius-full);
-  background: var(--ds-color-neutral-surface-tinted);
+  background: var(--ds-color-neutral-surface-default);
   box-shadow: inset 0 0 0 var(--ds-border-width-default)
     var(--ds-color-neutral-border-subtle);
-  color: var(--ds-color-neutral-text-default);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+  font-weight: 600;
+  line-height: 1;
   transition:
     background-color 0.2s fx.$easeOut,
     box-shadow 0.2s fx.$easeOut,
     color 0.2s fx.$easeOut,
-    transform 0.2s fx.$easeOut;
+    opacity 0.2s fx.$easeOut;
 
   svg {
     display: block;
   }
 }
 
-.removeActionIcon {
+.availableListAction {
+  color: var(--ds-color-neutral-text-default);
+}
+
+.availableListActionSelected {
+  padding-inline: var(--ds-size-2);
+  color: var(--ds-color-neutral-text-subtle);
   background: var(--ds-color-neutral-surface-tinted);
 }
 
-.selectedActionIcon {
-  background: transparent;
-  box-shadow: none;
+.selectorListActionLabel {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.selectedColumnAction {
+  padding-inline: var(--ds-size-2);
   color: var(--ds-color-neutral-text-subtle);
 }
 
-.selectorListItem:hover .addRemoveIcon,
-.selectorListItem.focusedListItem .addRemoveIcon,
-.selectorListItem.active .addRemoveIcon {
-  background: var(--ds-color-accent-surface-hover);
+.availableListItem:hover .availableListAction,
+.availableListItem.focusedListItem .availableListAction,
+.availableListItem.active .availableListAction {
   box-shadow: inset 0 0 0 var(--ds-border-width-default)
     var(--ds-color-neutral-border-default);
+  color: var(--ds-color-neutral-text-default);
 }
 
-.selectorListItem:hover .selectedActionIcon,
-.selectorListItem.focusedListItem .selectedActionIcon,
-.selectorListItem.active .selectedActionIcon {
-  background: transparent;
-  box-shadow: none;
-  transform: none;
+.availableListItem:hover .availableListActionSelected,
+.availableListItem.focusedListItem .availableListActionSelected,
+.availableListItem.active .availableListActionSelected {
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.selectedColumnListItem:hover .selectedColumnAction,
+.selectedColumnListItem.focusedListItem .selectedColumnAction,
+.selectedColumnListItem.active .selectedColumnAction {
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-default);
+  color: var(--ds-color-neutral-text-default);
+}
+
+.selectedColumnListItem:hover,
+.selectedColumnListItem.focusedListItem,
+.selectedColumnListItem.active {
+  background: var(--ds-color-neutral-surface-tinted);
+}
+
+.emptyState {
+  display: flex;
+  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
+  align-items: center;
+  padding: var(--ds-size-4) var(--ds-size-5);
+  color: var(--ds-color-neutral-text-subtle);
 }
 
 @media (width < 900px) {
   .selectorPopup {
     right: calc(-1 * var(--ds-size-3));
-    width: min(100vw - 2 * var(--ds-size-3), 56rem);
-    max-width: min(100vw - 2 * var(--ds-size-3), 56rem);
+    width: min(100vw - 2 * var(--ds-size-3), 68rem);
+    min-width: 0;
+    max-width: min(100vw - 2 * var(--ds-size-3), 68rem);
   }
 
   .enhetSelectorDropdown {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .selectedListContainer {
+    border-top: var(--ds-border-width-default) solid
+      var(--ds-color-neutral-border-subtle);
+    border-left: 0;
   }
 }
 
 :global(.ds-input).filterFieldInput {
   width: 100%;
   min-width: 0;
-}
+  padding-inline: var(--ds-size-5);
+  padding-inline-start: calc(var(--ds-size-6) + var(--ds-size-7));
+  border: none;
 
-:global(.ds-input[type='search']).filterFieldInput {
-  -webkit-appearance: none;
-  appearance: none;
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 
-  &::-webkit-search-cancel-button,
-  &::-webkit-search-decoration {
-    -webkit-appearance: none;
-    appearance: none;
+  &::placeholder {
+    color: var(--ds-color-neutral-text-subtle);
   }
 }
 

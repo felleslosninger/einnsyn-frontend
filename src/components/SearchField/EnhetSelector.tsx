@@ -1,8 +1,8 @@
 'use client';
 
-import { Button, Heading, Input, Skeleton } from '@digdir/designsystemet-react';
+import { Heading, Input, Skeleton } from '@digdir/designsystemet-react';
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon } from '@navikt/aksel-icons';
+import { Buildings3Icon, MagnifyingGlassIcon } from '@navikt/aksel-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VList, type VListHandle } from 'virtua';
 import {
@@ -62,7 +62,6 @@ export default function EnhetSelector({
   const inputRef = useRef<HTMLInputElement>(null);
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const previousExpandedRef = useRef(expanded);
 
   const selectedEnhetQueryValues = useMemo(
@@ -79,8 +78,6 @@ export default function EnhetSelector({
       ),
     [enhetMap, selectedEnhetQueryValues],
   );
-  const initialSelectedEnhetIdsRef = useRef<string[]>(selectedEnhetIds);
-  const persistSelectionOnCloseRef = useRef(false);
 
   const setSelectedEnhetIds = useCallback(
     (nextSelectedEnhetIds: string[]) => {
@@ -170,6 +167,17 @@ export default function EnhetSelector({
     [focusInput, selectedEnhetIds, setSelectedEnhetIds],
   );
 
+  const clearSelectedEnheter = useCallback(() => {
+    if (selectedEnhetIds.length === 0) {
+      return;
+    }
+
+    setSelectedEnhetIds([]);
+    setFocusedList('available');
+    setFocusedIndex(-1);
+    focusInput();
+  }, [focusInput, selectedEnhetIds.length, setSelectedEnhetIds]);
+
   // Fetch enhet list on mount
   useEffect(() => {
     let unmounted = false;
@@ -242,8 +250,6 @@ export default function EnhetSelector({
     const wasExpanded = previousExpandedRef.current;
 
     if (expanded && !wasExpanded) {
-      initialSelectedEnhetIdsRef.current = selectedEnhetIds;
-      persistSelectionOnCloseRef.current = false;
       focusInput();
     }
 
@@ -251,20 +257,10 @@ export default function EnhetSelector({
       setFilterValue('');
       setFocusedIndex(-1);
       setFocusedList('available');
-
-      const persistSelection = persistSelectionOnCloseRef.current;
-      persistSelectionOnCloseRef.current = false;
-
-      if (
-        !persistSelection &&
-        !haveSameEnhetIds(selectedEnhetIds, initialSelectedEnhetIdsRef.current)
-      ) {
-        setSelectedEnhetIds(initialSelectedEnhetIdsRef.current);
-      }
     }
 
     previousExpandedRef.current = expanded;
-  }, [expanded, focusInput, selectedEnhetIds, setSelectedEnhetIds]);
+  }, [expanded, focusInput]);
 
   const searchString = filterValue;
 
@@ -310,22 +306,6 @@ export default function EnhetSelector({
     [],
   );
 
-  const requestClose = useCallback(
-    (persistSelection: boolean) => {
-      persistSelectionOnCloseRef.current = persistSelection;
-      close?.();
-    },
-    [close],
-  );
-
-  const handleCancel = useCallback(() => {
-    requestClose(false);
-  }, [requestClose]);
-
-  const handleConfirm = useCallback(() => {
-    requestClose(true);
-  }, [requestClose]);
-
   const onInputKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       const {
@@ -368,25 +348,25 @@ export default function EnhetSelector({
   }, [focusedIndex, focusedList, expanded]);
 
   useEffect(() => {
+    if (focusedList !== 'available') {
+      return;
+    }
+
+    setFocusedIndex((previousIndex) => {
+      if (visibleEnhetNodeList.length === 0) {
+        return -1;
+      }
+
+      return Math.min(previousIndex, visibleEnhetNodeList.length - 1);
+    });
+  }, [visibleEnhetNodeList.length, focusedList]);
+
+  useEffect(() => {
     if (!expanded) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target;
-      const isFooterAction =
-        target instanceof HTMLElement &&
-        target.closest(`.${styles.selectorFooter}`) !== null;
-
-      if (isFooterAction) {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          handleCancel();
-        }
-
-        return;
-      }
-
       const currentList =
         focusedList === 'available' ? visibleEnhetNodeList : selectedEnhetItems;
       const maxIndex = currentList.length - 1;
@@ -402,28 +382,23 @@ export default function EnhetSelector({
           break;
         case 'Tab':
           if (focusedIndex >= 0) {
-            event.preventDefault();
             if (event.shiftKey) {
               if (focusedList === 'selected') {
+                event.preventDefault();
                 setFocusedList('available');
-                setFocusedIndex(0);
+                setFocusedIndex(visibleEnhetNodeList.length > 0 ? 0 : -1);
               } else {
                 setFocusedIndex(-1);
-                requestAnimationFrame(() => {
-                  inputRef.current?.focus();
-                });
               }
               break;
             }
 
             if (focusedList === 'available' && selectedEnhetItems.length > 0) {
+              event.preventDefault();
               setFocusedList('selected');
               setFocusedIndex(0);
             } else {
               setFocusedIndex(-1);
-              requestAnimationFrame(() => {
-                cancelButtonRef.current?.focus();
-              });
             }
           }
           break;
@@ -447,7 +422,7 @@ export default function EnhetSelector({
             setFocusedList('available');
             inputRef.current?.focus();
           } else {
-            handleCancel();
+            close?.();
           }
           event.preventDefault();
           break;
@@ -466,10 +441,10 @@ export default function EnhetSelector({
     expanded,
     focusedIndex,
     focusedList,
-    handleCancel,
     removeEnhetHandler,
     selectedEnhetItems.length,
     selectedEnhetItems,
+    close,
     visibleEnhetNodeList,
   ]);
 
@@ -534,6 +509,12 @@ export default function EnhetSelector({
       {expanded && (
         <div className={styles.selectorPopup}>
           <div className={styles.filterField}>
+            <span className={styles.filterFieldIcon} aria-hidden="true">
+              <MagnifyingGlassIcon
+                className={cn(styles.searchIcon)}
+                fontSize="1.2rem"
+              />
+            </span>
             <Input
               ref={inputRef}
               className={styles.filterFieldInput}
@@ -557,7 +538,7 @@ export default function EnhetSelector({
                   level={2}
                   data-size="2xs"
                 >
-                  {t('search.availableEnheter')}
+                  {t('search.availableEnheter')} ({visibleEnhetNodeList.length})
                 </Heading>
               </div>
               <VList
@@ -570,22 +551,34 @@ export default function EnhetSelector({
                     key={`add-${enhetNode.enhet.id}`}
                     enhet={enhetNode.enhet}
                     onClick={() => addEnhetHandler(enhetNode.enhet)}
-                    isFocused={
-                      focusedList === 'available' && focusedIndex === index
-                    }
+                    variant="available"
+                    actionLabel={t('common.add')}
                     isSelected={selectedEnhetIds.includes(
                       getEnhetHref(enhetNode.enhet),
                     )}
+                    isFocused={
+                      focusedList === 'available' && focusedIndex === index
+                    }
                   />
                 ))}
                 {loading &&
                   [0, 1, 2, 3].map((index) =>
                     renderSkeleton(`loading-available-${index}`),
                   )}
+                {!loading && visibleEnhetNodeList.length === 0 && (
+                  <div className={styles.emptyState}>
+                    {t('common.noResults')}
+                  </div>
+                )}
               </VList>
             </div>
 
-            <div className={styles.enhetSelectorDropdownListContainer}>
+            <div
+              className={cn(
+                styles.enhetSelectorDropdownListContainer,
+                styles.selectedListContainer,
+              )}
+            >
               <div className={styles.enhetSelectorDropdownLabelRow}>
                 <Heading
                   className={styles.enhetSelectorDropdownLabel}
@@ -594,6 +587,15 @@ export default function EnhetSelector({
                 >
                   {t('search.selectedEnheter')}
                 </Heading>
+                {selectedEnhetIds.length > 0 && (
+                  <button
+                    type="button"
+                    className={styles.selectedListClearButton}
+                    onClick={clearSelectedEnheter}
+                  >
+                    {t('common.removeAll')}
+                  </button>
+                )}
               </div>
               <VList
                 ref={selectedListRef}
@@ -603,8 +605,9 @@ export default function EnhetSelector({
                   <EnhetSelectorSelectItem
                     key={`remove-${enhet.id}`}
                     enhet={enhet}
-                    remove={true}
                     onClick={() => removeEnhetHandler(enhet)}
+                    variant="selected"
+                    actionLabel={t('common.remove')}
                     isFocused={
                       focusedList === 'selected' && focusedIndex === index
                     }
@@ -613,30 +616,9 @@ export default function EnhetSelector({
               </VList>
             </div>
           </div>
-
-          <div className={styles.selectorFooter}>
-            <Button
-              ref={cancelButtonRef}
-              type="button"
-              variant="secondary"
-              onClick={handleCancel}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button type="button" onClick={handleConfirm}>
-              {t('common.select')}
-            </Button>
-          </div>
         </div>
       )}
     </div>
-  );
-}
-
-function haveSameEnhetIds(left: string[], right: string[]) {
-  return (
-    left.length === right.length &&
-    left.every((enhetId, index) => enhetId === right[index])
   );
 }
 
