@@ -9,7 +9,7 @@ import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 
-const WEEK_HEIGHT = 305;
+const WEEK_HEIGHT = 300;
 const MAX_WEEKS = 8;
 
 export default function DynamicView({

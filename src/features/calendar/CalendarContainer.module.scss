@@ -6,19 +6,22 @@
     }
 }
 
-.calendarPre {
-    width: 200px;
-    flex-shrink: 0;
+.calendarContainer {
+    height: 2000px; // enough space for 6 weeks
 }
 
-.calendarPost {
-    flex-grow: 1;
-    background-color: transparent;
-}
+// .calendarPre {
+//     width: 200px;
+//     flex-shrink: 0;
+// }
+
+// .calendarPost {
+//     flex-grow: 1;
+//     background-color: transparent;
+// }
 
 // Global styles
 :global(.calendar-page) {
-    height: 100vh;
     overflow: hidden;
 }
 
@@ -36,16 +39,17 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    padding-top: 0;
-    padding-left: var(--ds-size-2);
-    padding-right: var(--ds-size-2);
-    padding-bottom: var(--ds-size-2);
+    padding-bottom: var(--ds-size-1);
 }
 
 .headerInfo {
     width: 100%;
-    padding-bottom: var(--ds-size-2);
+    // padding-bottom: var(--ds-size-2);
     color: var(--ds-color-neutral-text-subtle);
+}
+
+.resultsFound {
+    font-size: var(--ds-body-sm-font-size);
 }
 
 .headerActions {
@@ -58,7 +62,7 @@
 .displayHeading {
     width: fit-content;
     text-wrap: nowrap;
-    min-height: 40px; // Ensure container doesn't collapse
+    min-height: 30px;
     display: flex;
     align-items: center;
 }
@@ -109,24 +113,15 @@
 }
 
 .arrowIcon {
-    height: 80%;
-    width: 80%;
+    height: 70%;
+    width: 70%;
 }
 
 // Calendar body
-.calendarBody {
-    background-color: var(--ds-color-neutral-background-default);
-    // background: var(--ds-color-accent-background-tinted);
-    // border: solid 1px var(--ds-color-border-subtle);
-    padding: var(--ds-size-4);
-    // height: calc(100vh - 340px); // TODO: Adjust based on header height and calendar height. 
-    border-radius: 10px;
-}
 
 .calendarGrid {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
 }
 
 .dynCalendarHeader {
@@ -135,13 +130,11 @@
     z-index: 9;
     display: grid;
     width: 100%;
-    gap: 0.25rem;
 }
 
 .weekRow {
     display: grid;
     width: 100%;
-    gap: 0.25rem;
     flex: 1;
     min-height: 300px;
 }
@@ -163,11 +156,9 @@
 }
 
 .dayHeaderCell {
-    text-align: center;
-    font-weight: 600;
-    border-radius: 4px;
-    box-shadow: none;
-    background-color: var(--ds-color-neutral-background-default);
+    background-color: #FFFF;
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+    border-right: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 .dayHeaderText {
@@ -176,16 +167,12 @@
 }
 
 .dayCell {
-    border-radius: 4px;
-    margin: var(--ds-size-1);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     overflow-x: hidden;
-}
+    border-right: solid 1px var(--ds-color-neutral-border-subtle);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 
-.firstDay {
-    padding: 0;
 }
 
 .dateHeader {
@@ -207,9 +194,7 @@
     padding: var(--ds-size-2);
 }
 
-.currentMonth {
-    font-weight: 600;
-}
+.currentMonth {}
 
 .dateText {
     padding: var(--ds-size-2);
@@ -219,43 +204,55 @@
 
 .dynamicCalendarWrapper {
     width: 100%;
-    height: calc(100vh - 340px);
+    height: 1800px;
     min-height: 600px;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
     overflow-anchor: auto;
+    border: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 
 // Meeting component styles
 .moetemappemodule {
-    background-color: var(--ds-color-accent-surface-tinted);
+    background-color: #EDF0FF;
     margin-bottom: var(--ds-size-2);
-    border-radius: 5px;
-    box-shadow: 1px 1px 5px 1px #002C541A;
+    border-radius: 12px;
+    min-width: 0;
     width: 100%;
     font-size: var(--ds-body-xs-font-size);
-    font-weight: 400;
-    text-wrap: nowrap;
 }
 
 .moduleHeading,
 .moduleInfo {
-    overflow-x: hidden;
-    overflow-y: hidden;
-
     padding-left: var(--ds-size-3);
     padding-right: var(--ds-size-3);
 }
 
 .moduleHeading {
-    color: var(--ds-color-neutral-text-default);
     font-size: var(--ds-body-sm-font-size);
-    padding: var(--ds-size-2) var(--ds-size-3) var(--ds-size-1) var(--ds-size-3);
+    padding-top: var(--ds-size-2);
+    padding-bottom: var(--ds-size-1);
+}
+
+.moduleHeading a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    font: inherit;
+    line-height: inherit;
 }
 
 .moduleInfo {
     color: var(--ds-color-neutral-text-subtle);
     padding-bottom: var(--ds-size-2);
+}
+
+.parentNameLabel {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

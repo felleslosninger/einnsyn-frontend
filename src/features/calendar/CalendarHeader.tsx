@@ -71,12 +71,12 @@ export default function CalendarHeader({
         return `${t('calendar.viewOptions.week')} ${weekNumber}, ${t(`calendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
       }
 
-      case 'day':
-        return selectedDate.toLocaleDateString('en-US', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-        });
+      case 'day': {
+        const weekday = t(`calendar.days.${selectedDate.getDay()}`);
+        const month = t(`calendar.months.${selectedDate.getMonth()}`);
+        const dayOfMonth = selectedDate.getDate();
+        return `${weekday} ${dayOfMonth} ${month}`;
+      }
 
       default:
         return '';
@@ -196,7 +196,9 @@ export default function CalendarHeader({
   return (
     <div className={cn('calendar-header', styles.calendarHeader)}>
       <div className={cn('header-info', styles.headerInfo)}>
-        <span>{t('calendar.resultsFound', resultCount.toString())}</span>
+        <span className={styles.resultsFound}>
+          {t('calendar.resultsFound', resultCount.toString())}
+        </span>
       </div>
       <div className={cn('header-actions', styles.headerActions)}>
         <div className={cn('display-heading', styles.displayHeading)}>
@@ -211,7 +213,7 @@ export default function CalendarHeader({
             />
           ) : (
             <Heading
-              data-size="md"
+              data-size="sm"
               level={1}
               tabIndex={0}
               className={styles.clickableHeading}
@@ -241,7 +243,7 @@ export default function CalendarHeader({
             label={t('calendar.viewOptions.displayWeekends')}
             checked={displayWeekends}
             onChange={() => setDisplayWeekends(!displayWeekends)}
-            data-size="md"
+            data-size="sm"
           />
           <ToggleGroup
             value={selectedView}
