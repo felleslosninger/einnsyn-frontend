@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import styles from './SearchHeader.module.scss';
 import SearchTabs from './SearchTabs';
 
 export default function SearchHeader() {
@@ -21,7 +22,7 @@ export default function SearchHeader() {
   return (
     <>
       <form
-        className="search-form"
+        className={styles.searchForm}
         method="get"
         onSubmit={onSubmit}
         action={optimisticPathname}

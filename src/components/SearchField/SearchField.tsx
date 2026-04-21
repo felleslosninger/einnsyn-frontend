@@ -2,7 +2,7 @@
 
 import { Button } from '@digdir/designsystemet-react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -23,6 +23,34 @@ export const SearchField = ({ className }: SearchFieldProps) => {
   const [activeContainer, setActiveContainer] = useState<string | undefined>(
     undefined,
   );
+  const [showKeyboardFocusRing, setShowKeyboardFocusRing] = useState(false);
+
+  useEffect(() => {
+    const onPointerDown = () => {
+      setShowKeyboardFocusRing(false);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === 'Tab' ||
+        event.key.startsWith('Arrow') ||
+        event.key === 'Home' ||
+        event.key === 'End' ||
+        event.key === 'PageUp' ||
+        event.key === 'PageDown'
+      ) {
+        setShowKeyboardFocusRing(true);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
 
   // Set focus to containing element when focusing on input
   const onContainerFocus = useCallback(
@@ -68,6 +96,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     <div
       className={cn(styles.searchFieldContainer, className, {
         [styles.hasActiveContainer]: activeContainer !== undefined,
+        [styles.showKeyboardFocusRing]: showKeyboardFocusRing,
       })}
       onFocus={onContainerFocus}
       ref={containerRef}
@@ -110,8 +139,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
           )}
         </div>
       </div>
-
-      <div className={styles.spacer} />
 
       <div
         className={cn(

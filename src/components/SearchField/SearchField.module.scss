@@ -2,21 +2,44 @@
 
 .searchFieldContainer {
   --search-field-surface-default: var(--ds-color-neutral-surface-default);
-  --search-field-inactive-surface: var(--search-field-surface-default);
+  --search-field-inactive-surface: var(
+    --search-field-surface-default
+  );
+  --search-field-inactive-surface-hover: rgb(17 24 39 / 0.025);
+  --search-field-inactive-surface-active: rgb(17 24 39 / 0.04);
+  --search-field-segment-hover-surface: var(--ds-color-neutral-surface-default);
+  --search-field-segment-active-surface: var(--ds-color-neutral-surface-default);
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
+  gap: var(--ds-size-1);
+  padding: var(--ds-size-1);
   background: var(--search-field-inactive-surface);
-  transition: background-color 0.2s e.$easeOutQuart;
+  border: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-full);
+  box-shadow: 0 0.75rem 1.5rem -1.25rem rgb(17 24 39 / 0.18);
+  transition:
+    background-color 0.2s e.$easeOutQuart,
+    border-color 0.2s e.$easeOutQuart,
+    box-shadow 0.2s e.$easeOutQuart;
 }
 
 .hasActiveContainer {
-  --search-field-inactive-surface: var(--ds-color-neutral-surface-tinted);
+  --search-field-inactive-surface: var(
+    --search-field-inactive-surface-active
+  );
+  border-color: rgb(17 24 39 / 0.08);
+  box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
 .searchFieldContainer:not(.hasActiveContainer):has(.searchInputContainer:hover) {
-  --search-field-inactive-surface: var(--ds-color-neutral-surface-tinted);
+  --search-field-inactive-surface: var(
+    --search-field-inactive-surface-hover
+  );
+  border-color: rgb(17 24 39 / 0.08);
+  box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
 .searchInputIcon {
@@ -36,19 +59,35 @@
 }
 
 .searchInputContainer {
-  --search-input-surface: var(
-    --search-field-inactive-surface,
-    var(--ds-color-neutral-surface-default)
-  );
+  --search-input-surface: transparent;
+  --search-input-fade-surface: var(--search-field-inactive-surface);
+  --search-input-border-color: transparent;
+  --search-input-shadow: none;
+  --search-input-outline: none;
   position: relative;
   height: var(--ds-size-12);
+  z-index: 1;
 
   .searchFieldContainer:not(.hasActiveContainer) &:hover {
-    --search-input-surface: var(--search-field-surface-default);
+    --search-input-surface: var(--search-field-segment-hover-surface);
+    --search-input-fade-surface: var(--search-field-segment-hover-surface);
+    --search-input-border-color: rgb(17 24 39 / 0.04);
+    --search-input-shadow: 0 0 0 var(--ds-border-width-default)
+        rgb(17 24 39 / 0.04),
+      0 0.75rem 1.25rem -1.2rem rgb(17 24 39 / 0.16);
   }
 
+  &:hover {
+    z-index: 2;
+  }
+
+  &:focus-within,
   &.activeContainer {
-    --search-input-surface: var(--search-field-surface-default);
+    --search-input-surface: var(--search-field-segment-active-surface);
+    --search-input-fade-surface: var(--search-field-segment-active-surface);
+    --search-input-border-color: rgb(17 24 39 / 0.06);
+    --search-input-shadow: 0 1rem 2rem -1.2rem rgb(17 24 39 / 0.22);
+    z-index: 3;
   }
 
   // If we have an expandable container, add focus styles to it, if not, add to this container
@@ -60,27 +99,21 @@
     gap: var(--ds-size-3);
     position: relative;
     z-index: 2;
-    padding-left: var(--ds-size-3);
-    padding-right: var(--ds-size-3);
+    padding-left: var(--ds-size-4);
+    padding-right: var(--ds-size-4);
     background: var(--search-input-surface);
-    border-color: var(--ds-color-neutral-border-subtle);
-    border-style: solid;
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: var(--ds-border-width-default);
-    border-bottom-width: var(--ds-border-width-default);
+    border: var(--ds-border-width-default) solid
+      var(--search-input-border-color);
+    border-radius: var(--ds-border-radius-full);
+    box-shadow: var(--search-input-shadow);
+    outline: var(--search-input-outline);
+    outline-offset: 0;
     max-height: 80vh;
     overflow: hidden;
     transition:
       background-color 0.2s e.$easeOutQuart,
-      border-color 0.2s e.$easeOutQuart;
-  }
-
-  &:not(:has(.expandableInputContainer)):has(:focus),
-  .expandableInputContainer:has(:focus),
-  &.activeContainer:not(:has(.expandableInputContainer)),
-  &.activeContainer .expandableInputContainer {
-    z-index: 3;
+      border-color 0.2s e.$easeOutQuart,
+      box-shadow 0.25s e.$easeOutQuart;
   }
 
   &:not(:has(.expandableInputContainer)):has(textarea:focus),
@@ -102,12 +135,14 @@
     flex: 1 1 0;
     min-width: 0;
     border: none;
+  }
+}
 
-    .expandableInputContainer {
-      border-left-width: var(--ds-border-width-default);
-      border-top-left-radius: var(--ds-border-radius-md);
-      border-bottom-left-radius: var(--ds-border-radius-md);
-    }
+.showKeyboardFocusRing .searchInputContainer {
+  &:focus-within,
+  &.activeContainer {
+    --search-input-border-color: var(--ds-color-focus-outer);
+    --search-input-outline: var(--dsc-focus-outline);
   }
 }
 
@@ -121,6 +156,23 @@
   min-width: calc(var(--ds-size-12) + var(--ds-size-6));
   max-width: 50%;
   transition: min-width 0.2s e.$easeOutQuart;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(var(--ds-size-1) / -2);
+    z-index: 2;
+    width: var(--ds-border-width-default);
+    height: 56%;
+    background: var(--ds-color-neutral-border-subtle);
+    border-radius: var(--ds-border-radius-full);
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s e.$easeOutQuart;
+    pointer-events: none;
+  }
 
   .expandableInputContainer {
     position: relative;
@@ -129,7 +181,15 @@
     max-height: none;
     width: 100%;
     max-width: 100%;
+    padding-right: var(--ds-size-3);
   }
+}
+
+.searchFieldContainer:not(.hasActiveContainer):not(
+    :has(.searchInputContainer:hover)
+  )
+  .enhetSelectorContainer::before {
+  opacity: 1;
 }
 
 .styledInputContainer {
@@ -183,9 +243,9 @@
     background: linear-gradient(
       to right,
       rgba(255, 255, 255, 0),
-      var(--search-input-surface)
+      var(--search-input-fade-surface)
     );
-    border-right: var(--ds-size-6) solid var(--search-input-surface);
+    border-right: var(--ds-size-6) solid var(--search-input-fade-surface);
     pointer-events: none;
 }
 
@@ -242,26 +302,6 @@
     1px 0 0 0 var(--ds-color-danger-surface-tinted);
 }
 
-.spacer {
-  position: relative;
-  width: var(--ds-border-width-default);
-  height: var(--ds-size-12);
-  background: var(--search-field-inactive-surface);
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  transition: background-color 0.2s e.$easeOutQuart;
-  &::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 60%;
-    background: var(--ds-color-neutral-border-subtle);
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
 .clearButton {
   position: absolute;
   top: var(--ds-size-1);
@@ -286,9 +326,13 @@
 .actionButtonContainer {
   display: flex;
   flex-direction: row;
+  align-items: stretch;
+  flex: 0 0 auto;
+  margin-left: var(--ds-size-2);
+
   button {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    min-height: var(--ds-size-12);
+    border-radius: var(--ds-border-radius-full);
   }
 }
 
