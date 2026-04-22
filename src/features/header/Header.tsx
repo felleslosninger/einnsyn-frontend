@@ -15,13 +15,13 @@ import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
-import SettingsMenu from './components/SettingsMenu';
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
   const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
+  const isHome = rootPath === 'home';
 
   const [fixedHeader, setFixedHeader] = useState(false);
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
@@ -34,6 +34,12 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // Update headerHeight *before* setting position: fixed
   useLayoutEffect(() => {
+    if (isHome) {
+      setFixedHeader(false);
+      setHeaderHeight(null);
+      return;
+    }
+
     if (switchedIsScrolledToTop && headerRef.current) {
       if (isScrolledToTop) {
         setFixedHeader(false);
@@ -43,13 +49,13 @@ export default function Header({ children }: { children: React.ReactNode }) {
         setHeaderHeight(headerRef.current.offsetHeight);
       }
     }
-  }, [switchedIsScrolledToTop, isScrolledToTop]);
+  }, [isHome, switchedIsScrolledToTop, isScrolledToTop]);
 
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
   const className = cn(styles.header, `section-${rootPath}`, {
-    [styles.scrolled]: hasScrolledDown,
-    [styles.fixed]: fixedHeader && headerHeight !== null,
+    [styles.scrolled]: !isHome && hasScrolledDown,
+    [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
   });
 
   const transitionDeps = [rootPath];
@@ -172,7 +178,6 @@ export default function Header({ children }: { children: React.ReactNode }) {
             <div className={cn(styles.container, 'container')}>{children}</div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
-                <SettingsMenu />
                 <UserMenu />
               </div>
             </div>

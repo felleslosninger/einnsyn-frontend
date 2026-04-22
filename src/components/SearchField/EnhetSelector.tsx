@@ -1,9 +1,20 @@
 'use client';
 
-import { Heading, Input, Skeleton } from '@digdir/designsystemet-react';
+import {
+  Heading,
+  Search,
+  Skeleton,
+} from '@digdir/designsystemet-react';
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon, MagnifyingGlassIcon } from '@navikt/aksel-icons';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Buildings3Icon } from '@navikt/aksel-icons';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { VList, type VListHandle } from 'virtua';
 import {
   cachedTrimmedEnhetList,
@@ -60,6 +71,7 @@ export default function EnhetSelector({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
   const previousExpandedRef = useRef(expanded);
@@ -178,6 +190,16 @@ export default function EnhetSelector({
     focusInput();
   }, [focusInput, selectedEnhetIds.length, setSelectedEnhetIds]);
 
+  const focusAvailableList = useCallback(() => {
+    setFocusedList('available');
+    setFocusedIndex(-1);
+  }, []);
+
+  const focusSelectedList = useCallback(() => {
+    setFocusedList('selected');
+    setFocusedIndex(-1);
+  }, []);
+
   // Fetch enhet list on mount
   useEffect(() => {
     let unmounted = false;
@@ -261,6 +283,114 @@ export default function EnhetSelector({
 
     previousExpandedRef.current = expanded;
   }, [expanded, focusInput]);
+
+  useLayoutEffect(() => {
+    const selector = containerRef.current;
+    const popup = popupRef.current;
+    if (!selector) {
+      return;
+    }
+
+    const pageRoot = selector.closest('.einnsyn-body');
+    const homeHeader = selector.closest('header.section-home');
+
+    const resetPopupLayout = () => {
+      delete selector.dataset.popupLayout;
+      selector.style.removeProperty('--selector-popup-inline-size');
+      selector.style.removeProperty('--selector-popup-inline-start');
+    };
+
+    const resetLandingPageOverflow = () => {
+      if (pageRoot instanceof HTMLElement) {
+        pageRoot.style.removeProperty('--landing-page-selector-overflow');
+      }
+    };
+
+    if (!expanded || !popup || typeof window === 'undefined') {
+      resetPopupLayout();
+      resetLandingPageOverflow();
+      return;
+    }
+
+    const searchField = selector.closest(
+      '[data-search-field-container="true"]',
+    );
+    if (!(searchField instanceof HTMLElement)) {
+      resetPopupLayout();
+      resetLandingPageOverflow();
+      return;
+    }
+
+    const updatePopupLayout = () => {
+      resetPopupLayout();
+
+      const selectorRect = selector.getBoundingClientRect();
+      const searchFieldRect = searchField.getBoundingClientRect();
+      let popupRect = popup.getBoundingClientRect();
+
+      if (popupRect.left < searchFieldRect.left - 0.5) {
+        selector.dataset.popupLayout = 'search-field';
+        selector.style.setProperty(
+          '--selector-popup-inline-size',
+          `${searchFieldRect.width}px`,
+        );
+        selector.style.setProperty(
+          '--selector-popup-inline-start',
+          `${searchFieldRect.left - selectorRect.left}px`,
+        );
+        popupRect = popup.getBoundingClientRect();
+      }
+
+      if (
+        !(pageRoot instanceof HTMLElement) ||
+        !(homeHeader instanceof HTMLElement)
+      ) {
+        resetLandingPageOverflow();
+        return;
+      }
+
+      const homeHeaderRect = homeHeader.getBoundingClientRect();
+      const popupOverflow = Math.max(
+        0,
+        Math.ceil(popupRect.bottom - homeHeaderRect.bottom),
+      );
+
+      pageRoot.style.setProperty(
+        '--landing-page-selector-overflow',
+        `${popupOverflow}px`,
+      );
+    };
+
+    updatePopupLayout();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updatePopupLayout);
+      return () => {
+        window.removeEventListener('resize', updatePopupLayout);
+        resetPopupLayout();
+        resetLandingPageOverflow();
+      };
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      updatePopupLayout();
+    });
+
+    resizeObserver.observe(selector);
+    resizeObserver.observe(searchField);
+    resizeObserver.observe(popup);
+    if (homeHeader instanceof HTMLElement) {
+      resizeObserver.observe(homeHeader);
+    }
+    window.addEventListener('resize', updatePopupLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updatePopupLayout);
+      resetPopupLayout();
+      resetLandingPageOverflow();
+    };
+  }, [expanded]);
 
   const searchString = filterValue;
 
@@ -507,31 +637,30 @@ export default function EnhetSelector({
       </div>
 
       {expanded && (
-        <div className={styles.selectorPopup}>
+        <div className={styles.selectorPopup} ref={popupRef}>
           <div className={styles.filterField}>
-            <span className={styles.filterFieldIcon} aria-hidden="true">
-              <MagnifyingGlassIcon
-                className={cn(styles.searchIcon)}
-                fontSize="1.2rem"
+            <Search>
+              <Search.Input
+                ref={inputRef}
+                className={styles.filterFieldInput}
+                value={filterValue}
+                onChange={onInputChange}
+                onKeyDown={onInputKeyDown}
+                aria-label={t('search.enhetFilterPlaceholder')}
+                placeholder={t('search.enhetFilterPlaceholder')}
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="none"
               />
-            </span>
-            <Input
-              ref={inputRef}
-              className={styles.filterFieldInput}
-              type="search"
-              value={filterValue}
-              onChange={onInputChange}
-              onKeyDown={onInputKeyDown}
-              aria-label={t('search.enhetFilterPlaceholder')}
-              placeholder={t('search.enhetFilterPlaceholder')}
-              spellCheck={false}
-              autoCorrect="off"
-              autoCapitalize="none"
-            />
+              <Search.Clear aria-label={t('search.clear')} />
+            </Search>
           </div>
 
           <div className={styles.enhetSelectorDropdown}>
-            <div className={styles.enhetSelectorDropdownListContainer}>
+            <div
+              className={styles.enhetSelectorDropdownListContainer}
+              onFocus={focusAvailableList}
+            >
               <div className={styles.enhetSelectorDropdownLabelRow}>
                 <Heading
                   className={styles.enhetSelectorDropdownLabel}
@@ -545,6 +674,8 @@ export default function EnhetSelector({
                 ref={availableListRef}
                 className={styles.enhetSelectorDropdownList}
                 style={{ contain: 'content' }}
+                tabIndex={0}
+                aria-label={t('search.availableEnheter')}
               >
                 {visibleEnhetNodeList.map((enhetNode, index) => (
                   <EnhetSelectorSelectItem
@@ -578,6 +709,7 @@ export default function EnhetSelector({
                 styles.enhetSelectorDropdownListContainer,
                 styles.selectedListContainer,
               )}
+              onFocus={focusSelectedList}
             >
               <div className={styles.enhetSelectorDropdownLabelRow}>
                 <Heading
@@ -600,6 +732,8 @@ export default function EnhetSelector({
               <VList
                 ref={selectedListRef}
                 className={styles.enhetSelectorDropdownList}
+                tabIndex={0}
+                aria-label={t('search.selectedEnheter')}
               >
                 {selectedEnhetItems.map((enhet, index) => (
                   <EnhetSelectorSelectItem

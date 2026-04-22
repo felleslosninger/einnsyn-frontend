@@ -37,9 +37,9 @@ export function SettingsMenuButton({ onClick }: DropdownButtonProps) {
       variant="tertiary"
       data-color="neutral"
       aria-label={t('site.settings')}
-      className={cn(styles.settingsDropdownButton, 'header-button')}
+      className={styles.settingsDropdownButton}
     >
-      <CogIcon fontSize="1.5rem" aria-hidden="true" />
+      <CogIcon fontSize="1.625rem" aria-hidden="true" />
     </EinButton>
   );
 }
@@ -52,20 +52,10 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
     <div
       className={cn(styles.settingsDropdownContent, 'header-dropdown-content')}
     >
-      <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <strong>{t('site.settings')}</strong>
       </div>
-      <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <div className={styles.languageContainer}>
           <form action={() => updateSettings({ language: 'nb' })}>
             <EinButton
@@ -111,10 +101,7 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
       </div>
 
       <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
+        className="header-dropdown-content-section"
       >
         <div className={styles.colorSchemeContainer}>
           <form action={() => updateSettings({ colorScheme: 'light' })}>
@@ -168,7 +155,7 @@ export function Dropdown({
   });
 
   return (
-    <div className={cn(styles['settings-dropdown'], 'header-dropdown')}>
+    <div className="header-dropdown">
       {buttonWithClickHandler}
       <EinPopup open={open} setOpen={setOpen}>
         {children}

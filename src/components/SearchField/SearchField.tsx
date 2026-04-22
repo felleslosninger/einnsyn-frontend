@@ -76,9 +76,59 @@ export const SearchField = ({ className }: SearchFieldProps) => {
   }, []);
   useOnOutsideClick(containerRef, removeFocus);
 
+  const onContainerBlur = useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      const nextFocusedElement = event.relatedTarget;
+
+      if (
+        nextFocusedElement instanceof Node &&
+        event.currentTarget.contains(nextFocusedElement)
+      ) {
+        return;
+      }
+
+      removeFocus();
+    },
+    [removeFocus],
+  );
+
   const handleSearch = useCallback(() => {
     setSearchQuery(searchQuery, true);
   }, [setSearchQuery, searchQuery]);
+
+  const handleSearchInputKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (
+        event.key !== 'Enter' ||
+        event.shiftKey ||
+        event.nativeEvent.isComposing
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const form = event.currentTarget.form;
+      if (form) {
+        form.requestSubmit();
+        return;
+      }
+
+      handleSearch();
+    },
+    [handleSearch],
+  );
+
+  const handleSearchButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      if (event.currentTarget.form) {
+        return;
+      }
+
+      handleSearch();
+    },
+    [handleSearch],
+  );
 
   const handleClear = useCallback(() => {
     setSearchQuery('');
@@ -98,6 +148,8 @@ export const SearchField = ({ className }: SearchFieldProps) => {
         [styles.hasActiveContainer]: activeContainer !== undefined,
         [styles.showKeyboardFocusRing]: showKeyboardFocusRing,
       })}
+      data-search-field-container="true"
+      onBlur={onContainerBlur}
       onFocus={onContainerFocus}
       ref={containerRef}
     >
@@ -121,6 +173,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
                 aria-hidden="true"
               />
             }
+            onKeyDown={handleSearchInputKeyDown}
             value={searchQuery}
             setValue={setSearchQuery}
             name="q"
@@ -162,7 +215,11 @@ export const SearchField = ({ className }: SearchFieldProps) => {
           [styles.withBorder]: !!searchQuery,
         })}
       >
-        <EinButton variant="primary" type="submit" onClick={handleSearch}>
+        <EinButton
+          variant="primary"
+          type="submit"
+          onClick={handleSearchButtonClick}
+        >
           {t('search.button')}
         </EinButton>
       </div>

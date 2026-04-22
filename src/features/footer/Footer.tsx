@@ -6,6 +6,7 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import SettingsMenu from '~/features/header/components/SettingsMenu';
 
 import styles from './Footer.module.scss';
 
@@ -86,6 +87,7 @@ export default function Footer() {
         <div className="container-wrapper">
           <div className="container">
             <nav aria-label={t('footer.ariaLabel')}>
+              <SettingsMenu />
               <EinLink
                 data-color="neutral"
                 href="/om"

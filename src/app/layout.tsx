@@ -1,5 +1,5 @@
 import '@digdir/designsystemet-css';
-import '@digdir/designsystemet-theme';
+import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';

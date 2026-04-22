@@ -6,7 +6,9 @@
     --search-field-surface-default
   );
   --search-field-inactive-surface-hover: rgb(17 24 39 / 0.025);
-  --search-field-inactive-surface-active: rgb(17 24 39 / 0.04);
+  --search-field-inactive-surface-active: var(
+    --ds-color-neutral-surface-tinted
+  );
   --search-field-segment-hover-surface: var(--ds-color-neutral-surface-default);
   --search-field-segment-active-surface: var(--ds-color-neutral-surface-default);
   position: relative;

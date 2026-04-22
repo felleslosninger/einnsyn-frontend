@@ -1,4 +1,5 @@
 @use 'fonts.inter.scss';
+@use './designsystemetColorOverrides.scss';
 @use './mediaQueries.scss' as mq;
 @use './table.scss';
 @use './headerDropdown.scss';
@@ -29,6 +30,7 @@ body {
 }
 
 .einnsyn-body {
+  --landing-page-selector-overflow: 0px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -36,6 +38,7 @@ body {
 
 .content-flex-grow {
   flex: 1;
+  padding-bottom: var(--landing-page-selector-overflow);
 }
 
 

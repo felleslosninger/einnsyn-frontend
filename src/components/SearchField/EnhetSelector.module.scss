@@ -106,21 +106,10 @@
 .filterField {
   position: relative;
   width: 100%;
-  background: var(--ds-color-neutral-surface-default);
-  padding: var(--ds-size-2) 0;
-}
-
-.filterFieldIcon {
-  position: absolute;
-  top: 50%;
-  left: var(--ds-size-5);
-  z-index: 1;
-  display: flex;
-  width: var(--ds-size-6);
-  height: var(--ds-size-6);
-  color: var(--ds-color-neutral-text-subtle);
-  transform: translateY(-50%);
-  pointer-events: none;
+  padding: var(--ds-size-3);
+  background: transparent;
+  border-bottom: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
 }
 
 .filterFieldInput {
@@ -129,7 +118,8 @@
 
 .selectorPopup {
   position: absolute;
-  top: calc(100% + var(--ds-size-2));
+  top: calc(100% + var(--ds-size-1));
+  left: auto;
   right: 0;
   z-index: 20;
   width: min(68rem, calc(100vw - 2 * var(--ds-size-4)));
@@ -138,17 +128,26 @@
   overflow: hidden;
   border: var(--ds-border-width-default) solid
     var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-default);
+  border-radius: var(--ds-border-radius-lg);
   background: var(--ds-color-neutral-surface-default);
   box-shadow: var(--ds-shadow-xl);
+}
+
+.enhetSelector[data-popup-layout='search-field'] .selectorPopup {
+  left: var(--selector-popup-inline-start);
+  right: auto;
+  width: var(--selector-popup-inline-size);
+  min-width: 0;
 }
 
 .enhetSelectorDropdown {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  gap: var(--ds-size-3);
   width: 100%;
+  padding: var(--ds-size-3);
   overflow: hidden;
+  background: var(--ds-color-neutral-surface-tinted);
 }
 
 .enhetSelectorDropdownListContainer {
@@ -158,53 +157,84 @@
   overflow: hidden;
   min-height: 0;
   background: var(--ds-color-neutral-surface-default);
+  border-radius: var(--ds-border-radius-md);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-subtle);
+
+  &:has(.enhetSelectorDropdownList:focus-visible) {
+    box-shadow:
+      inset 0 0 0 var(--ds-border-width-default)
+        var(--ds-color-neutral-border-subtle),
+      var(--dsc-focus-boxShadow);
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+  }
 }
 
 .selectedListContainer {
-  border-left: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  background: var(--ds-color-neutral-surface-default);
 }
 
 .enhetSelectorDropdownLabelRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ds-size-3);
-  min-height: calc(var(--ds-size-12) + var(--ds-size-1));
-  padding: var(--ds-size-4) var(--ds-size-5);
+  column-gap: var(--ds-size-3);
+  block-size: calc(var(--ds-size-12) + var(--ds-size-1));
+  box-sizing: border-box;
+  padding-inline: var(--ds-size-5);
   border-bottom: var(--ds-border-width-default) solid
     var(--ds-color-neutral-border-subtle);
-  border-top: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  background: var(--ds-color-neutral-surface-tinted);
 }
 
 .enhetSelectorDropdownLabel {
   margin: 0;
   text-transform: uppercase;
-  font-size: var(--ds-font-size-2);
-  letter-spacing: 0.03em;
+  font-size: var(--ds-font-size-1);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--ds-color-neutral-text-subtle);
 }
 
 .selectedListClearButton {
-  margin-left: auto;
-  padding: 0 var(--ds-size-2) 0 0;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-height: var(--ds-size-8);
+  padding: 0 var(--ds-size-3);
   border: none;
-  background: transparent;
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-subtle);
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-2);
-  font-weight: 500;
+  font-size: var(--ds-font-size-1);
+  font-weight: 600;
   line-height: 1;
+  font-family: inherit;
   cursor: pointer;
   appearance: none;
-  transition: color 0.2s fx.$easeOut;
-  text-decoration: underline;
+  transition:
+    color 0.2s fx.$easeOut,
+    background-color 0.2s fx.$easeOut,
+    box-shadow 0.2s fx.$easeOut;
+  text-decoration: none;
+  white-space: nowrap;
 
   &:hover {
     color: var(--ds-color-neutral-text-default);
+    background: var(--ds-color-neutral-surface-hover);
   }
 
   &:focus-visible {
-    outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer);
+    box-shadow:
+      inset 0 0 0 var(--ds-border-width-default)
+        var(--ds-color-neutral-border-subtle),
+      var(--dsc-focus-boxShadow);
+    outline: var(--dsc-focus-outline);
     outline-offset: var(--ds-border-width-focus);
   }
 }
@@ -217,8 +247,12 @@
   flex: 1;
   min-height: 22rem;
   max-height: min(30rem, 56vh);
-  padding: 0;
+  padding: var(--ds-size-2);
   margin: 0;
+
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 .selectorListItem {
@@ -229,32 +263,36 @@
   width: 100%;
   gap: var(--ds-size-4);
   min-height: calc(var(--ds-size-12) + var(--ds-size-2));
-  padding: var(--ds-size-4) var(--ds-size-5);
+  padding: var(--ds-size-4);
   border: 0;
-  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
   background: transparent;
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) transparent;
   color: inherit;
   cursor: pointer;
   list-style-type: none;
   font: inherit;
   text-align: left;
-  transition: background-color 0.2s fx.$easeOut;
+  transition:
+    background-color 0.2s fx.$easeOut,
+    box-shadow 0.2s fx.$easeOut,
+    color 0.2s fx.$easeOut;
   appearance: none;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   &:hover,
   &.focusedListItem,
   &.active {
     background-color: var(--ds-color-neutral-surface-tinted);
+    box-shadow: inset 0 0 0 var(--ds-border-width-default)
+      var(--ds-color-neutral-border-subtle);
   }
 }
 
 .availableSelectedListItem {
   cursor: default;
   background-color: var(--ds-color-neutral-surface-tinted);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default)
+    var(--ds-color-neutral-border-subtle);
 }
 
 .availableSelectedListItem:disabled {
@@ -342,7 +380,7 @@
 .availableListItem:hover .availableListActionSelected,
 .availableListItem.focusedListItem .availableListActionSelected,
 .availableListItem.active .availableListActionSelected {
-  background: var(--ds-color-neutral-surface-tinted);
+  background: var(--ds-color-neutral-surface-hover);
   color: var(--ds-color-neutral-text-subtle);
 }
 
@@ -366,6 +404,8 @@
   align-items: center;
   padding: var(--ds-size-4) var(--ds-size-5);
   color: var(--ds-color-neutral-text-subtle);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-color-neutral-surface-tinted);
 }
 
 @media (width < 900px) {
@@ -379,25 +419,12 @@
   .enhetSelectorDropdown {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  .selectedListContainer {
-    border-top: var(--ds-border-width-default) solid
-      var(--ds-color-neutral-border-subtle);
-    border-left: 0;
-  }
 }
 
 :global(.ds-input).filterFieldInput {
   width: 100%;
   min-width: 0;
-  padding-inline: var(--ds-size-5);
-  padding-inline-start: calc(var(--ds-size-6) + var(--ds-size-7));
-  border: none;
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
+  flex: 1 1 auto;
 
   &::placeholder {
     color: var(--ds-color-neutral-text-subtle);
