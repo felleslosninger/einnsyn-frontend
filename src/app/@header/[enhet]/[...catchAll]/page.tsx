@@ -1,4 +1,6 @@
-import SearchHeaderPage, { type HeaderSearchParams } from '../SearchHeaderPage';
+import SearchHeaderPage, {
+  type HeaderSearchParams,
+} from '../../SearchHeaderPage';
 
 export default async function EnhetHeader({
   params,
