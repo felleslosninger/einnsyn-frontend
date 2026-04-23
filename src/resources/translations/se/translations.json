@@ -95,6 +95,7 @@
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",
     "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
+    "title": "Bajilčála",
     "apply": "Geavat",
     "clear": "Sihko",
     "filter": "Sillit",
@@ -114,6 +115,19 @@
     "label": "Journalapoasta",
     "labelPlural": "Journalapoasttat",
     "pathName": "journalapoasta",
+    "connectedToCase": "Čadnon ášši",
+    "goToCase": "TÁššái",
+    "docNumber": "Doknr.",
+    "from": "Geas",
+    "to": "Geasa",
+    "fromTo": "Geas/geasa",
+    "docDate": "Dokumeantadáhton",
+    "recordDate": "Journálii registrerejuvvon",
+    "pubDate": "Almmuhuvvon",
+    "legalBasis": "Láhkavuođđu",
+    "attachmentPlural": "Mildosat",
+    "notPublished": "Ii almmuhuvvon",
+    "recordType": "Dok.málle",
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",
@@ -182,5 +196,12 @@
     "privacy": "Personsuodjalusjulggaštus",
     "accessibility": "Gievrrasvuođajulggaštus",
     "github": "eInnsyn Githubas"
+  },
+  "virksomhet": {
+    "label": "fitnidat",
+    "navn": "namma",
+    "telefon": "telefovdna",
+    "adresse": "čujuhus",
+    "epost": "e-poasta"
   }
 }
