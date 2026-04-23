@@ -1,4 +1,12 @@
 {
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "files": {
     "includes": ["src/**/*.ts", "src/**/*.tsx"]
   },

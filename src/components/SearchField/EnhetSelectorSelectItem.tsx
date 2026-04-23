@@ -1,7 +1,7 @@
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { CheckmarkIcon, PlusIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { forwardRef } from 'react';
-import type { TrimmedEnhet } from '~/actions/api/enhetActions';
+import type { TrimmedEnhet } from '~/lib/types/enhet';
 import cn from '~/lib/utils/className';
 import { useAncestorsAsString, useName } from '~/lib/utils/enhetUtils';
 import styles from './EnhetSelector.module.scss';

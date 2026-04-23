@@ -78,71 +78,93 @@ export default function Header({ children }: { children: React.ReactNode }) {
         const targetStyle = getStyle(targetHead);
         // biome-ignore lint/style/noNonNullAssertion: We check for head above
         const targetForm = targetHead.querySelector('form')!;
+        const currentHeadRect = head.getBoundingClientRect();
+        const currentFormRect = form.getBoundingClientRect();
         const targetHeadRect = targetHead.getBoundingClientRect();
         const targetFormRect = targetForm.getBoundingClientRect();
+        const targetFormOffset = getRelativeOffset(targetFormRect, targetHeadRect);
         removeInvisibleClone(targetHead);
 
         // Transition landing page search form to header search form
         if (fromHomeToSearch(fromRootPath, toRootPath)) {
+          lockElementToRect(head, currentHeadRect, currentHeadRect, {
+            preserveHeight: true,
+            preserveWidth: false,
+            resetMargins: false,
+          });
+          lockElementToRect(form, currentFormRect, currentHeadRect);
+
+          await animationFrame(1);
+
           // Animate header container
-          head.style.overflow = 'hidden';
-          head.style.height = `${targetHeadRect.height}px`;
-          head.style.transition = `all 400ms ${EASE_IN_OUT_QUART}`;
+          head.style.transition = [
+            `height 400ms ${EASE_IN_OUT_QUART}`,
+            `border-bottom-color 400ms ${EASE_IN_OUT_QUART}`,
+            `border-bottom-width 400ms ${EASE_IN_OUT_QUART}`,
+          ].join(', ');
           head.style.borderBottomColor = targetStyle['border-bottom-color'];
           head.style.borderBottomWidth = targetStyle['border-bottom-width'];
+          head.style.height = `${targetHeadRect.height}px`;
 
           // Animate input field
-          const currentFormRect = form.getBoundingClientRect();
-          const newY = targetFormRect.top - currentFormRect.top;
-          const newX = targetFormRect.left - currentFormRect.left;
-          form.style.transition = `all 400ms ${EASE_IN_OUT_QUART}`;
-          form.style.position = 'absolute';
-          form.style.top = `${currentFormRect.top}px`;
-          form.style.left = `${currentFormRect.left}px`;
+          form.style.transition = [
+            `top 400ms ${EASE_IN_OUT_QUART}`,
+            `left 400ms ${EASE_IN_OUT_QUART}`,
+            `width 400ms ${EASE_IN_OUT_QUART}`,
+            `max-width 400ms ${EASE_IN_OUT_QUART}`,
+          ].join(', ');
+          form.style.top = `${targetFormOffset.top}px`;
+          form.style.left = `${targetFormOffset.left}px`;
           form.style.width = `${targetFormRect.width}px`;
           form.style.maxWidth = `${targetFormRect.width}px`;
-          form.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
         } else if (fromSearchToHome(fromRootPath, toRootPath)) {
-          // Animate header container
-          head.style.transition = `all 400ms ${EASE_OUT_QUART}`;
-          head.style.overflow = 'hidden';
-          head.style.height = `${targetHeadRect.height}px`;
-          head.style.borderBottomColor = 'transparent';
-
           const headerTabs = head.querySelector('.header-tabs');
-          if (headerTabs instanceof HTMLElement) {
-            headerTabs.style.position = 'absolute';
-            headerTabs.style.top = `${headerTabs.offsetTop}px`;
-            headerTabs.style.left = `${headerTabs.offsetLeft}px`;
-            headerTabs.style.marginLeft = '0px';
-            headerTabs.style.marginRight = '0px';
-            headerTabs.style.width = `${headerTabs.offsetWidth}px`;
-            headerTabs.style.maxWidth = `${headerTabs.offsetWidth}px`;
+          const currentHeaderTabsRect =
+            headerTabs instanceof HTMLElement
+              ? headerTabs.getBoundingClientRect()
+              : null;
 
-            await animationFrame(2);
-            headerTabs.style.transition = `all 200ms ${EASE_OUT_QUART}`;
+          lockElementToRect(head, currentHeadRect, currentHeadRect, {
+            preserveHeight: true,
+            preserveWidth: false,
+            resetMargins: false,
+          });
+          lockElementToRect(form, currentFormRect, currentHeadRect);
+          if (
+            headerTabs instanceof HTMLElement &&
+            currentHeaderTabsRect instanceof DOMRect
+          ) {
+            lockElementToRect(headerTabs, currentHeaderTabsRect, currentHeadRect);
+          }
+
+          await animationFrame(1);
+
+          // Animate header container
+          head.style.transition = [
+            `height 400ms ${EASE_OUT_QUART}`,
+            `border-bottom-color 400ms ${EASE_OUT_QUART}`,
+          ].join(', ');
+          head.style.borderBottomColor = 'transparent';
+          head.style.height = `${targetHeadRect.height}px`;
+
+          if (headerTabs instanceof HTMLElement) {
+            headerTabs.style.transition = `opacity 200ms ${EASE_OUT_QUART}`;
             headerTabs.style.opacity = '0';
           }
 
           // Animate input field
-          const currentFormRect = form.getBoundingClientRect();
-          const newY = targetFormRect.top - currentFormRect.top;
-          const newX = targetFormRect.left - currentFormRect.left;
-          form.style.position = 'absolute';
-          form.style.width = `${currentFormRect.width}px`;
-          form.style.maxWidth = `${currentFormRect.width}px`;
-
-          // Trigger a reflow, to make sure the starting position is registered
-          await animationFrame(2);
-
-          form.style.transition = `all 400ms ${EASE_OUT_QUART}`;
-          form.style.top = `${currentFormRect.top}px`;
-          form.style.left = `${currentFormRect.left}px`;
+          form.style.transition = [
+            `top 400ms ${EASE_OUT_QUART}`,
+            `left 400ms ${EASE_OUT_QUART}`,
+            `width 400ms ${EASE_OUT_QUART}`,
+            `max-width 400ms ${EASE_OUT_QUART}`,
+          ].join(', ');
+          form.style.top = `${targetFormOffset.top}px`;
+          form.style.left = `${targetFormOffset.left}px`;
           form.style.width = `${targetFormRect.width}px`;
           form.style.maxWidth = `${targetFormRect.width}px`;
-          form.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
         }
@@ -209,6 +231,54 @@ function getStyle(element: HTMLElement) {
     obj[prop] = style.getPropertyValue(prop);
   }
   return obj;
+}
+
+function getRelativeOffset(rect: DOMRect, containerRect: DOMRect) {
+  return {
+    top: rect.top - containerRect.top,
+    left: rect.left - containerRect.left,
+  };
+}
+
+function lockElementToRect(
+  element: HTMLElement,
+  rect: DOMRect,
+  containerRect: DOMRect,
+  options: {
+    preserveHeight?: boolean;
+    preserveWidth?: boolean;
+    resetMargins?: boolean;
+  } = {},
+) {
+  const {
+    preserveHeight = true,
+    preserveWidth = true,
+    resetMargins = true,
+  } = options;
+
+  element.style.overflow = 'hidden';
+
+  if (preserveWidth) {
+    element.style.width = `${rect.width}px`;
+    element.style.maxWidth = `${rect.width}px`;
+  }
+
+  if (preserveHeight) {
+    element.style.height = `${rect.height}px`;
+  }
+
+  if (resetMargins) {
+    element.style.margin = '0';
+  }
+
+  if (element === element.closest('header')) {
+    return;
+  }
+
+  const { top, left } = getRelativeOffset(rect, containerRect);
+  element.style.position = 'absolute';
+  element.style.top = `${top}px`;
+  element.style.left = `${left}px`;
 }
 
 function fromHomeToSearch(from: string, to: string) {

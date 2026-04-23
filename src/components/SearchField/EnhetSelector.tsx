@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Heading,
-  Search,
-  Skeleton,
-} from '@digdir/designsystemet-react';
+import { Heading, Search, Skeleton } from '@digdir/designsystemet-react';
 import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import {
@@ -16,12 +12,10 @@ import {
   useState,
 } from 'react';
 import { VList, type VListHandle } from 'virtua';
-import {
-  cachedTrimmedEnhetList,
-  type TrimmedEnhet,
-} from '~/actions/api/enhetActions';
+import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import type { TrimmedEnhet } from '~/lib/types/enhet';
 import { useTranslation } from '~/hooks/useTranslation';
 import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
@@ -57,17 +51,73 @@ export default function EnhetSelector({
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
   const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
-  const [loading, setLoading] = useState(true);
+  const {
+    enhetMap: rawEnhetMap,
+    fullListLoaded,
+    ensureFullList,
+  } = useEnhetCache();
   const [filterValue, setFilterValue] = useState('');
-  const [enhetList, setEnhetList] = useState<TrimmedEnhet[]>([]);
-  const [enhetMap, setEnhetMap] = useState<Map<string, TrimmedEnhet>>(
-    new Map(),
-  );
-  const [enhetNodeList, setEnhetNodeList] = useState<EnhetNode[]>([]);
   const [focusedList, setFocusedList] = useState<'available' | 'selected'>(
     'available',
   );
   const [focusedIndex, setFocusedIndex] = useState(-1);
+
+  // Resolve parent references into Enhet objects for ancestor rendering.
+  // Keep the old cutoff behavior: a parent may exist in the cache for lookup,
+  // but its own top-level parent is intentionally not attached.
+  const { enhetList, enhetMap } = useMemo(() => {
+    const rawEnhetById = new Map<string, TrimmedEnhet>();
+    for (const enhet of rawEnhetMap.values()) {
+      rawEnhetById.set(enhet.id, enhet);
+    }
+
+    const resolvedById = new Map<string, TrimmedEnhet>();
+    const resolveEnhet = (id: string): TrimmedEnhet | undefined => {
+      const existing = resolvedById.get(id);
+      if (existing) {
+        return existing;
+      }
+      const enhet = rawEnhetById.get(id);
+      if (!enhet) {
+        return undefined;
+      }
+
+      let parent: Enhet | undefined;
+      if (typeof enhet.parent === 'string') {
+        const rawParent = rawEnhetById.get(enhet.parent);
+        if (rawParent?.parent) {
+          parent = resolveEnhet(rawParent.id) as Enhet | undefined;
+        }
+      } else if (enhet.parent?.parent) {
+        parent = enhet.parent;
+      }
+
+      const resolvedEnhet = Object.freeze({
+        ...enhet,
+        parent,
+      });
+      resolvedById.set(id, resolvedEnhet);
+      return resolvedEnhet;
+    };
+
+    const nextEnhetMap = new Map<string, TrimmedEnhet>();
+    const nextEnhetList: TrimmedEnhet[] = [];
+    for (const enhet of rawEnhetById.values()) {
+      const resolvedEnhet = resolveEnhet(enhet.id);
+      if (!resolvedEnhet) {
+        continue;
+      }
+      nextEnhetMap.set(enhet.id, resolvedEnhet);
+      const href = getEnhetHref(enhet);
+      if (href !== enhet.id) {
+        nextEnhetMap.set(href, resolvedEnhet);
+      }
+      if (enhet.parent) {
+        nextEnhetList.push(resolvedEnhet);
+      }
+    }
+    return { enhetList: nextEnhetList, enhetMap: nextEnhetMap };
+  }, [rawEnhetMap]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -200,73 +250,22 @@ export default function EnhetSelector({
     setFocusedIndex(-1);
   }, []);
 
-  // Fetch enhet list on mount
+  // Load the full list lazily on first expand.
   useEffect(() => {
-    let unmounted = false;
-    cachedTrimmedEnhetList().then((unfilteredEnhetList) => {
-      if (unmounted) {
-        return;
-      }
+    if (expanded && !fullListLoaded) {
+      ensureFullList();
+    }
+  }, [expanded, fullListLoaded, ensureFullList]);
 
-      const nextEnhetList = unfilteredEnhetList.filter(
-        (enhet) => !!enhet.parent,
-      );
-      const map = new Map<string, TrimmedEnhet>();
-      nextEnhetList.forEach((enhet) => {
-        map.set(enhet.id, enhet);
-      });
-
-      const resolvedEnhetMapById = new Map<string, TrimmedEnhet>();
-      const resolveEnhet = (id: string): TrimmedEnhet | undefined => {
-        if (resolvedEnhetMapById.has(id)) {
-          return resolvedEnhetMapById.get(id);
-        }
-
-        const enhet = map.get(id);
-        if (!enhet) {
-          return undefined;
-        }
-
-        const resolvedEnhet = Object.freeze({
-          ...enhet,
-          parent: (typeof enhet.parent === 'string'
-            ? resolveEnhet(enhet.parent)
-            : enhet.parent) as Enhet,
-        });
-
-        resolvedEnhetMapById.set(id, resolvedEnhet);
-        return resolvedEnhet;
-      };
-
-      const resolvedEnhetList = nextEnhetList
-        .map((enhet) => resolveEnhet(enhet.id))
-        .filter((enhet) => enhet !== undefined);
-
-      const resolvedEnhetMap = new Map<string, TrimmedEnhet>();
-      resolvedEnhetList.forEach((enhet) => {
-        resolvedEnhetMap.set(enhet.id, enhet);
-        resolvedEnhetMap.set(getEnhetHref(enhet), enhet);
-      });
-
-      setEnhetList(resolvedEnhetList);
-      setEnhetMap(resolvedEnhetMap);
-      setLoading(false);
-    });
-    return () => {
-      unmounted = true;
-    };
-  }, []);
-
-  // Update enhet node list when language changes
-  useEffect(() => {
-    const nextEnhetNodeList = enhetList.map((enhet) => ({
-      currentName: getName(enhet),
-      enhet,
-      children: new Set<EnhetNode>(),
-      score: enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1,
-    }));
-    setEnhetNodeList(nextEnhetNodeList);
-  }, [enhetList, getName]);
+  const enhetNodeList: EnhetNode[] = useMemo(
+    () =>
+      enhetList.map((enhet) => ({
+        currentName: getName(enhet),
+        enhet,
+        score: enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1,
+      })),
+    [enhetList, getName],
+  );
 
   useEffect(() => {
     const wasExpanded = previousExpandedRef.current;
@@ -692,11 +691,11 @@ export default function EnhetSelector({
                     }
                   />
                 ))}
-                {loading &&
+                {!fullListLoaded &&
                   [0, 1, 2, 3].map((index) =>
                     renderSkeleton(`loading-available-${index}`),
                   )}
-                {!loading && visibleEnhetNodeList.length === 0 && (
+                {fullListLoaded && visibleEnhetNodeList.length === 0 && (
                   <div className={styles.emptyState}>
                     {t('common.noResults')}
                   </div>
