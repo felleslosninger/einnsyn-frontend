@@ -10,6 +10,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome ci .",
+    "lint:fix": "biome check --write .",
     "test": "node --test --import=tsx"
   },
   "dependencies": {
