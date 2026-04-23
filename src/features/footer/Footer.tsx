@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import SettingsMenu from '~/features/header/components/SettingsMenu';
 
 import styles from './Footer.module.scss';
 

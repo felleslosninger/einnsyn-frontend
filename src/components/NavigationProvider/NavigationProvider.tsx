@@ -13,6 +13,7 @@ import {
   useState,
   useTransition,
 } from 'react';
+
 type NavigationState = {
   state: 'idle' | 'loading';
   type?: 'push' | 'replace' | 'refresh' | 'native'; // Native for browser back/forward

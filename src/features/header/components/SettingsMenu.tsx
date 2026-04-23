@@ -100,9 +100,7 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
         </div>
       </div>
 
-      <div
-        className="header-dropdown-content-section"
-      >
+      <div className="header-dropdown-content-section">
         <div className={styles.colorSchemeContainer}>
           <form action={() => updateSettings({ colorScheme: 'light' })}>
             <EinButton

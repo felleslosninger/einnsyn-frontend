@@ -20,7 +20,10 @@ function getScore(
     const weight = (code: LanguageCode) =>
       currentLanguageCode === code ? 1.0 : 0.1;
     const matches = [
-      { index: enhet.navn.toLowerCase().indexOf(searchWord), weight: weight('nb') },
+      {
+        index: enhet.navn.toLowerCase().indexOf(searchWord),
+        weight: weight('nb'),
+      },
       {
         index: enhet.navnNynorsk?.toLowerCase().indexOf(searchWord) ?? -1,
         weight: weight('nn'),

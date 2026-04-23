@@ -20,8 +20,8 @@ import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 import styles from './EnhetSelector.module.scss';
-import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
+import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import {
   addEnhetId,
   normalizeEnhetParamValues,
@@ -146,9 +146,7 @@ export default function EnhetSelector({
         newSearchParams.set('enhet', enhetParam);
       }
 
-      navigation.replace(
-        `${optimisticPathname}?${newSearchParams.toString()}`,
-      );
+      navigation.replace(`${optimisticPathname}?${newSearchParams.toString()}`);
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );
@@ -737,4 +735,3 @@ export default function EnhetSelector({
     </div>
   );
 }
-
