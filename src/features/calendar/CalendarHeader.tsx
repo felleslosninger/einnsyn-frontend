@@ -25,6 +25,7 @@ interface CalendarHeaderProps {
   setSelectedView: (view: CalendarView) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
+  visibleMonth: Date;
   displayWeekends: boolean;
   setDisplayWeekends: (display: boolean) => void;
   hasWeekendWarning: boolean;
@@ -36,6 +37,7 @@ export default function CalendarHeader({
   setSelectedView,
   selectedDate,
   setSelectedDate,
+  visibleMonth,
   displayWeekends,
   setDisplayWeekends,
   hasWeekendWarning,
@@ -64,7 +66,7 @@ export default function CalendarHeader({
 
     switch (selectedView) {
       case 'month':
-        return `${t(`calendar.months.${selectedDate.getMonth()}`)} ${selectedDate.getFullYear()}`;
+        return `${t(`calendar.months.${visibleMonth.getMonth()}`)} ${visibleMonth.getFullYear()}`;
 
       case 'week': {
         const weekNumber = getWeekNumber(selectedDate);
@@ -81,7 +83,7 @@ export default function CalendarHeader({
       default:
         return '';
     }
-  }, [selectedView, selectedDate, t]);
+  }, [selectedView, selectedDate, visibleMonth, t]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = new Date(e.target.value);
@@ -92,7 +94,10 @@ export default function CalendarHeader({
 
   const navButtons = useMemo(() => {
     const changeMonth = (offset: number) => {
-      const newDate = new Date(selectedDate);
+      // Base off the currently visible month so the chevron matches what the
+      // user sees (they may have scrolled away from selectedDate).
+      const newDate = new Date(visibleMonth);
+      newDate.setDate(1);
       newDate.setMonth(newDate.getMonth() + offset);
       setSelectedDate(newDate);
     };
@@ -191,7 +196,7 @@ export default function CalendarHeader({
       default:
         return '';
     }
-  }, [selectedView, selectedDate, setSelectedDate]);
+  }, [selectedView, selectedDate, visibleMonth, setSelectedDate]);
 
   return (
     <div className={cn('calendar-header', styles.calendarHeader)}>
