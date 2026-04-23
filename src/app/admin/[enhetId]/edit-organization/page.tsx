@@ -14,7 +14,7 @@ export default async function EditOrganization() {
   return (
     <>
       <EditOrganizationForm enhetId={authInfo.enhet?.id} />
-      <DeleteOrganizationForm enhetId={authInfo.enhet?.id} />
+      {/* <DeleteOrganizationForm enhetId={authInfo.enhet?.id} /> */}
     </>
   );
 }
