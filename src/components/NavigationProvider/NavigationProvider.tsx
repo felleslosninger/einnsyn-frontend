@@ -13,11 +13,9 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { animationFrame } from '~/lib/utils/animationFrame';
-
 type NavigationState = {
   state: 'idle' | 'loading';
-  type?: 'push' | 'replace' | 'native'; // Native for browser back/forward
+  type?: 'push' | 'replace' | 'refresh' | 'native'; // Native for browser back/forward
   loadingPathname?: string;
   loadingSearchParamsString?: string;
   loadingOptions?: NavigateOptions;
@@ -59,6 +57,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const [navigationState, setNavigationState] = useState<NavigationState>({
     state: 'idle',
   });
+  const navigationStartedRef = useRef(false);
 
   const loadingSearchParams = useMemo(() => {
     return navigationState.loadingSearchParamsString
@@ -80,21 +79,14 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
   // Handle browser back/forward navigation
   useEffect(() => {
-    const handlePopState = async () => {
-      // Trigger a "fake" loading state
+    const handlePopState = () => {
       setNavigationState({
         state: 'loading',
         loadingPathname: window.location.pathname,
-        loadingSearchParamsString: window.location.search,
+        loadingSearchParamsString: new URLSearchParams(
+          window.location.search,
+        ).toString(),
         type: 'native',
-      });
-
-      // Wait for next frame to ensure loading state is rendered
-      await animationFrame();
-
-      // Revert immediately
-      setNavigationState({
-        state: 'idle',
       });
     };
 
@@ -126,14 +118,54 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     }
   }, [navigationState, router, loadingSearchParams]);
 
-  // Detect when any navigation is complete
+  // Track whether a transition has actually started before allowing loading
+  // state to settle from `isPending`.
   useEffect(() => {
-    if (!isPending) {
+    if (navigationState.state !== 'loading') {
+      navigationStartedRef.current = false;
+      return;
+    }
+
+    if (isPending) {
+      navigationStartedRef.current = true;
+    }
+  }, [navigationState.state, isPending]);
+
+  // Detect when navigation is actually complete.
+  useEffect(() => {
+    if (navigationState.state !== 'loading') {
+      return;
+    }
+
+    const targetSearchParamsString =
+      navigationState.loadingSearchParamsString ?? '';
+    const reachedTargetUrl =
+      navigationState.loadingPathname !== undefined &&
+      pathname === navigationState.loadingPathname &&
+      searchParamsString === targetSearchParamsString;
+
+    if (
+      (navigationState.type === 'push' ||
+        navigationState.type === 'replace' ||
+        navigationState.type === 'native') &&
+      reachedTargetUrl
+    ) {
+      setNavigationState({
+        state: 'idle',
+      });
+      return;
+    }
+
+    if (
+      navigationState.type === 'refresh' &&
+      navigationStartedRef.current &&
+      !isPending
+    ) {
       setNavigationState({
         state: 'idle',
       });
     }
-  }, [isPending]);
+  }, [navigationState, pathname, searchParamsString, isPending]);
 
   const callPushOrReplace = useCallback(
     (type: 'replace' | 'push', href: string, options?: NavigateOptions) => {
@@ -201,7 +233,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       routeInfoRef.current;
     setNavigationState({
       state: 'loading',
-      type: 'replace',
+      type: 'refresh',
       loadingPathname: currentPathname,
       loadingSearchParamsString: currentSearchParams.toString(),
     });

@@ -5,7 +5,7 @@ import { EnhetCacheProvider } from '~/components/EnhetCacheProvider/EnhetCachePr
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
-import type { TrimmedEnhet } from '~/lib/types/enhet';
+import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 import styles from './SearchHeader.module.scss';
 import SearchTabs from './SearchTabs';
 

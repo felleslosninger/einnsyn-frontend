@@ -1,12 +1,12 @@
-import type { Enhet } from '@digdir/einnsyn-sdk';
 import { CheckmarkIcon, PlusIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { forwardRef } from 'react';
-import type { TrimmedEnhet } from '~/lib/types/enhet';
 import cn from '~/lib/utils/className';
 import { useAncestorsAsString, useName } from '~/lib/utils/enhetUtils';
+import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 import styles from './EnhetSelector.module.scss';
 
 interface EnhetSelectorSelectItemProps {
+  id?: string;
   enhet: TrimmedEnhet;
   variant?: 'available' | 'selected';
   actionLabel?: string;
@@ -22,6 +22,7 @@ export const EnhetSelectorSelectItem = forwardRef<
 >(
   (
     {
+      id,
       enhet,
       variant = 'available',
       actionLabel,
@@ -31,8 +32,8 @@ export const EnhetSelectorSelectItem = forwardRef<
     },
     ref,
   ) => {
-    const ancestors = useAncestorsAsString(enhet as Enhet, ' / ');
-    const name = useName(enhet as Enhet);
+    const ancestors = useAncestorsAsString(enhet, ' / ');
+    const name = useName(enhet);
     const isSelectedColumn = variant === 'selected';
     const isAlreadyAdded = isSelected && !isSelectedColumn;
     const ActionIcon = isSelectedColumn
@@ -49,6 +50,7 @@ export const EnhetSelectorSelectItem = forwardRef<
     return (
       <button
         type="button"
+        id={id}
         ref={ref}
         tabIndex={-1}
         aria-label={itemActionLabel ? `${itemActionLabel}: ${name}` : name}

@@ -1,7 +1,6 @@
 'use client';
 
 import { Heading, Search, Skeleton } from '@digdir/designsystemet-react';
-import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import {
   useCallback,
@@ -15,13 +14,13 @@ import { VList, type VListHandle } from 'virtua';
 import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-import type { TrimmedEnhet } from '~/lib/types/enhet';
 import { useTranslation } from '~/hooks/useTranslation';
-import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
+import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 import styles from './EnhetSelector.module.scss';
+import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
 import {
   addEnhetId,
@@ -30,12 +29,6 @@ import {
   removeEnhetId,
   serializeEnhetParam,
 } from './enhetTokenInputUtils';
-
-export type EnhetNode = {
-  currentName: string;
-  enhet: TrimmedEnhet;
-  score: number;
-};
 
 export default function EnhetSelector({
   className,
@@ -57,10 +50,10 @@ export default function EnhetSelector({
     ensureFullList,
   } = useEnhetCache();
   const [filterValue, setFilterValue] = useState('');
-  const [focusedList, setFocusedList] = useState<'available' | 'selected'>(
-    'available',
-  );
-  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [focus, setFocus] = useState<{
+    list: 'available' | 'selected';
+    index: number;
+  } | null>(null);
 
   // Resolve parent references into Enhet objects for ancestor rendering.
   // Keep the old cutoff behavior: a parent may exist in the cache for lookup,
@@ -82,11 +75,11 @@ export default function EnhetSelector({
         return undefined;
       }
 
-      let parent: Enhet | undefined;
+      let parent: TrimmedEnhet | undefined;
       if (typeof enhet.parent === 'string') {
         const rawParent = rawEnhetById.get(enhet.parent);
         if (rawParent?.parent) {
-          parent = resolveEnhet(rawParent.id) as Enhet | undefined;
+          parent = resolveEnhet(rawParent.id);
         }
       } else if (enhet.parent?.parent) {
         parent = enhet.parent;
@@ -153,23 +146,11 @@ export default function EnhetSelector({
         newSearchParams.set('enhet', enhetParam);
       }
 
-      navigation.push(`${optimisticPathname}?${newSearchParams.toString()}`);
+      navigation.replace(
+        `${optimisticPathname}?${newSearchParams.toString()}`,
+      );
     },
     [navigation, optimisticPathname, optimisticSearchParams],
-  );
-
-  // Get the name of an Enhet in the current language
-  const getName = useCallback(
-    (enhet: TrimmedEnhet) => {
-      return languageCode === 'nb'
-        ? enhet.navn
-        : languageCode === 'nn'
-          ? (enhet.navnNynorsk ?? enhet.navn)
-          : languageCode === 'se'
-            ? (enhet.navnSami ?? enhet.navn)
-            : (enhet.navnEngelsk ?? enhet.navn);
-    },
-    [languageCode],
   );
 
   const selectedEnhetList = useMemo(() => {
@@ -177,11 +158,11 @@ export default function EnhetSelector({
       const enhet = enhetMap.get(id);
       return {
         id,
-        label: enhet ? getName(enhet) : id,
+        label: enhet ? getName(enhet, languageCode) : id,
         enhet,
       };
     });
-  }, [enhetMap, getName, selectedEnhetIds]);
+  }, [enhetMap, languageCode, selectedEnhetIds]);
 
   const selectedEnhetItems = useMemo(() => {
     return selectedEnhetList
@@ -235,20 +216,9 @@ export default function EnhetSelector({
     }
 
     setSelectedEnhetIds([]);
-    setFocusedList('available');
-    setFocusedIndex(-1);
+    setFocus(null);
     focusInput();
   }, [focusInput, selectedEnhetIds.length, setSelectedEnhetIds]);
-
-  const focusAvailableList = useCallback(() => {
-    setFocusedList('available');
-    setFocusedIndex(-1);
-  }, []);
-
-  const focusSelectedList = useCallback(() => {
-    setFocusedList('selected');
-    setFocusedIndex(-1);
-  }, []);
 
   // Load the full list lazily on first expand.
   useEffect(() => {
@@ -260,11 +230,11 @@ export default function EnhetSelector({
   const enhetNodeList: EnhetNode[] = useMemo(
     () =>
       enhetList.map((enhet) => ({
-        currentName: getName(enhet),
+        currentName: getName(enhet, languageCode),
         enhet,
         score: enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1,
       })),
-    [enhetList, getName],
+    [enhetList, languageCode],
   );
 
   useEffect(() => {
@@ -276,8 +246,7 @@ export default function EnhetSelector({
 
     if (!expanded && wasExpanded) {
       setFilterValue('');
-      setFocusedIndex(-1);
-      setFocusedList('available');
+      setFocus(null);
     }
 
     previousExpandedRef.current = expanded;
@@ -463,32 +432,29 @@ export default function EnhetSelector({
   );
 
   useEffect(() => {
-    if (!expanded) {
+    if (!expanded || !focus) {
       return;
     }
 
-    const options = { align: 'nearest' } as const;
-
-    if (focusedList === 'available' && availableListRef.current) {
-      availableListRef.current.scrollToIndex(focusedIndex, options);
-    } else if (focusedList === 'selected' && selectedListRef.current) {
-      selectedListRef.current.scrollToIndex(focusedIndex, options);
-    }
-  }, [focusedIndex, focusedList, expanded]);
+    const listRef =
+      focus.list === 'available' ? availableListRef : selectedListRef;
+    listRef.current?.scrollToIndex(focus.index, { align: 'nearest' });
+  }, [focus, expanded]);
 
   useEffect(() => {
-    if (focusedList !== 'available') {
-      return;
-    }
-
-    setFocusedIndex((previousIndex) => {
-      if (visibleEnhetNodeList.length === 0) {
-        return -1;
+    setFocus((prev) => {
+      if (!prev || prev.list !== 'available') {
+        return prev;
       }
-
-      return Math.min(previousIndex, visibleEnhetNodeList.length - 1);
+      if (visibleEnhetNodeList.length === 0) {
+        return null;
+      }
+      const maxIndex = visibleEnhetNodeList.length - 1;
+      return prev.index > maxIndex
+        ? { list: 'available', index: maxIndex }
+        : prev;
     });
-  }, [visibleEnhetNodeList.length, focusedList]);
+  }, [visibleEnhetNodeList.length]);
 
   useEffect(() => {
     if (!expanded) {
@@ -496,64 +462,75 @@ export default function EnhetSelector({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const currentList =
-        focusedList === 'available' ? visibleEnhetNodeList : selectedEnhetItems;
-      const maxIndex = currentList.length - 1;
-
       switch (event.key) {
         case 'ArrowDown':
           event.preventDefault();
-          setFocusedIndex((prev) => Math.min(prev + 1, maxIndex));
+          setFocus((prev) => {
+            const list = prev?.list ?? 'available';
+            const items =
+              list === 'selected' ? selectedEnhetItems : visibleEnhetNodeList;
+            if (items.length === 0) {
+              return null;
+            }
+            return {
+              list,
+              index: Math.min((prev?.index ?? -1) + 1, items.length - 1),
+            };
+          });
           break;
         case 'ArrowUp':
           event.preventDefault();
-          setFocusedIndex((prev) => Math.max(prev - 1, 0));
+          setFocus((prev) => {
+            const list = prev?.list ?? 'available';
+            const items =
+              list === 'selected' ? selectedEnhetItems : visibleEnhetNodeList;
+            if (items.length === 0) {
+              return null;
+            }
+            return { list, index: Math.max((prev?.index ?? 0) - 1, 0) };
+          });
           break;
-        case 'Tab':
-          if (focusedIndex >= 0) {
-            if (event.shiftKey) {
-              if (focusedList === 'selected') {
-                event.preventDefault();
-                setFocusedList('available');
-                setFocusedIndex(visibleEnhetNodeList.length > 0 ? 0 : -1);
-              } else {
-                setFocusedIndex(-1);
-              }
-              break;
-            }
-
-            if (focusedList === 'available' && selectedEnhetItems.length > 0) {
-              event.preventDefault();
-              setFocusedList('selected');
-              setFocusedIndex(0);
-            } else {
-              setFocusedIndex(-1);
-            }
+        case 'ArrowRight':
+          if (focus?.list === 'available' && selectedEnhetItems.length > 0) {
+            event.preventDefault();
+            setFocus({ list: 'selected', index: 0 });
+          }
+          break;
+        case 'ArrowLeft':
+          if (focus?.list === 'selected') {
+            event.preventDefault();
+            setFocus(
+              visibleEnhetNodeList.length > 0
+                ? { list: 'available', index: 0 }
+                : null,
+            );
           }
           break;
         case 'Enter':
+          if (!focus) {
+            break;
+          }
           event.preventDefault();
-          if (
-            focusedList === 'available' &&
-            visibleEnhetNodeList[focusedIndex]
-          ) {
-            addEnhetHandler(visibleEnhetNodeList[focusedIndex].enhet);
-          } else if (
-            focusedList === 'selected' &&
-            selectedEnhetItems[focusedIndex]
-          ) {
-            removeEnhetHandler(selectedEnhetItems[focusedIndex]);
+          if (focus.list === 'available') {
+            const node = visibleEnhetNodeList[focus.index];
+            if (node) {
+              addEnhetHandler(node.enhet);
+            }
+          } else {
+            const enhet = selectedEnhetItems[focus.index];
+            if (enhet) {
+              removeEnhetHandler(enhet);
+            }
           }
           break;
         case 'Escape':
-          if (focusedIndex >= 0) {
-            setFocusedIndex(-1);
-            setFocusedList('available');
+          event.preventDefault();
+          if (focus) {
+            setFocus(null);
             inputRef.current?.focus();
           } else {
             close?.();
           }
-          event.preventDefault();
           break;
       }
     };
@@ -568,10 +545,8 @@ export default function EnhetSelector({
   }, [
     addEnhetHandler,
     expanded,
-    focusedIndex,
-    focusedList,
+    focus,
     removeEnhetHandler,
-    selectedEnhetItems.length,
     selectedEnhetItems,
     close,
     visibleEnhetNodeList,
@@ -579,10 +554,21 @@ export default function EnhetSelector({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Reset focus state whenever the search string changes.
   useEffect(() => {
-    setFocusedIndex(-1);
-    setFocusedList('available');
+    setFocus(null);
     availableListRef.current?.scrollToIndex(0, { align: 'start' });
   }, [searchString]);
+
+  const focusedOptionId = useMemo(() => {
+    if (!focus) {
+      return undefined;
+    }
+    if (focus.list === 'available') {
+      const node = visibleEnhetNodeList[focus.index];
+      return node ? `enhet-option-available-${node.enhet.id}` : undefined;
+    }
+    const enhet = selectedEnhetItems[focus.index];
+    return enhet ? `enhet-option-selected-${enhet.id}` : undefined;
+  }, [focus, visibleEnhetNodeList, selectedEnhetItems]);
 
   const renderSkeleton = (key: string) => {
     const name = skeletonString(10, 60);
@@ -646,6 +632,7 @@ export default function EnhetSelector({
                 onChange={onInputChange}
                 onKeyDown={onInputKeyDown}
                 aria-label={t('search.enhetFilterPlaceholder')}
+                aria-activedescendant={focusedOptionId}
                 placeholder={t('search.enhetFilterPlaceholder')}
                 spellCheck={false}
                 autoCorrect="off"
@@ -656,10 +643,7 @@ export default function EnhetSelector({
           </div>
 
           <div className={styles.enhetSelectorDropdown}>
-            <div
-              className={styles.enhetSelectorDropdownListContainer}
-              onFocus={focusAvailableList}
-            >
+            <div className={styles.enhetSelectorDropdownListContainer}>
               <div className={styles.enhetSelectorDropdownLabelRow}>
                 <Heading
                   className={styles.enhetSelectorDropdownLabel}
@@ -673,12 +657,12 @@ export default function EnhetSelector({
                 ref={availableListRef}
                 className={styles.enhetSelectorDropdownList}
                 style={{ contain: 'content' }}
-                tabIndex={0}
                 aria-label={t('search.availableEnheter')}
               >
                 {visibleEnhetNodeList.map((enhetNode, index) => (
                   <EnhetSelectorSelectItem
                     key={`add-${enhetNode.enhet.id}`}
+                    id={`enhet-option-available-${enhetNode.enhet.id}`}
                     enhet={enhetNode.enhet}
                     onClick={() => addEnhetHandler(enhetNode.enhet)}
                     variant="available"
@@ -687,7 +671,7 @@ export default function EnhetSelector({
                       getEnhetHref(enhetNode.enhet),
                     )}
                     isFocused={
-                      focusedList === 'available' && focusedIndex === index
+                      focus?.list === 'available' && focus.index === index
                     }
                   />
                 ))}
@@ -708,7 +692,6 @@ export default function EnhetSelector({
                 styles.enhetSelectorDropdownListContainer,
                 styles.selectedListContainer,
               )}
-              onFocus={focusSelectedList}
             >
               <div className={styles.enhetSelectorDropdownLabelRow}>
                 <Heading
@@ -731,18 +714,18 @@ export default function EnhetSelector({
               <VList
                 ref={selectedListRef}
                 className={styles.enhetSelectorDropdownList}
-                tabIndex={0}
                 aria-label={t('search.selectedEnheter')}
               >
                 {selectedEnhetItems.map((enhet, index) => (
                   <EnhetSelectorSelectItem
                     key={`remove-${enhet.id}`}
+                    id={`enhet-option-selected-${enhet.id}`}
                     enhet={enhet}
                     onClick={() => removeEnhetHandler(enhet)}
                     variant="selected"
                     actionLabel={t('common.remove')}
                     isFocused={
-                      focusedList === 'selected' && focusedIndex === index
+                      focus?.list === 'selected' && focus.index === index
                     }
                   />
                 ))}
@@ -755,135 +738,3 @@ export default function EnhetSelector({
   );
 }
 
-/**
- * Get the earliest match position for any of the name fields
- * @param enhet
- * @param searchWord
- * @returns
- */
-function getScore(
-  enhet: TrimmedEnhet,
-  searchWord: string,
-  currentLanguageCode: LanguageCode,
-) {
-  let score = 0;
-  let depth = 1;
-
-  const name = {
-    nb: enhet.navn.toLowerCase(),
-    nn: enhet.navnNynorsk?.toLowerCase(),
-    se: enhet.navnSami?.toLowerCase(),
-    en: enhet.navnEngelsk?.toLowerCase(),
-  };
-
-  if (enhet.enhetstype !== 'DUMMYENHET') {
-    const languageWeights = {
-      nb: currentLanguageCode === 'nb' ? 1.0 : 0.1,
-      nn: currentLanguageCode === 'nn' ? 1.0 : 0.1,
-      se: currentLanguageCode === 'se' ? 1.0 : 0.1,
-      en: currentLanguageCode === 'en' ? 1.0 : 0.1,
-    };
-
-    const matches = [
-      { index: name.nb.indexOf(searchWord), weight: languageWeights.nb },
-      { index: name.nn?.indexOf(searchWord) ?? -1, weight: languageWeights.nn },
-      { index: name.se?.indexOf(searchWord) ?? -1, weight: languageWeights.se },
-      { index: name.en?.indexOf(searchWord) ?? -1, weight: languageWeights.en },
-    ].filter((match) => match.index >= 0);
-
-    const bestScore = matches.reduce((currentScore, match) => {
-      const thisScore = Math.max(1, 10 - match.index / 10) * match.weight;
-      return thisScore > currentScore ? thisScore : currentScore;
-    }, 0);
-
-    score += bestScore;
-  }
-
-  if (isEnhet(enhet.parent)) {
-    const [parentScore, parentDepth] = getScore(
-      enhet.parent as TrimmedEnhet,
-      searchWord,
-      currentLanguageCode,
-    );
-    if (parentScore > 0) {
-      score += parentScore * 0.2;
-    }
-    depth += parentDepth;
-  }
-
-  return [score, depth];
-}
-
-function filterEnhetList(
-  allNodes: EnhetNode[],
-  searchString: string,
-  currentLanguageCode: LanguageCode,
-): EnhetNode[] {
-  if (searchString.trim().length === 0) {
-    return allNodes.sort(sortNodes);
-  }
-
-  const searchWords = searchString
-    .toLowerCase()
-    .split(' ')
-    .filter((word) => word.length > 0);
-
-  return allNodes
-    .map((enhetNode) => {
-      let score = 0;
-
-      for (const word of searchWords) {
-        const [wordScore, depth] = getScore(
-          enhetNode.enhet,
-          word,
-          currentLanguageCode,
-        );
-        if (wordScore <= 0) {
-          score = 0;
-          break;
-        }
-        score += wordScore / Math.max(1, depth);
-      }
-
-      if (enhetNode.enhet.enhetstype === 'DUMMYENHET') {
-        score *= 0.5;
-      }
-
-      return {
-        ...enhetNode,
-        score,
-      };
-    })
-    .filter((enhetNode) => !!enhetNode && enhetNode.score > 0)
-    .sort(sortNodes);
-}
-
-const depthCache = new Map<string, number>();
-
-function getDepth(enhet: TrimmedEnhet): number {
-  const cachedDepth = depthCache.get(enhet.id);
-  if (cachedDepth !== undefined) {
-    return cachedDepth;
-  }
-
-  const depth = isEnhet(enhet.parent)
-    ? 1 + getDepth(enhet.parent as TrimmedEnhet)
-    : 0;
-
-  depthCache.set(enhet.id, depth);
-  return depth;
-}
-
-function sortNodes(a: EnhetNode, b: EnhetNode) {
-  if (a.score !== b.score) {
-    return b.score - a.score;
-  }
-
-  const aDepth = getDepth(a.enhet);
-  const bDepth = getDepth(b.enhet);
-  if (aDepth !== bDepth) {
-    return aDepth - bDepth;
-  }
-
-  return a.currentName?.localeCompare(b.currentName, 'no') ?? 0;
-}

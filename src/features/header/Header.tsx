@@ -31,6 +31,34 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
+  const previousRootPathRef = useRef(rootPath);
+  const activeRouteTransitionRef = useRef<{
+    fromRootPath: string;
+    toRootPath: string;
+  } | null>(null);
+
+  if (previousRootPathRef.current !== rootPath) {
+    activeRouteTransitionRef.current = {
+      fromRootPath: previousRootPathRef.current,
+      toRootPath: rootPath,
+    };
+    previousRootPathRef.current = rootPath;
+  }
+
+  if (!loading) {
+    activeRouteTransitionRef.current = null;
+  }
+
+  const activeRouteTransition = activeRouteTransitionRef.current;
+  const waitForLoad =
+    loading &&
+    !(
+      activeRouteTransition &&
+      ((activeRouteTransition.fromRootPath === 'home' &&
+        activeRouteTransition.toRootPath === 'search') ||
+        (activeRouteTransition.fromRootPath === 'search' &&
+          activeRouteTransition.toRootPath === 'home'))
+    );
 
   // Update headerHeight *before* setting position: fixed
   useLayoutEffect(() => {
@@ -76,13 +104,20 @@ export default function Header({ children }: { children: React.ReactNode }) {
         const targetHead = createInvisibleClone(head);
         targetHead.className = className;
         const targetStyle = getStyle(targetHead);
-        // biome-ignore lint/style/noNonNullAssertion: We check for head above
-        const targetForm = targetHead.querySelector('form')!;
+        const targetForm = targetHead.querySelector('form');
+        if (!targetForm) {
+          removeInvisibleClone(targetHead);
+          return;
+        }
         const currentHeadRect = head.getBoundingClientRect();
         const currentFormRect = form.getBoundingClientRect();
         const targetHeadRect = targetHead.getBoundingClientRect();
         const targetFormRect = targetForm.getBoundingClientRect();
-        const targetFormOffset = getRelativeOffset(targetFormRect, targetHeadRect);
+        const targetFormOffset = getRelativeOffset(
+          targetFormRect,
+          targetHeadRect,
+        );
+
         removeInvisibleClone(targetHead);
 
         // Transition landing page search form to header search form
@@ -91,6 +126,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
             preserveHeight: true,
             preserveWidth: false,
             resetMargins: false,
+            pinToViewport: true,
           });
           lockElementToRect(form, currentFormRect, currentHeadRect);
 
@@ -130,13 +166,18 @@ export default function Header({ children }: { children: React.ReactNode }) {
             preserveHeight: true,
             preserveWidth: false,
             resetMargins: false,
+            pinToViewport: true,
           });
           lockElementToRect(form, currentFormRect, currentHeadRect);
           if (
             headerTabs instanceof HTMLElement &&
             currentHeaderTabsRect instanceof DOMRect
           ) {
-            lockElementToRect(headerTabs, currentHeaderTabsRect, currentHeadRect);
+            lockElementToRect(
+              headerTabs,
+              currentHeaderTabsRect,
+              currentHeadRect,
+            );
           }
 
           await animationFrame(1);
@@ -176,7 +217,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   return (
     <EinTransition
       dependencies={transitionDeps}
-      loading={loading}
+      loading={waitForLoad}
       events={transitionEvents}
     >
       <div>
@@ -248,12 +289,14 @@ function lockElementToRect(
     preserveHeight?: boolean;
     preserveWidth?: boolean;
     resetMargins?: boolean;
+    pinToViewport?: boolean;
   } = {},
 ) {
   const {
     preserveHeight = true,
     preserveWidth = true,
     resetMargins = true,
+    pinToViewport = false,
   } = options;
 
   element.style.overflow = 'hidden';
@@ -271,7 +314,12 @@ function lockElementToRect(
     element.style.margin = '0';
   }
 
-  if (element === element.closest('header')) {
+  if (pinToViewport) {
+    element.style.position = 'fixed';
+    element.style.top = `${rect.top}px`;
+    element.style.left = `${rect.left}px`;
+    element.style.width = `${rect.width}px`;
+    element.style.maxWidth = `${rect.width}px`;
     return;
   }
 

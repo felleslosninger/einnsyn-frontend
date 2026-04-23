@@ -4,20 +4,20 @@ import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { unstable_cache } from 'next/cache';
 import { parseEnhetParam } from '~/components/SearchField/enhetTokenInputUtils';
 import type { LanguageCode } from '~/lib/translation/translation';
-import type { TrimmedEnhet } from '~/lib/types/enhet';
 import { logger } from '~/lib/utils/logger';
 import {
   mergeTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
+  type TrimmedEnhet,
 } from '~/lib/utils/trimmedEnhetUtils';
-import { cachedApiClient } from './getApiClient';
+import { cachedPublicApiClient } from './getApiClient';
 
 const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
 const ENHET_LIST_TAG = 'enhet-list';
 const DEFAULT_PRELOAD_LIMIT = 10;
 
 const fetchTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
-  const api = await cachedApiClient();
+  const api = await cachedPublicApiClient();
   try {
     logger.debug('Fetching enhet list from API');
     const enhetList = await api.enhet.list({
@@ -109,6 +109,13 @@ export const getInitialEnhetsForRequest = async ({
     }
     if (searchParamsEnhet) {
       selected.push(...parseEnhetParam(searchParamsEnhet));
+    }
+
+    // The collapsed selector does not need a preloaded list when nothing is
+    // selected. Let the client load it lazily on first expand instead of
+    // blocking route transitions on a full enhet fetch.
+    if (selected.length === 0) {
+      return [];
     }
 
     const list = await getTrimmedEnhetList();

@@ -1,6 +1,7 @@
 import { getInitialEnhetsForRequest } from '~/actions/api/enhetActions';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import { SearchHeader } from '~/features/search';
+import { firstString } from '~/lib/utils/stringutils';
 
 export default async function EnhetHeader({
   searchParams,
@@ -13,11 +14,4 @@ export default async function EnhetHeader({
     languageCode: settings.language,
   });
   return <SearchHeader initialEnhets={initialEnhets} />;
-}
-
-function firstString(value: string | string[] | undefined) {
-  if (!value) {
-    return undefined;
-  }
-  return Array.isArray(value) ? value[0] : value;
 }

@@ -4,10 +4,8 @@ export function rand(min: number, max: number) {
 
 export function skeletonString(min: number, max: number): string;
 export function skeletonString(length: number): string;
-export function skeletonString(minOrLength: number, max?: number) {
-  const minLength = max !== undefined ? minOrLength : minOrLength;
-  const maxLength = max !== undefined ? max : minOrLength;
-  const length = rand(minLength, maxLength);
+export function skeletonString(min: number, max: number = min) {
+  const length = rand(min, max);
 
   let result = '';
   for (let i = 0; i < length; i++) {
