@@ -213,9 +213,9 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
     );
 
     const onInputWrapper = useCallback(
-      (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      (event: React.InputEvent<HTMLTextAreaElement>) => {
         onInput?.(event);
-        const target = event.target as HTMLTextAreaElement;
+        const target = event.currentTarget;
         setValue(target.value ?? '');
         resizeTextarea(target);
       },
@@ -361,6 +361,7 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
 
         <div className={cn(styles.styledInput, className)}>
           {searchTokens.map((token, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: StyledInput tokens are derived directly from the query string and do not have a stable identifier.
             <Fragment key={`${index}-${token.value}`}>
               <span
                 className={cn(styles.searchToken, {
