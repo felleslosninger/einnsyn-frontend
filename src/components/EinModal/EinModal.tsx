@@ -128,8 +128,8 @@ export function EinModalHeader({
   title,
   className,
   children,
-  onClose
-}: EinModalHeaderProps & { onClose: () => void }) {
+  onClose,
+}: EinModalHeaderProps & { onClose?: () => void }) {
   const t = useTranslation();
   const basepath = useModalBasepath();
   const navigation = useNavigation();

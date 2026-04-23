@@ -85,35 +85,24 @@ export async function addOrganizationAction(
 ): Promise<{ success: boolean; enhet?: Enhet; error?: string }> {
   const apiClient = await cachedApiClient();
 
-  const str = (key: string): string | undefined => {
-    const val = formData.get(key);
-    return typeof val === 'string' && val.trim() !== '' ? val : undefined;
-  };
-
-  const reqStr = (key: string): string => str(key) ?? '';
-
-  const enhetstype = reqStr('enhetstype');
+  const enhetstype = reqStr(formData, 'enhetstype');
   if (!isEnhetstype(enhetstype)) {
     throw new Error(`Invalid enhetstype: ${enhetstype}`);
   }
 
   const organizationData: EnhetRequest = {
-    navn: reqStr('navn'),
-    navnNynorsk: str('navnNynorsk') ?? reqStr('navn'),
-    navnEngelsk: str('navnEngelsk') ?? reqStr('navn'),
-    navnSami: str('navnSami') ?? reqStr('navn'),
-    orgnummer: reqStr('orgnummer'),
-    kontaktpunktAdresse: str('kontaktpunktAdresse'),
-    kontaktpunktEpost: reqStr('kontaktpunktEpost'),
-    kontaktpunktTelefon: str('kontaktpunktTelefon'),
-    innsynskravEpost: reqStr('innsynskravEpost'),
+    navn: reqStr(formData, 'navn'),
+    navnNynorsk: str(formData, 'navnNynorsk') ?? reqStr(formData, 'navn'),
+    navnEngelsk: str(formData, 'navnEngelsk') ?? reqStr(formData, 'navn'),
+    navnSami: str(formData, 'navnSami') ?? reqStr(formData, 'navn'),
+    orgnummer: reqStr(formData, 'orgnummer'),
+    kontaktpunktAdresse: str(formData, 'kontaktpunktAdresse'),
+    kontaktpunktEpost: reqStr(formData, 'kontaktpunktEpost'),
+    kontaktpunktTelefon: str(formData, 'kontaktpunktTelefon'),
+    innsynskravEpost: reqStr(formData, 'innsynskravEpost'),
     enhetstype,
-    avsluttetDato: str('avsluttetDato'),
-    handteresAv: str('handteresAv'),
-    orderXmlVersjon: str('versjonAvOrderXml')
-      ? Number(str('versjonAvOrderXml'))
-      : undefined,
-    parent: reqStr('parent'),
+    handteresAv: str(formData, 'handteresAv'),
+    parent: reqStr(formData, 'parent'),
   };
 
   try {
@@ -136,55 +125,36 @@ export async function editOrganizationAction(
 ): Promise<{ success: boolean; enhet?: Enhet; error?: string }> {
   const apiClient = await cachedApiClient();
 
-  const str = (key: string): string | undefined => {
-    const val = formData.get(key);
-    return typeof val === 'string' && val.trim() !== '' ? val : undefined;
-  };
-
-  const reqStr = (key: string): string => str(key) ?? '';
-
-  const enhetId = str('enhetId');
+  const enhetId = str(formData, 'enhetId');
   if (!enhetId) {
     throw new Error('Enhet ID is required');
   }
 
-  const enhetstype = reqStr('enhetstype');
+  const enhetstype = reqStr(formData, 'enhetstype');
   if (!isEnhetstype(enhetstype)) {
     throw new Error(`Invalid enhetstype: ${enhetstype}`);
   }
 
-  // Inside editOrganizationAction
   const organizationData: Partial<EnhetRequest> = {
-    navn: reqStr('navn'),
-    navnNynorsk: str('navnNynorsk') ?? reqStr('navn'),
-    navnEngelsk: str('navnEngelsk') ?? reqStr('navn'),
-    navnSami: str('navnSami') ?? reqStr('navn'),
-    orgnummer: reqStr('orgnummer'),
-    kontaktpunktAdresse: str('kontaktpunktAdresse'),
-    kontaktpunktEpost: reqStr('kontaktpunktEpost'),
-    kontaktpunktTelefon: str('kontaktpunktTelefon'),
-    innsynskravEpost: reqStr('innsynskravEpost'),
+    navn: reqStr(formData, 'navn'),
+    navnNynorsk: str(formData, 'navnNynorsk') ?? reqStr(formData, 'navn'),
+    navnEngelsk: str(formData, 'navnEngelsk') ?? reqStr(formData, 'navn'),
+    navnSami: str(formData, 'navnSami') ?? reqStr(formData, 'navn'),
+    orgnummer: reqStr(formData, 'orgnummer'),
+    kontaktpunktAdresse: str(formData, 'kontaktpunktAdresse'),
+    kontaktpunktEpost: reqStr(formData, 'kontaktpunktEpost'),
+    kontaktpunktTelefon: str(formData, 'kontaktpunktTelefon'),
+    innsynskravEpost: reqStr(formData, 'innsynskravEpost'),
     enhetstype,
-    handteresAv: str('handteresAv'),
-    parent: reqStr('parent'),
+    handteresAv: str(formData, 'handteresAv'),
+    parent: reqStr(formData, 'parent'),
   };
 
   try {
     const enhet = await apiClient.enhet.update(enhetId, organizationData);
-    //workaround as update isnt working...
-    // const enhet = await (apiClient as any).enhet.requester.request({
-    //   method: 'PATCH',
-    //   path: `/enhet/${enhetId}`,
-    //   body: organizationData,
-    // });
     return { success: true, enhet };
   } catch (error) {
     console.error('Failed to update organization:', error);
-    // Log the full error object to see the actual API response
-    if (error && typeof error === 'object' && 'response' in error) {
-      const text = await (error as { response: Response }).response.text();
-      console.error('API response body:', text);
-    }
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),

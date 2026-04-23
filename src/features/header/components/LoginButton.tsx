@@ -8,8 +8,6 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { Chip } from '@digdir/designsystemet-react';
 import cn from '~/lib/utils/className';
 import styles from './LoginButton.module.scss';
-import { None } from 'openid-client';
-
 
 export default function LoginButton() {
   const t = useTranslation();

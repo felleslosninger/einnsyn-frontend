@@ -353,11 +353,6 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
                 </Select.Option>
               </Select>
             </Field>
-          </Fieldset>
-
-          {/* ── Innstillinger ─────────────────────────────────────────────────── */}
-          <Fieldset>
-            <Heading level={2}>{t('admin.organization.settings')}</Heading>
 
             <Field>
               <Label>
@@ -373,40 +368,6 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
                 type="text"
                 name="handteresAv"
                 defaultValue={enhet.handteresAv?.toString() ?? ''}
-              />
-            </Field>
-
-            <Field>
-              <Label>
-                {t('admin.organization.orderXmlVersion')}
-                <Tag
-                  data-color="info"
-                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
-                >
-                  {t('common.optional')}
-                </Tag>
-              </Label>
-              <Input
-                type="number"
-                name="versjonAvOrderXml"
-                defaultValue={enhet.orderXmlVersjon ?? ''}
-              />
-            </Field>
-
-            <Field>
-              <Label>
-                {t('admin.organization.avsluttetDato')}
-                <Tag
-                  data-color="info"
-                  style={{ marginInlineStart: 'var(--ds-size-2)' }}
-                >
-                  {t('common.optional')}
-                </Tag>
-              </Label>
-              <Input
-                type="date"
-                name="avsluttetDato"
-                defaultValue={enhet.avsluttetDato?.split('T')[0] ?? ''}
               />
             </Field>
           </Fieldset>

@@ -9,7 +9,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './ApiKeys.module.scss';
 
-export default function ApiKeys() {
+export default function ApiKeyLogin() {
   const t = useTranslation();
   const basepath = useModalBasepath();
   const { origin } = useSessionData();

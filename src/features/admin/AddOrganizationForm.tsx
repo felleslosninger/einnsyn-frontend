@@ -297,11 +297,7 @@ export default function AddOrganizationForm() {
                   {t('common.required')}
                 </Tag>
               </Label>
-              <Select
-                name="parent"
-                defaultValue=""
-                aria-invalid={!!errors.enhetstype}
-              >
+              <Select name="parent" defaultValue="">
                 <Select.Option value="" disabled>
                   Velg forvaltningsnivå...
                 </Select.Option>

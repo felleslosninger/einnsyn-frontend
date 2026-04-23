@@ -25,5 +25,5 @@ export default async function Root() {
     return <OrganizationDoesNotExist />;
   }
 
-  return <>{apiKeys && <ApiKeys apiKeys={apiKeys} />}</>;
+  return <ApiKeys apiKeys={apiKeys} />;
 }
