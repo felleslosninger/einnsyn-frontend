@@ -9,7 +9,11 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
   return (
     <div className={cn('moetemappemodule', styles.moetemappemodule)}>
       <div className={cn('module-heading', styles.moduleHeading)}>
-        <Link color="main" href="localhost:3000">
+        <Link
+          color="main"
+          href="localhost:3000"
+          className={styles.moduleHeadingLink}
+        >
           {typeof item.utvalgObjekt === 'string'
             ? item.utvalgObjekt
             : item.utvalgObjekt.navn}

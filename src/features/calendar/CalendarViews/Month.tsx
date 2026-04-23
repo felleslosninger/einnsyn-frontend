@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: ignore temp.*/
 
-import { Heading } from '@digdir/designsystemet-react';
+import { Heading, Button } from '@digdir/designsystemet-react';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -8,8 +8,9 @@ import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
+import { EinButton } from '~/components/EinButton/EinButton';
 
-const WEEK_HEIGHT = 300;
+const WEEK_HEIGHT = 290;
 const MAX_WEEKS = 8;
 
 export default function DynamicView({
@@ -316,17 +317,10 @@ export default function DynamicView({
                   )}
                 >
                   <div className={styles.dateHeader}>
-                    {day.date.getDate() === 1 ? (
-                      <Heading level={1} data-size="sm">
-                        {day.date.getDate()}
-                        {'. '}
-                        {t(`calendar.months.${day.date.getMonth()}`)}
-                      </Heading>
-                    ) : (
-                      <span className={styles.dateText}>
-                        {day.date.getDate()}
-                      </span>
-                    )}
+                    <span className={styles.dateText}>
+                      {day.date.getDate()}{' '}
+                      {t(`calendar.months.${day.date.getMonth()}`)}
+                    </span>
                   </div>
 
                   <div className={styles.meetingList}>
@@ -336,9 +330,26 @@ export default function DynamicView({
                         {Math.random() > 0.5 && <MoetemappeSkeleton />}
                       </>
                     ) : (
-                      dayMeetings.map((item) => (
-                        <MoetemappeModule key={item.id} item={item} />
-                      ))
+                      <>
+                        {dayMeetings.slice(0, 3).map((item) => (
+                          <MoetemappeModule key={item.id} item={item} />
+                        ))}
+                        {dayMeetings.length > 3 && (
+                          <EinButton
+                            className={styles.moreMeetingsButton}
+                            variant="secondary"
+                            color="neutral"
+                            onClick={() => {}}
+                            data-size="sm"
+                            fullWidth={true}
+                            aria-label={t(
+                              `calendar.more_meetings_${dayMeetings.length - 3}`,
+                            )}
+                          >
+                            +{dayMeetings.length - 3}
+                          </EinButton>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

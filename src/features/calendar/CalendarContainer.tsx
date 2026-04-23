@@ -142,8 +142,8 @@ export default function CalendarContainer({
         />
       </div>
 
-      {/* <div className="calendar-post collapsible" /> */}
-      <div className="container-post collapsible" />
+      <div className="calendar-post collapsible" />
+      {/* <div className="container-post collapsible" /> */}
     </div>
   );
 }

@@ -6,9 +6,9 @@ export const MoetemappeSkeleton = () => (
   <div style={{ marginBottom: '4px' }}>
     <Skeleton
       variant="rectangle"
-      height="40px"
+      height="65px"
       width="100%"
-      style={{ borderRadius: '4px' }}
+      style={{ borderRadius: '12px' }}
     />
   </div>
 );
