@@ -7,7 +7,8 @@
 }
 
 .calendarContainer {
-    height: 1000px; // enough space for 6 weeks
+    height: 100dvh;
+    overflow: hidden;
 }
 
 // .calendarPre {
@@ -31,6 +32,9 @@
     max-width: 2000px;
     width: 100%;
     flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 // Header section
@@ -119,6 +123,13 @@
 
 // Calendar body
 
+.calendarBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .calendarGrid {
     display: flex;
     flex-direction: column;
@@ -142,6 +153,17 @@
 .dynWeekRow {
     max-height: 290px;
     overflow: hidden;
+}
+
+.monthBlock {
+    display: flex;
+    flex-direction: column;
+}
+
+.monthHeading {
+    padding: var(--ds-size-4) var(--ds-size-3) var(--ds-size-2);
+    background-color: var(--ds-color-surface-default);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 /* Week rows */
@@ -169,10 +191,15 @@
 .dayCell {
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: hidden;
+    height: 290px;
     border-right: solid 1px var(--ds-color-neutral-border-subtle);
     border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+}
 
+.emptyCell {
+    background-color: var(--ds-color-neutral-background-subtle);
+    opacity: 0.4;
 }
 
 .dateHeader {
@@ -189,7 +216,8 @@
     position: relative; // Needed for pseudo-elements
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 270px;
+    flex: 1;
+    min-height: 0;
     z-index: 2;
     padding: var(--ds-size-2);
     padding-top: var(--ds-size-1);
@@ -205,12 +233,12 @@
 
 .dynamicCalendarWrapper {
     width: 100%;
-    height: 1800px;
-    min-height: 600px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    overflow-anchor: auto;
+    overflow-anchor: none;
     border: solid 1px var(--ds-color-neutral-border-subtle);
 }
 

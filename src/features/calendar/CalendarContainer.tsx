@@ -1,7 +1,7 @@
 'use client';
 
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import cn from '~/lib/utils/className';
 import CalendarBody from './CalendarBody';
@@ -94,6 +94,34 @@ export default function CalendarContainer({
     setHasWeekendWarning(hasWeekendMeetings(calendarResults));
   }, [calendarResults]);
 
+  // Local, scroll-driven "currently visible month" in the Month view.
+  // Decoupled from selectedDate to avoid feedback loops through URL state.
+  const [visibleMonth, setVisibleMonth] = useState<Date>(selectedDate);
+
+  // When selectedDate changes externally (picker, chevrons, view switch,
+  // direct URL edit), bring visibleMonth along so the header stays in sync.
+  useEffect(() => {
+    setVisibleMonth(selectedDate);
+  }, [selectedDate]);
+
+  // Debounced sync: once the user settles on a scrolled-to month, write
+  // first-of-month back to the URL so upstream data fetching picks up the
+  // new range. Guarded by year+month equality so intra-month scrolls don't
+  // trigger refetches, and Month.tsx ignores the echo (see its
+  // lastHandledSelectedKeyRef).
+  useEffect(() => {
+    const sameMonth =
+      visibleMonth.getFullYear() === selectedDate.getFullYear() &&
+      visibleMonth.getMonth() === selectedDate.getMonth();
+    if (sameMonth) return;
+    const id = window.setTimeout(() => {
+      setSelectedDate(
+        new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1),
+      );
+    }, 500);
+    return () => window.clearTimeout(id);
+  }, [visibleMonth, selectedDate, setSelectedDate]);
+
   return (
     <div
       className={cn(
@@ -107,8 +135,8 @@ export default function CalendarContainer({
             : styles.calendarContainer,
       )}
     >
-      {/* <div className={cn('calendar-pre collapsible', styles.calendarPre)} /> */}
-      <div className="container-pre collapsible" />
+      <div className={cn('calendar-pre collapsible', styles.calendarPre)} />
+      {/* <div className="container-pre collapsible" /> */}
 
       <div
         className={cn(
@@ -126,6 +154,7 @@ export default function CalendarContainer({
           setSelectedView={setSelectedView}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          visibleMonth={visibleMonth}
           displayWeekends={displayWeekends}
           setDisplayWeekends={setDisplayWeekends}
           hasWeekendWarning={hasWeekendWarning}
@@ -139,6 +168,7 @@ export default function CalendarContainer({
           currentCalendarResults={calendarResults}
           setSelectedView={setSelectedView}
           setSelectedDate={setSelectedDate}
+          setVisibleMonth={setVisibleMonth}
         />
       </div>
 

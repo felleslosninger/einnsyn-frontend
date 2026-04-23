@@ -17,6 +17,7 @@ interface CalendarBodyProps {
   currentCalendarResults: Moetemappe[];
   setSelectedView: (view: CalendarView) => void;
   setSelectedDate: (date: Date) => void;
+  setVisibleMonth: (date: Date) => void;
 }
 
 export default function CalendarBody({
@@ -25,7 +26,7 @@ export default function CalendarBody({
   selectedDate,
   displayWeekends,
   currentCalendarResults,
-  setSelectedDate,
+  setVisibleMonth,
 }: CalendarBodyProps) {
   return (
     <div
@@ -59,7 +60,7 @@ export default function CalendarBody({
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}
-          setSelectedDate={setSelectedDate}
+          setVisibleMonth={setVisibleMonth}
         />
       )}
     </div>

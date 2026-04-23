@@ -4,10 +4,12 @@ export function getDateRange(selectedDate: Date, view: string) {
 
   switch (view) {
     case 'month': {
-      const dayOfWeek = start.getDay();
-      const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      start.setDate(start.getDate() - mondayBasedDay);
-      end.setDate(start.getDate() + 28);
+      // Fetch prev + current + next month so lead-in/lead-out cells have
+      // data and adjacent-month scrolls land on pre-loaded results.
+      const y = selectedDate.getFullYear();
+      const m = selectedDate.getMonth();
+      start.setTime(new Date(y, m - 1, 1).getTime());
+      end.setTime(new Date(y, m + 2, 0).getTime());
       break;
     }
     case 'week': {
