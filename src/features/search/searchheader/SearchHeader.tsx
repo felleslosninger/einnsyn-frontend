@@ -1,14 +1,19 @@
 'use client';
 
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useCallback } from 'react';
-import { EinButton } from '~/components/EinButton/EinButton';
+import { EnhetCacheProvider } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
+import styles from './SearchHeader.module.scss';
 import SearchTabs from './SearchTabs';
 
-export default function SearchHeader() {
+type SearchHeaderProps = {
+  initialEnhets?: readonly TrimmedEnhet[];
+};
+
+export default function SearchHeader({ initialEnhets }: SearchHeaderProps) {
   const { optimisticPathname, optimisticSearchParams } = useNavigation();
   const { searchQuery, pushSearchQuery } = useSearchField();
 
@@ -21,19 +26,14 @@ export default function SearchHeader() {
   );
 
   return (
-    <>
+    <EnhetCacheProvider initialEnhets={initialEnhets}>
       <form
-        className="search-form"
+        className={styles.searchForm}
         method="get"
         onSubmit={onSubmit}
         action={optimisticPathname}
       >
-        <SearchField name="q" autoComplete="off">
-          <EinButton style="link" data-size="sm">
-            <Buildings3Icon title="Enhet" fontSize="1.2rem" />{' '}
-            <span className="text">Alle virksomheter</span>
-          </EinButton>
-        </SearchField>
+        <SearchField />
 
         {/* Include current query parameters as hidden inputs */}
         {Array.from(optimisticSearchParams?.entries() ?? []).map(
@@ -45,6 +45,6 @@ export default function SearchHeader() {
       </form>
 
       <SearchTabs className="header-tabs" />
-    </>
+    </EnhetCacheProvider>
   );
 }

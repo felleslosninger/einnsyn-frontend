@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 
@@ -86,6 +87,7 @@ export default function Footer() {
         <div className="container-wrapper">
           <div className="container">
             <nav aria-label={t('footer.ariaLabel')}>
+              <SettingsMenu />
               <EinLink
                 data-color="neutral"
                 href="/om"

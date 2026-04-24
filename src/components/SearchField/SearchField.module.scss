@@ -1,31 +1,213 @@
+@use "../../styles/easing.scss" as e;
+
 .searchFieldContainer {
+  --search-field-surface-default: var(--ds-color-neutral-surface-default);
+  --search-field-inactive-surface: var(--search-field-surface-default);
+  --search-field-inactive-surface-hover: var(--ds-color-neutral-surface-tinted);
+  --search-field-inactive-surface-active: var(
+    --ds-color-neutral-surface-tinted
+  );
+  --search-field-segment-hover-surface: var(--ds-color-neutral-surface-default);
+  --search-field-segment-active-surface: var(
+    --ds-color-neutral-surface-default
+  );
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  background: var(--ds-color-neutral-surface-default);
-  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-md);
+  align-items: stretch;
+  gap: var(--ds-size-1);
+  padding: var(--ds-size-1);
+  background: var(--search-field-inactive-surface);
+  border: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-full);
+  box-shadow: 0 0.75rem 1.5rem -1.25rem rgb(17 24 39 / 0.18);
+  transition:
+    background-color 0.2s e.$easeOutQuart,
+    border-color 0.2s e.$easeOutQuart,
+    box-shadow 0.2s e.$easeOutQuart;
+}
 
-  &:has(input:focus) {
-    box-shadow: var(--_ds--focus, var(--dsc-focus-boxShadow));
-    outline: var(--_ds--focus, var(--dsc-focus-outline));
-    outline-offset: var(--_ds--focus, var(--ds-border-width-focus));
+.hasActiveContainer {
+  --search-field-inactive-surface: var(--search-field-inactive-surface-active);
+  box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
+}
+
+.searchFieldContainer:not(.hasActiveContainer):has(
+    .searchInputContainer:hover
+  ) {
+  --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
+  box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
+}
+
+.searchInputIcon {
+  position: absolute;
+  top: var(--ds-size-2);
+  left: var(--ds-size-3);
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.searchInputWithIcon {
+  .paddedContent {
+    padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
+    padding-right: var(--ds-size-4); // clear-button
   }
 }
 
-.inputContainer {
+.searchInputContainer {
+  --search-input-surface: transparent;
+  --search-input-fade-surface: var(--search-field-inactive-surface);
+  --search-input-border-color: transparent;
+  --search-input-shadow: none;
+  --search-input-outline: none;
   position: relative;
-  flex: 1 1 auto;
-  display: flex;
-  color: transparent;
-  background: transparent;
-  z-index: 0;
+  height: var(--ds-size-12);
+  z-index: 1;
 
-  padding-top: var(--ds-size-2);
-  padding-bottom: var(--ds-size-2);
-  padding-left: var(--ds-size-3);
-  padding-right: var(--ds-size-3);
+  .searchFieldContainer:not(.hasActiveContainer) &:hover {
+    --search-input-surface: var(--search-field-segment-hover-surface);
+    --search-input-fade-surface: var(--search-field-segment-hover-surface);
+    --search-input-border-color: rgb(17 24 39 / 0.04);
+    --search-input-shadow:
+      0 0 0 var(--ds-border-width-default) rgb(17 24 39 / 0.04),
+      0 0.75rem 1.25rem -1.2rem rgb(17 24 39 / 0.16);
+  }
+
+  &:hover {
+    z-index: 2;
+  }
+
+  &:focus-within,
+  &.activeContainer {
+    --search-input-surface: var(--search-field-segment-active-surface);
+    --search-input-fade-surface: var(--search-field-segment-active-surface);
+    --search-input-border-color: rgb(17 24 39 / 0.06);
+    --search-input-shadow: 0 1rem 2rem -1.2rem rgb(17 24 39 / 0.22);
+    z-index: 3;
+  }
+
+  // If we have an expandable container, add focus styles to it, if not, add to this container
+  &:not(:has(.expandableInputContainer)),
+  .expandableInputContainer {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 auto;
+    gap: var(--ds-size-3);
+    position: relative;
+    z-index: 2;
+    padding-left: var(--ds-size-4);
+    padding-right: var(--ds-size-4);
+    background: var(--search-input-surface);
+    border: var(--ds-border-width-default) solid
+      var(--search-input-border-color);
+    border-radius: var(--ds-border-radius-full);
+    box-shadow: var(--search-input-shadow);
+    outline: var(--search-input-outline);
+    outline-offset: 0;
+    max-height: 80vh;
+    overflow: hidden;
+    transition:
+      background-color 0.2s e.$easeOutQuart,
+      border-color 0.2s e.$easeOutQuart,
+      box-shadow 0.25s e.$easeOutQuart;
+  }
+
+  &:not(:has(.expandableInputContainer)):has(textarea:focus),
+  .expandableInputContainer:has(textarea:focus) {
+    overflow: visible;
+  }
+
+  .expandableInputContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--styled-input-expanded-height, auto);
+    min-height: 100%;
+  }
+
+  &.searchQueryContainer {
+    flex: 1 1 0;
+    min-width: 0;
+    border: none;
+  }
+}
+
+.showKeyboardFocusRing .searchInputContainer {
+  &:focus-within,
+  &.activeContainer {
+    --search-input-border-color: var(--ds-color-focus-outer);
+    --search-input-outline: var(--dsc-focus-outline);
+  }
+}
+
+.searchInputContainer {
+  min-width: calc(
+    var(--ds-size-12) + var(--ds-size-6)
+  ); // Minimum width to fit icon
+  transition: min-width 0.3s e.$easeOutQuart;
+}
+
+.enhetSelectorContainer {
+  flex: 0 1 auto;
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6));
+  max-width: 50%;
+  transition: min-width 0.2s e.$easeOutQuart;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(var(--ds-size-1) / -2);
+    z-index: 2;
+    width: var(--ds-border-width-default);
+    height: 56%;
+    background: var(--ds-color-neutral-border-subtle);
+    border-radius: var(--ds-border-radius-full);
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s e.$easeOutQuart;
+    pointer-events: none;
+  }
+
+  .expandableInputContainer {
+    position: relative;
+    right: auto;
+    overflow: visible;
+    max-height: none;
+    width: 100%;
+    max-width: 100%;
+    padding-right: var(--ds-size-3);
+  }
+}
+
+.searchFieldContainer:not(.hasActiveContainer):not(
+    :has(.searchInputContainer:hover)
+  )
+  .enhetSelectorContainer::before {
+  opacity: 1;
+}
+
+.styledInputContainer {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  .input {
+    color: transparent;
+    background: transparent;
+  }
+
+  &:has(:focus) {
+    .styledInput {
+      white-space: pre-wrap;
+    }
+  }
 }
 
 .styledInput,
@@ -37,32 +219,59 @@
   font-size: inherit;
   line-height: inherit;
   letter-spacing: normal;
-  height: var(--ds-size-8);
-  padding: 0;
+  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
+  padding-bottom: var(--ds-size-2);
+  min-height: calc(
+    var(--ds-size-12) - var(--ds-border-width-default) * 2
+  ); // Full height minus borders
 }
 
 .styledInput {
-  display: flex;
-  align-items: center;
   overflow: hidden;
   pointer-events: none;
   z-index: 2;
+  position: relative;
+  white-space: nowrap;
+}
+
+.searchFieldContainer :not(:has(:focus)) .styledInput::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: var(--ds-size-8);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    var(--search-input-fade-surface)
+  );
+  border-right: var(--ds-size-6) solid var(--search-input-fade-surface);
+  pointer-events: none;
 }
 
 .input {
   position: absolute;
+  top: 0;
+  left: 0;
   flex: 1 1 auto;
   width: 100%;
   color: transparent;
   caret-color: var(--ds-color-neutral-text-default);
-  z-index: 1;
+  z-index: 2;
+  overflow: hidden;
+  resize: none;
+  white-space: nowrap;
+  border: none;
+  margin: 0;
 
   &:focus,
   &:focus-visible {
     box-shadow: none;
     outline: none;
+    white-space: pre-wrap;
   }
-  
+
   &::selection,
   &::-moz-selection {
     background-color: var(--ds-color-surface-active);
@@ -71,7 +280,6 @@
 }
 
 .searchToken {
-  display: inline-block;
   position: relative;
 }
 
@@ -85,26 +293,31 @@
 
 .includeToken {
   background: var(--ds-color-success-surface-tinted);
-  box-shadow: -1px 0 0 0 var(--ds-color-success-surface-tinted),
+  box-shadow:
+    -1px 0 0 0 var(--ds-color-success-surface-tinted),
     1px 0 0 0 var(--ds-color-success-surface-tinted);
 }
 
 .excludeToken {
   background: var(--ds-color-danger-surface-tinted);
-  box-shadow: -1px 0 0 0 var(--ds-color-danger-surface-tinted),
+  box-shadow:
+    -1px 0 0 0 var(--ds-color-danger-surface-tinted),
     1px 0 0 0 var(--ds-color-danger-surface-tinted);
 }
 
 .clearButton {
-  position: relative;
+  position: absolute;
+  top: var(--ds-size-1);
+  right: var(--ds-size-2);
+  z-index: 4;
+
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--ds-size-1);
-  margin-left: var(--ds-size-2);
-  margin-right: var(--ds-size-2);
   min-width: var(--ds-size-9);
   min-height: var(--ds-size-9);
+  margin-right: calc(-1 * var(--ds-size-2)); // Negate padding
   scale: 0.75;
 }
 
@@ -116,16 +329,13 @@
 .actionButtonContainer {
   display: flex;
   flex-direction: row;
-  margin-top: var(--ds-size-1);
-  margin-bottom: var(--ds-size-1);
+  align-items: stretch;
+  flex: 0 0 auto;
+  margin-left: var(--ds-size-1);
 
-  padding-top: var(--ds-size-1);
-  padding-bottom: var(--ds-size-1);
-  padding-left: var(--ds-size-3);
-  padding-right: var(--ds-size-3);
-
-  &.withBorder {
-    border-left: 1px solid var(--ds-color-neutral-border-subtle);
+  button {
+    min-height: var(--ds-size-12);
+    border-radius: var(--ds-border-radius-full);
   }
 }
 
@@ -145,5 +355,11 @@
 
 .searchIcon {
   height: 100%;
+  width: 100%;
+}
+
+.enhetSelector {
+  flex: 1 1 auto;
+  min-width: 0;
   width: 100%;
 }

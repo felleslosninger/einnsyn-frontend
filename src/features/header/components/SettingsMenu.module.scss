@@ -4,6 +4,30 @@
   }
 }
 
+.settingsDropdownButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.625rem;
+  block-size: 1.625rem;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ds-border-radius-default);
+  background: transparent;
+  box-shadow: none;
+  line-height: 0;
+
+  &:hover,
+  &.active {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
 .languageContainer,
 .colorSchemeContainer {
   background: var(--ds-color-surface-tinted);

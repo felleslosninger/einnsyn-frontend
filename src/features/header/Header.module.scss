@@ -2,6 +2,10 @@
 @use '../../styles/easing.scss' as e;
 
 .header {
+  --header-primary-row-offset: calc(
+    var(--ds-size-1) + var(--ds-border-width-default)
+  );
+
   > .containerWrapper > .containerPre,
   > .containerWrapper > .container,
   > .containerWrapper > .containerPost {
@@ -44,15 +48,10 @@
       transition-duration: .4s;
       transition-timing-function: e.$easeInOutQuart;
       padding-top: var(--ds-size-2);
-      @include mq.small-and-medium {
-        padding-top: var(--ds-size-3);
-      }
-    }
-
-    > .containerWrapper > .containerPre {
       padding-bottom: var(--ds-size-2);
       @include mq.small-and-medium {
-        padding-top: var(--ds-size-2);
+        padding-top: var(--ds-size-3);
+        padding-bottom: var(--ds-size-3);
       }
     }
 
@@ -73,6 +72,8 @@
   &:global(.section-home) {
     height: 80vh;
     border-bottom: none;
+    position: relative;
+    top: auto;
 
     :global(.container-wrapper) {
       height: 100%;
@@ -98,18 +99,30 @@
 }
 
 .logoLink {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ds-size-12);
+  margin-top: var(--header-primary-row-offset);
   padding: var(--ds-size-2) 0;
+  background-color: transparent;
+  color: inherit;
+  line-height: 0;
+  text-decoration: none;
 
   svg {
+    display: block;
     height: var(--ds-line-height-sm);
     width: auto;
   }
 
-  &:focus-visible {
+  &:global(.ein-link):focus-visible {
+    background-color: transparent;
+    box-shadow: var(--dsc-focus-boxShadow);
+    color: inherit;
     outline: var(--dsc-focus-outline);
     outline-offset: var(--ds-border-width-focus);
     border-radius: var(--ds-border-radius-default);
+    text-decoration: none;
   }
 }
 
@@ -117,5 +130,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  min-height: var(--ds-size-12);
+  margin-top: var(--header-primary-row-offset);
   gap: var(--ds-size-2);
 }

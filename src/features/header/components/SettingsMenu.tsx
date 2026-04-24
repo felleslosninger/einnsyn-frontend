@@ -36,9 +36,10 @@ export function SettingsMenuButton({ onClick }: DropdownButtonProps) {
       onClick={onClick}
       variant="tertiary"
       data-color="neutral"
-      className={cn(styles.settingsDropdownButton, 'header-button')}
+      aria-label={t('site.settings')}
+      className={styles.settingsDropdownButton}
     >
-      <CogIcon title={t('site.settings')} fontSize="1.5rem" />
+      <CogIcon fontSize="1.625rem" aria-hidden="true" />
     </EinButton>
   );
 }
@@ -51,20 +52,10 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
     <div
       className={cn(styles.settingsDropdownContent, 'header-dropdown-content')}
     >
-      <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <strong>{t('site.settings')}</strong>
       </div>
-      <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <div className={styles.languageContainer}>
           <form action={() => updateSettings({ language: 'nb' })}>
             <EinButton
@@ -109,20 +100,16 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
         </div>
       </div>
 
-      <div
-        className={cn(
-          styles.settingsDropdownContentSection,
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <div className={styles.colorSchemeContainer}>
           <form action={() => updateSettings({ colorScheme: 'light' })}>
             <EinButton
               type="submit"
               variant="secondary"
               data-color-scheme-selector="light"
+              aria-label={t('site.colorSchemeLight')}
             >
-              <SunIcon title={t('site.colorSchemeLight')} fontSize="1.5rem" />
+              <SunIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
           <form action={() => updateSettings({ colorScheme: 'dark' })}>
@@ -130,8 +117,9 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
               type="submit"
               variant="secondary"
               data-color-scheme-selector="dark"
+              aria-label={t('site.colorSchemeDark')}
             >
-              <MoonIcon title={t('site.colorSchemeDark')} fontSize="1.5rem" />
+              <MoonIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
           <form action={() => updateSettings({ colorScheme: 'auto' })}>
@@ -139,11 +127,9 @@ export function SettingsMenuContent({ settings }: DropdownContentProps) {
               type="submit"
               variant="secondary"
               data-color-scheme-selector="auto"
+              aria-label={t('site.colorSchemeSystem')}
             >
-              <MonitorIcon
-                title={t('site.colorSchemeSystem')}
-                fontSize="1.5rem"
-              />
+              <MonitorIcon fontSize="1.5rem" aria-hidden="true" />
             </EinButton>
           </form>
         </div>
@@ -167,7 +153,7 @@ export function Dropdown({
   });
 
   return (
-    <div className={cn(styles['settings-dropdown'], 'header-dropdown')}>
+    <div className="header-dropdown">
       {buttonWithClickHandler}
       <EinPopup open={open} setOpen={setOpen}>
         {children}

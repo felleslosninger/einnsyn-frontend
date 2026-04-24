@@ -1,5 +1,9 @@
-import SearchHeader from '~/features/search/searchheader/SearchHeader';
+import SearchHeaderPage, { type HeaderSearchParams } from '../SearchHeaderPage';
 
-export default function EnhetHeader() {
-  return <SearchHeader />;
+export default async function EnhetHeader({
+  searchParams,
+}: Readonly<{
+  searchParams: HeaderSearchParams;
+}>) {
+  return <SearchHeaderPage searchParams={searchParams} />;
 }
