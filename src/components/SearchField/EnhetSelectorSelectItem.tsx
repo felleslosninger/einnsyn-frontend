@@ -1,5 +1,5 @@
 import { CheckmarkIcon, PlusIcon, XMarkIcon } from '@navikt/aksel-icons';
-import { forwardRef } from 'react';
+import { forwardRef, type MouseEvent } from 'react';
 import cn from '~/lib/utils/className';
 import { useAncestorsAsString, useName } from '~/lib/utils/enhetUtils';
 import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
@@ -46,6 +46,11 @@ export const EnhetSelectorSelectItem = forwardRef<
       : !isAlreadyAdded
         ? actionLabel
         : undefined;
+    const onMouseDown = isAlreadyAdded
+      ? (event: MouseEvent<HTMLButtonElement>) => {
+          event.preventDefault();
+        }
+      : undefined;
 
     return (
       <button
@@ -56,7 +61,7 @@ export const EnhetSelectorSelectItem = forwardRef<
         aria-label={itemActionLabel ? `${itemActionLabel}: ${name}` : name}
         aria-pressed={!isSelectedColumn ? isSelected : undefined}
         data-focused={isFocused}
-        disabled={isAlreadyAdded}
+        onMouseDown={onMouseDown}
         onClick={onClick}
         className={cn(styles.selectorListItem, {
           [styles.focusedListItem]: isFocused,
