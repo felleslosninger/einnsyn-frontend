@@ -1,7 +1,7 @@
-import { notFound } from 'next/navigation';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
+import OrganizationDoesNotExist from '~/features/admin/OrganizationDoesNotExist';
 import { logger } from '~/lib/utils/logger';
 import ApiKeys from '../features/admin/api-keys/ApiKeys';
 
@@ -18,8 +18,12 @@ export default async function Root() {
       error: error instanceof Error ? error.message : String(error),
       enhetId,
     });
-    notFound();
+    return null;
   });
+
+  if (!apiKeys) {
+    return <OrganizationDoesNotExist />;
+  }
 
   return <ApiKeys apiKeys={apiKeys} />;
 }

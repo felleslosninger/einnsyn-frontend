@@ -1,7 +1,21 @@
 'use server';
 
-import type { ApiKey } from '@digdir/einnsyn-sdk';
+import type { ApiKey, Enhet, EnhetRequest } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
+
+function str(formData: FormData, key: string): string | undefined {
+  const val = formData.get(key);
+  return typeof val === 'string' && val.trim() !== '' ? val : undefined;
+}
+
+function reqStr(formData: FormData, key: string): string {
+  return str(formData, key) ?? '';
+}
+
+export async function getEnhetAction(enhetId: string): Promise<Enhet> {
+  const apiClient = await cachedApiClient();
+  return apiClient.enhet.get(enhetId);
+}
 
 export async function deleteApiKeyAction(formData: FormData) {
   const apiClient = await cachedApiClient();
@@ -41,5 +55,136 @@ export async function addApiKeyAction(
     return apiKey;
   } catch (_error) {
     throw new Error('Failed to create API key');
+  }
+}
+
+const ENHETSTYPE_VALUES = [
+  'ADMINISTRATIVENHET',
+  'AVDELING',
+  'BYDEL',
+  'DUMMYENHET',
+  'FYLKE',
+  'KOMMUNE',
+  'ORGAN',
+  'SEKSJON',
+  'UTVALG',
+  'VIRKSOMHET',
+] as const;
+
+type Enhetstype = (typeof ENHETSTYPE_VALUES)[number];
+
+function isEnhetstype(value: string): value is Enhetstype {
+  return ENHETSTYPE_VALUES.includes(value as Enhetstype);
+}
+
+export async function addOrganizationAction(
+  _previousState:
+    | { success: boolean; enhet?: Enhet; error?: string }
+    | undefined,
+  formData: FormData,
+): Promise<{ success: boolean; enhet?: Enhet; error?: string }> {
+  const apiClient = await cachedApiClient();
+
+  const enhetstype = reqStr(formData, 'enhetstype');
+  if (!isEnhetstype(enhetstype)) {
+    throw new Error(`Invalid enhetstype: ${enhetstype}`);
+  }
+
+  const organizationData: EnhetRequest = {
+    navn: reqStr(formData, 'navn'),
+    navnNynorsk: str(formData, 'navnNynorsk') ?? reqStr(formData, 'navn'),
+    navnEngelsk: str(formData, 'navnEngelsk') ?? reqStr(formData, 'navn'),
+    navnSami: str(formData, 'navnSami') ?? reqStr(formData, 'navn'),
+    orgnummer: reqStr(formData, 'orgnummer'),
+    kontaktpunktAdresse: str(formData, 'kontaktpunktAdresse'),
+    kontaktpunktEpost: reqStr(formData, 'kontaktpunktEpost'),
+    kontaktpunktTelefon: str(formData, 'kontaktpunktTelefon'),
+    innsynskravEpost: reqStr(formData, 'innsynskravEpost'),
+    enhetstype,
+    handteresAv: str(formData, 'handteresAv'),
+    parent: reqStr(formData, 'parent'),
+  };
+
+  try {
+    const enhet = await apiClient.enhet.add(organizationData);
+    return { success: true, enhet };
+  } catch (error) {
+    console.error('Failed to create organization:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function editOrganizationAction(
+  _previousState:
+    | { success: boolean; enhet?: Enhet; error?: string }
+    | undefined,
+  formData: FormData,
+): Promise<{ success: boolean; enhet?: Enhet; error?: string }> {
+  const apiClient = await cachedApiClient();
+
+  const enhetId = str(formData, 'enhetId');
+  if (!enhetId) {
+    return { success: false, error: 'Enhet ID is required' };
+  }
+
+  const enhetstype = reqStr(formData, 'enhetstype');
+  if (!isEnhetstype(enhetstype)) {
+    return { success: false, error: `Invalid enhetstype: ${enhetstype}` };
+  }
+
+  const organizationData: Partial<EnhetRequest> = {
+    navn: reqStr(formData, 'navn'),
+    navnNynorsk: str(formData, 'navnNynorsk') ?? reqStr(formData, 'navn'),
+    navnEngelsk: str(formData, 'navnEngelsk') ?? reqStr(formData, 'navn'),
+    navnSami: str(formData, 'navnSami') ?? reqStr(formData, 'navn'),
+    orgnummer: reqStr(formData, 'orgnummer'),
+    kontaktpunktAdresse: str(formData, 'kontaktpunktAdresse'),
+    kontaktpunktEpost: reqStr(formData, 'kontaktpunktEpost'),
+    kontaktpunktTelefon: str(formData, 'kontaktpunktTelefon'),
+    innsynskravEpost: reqStr(formData, 'innsynskravEpost'),
+    enhetstype,
+    handteresAv: str(formData, 'handteresAv'),
+    parent: reqStr(formData, 'parent'),
+  };
+
+  try {
+    const enhet = await apiClient.enhet.update(enhetId, organizationData);
+    return { success: true, enhet };
+  } catch (error) {
+    console.error('Failed to update organization:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function deleteOrganizationAction(
+  _prevState: { success: boolean; error?: string } | undefined,
+  formData: FormData,
+) {
+  try {
+    const apiClient = await cachedApiClient();
+
+    const enhetId = formData.get('enhetId');
+    if (typeof enhetId !== 'string') {
+      return { success: false, error: 'Enhet ID is required' };
+    }
+
+    await apiClient.enhet.delete(enhetId);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to delete organization:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Kunne ikke slette organisasjonen',
+    };
   }
 }
