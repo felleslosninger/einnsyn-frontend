@@ -26,6 +26,7 @@ type FormErrors = {
   innsynskravEpost?: string;
   enhetstype?: string;
   orgnummer?: string;
+  parent?: string;
 };
 
 export default function AddOrganizationForm() {
@@ -50,6 +51,7 @@ export default function AddOrganizationForm() {
     if (!orgnr) e.orgnummer = 'Organisasjonsnummer må fylles ut';
     else if (!/^\d{9}$/.test(orgnr))
       e.orgnummer = 'Organisasjonsnummer må ha 9 siffer';
+    if (!formData.get('parent')) e.parent = 'Forvaltningsnivå må velges';
     return e;
   }
 
@@ -311,6 +313,9 @@ export default function AddOrganizationForm() {
                   Statlig
                 </Select.Option>
               </Select>
+              {errors.parent && (
+                <ValidationMessage>{errors.parent}</ValidationMessage>
+              )}
             </Field>
 
             <Field>
@@ -351,6 +356,9 @@ export default function AddOrganizationForm() {
                 )}
                 {errors.orgnummer && (
                   <ErrorSummary.Item>{errors.orgnummer}</ErrorSummary.Item>
+                )}
+                {errors.parent && (
+                  <ErrorSummary.Item>{errors.parent}</ErrorSummary.Item>
                 )}
               </ErrorSummary.List>
             </ErrorSummary>

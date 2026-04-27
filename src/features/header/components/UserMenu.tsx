@@ -123,7 +123,7 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
             </EinLink>
           </div>
         )}
-        {!authInfo.enhet && 'This organization is not registered in eInnsyn.'}
+        {!authInfo.enhet && t('admin.organization.notRegistered')}
       </div>
       {!authInfo.enhet && (
         <div

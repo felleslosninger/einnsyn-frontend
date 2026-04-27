@@ -15,11 +15,10 @@ import {
 } from '@digdir/designsystemet-react';
 import { useTranslation } from '~/hooks/useTranslation';
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { editOrganizationAction } from './adminActions';
+import { editOrganizationAction, getEnhetAction } from './adminActions';
 import cn from '~/lib/utils/className';
 import styles from './AddOrganizationForm.module.scss';
 import type { Enhet } from '@digdir/einnsyn-sdk';
-import { getEnhetAction } from './adminActions';
 
 type FormErrors = {
   navn?: string;
@@ -27,6 +26,7 @@ type FormErrors = {
   innsynskravEpost?: string;
   enhetstype?: string;
   orgnummer?: string;
+  parent?: string;
 };
 
 export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
@@ -67,6 +67,7 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
     if (!orgnr) e.orgnummer = 'Organisasjonsnummer må fylles ut';
     else if (!/^\d{9}$/.test(orgnr))
       e.orgnummer = 'Organisasjonsnummer må ha 9 siffer';
+    if (!formData.get('parent')) e.parent = 'Forvaltningsnivå må velges';
     return e;
   }
 
@@ -84,7 +85,7 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
 
   const hasErrors = Object.keys(errors).length > 0;
 
-  if (loading) return <p>Laster organisasjon...</p>;
+  if (loading) return <p>{t('common.loading')}</p>;
   if (fetchError) return <Alert data-color="danger">{fetchError}</Alert>;
   if (!enhet) return null;
 
@@ -352,6 +353,9 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
                   Statlig
                 </Select.Option>
               </Select>
+              {errors.parent && (
+                <ValidationMessage>{errors.parent}</ValidationMessage>
+              )}
             </Field>
 
             <Field>
@@ -396,6 +400,9 @@ export default function EditOrganizationForm({ enhetId }: { enhetId: string }) {
                 )}
                 {errors.orgnummer && (
                   <ErrorSummary.Item>{errors.orgnummer}</ErrorSummary.Item>
+                )}
+                {errors.parent && (
+                  <ErrorSummary.Item>{errors.parent}</ErrorSummary.Item>
                 )}
               </ErrorSummary.List>
             </ErrorSummary>

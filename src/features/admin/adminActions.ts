@@ -127,12 +127,12 @@ export async function editOrganizationAction(
 
   const enhetId = str(formData, 'enhetId');
   if (!enhetId) {
-    throw new Error('Enhet ID is required');
+    return { success: false, error: 'Enhet ID is required' };
   }
 
   const enhetstype = reqStr(formData, 'enhetstype');
   if (!isEnhetstype(enhetstype)) {
-    throw new Error(`Invalid enhetstype: ${enhetstype}`);
+    return { success: false, error: `Invalid enhetstype: ${enhetstype}` };
   }
 
   const organizationData: Partial<EnhetRequest> = {

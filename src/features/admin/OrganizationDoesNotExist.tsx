@@ -24,9 +24,7 @@ export default function OrganizationDoesNotExist() {
         </h1>
 
         <div className={styles.header}>
-          <div className={cn(styles.intro, 'text-container')}>
-            {t('admin.apiKey.intro')}
-          </div>
+          <div className={cn('text-container')}>{t('admin.apiKey.intro')}</div>
         </div>
 
         <Alert data-color="warning">
