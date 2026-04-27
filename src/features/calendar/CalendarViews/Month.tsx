@@ -359,7 +359,7 @@ export default function DynamicView({
             className={styles.monthBlock}
           >
             <div className={styles.monthHeading}>
-              <Heading level={2} data-size="md">
+              <Heading level={2} data-size="sm">
                 {t(`calendar.months.${block.month}`)} {block.year}
               </Heading>
             </div>

@@ -161,9 +161,8 @@
 }
 
 .monthHeading {
-    padding: var(--ds-size-4) var(--ds-size-3) var(--ds-size-2);
+    padding: var(--ds-size-4) 0 var(--ds-size-2);
     background-color: var(--ds-color-surface-default);
-    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 /* Week rows */
@@ -178,9 +177,9 @@
 }
 
 .dayHeaderCell {
-    background-color: #FFFF;
+    padding-left: var(--ds-size-2);
+    background-color: var(--ds-color-surface-default);
     border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
-    border-right: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 .dayHeaderText {
@@ -193,13 +192,24 @@
     flex-direction: column;
     overflow: hidden;
     height: 290px;
-    border-right: solid 1px var(--ds-color-neutral-border-subtle);
-    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+    /* Only right and bottom borders */
+    border-right: 1px solid var(--ds-color-neutral-border-subtle);
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+    /* Remove the all-sides border */
+}
+
+// Add top border to the first row
+.weekRow:first-child .dayCell {
+    border-top: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+// Add left border to the first column
+.weekRow .dayCell:first-child {
+    border-left: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .emptyCell {
-    background-color: var(--ds-color-neutral-background-subtle);
-    opacity: 0.4;
+    background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .dateHeader {
@@ -239,7 +249,6 @@
     overflow-x: hidden;
     position: relative;
     overflow-anchor: none;
-    border: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 
