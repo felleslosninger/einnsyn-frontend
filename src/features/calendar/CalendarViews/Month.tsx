@@ -143,8 +143,7 @@ export default function DynamicView({
   );
 
   // Mirror months into a ref so effects can read the latest value without
-  // including `months` in their dependency lists (which would re-run them on
-  // every scroll-driven setMonths and wrongly re-trigger initial-scroll logic).
+  // including `months` in their dependency lists
   const monthsRef = useRef(months);
   monthsRef.current = months;
 
@@ -420,7 +419,6 @@ export default function DynamicView({
                                   className={styles.moreMeetingsButton}
                                   variant="secondary"
                                   color="neutral"
-                                  onClick={() => {}}
                                   data-size="sm"
                                   fullWidth={true}
                                   aria-label={t(

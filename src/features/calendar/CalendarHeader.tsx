@@ -86,7 +86,10 @@ export default function CalendarHeader({
   }, [selectedView, selectedDate, visibleMonth, t]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = new Date(e.target.value);
+    const parts = e.target.value.split('-').map(Number);
+    if (parts.length !== 3) return;
+    const [y, m, d] = parts;
+    const newDate = new Date(y, m - 1, d);
     if (!Number.isNaN(newDate.getTime())) {
       setSelectedDate(newDate);
     }

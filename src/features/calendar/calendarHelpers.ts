@@ -21,13 +21,12 @@ export const isCalendarView = (
 };
 
 const toDateOrUndefined = (value: string | null | undefined) => {
-  if (!value) {
-    return undefined;
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return undefined;
-  }
+  if (!value) return undefined;
+  const parts = value.split('-').map(Number);
+  if (parts.length !== 3) return undefined;
+  const [y, m, d] = parts;
+  const date = new Date(y, m - 1, d); // parse as local time, not UTC
+  if (Number.isNaN(date.getTime())) return undefined;
   return date;
 };
 
@@ -37,7 +36,10 @@ const toDateOrUndefined = (value: string | null | undefined) => {
  * @returns
  */
 export const toDateString = (date: Date) => {
-  return date.toISOString().split('T')[0];
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 };
 
 /**
@@ -94,7 +96,7 @@ export const getSelectedCalendarView = (
   // Fall back to 'month' view
   return 'month';
 };
-    
+
 /**
  * Resolve calendar date range from search params.
  * Falls back to the current view's default range when `moetedato` is missing or invalid.
