@@ -136,6 +136,7 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
             <div className={cn(styles.styledInputContainer)}>
               <div className={cn(styles.styledInput, className)}>
                 {searchTokens.map((token, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: Search tokens have no stable id.
                   <Fragment key={`${index}-${token.value}`}>
                     <span
                       className={cn(styles.searchToken, {

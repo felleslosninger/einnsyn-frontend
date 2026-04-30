@@ -18,12 +18,12 @@ import { useActionState, useRef, useState } from 'react';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import styles from './AddOrganizationForm.module.scss';
 import {
-  ENHETSTYPE_VALUES,
   addOrganizationAction,
+  ENHETSTYPE_VALUES,
   editOrganizationAction,
 } from './adminActions';
-import styles from './AddOrganizationForm.module.scss';
 
 const PARENT_OPTIONS = [
   {
@@ -435,7 +435,9 @@ export default function OrganizationForm({ enhet }: { enhet?: Enhet }) {
                   </ErrorSummary.Item>
                 )}
                 {errors.innsynskravEpost && (
-                  <ErrorSummary.Item>{errors.innsynskravEpost}</ErrorSummary.Item>
+                  <ErrorSummary.Item>
+                    {errors.innsynskravEpost}
+                  </ErrorSummary.Item>
                 )}
                 {errors.enhetstype && (
                   <ErrorSummary.Item>{errors.enhetstype}</ErrorSummary.Item>
