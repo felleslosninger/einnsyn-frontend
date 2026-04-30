@@ -1,3 +1,4 @@
+import { Badge } from '@digdir/designsystemet-react';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -57,44 +58,14 @@ export default function WeekView({
         )}
       >
         <div className={styles.dynCalendarHeader}>
-          <div className={styles.dayHeaderCell}>
-            <span className={styles.dayHeaderText}>
-              {t('calendar.days.monday')}
-            </span>
-          </div>
-          <div className={styles.dayHeaderCell}>
-            <span className={styles.dayHeaderText}>
-              {t('calendar.days.tuesday')}
-            </span>
-          </div>
-          <div className={styles.dayHeaderCell}>
-            <span className={styles.dayHeaderText}>
-              {t('calendar.days.wednesday')}
-            </span>
-          </div>
-          <div className={styles.dayHeaderCell}>
-            <span className={styles.dayHeaderText}>
-              {t('calendar.days.thursday')}
-            </span>
-          </div>
-          <div className={styles.dayHeaderCell}>
-            <span className={styles.dayHeaderText}>
-              {t('calendar.days.friday')}
-            </span>
-          </div>
-          {displayWeekends && (
-            <>
-              <div className={styles.dayHeaderCell}>
+          {(displayWeekends ? [1, 2, 3, 4, 5, 6, 0] : [1, 2, 3, 4, 5]).map(
+            (d) => (
+              <div key={d} className={styles.dayHeaderCell}>
                 <span className={styles.dayHeaderText}>
-                  {t('calendar.days.saturday')}
+                  {t(`calendar.days.${d}`)}
                 </span>
               </div>
-              <div className={styles.dayHeaderCell}>
-                <span className={styles.dayHeaderText}>
-                  {t('calendar.days.sunday')}
-                </span>
-              </div>
-            </>
+            ),
           )}
         </div>
 
@@ -104,24 +75,36 @@ export default function WeekView({
               key={day.date.toISOString()}
               className={cn(styles.dayCell, day.isToday ? styles.today : '')}
             >
-              <span className={styles.dateText}>{day.dayNumber}</span>
-
-              {isLoading ? (
-                // Render 1-2 skeletons per day to show activity
-                <>
-                  <MoetemappeSkeleton />
-                  {Math.random() > 0.5 && <MoetemappeSkeleton />}
-                </>
-              ) : (
-                currentCalendarResults
-                  .filter(
-                    (item) =>
-                      item.moetedato &&
-                      new Date(item.moetedato).toDateString() ===
-                        day.date.toDateString(),
-                  )
-                  .map((item) => <MoetemappeModule key={item.id} item={item} />)
-              )}
+              <div className={styles.dateHeader}>
+                {day.isToday ? (
+                  <Badge
+                    className={cn(styles.dateText, styles.badge)}
+                    count={day.dayNumber}
+                  ></Badge>
+                ) : (
+                  <span className={styles.dateText}>{day.dayNumber}</span>
+                )}
+              </div>
+              <div className={styles.meetingList}>
+                {isLoading ? (
+                  // Render 1-2 skeletons per day to show activity
+                  <>
+                    <MoetemappeSkeleton />
+                    {Math.random() > 0.5 && <MoetemappeSkeleton />}
+                  </>
+                ) : (
+                  currentCalendarResults
+                    .filter(
+                      (item) =>
+                        item.moetedato &&
+                        new Date(item.moetedato).toDateString() ===
+                          day.date.toDateString(),
+                    )
+                    .map((item) => (
+                      <MoetemappeModule key={item.id} item={item} />
+                    ))
+                )}
+              </div>
             </div>
           ))}
         </div>

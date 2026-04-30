@@ -1,11 +1,53 @@
-import type { Moetemappe } from '@digdir/einnsyn-sdk';
 import { Link } from '@digdir/designsystemet-react';
-import { EinLink } from '~/components/EinLink/EinLink';
+import type { Moetemappe } from '@digdir/einnsyn-sdk';
 
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
-export default function MoetemappeModule({ item }: { item: Moetemappe }) {
+type MoetemappeModuleProps = {
+  item: Moetemappe;
+  variant?: 'compact' | 'expanded';
+};
+
+function formatTime(moetedato: string): string {
+  const d = new Date(moetedato);
+  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+}
+
+export default function MoetemappeModule({
+  item,
+  variant = 'compact',
+}: MoetemappeModuleProps) {
+  if (variant === 'expanded') {
+    return (
+      <div className={cn('moetemappemodule', styles.moetemappemoduleExpanded)}>
+        <div className={styles.expandedTimeCol}>
+          <span className={styles.expandedTime}>
+            {formatTime(item.moetedato)}
+          </span>
+        </div>
+        <div className={styles.moduleHeading}>
+          <Link
+            color="main"
+            href="localhost:3000"
+            className={styles.moduleHeadingLink}
+          >
+            {typeof item.utvalgObjekt === 'string'
+              ? item.utvalgObjekt
+              : item.utvalgObjekt.navn}
+          </Link>
+          <span className={styles.expandedOrg}>
+            {typeof item.utvalgObjekt === 'string'
+              ? ''
+              : typeof item.utvalgObjekt.parent === 'string'
+                ? item.utvalgObjekt.parent
+                : item.utvalgObjekt.parent?.navn || ''}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('moetemappemodule', styles.moetemappemodule)}>
       <div className={cn('module-heading', styles.moduleHeading)}>
@@ -27,21 +69,6 @@ export default function MoetemappeModule({ item }: { item: Moetemappe }) {
               ? item.utvalgObjekt.parent
               : item.utvalgObjekt.parent?.navn || ''}
         </div>
-        {/* TODO: if week or day view add in time and place */}
-        {/* <div>
-          <span>
-            {new Date(item.moetedato).toLocaleTimeString('nb-NO', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
-
-          <span>
-            {item.moetested && item.moetested.length > 0
-              ? ' - ' + item.moetested
-              : ''}
-          </span>
-        </div> */}
       </div>
     </div>
   );

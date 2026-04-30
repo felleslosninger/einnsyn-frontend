@@ -104,6 +104,27 @@ export default function CalendarContainer({
     setVisibleMonth(selectedDate);
   }, [selectedDate]);
 
+  // Lock page scroll in month view so only the calendar scrolls internally.
+  // Week/day views let page height grow naturally to fit content.
+  // Apply calendar-page class for the duration this component is mounted
+  // (used for the page background gradient).
+  useEffect(() => {
+    document.documentElement.classList.add('calendar-page');
+    return () => document.documentElement.classList.remove('calendar-page');
+  }, []);
+
+  // Lock page scroll in month view so only the calendar scrolls internally.
+  // Week/day views let page height grow naturally to fit content.
+  useEffect(() => {
+    const cls = 'calendar-month-view';
+    if (selectedView === 'month') {
+      document.documentElement.classList.add(cls);
+    } else {
+      document.documentElement.classList.remove(cls);
+    }
+    return () => document.documentElement.classList.remove(cls);
+  }, [selectedView]);
+
   // Debounced sync: once the user settles on a scrolled-to month, write
   // first-of-month back to the URL so upstream data fetching picks up the
   // new range. Guarded by year+month equality so intra-month scrolls don't

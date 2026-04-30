@@ -1,5 +1,6 @@
-import { Heading } from '@digdir/designsystemet-react';
+import { Badge, Button, Heading } from '@digdir/designsystemet-react';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { XMarkIcon } from '@navikt/aksel-icons';
 import {
   useCallback,
   useEffect,
@@ -7,26 +8,22 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
+import { EinButton } from '~/components/EinButton/EinButton';
+import EinPopup from '~/components/EinPopup/EinPopup';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
-import { EinButton } from '~/components/EinButton/EinButton';
 
 const MONTHS_BUFFER = 4; // keep 2 * buffer + 1 = 9 months rendered
 const SCROLL_EDGE_THRESHOLD = 400;
 
-const WEEKDAYS_WITH_WEEKENDS = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
-] as const;
-const WEEKDAYS_WITHOUT_WEEKENDS = WEEKDAYS_WITH_WEEKENDS.slice(0, 5);
+const WEEKDAYS_WITH_WEEKENDS = [1, 2, 3, 4, 5, 6, 0] as const; // Mon–Sun (JS getDay order)
+const WEEKDAYS_WITHOUT_WEEKENDS = [1, 2, 3, 4, 5] as const; // Mon–Fri
+
+// Indexed by Date.getDay() (0 = Sunday)
 
 type DayCell = {
   date: Date;
@@ -183,8 +180,6 @@ export default function DynamicView({
   }, [displayWeekends]);
 
   // React to external selectedDate changes (date picker, chevrons, URL edit).
-  // We don't write to selectedDate from scroll anymore, so any change here is
-  // genuinely external and warrants a scroll/rebuild.
   useEffect(() => {
     const key = dateIsoKey(selectedDate);
     if (key === lastHandledSelectedKeyRef.current) return;
@@ -328,6 +323,10 @@ export default function DynamicView({
     ? WEEKDAYS_WITH_WEEKENDS
     : WEEKDAYS_WITHOUT_WEEKENDS;
 
+  type PopupState = { meetings: Moetemappe[]; date: Date } | null;
+  const [popup, setPopup] = useState<PopupState>(null);
+  const popupTriggerRef = useRef<HTMLElement | null>(null);
+
   return (
     <div
       ref={scrollRef}
@@ -346,6 +345,48 @@ export default function DynamicView({
           </div>
         ))}
       </div>
+
+      {popup !== null &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <EinPopup
+            open={true}
+            setOpen={(open) => {
+              if (!open) setPopup(null);
+            }}
+            triggerRef={popupTriggerRef}
+            animate
+            className={styles.popup}
+          >
+            <div className={styles.dayPopupHeader}>
+              <Heading level={2} data-size="sm">
+                {t(`calendar.days.${popup.date.getDay()}`)}{' '}
+                {popup.date.getDate()}{' '}
+                {t(`calendar.months.${popup.date.getMonth()}`)}
+              </Heading>
+              <Button
+                icon
+                variant="tertiary"
+                data-color="neutral"
+                data-size="sm"
+                aria-label={t('site:closeModal')}
+                onClick={() => setPopup(null)}
+              >
+                <XMarkIcon />
+              </Button>
+            </div>
+            <div className={styles.dayPopupBody}>
+              {popup.meetings.map((item) => (
+                <MoetemappeModule
+                  key={item.id}
+                  item={item}
+                  variant="expanded"
+                />
+              ))}
+            </div>
+          </EinPopup>,
+          document.body,
+        )}
 
       {months.map((block) => {
         const key = blockKey(block);
@@ -398,9 +439,16 @@ export default function DynamicView({
                         )}
                       >
                         <div className={styles.dateHeader}>
-                          <span className={styles.dateText}>
-                            {cell.date.getDate()}
-                          </span>
+                          {cell.isToday ? (
+                            <Badge
+                              className={cn(styles.dateText, styles.today)}
+                              count={cell.date.getDate()}
+                            />
+                          ) : (
+                            <span className={styles.dateText}>
+                              {cell.date.getDate()}
+                            </span>
+                          )}
                         </div>
 
                         <div className={styles.meetingList}>
@@ -424,6 +472,13 @@ export default function DynamicView({
                                   aria-label={t(
                                     `calendar.more_meetings_${dayMeetings.length - 3}`,
                                   )}
+                                  onClick={(e) => {
+                                    popupTriggerRef.current = e.currentTarget;
+                                    setPopup({
+                                      meetings: dayMeetings,
+                                      date: cell.date,
+                                    });
+                                  }}
                                 >
                                   +{dayMeetings.length - 3}
                                 </EinButton>

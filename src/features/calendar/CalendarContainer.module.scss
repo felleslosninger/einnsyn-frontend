@@ -6,23 +6,26 @@
     }
 }
 
-.calendarContainer {
+// Month view: lock the entire page to viewport height so only the
+// calendar scrolls internally. Week/day views grow naturally.
+:global(html.calendar-month-view) {
     height: 100dvh;
     overflow: hidden;
 }
 
-// .calendarPre {
-//     width: 200px;
-//     flex-shrink: 0;
-// }
+:global(html.calendar-month-view body),
+:global(html.calendar-month-view .einnsyn-body) {
+    height: 100%;
+    overflow: hidden;
+}
 
-// .calendarPost {
-//     flex-grow: 1;
-//     background-color: transparent;
-// }
+:global(html.calendar-month-view .content-flex-grow) {
+    overflow: hidden;
+    min-height: 0;
+}
 
-// Global styles
-:global(.calendar-page) {
+:global(html.calendar-month-view) .calendarContainer {
+    height: 100%;
     overflow: hidden;
 }
 
@@ -35,6 +38,17 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+}
+
+// Week/day: don't constrain height, let content determine size
+.calendarContent.weekView,
+.calendarContent.dayView {
+    height: auto;
+}
+
+.calendarBody.weekView,
+.calendarBody.dayView {
+    flex: 0 0 auto;
 }
 
 // Header section
@@ -64,6 +78,7 @@
 }
 
 .displayHeading {
+    position: relative;
     width: fit-content;
     text-wrap: nowrap;
     min-height: 30px;
@@ -73,37 +88,38 @@
 
 .clickableHeading {
     cursor: pointer;
-    padding: 4px 8px;
+    padding: var(--ds-size-1) var(--ds-size-2);
     margin-left: -8px;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-1);
 
     &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: var(--ds-color-neutral-surface-hover);
     }
 }
 
-.headingDateInput {
-    font-family: inherit;
-    font-size: 1.8rem;
-    font-weight: 450;
-    border: none;
-    border-radius: 4px;
-    padding: 2px 8px;
-    outline: none;
-    background: white;
-    color: #000;
+.headingChevron {
+    // font-size: 1.1rem;
+    // flex-shrink: 0;
+    // color: var(--ds-color-neutral-text-subtle);
+}
 
-    // Ensures the input doesn't jump position
-    height: auto;
-    line-height: normal;
+.hiddenDateInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }
 
 .weekendWarningAlert {
     width: 100%;
 
     :global(.ds-alert) {
-        padding-block: var(--ds-size-2);
+        padding-block: var(--ds-size-1);
     }
 }
 
@@ -162,7 +178,7 @@
 
 .monthHeading {
     padding: var(--ds-size-4) 0 var(--ds-size-2);
-    background-color: var(--ds-color-surface-default);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 /* Week rows */
@@ -174,6 +190,11 @@
 .noWeekends .weekRow,
 .noWeekends .dynCalendarHeader {
     grid-template-columns: repeat(5, 1fr);
+}
+
+.singleColumn.weekRow,
+.singleColumn.dynCalendarHeader {
+    grid-template-columns: 1fr;
 }
 
 .dayHeaderCell {
@@ -191,19 +212,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    height: 290px;
-    /* Only right and bottom borders */
+    min-height: 290px;
     border-right: 1px solid var(--ds-color-neutral-border-subtle);
     border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
-    /* Remove the all-sides border */
 }
 
-// Add top border to the first row
-.weekRow:first-child .dayCell {
-    border-top: 1px solid var(--ds-color-neutral-border-subtle);
-}
-
-// Add left border to the first column
 .weekRow .dayCell:first-child {
     border-left: 1px solid var(--ds-color-neutral-border-subtle);
 }
@@ -212,33 +225,33 @@
     background-color: var(--ds-color-neutral-background-tinted);
 }
 
-.dateHeader {
-    :global(.ds-heading) {
-        width: 100%;
-        background-color: var(--ds-color-surface-default);
-        padding: var(--ds-size-2);
-        border-bottom: solid 1px var(--ds-color-border-default);
-        margin-bottom: var(--ds-size-2);
-    }
-}
 
 .meetingList {
     position: relative; // Needed for pseudo-elements
     overflow-y: auto;
     overflow-x: hidden;
     flex: 1;
-    min-height: 0;
     z-index: 2;
     padding: var(--ds-size-2);
     padding-top: var(--ds-size-1);
 }
 
-.currentMonth {}
-
 .dateText {
     padding: var(--ds-size-2);
     font-size: 14px;
     opacity: 0.8;
+}
+
+.today {
+    .dateText {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+
+    :global(.ds-badge) {
+        --dsc-badge-background: #8E38F1;
+        --dsc-badge-color: #fff;
+    }
 }
 
 .dynamicCalendarWrapper {
@@ -252,7 +265,47 @@
 }
 
 
-// Meeting component styles
+// Meeting component styles — expanded variant
+.moetemappemoduleExpanded {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: var(--ds-size-2);
+    margin-bottom: var(--ds-size-2);
+    border-radius: 12px;
+    font-size: var(--ds-body-xs-font-size);
+    min-width: 300px;
+    max-width: 500px;
+    width: auto;
+
+    &:hover {
+        background-color: #EDF0FF;
+    }
+}
+
+.expandedTimeCol {
+    display: flex;
+    flex-direction: column;
+}
+
+.expandedTime {
+    margin: auto;
+    font-size: var(--ds-body-sm-font-size);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.expandedInfoCol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-1);
+    min-width: 0;
+}
+
+.expandedOrg {
+    font-size: var(--ds-body-xs-font-size);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+// Meeting component styles — compact (month) variant
 .moetemappemodule {
     background-color: #EDF0FF;
     margin-bottom: var(--ds-size-2);
@@ -299,11 +352,36 @@
     text-overflow: ellipsis;
 }
 
+.popup {
+    width: 400px;
+}
+
+.dayPopupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-size-3) var(--ds-size-3) var(--ds-size-2);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+}
+
+.dayPopupBody {
+    padding: var(--ds-size-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-2);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 .moreMeetingsButton {
     padding: var(--ds-size-2);
     font-size: small;
     min-height: fit-content;
-    background-color: #e2e5f6;
+    background-color: #d6daf0;
     border: 0;
     border-radius: 12px;
+
+    &:hover {
+        background-color: #b9bfdf;
+    }
 }

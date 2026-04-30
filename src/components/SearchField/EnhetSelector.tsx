@@ -18,7 +18,6 @@ import cn from '~/lib/utils/className';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
-import searchFieldStyles from './SearchField.module.scss';
 
 export type EnhetNode = {
   currentName: string;
@@ -348,22 +347,17 @@ export default function EnhetSelector({
 
   return (
     <div className={cn(styles.enhetSelector, className)} ref={containerRef}>
-      <div className={cn(searchFieldStyles.searchFieldButton)}>
+      <div className={styles.enhetSelectorButtonRow}>
+        <Buildings3Icon
+          className={styles.enhetSelectorIcon}
+          title="Enhet"
+          fontSize="1.2rem"
+        />
         <EinButton
           tabIndex={expanded ? -1 : 0}
           style="link"
-          className={cn(
-            searchFieldStyles.paddedContent,
-            styles.enhetSelectorButton,
-          )}
+          className={styles.enhetSelectorButton}
         >
-          <div className={cn(searchFieldStyles.searchInputIcon)}>
-            <Buildings3Icon
-              className={cn(styles.searchIcon)}
-              title="Enhet"
-              fontSize="1.2rem"
-            />
-          </div>
           {label}
         </EinButton>
       </div>

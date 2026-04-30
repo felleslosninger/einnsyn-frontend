@@ -4,7 +4,6 @@ import {
   Alert,
   Button,
   Heading,
-  Input,
   Switch,
   ToggleGroup,
 } from '@digdir/designsystemet-react';
@@ -14,7 +13,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from '@navikt/aksel-icons';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
@@ -44,8 +43,9 @@ export default function CalendarHeader({
   resultCount,
 }: CalendarHeaderProps) {
   const t = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
   const dateInputRef = useRef<HTMLInputElement | null>(null);
+
+  const openDatePicker = () => dateInputRef.current?.showPicker();
 
   const viewHeading = useMemo(() => {
     const getWeekNumber = (date: Date): number => {
@@ -210,32 +210,31 @@ export default function CalendarHeader({
       </div>
       <div className={cn('header-actions', styles.headerActions)}>
         <div className={cn('display-heading', styles.displayHeading)}>
-          {isEditing ? (
-            <Input
-              ref={dateInputRef}
-              type="date"
-              className={styles.headingDateInput}
-              value={new Date(selectedDate).toISOString().split('T')[0]}
-              onChange={handleDateChange}
-              onBlur={() => setIsEditing(false)}
-            />
-          ) : (
-            <Heading
-              data-size="sm"
-              level={1}
-              tabIndex={0}
-              className={styles.clickableHeading}
-              onClick={() => setIsEditing(true)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  setIsEditing(true);
-                }
-              }}
-            >
-              {viewHeading}
-            </Heading>
-          )}
+          <Heading
+            data-size="sm"
+            level={1}
+            tabIndex={0}
+            className={styles.clickableHeading}
+            onClick={openDatePicker}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openDatePicker();
+              }
+            }}
+          >
+            {viewHeading}
+            <ChevronDownIcon className={styles.headingChevron} />
+          </Heading>
+          <input
+            ref={dateInputRef}
+            type="date"
+            className={styles.hiddenDateInput}
+            value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
+            onChange={handleDateChange}
+            aria-hidden="true"
+            tabIndex={-1}
+          />
         </div>
         {navButtons}
         <div className={styles.weekendWarningAlert}>

@@ -134,7 +134,7 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
-    "calendar": {
+  "calendar": {
     "label": "Meeting calendar",
     "labelPlural": "Meeting calendars",
     "shortLabel": "Calendar",
@@ -156,13 +156,13 @@
       "showMore": "Show more"
     },
     "days": {
-      "sunday": "Sunday",
-      "monday": "Monday",
-      "tuesday": "Tuesday",
-      "wednesday": "Wednesday",
-      "thursday": "Thursday",
-      "friday": "Friday",
-      "saturday": "Saturday"
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
     },
     "months": {
       "0": "January",

@@ -156,13 +156,13 @@
     "showMore": "Čájet eanet"
   },
   "days": {
-    "sunday": "Sotnabeaivi",
-    "monday": "Mánnodat",
-    "tuesday": "Disdat",
-    "wednesday": "Gaskavahkku",
-    "thursday": "Duorastat",
-    "friday": "Bearjadat",
-    "saturday": "Lávvardat"
+    "0": "Sotnabeaivi",
+    "1": "Mánnodat",
+    "2": "Disdat",
+    "3": "Gaskavahkku",
+    "4": "Duorastat",
+    "5": "Bearjadat",
+    "6": "Lávvardat"
   },
   "months": {
     "0": "Ođđajagemánnu",

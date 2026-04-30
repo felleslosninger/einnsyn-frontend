@@ -14,25 +14,26 @@
   }
 }
 
-.enhetSelectorButton:global(.style-link) {
+.enhetSelectorButtonRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ds-size-2);
+  min-width: 0;
   width: 100%;
+}
+
+.enhetSelectorIcon {
+  flex-shrink: 0;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.enhetSelectorButton:global(.style-link) {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
-  overflow: ellipsis;
-  &:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: var(--ds-size-8);
-    background: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0),
-      var(--search-input-surface)
-    );
-    border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
-    pointer-events: none;
-  }
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .enhetSelectorDropdown {
