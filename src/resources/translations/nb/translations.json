@@ -134,6 +134,55 @@
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
   },
+  "calendar": {
+    "label": "Møtekalender",
+    "labelPlural": "Møtekalendere",
+    "shortLabel": "Kalender",
+    "shortLabelPlural": "Kalendere",
+    "resultsFound": "Viser $1 søketreff",
+    "validationMessages": {
+      "weekendWarning": "Det er planlagt møter i helgen. Vis helger for å se dem."
+    },
+    "viewOptions": {
+      "dynamic": "Dynamisk",
+      "month": "Måned",
+      "week": "Uke",
+      "day": "Dag",
+      "today": "I dag",
+      "displayWeekends": "Vis helger",
+      "hideWeekends": "Skjul helger",
+      "expandAll": "Utvid alle",
+      "collapseAll": "Skjul alle",
+      "showMore": "Vis mer"
+    },
+    "days": {
+      "0": "Søndag",
+      "1": "Mandag",
+      "2": "Tirsdag",
+      "3": "Onsdag",
+      "4": "Torsdag",
+      "5": "Fredag",
+      "6": "Lørdag"
+    },
+    "months": {
+      "0": "Januar",
+      "1": "Februar",
+      "2": "Mars",
+      "3": "April",
+      "4": "Mai",
+      "5": "Juni",
+      "6": "Juli",
+      "7": "August",
+      "8": "September",
+      "9": "Oktober",
+      "10": "November",
+      "11": "Desember"
+    }
+  },
+  "statistics": {
+    "label": "Statistikk",
+    "labelPlural": "Statistikker"
+  },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",
     "oppdatertDato": "Oppdateringsdato",

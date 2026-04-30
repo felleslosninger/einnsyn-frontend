@@ -38,6 +38,12 @@
   &.rotated {
     transform: rotate(-180deg);
   }
+
+  &.chevronRight {
+    &.rotated {
+      transform: none;
+    }
+  }
 }
 
 .dropdownPopup {
