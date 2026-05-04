@@ -1,8 +1,7 @@
 'use client';
 
-import { Skeleton } from '@digdir/designsystemet-react';
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
@@ -11,6 +10,7 @@ import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchResult from './searchresult/SearchResult';
+import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
 
 export default function SearchResultContainer({
   searchResults,
@@ -24,8 +24,11 @@ export default function SearchResultContainer({
     useNavigation();
   const isLoading = loading && loadingSearchParamsString !== searchParamsString;
 
+  const searchSymbolRef = useRef<symbol>(Symbol());
+
   // Update currentSearchResults when searchResults prop changes (new search)
   useEffect(() => {
+    searchSymbolRef.current = Symbol();
     setCurrentSearchResults(searchResults);
   }, [searchResults]);
 
@@ -33,7 +36,15 @@ export default function SearchResultContainer({
     if (!currentSearchResults.next) {
       return; // No next page to fetch
     }
+    const newSearchSymbol = Symbol();
+    searchSymbolRef.current = newSearchSymbol;
     const nextPageData = await fetchNextPage(currentSearchResults);
+
+    // Discard this result if a new search has been initiated
+    if (searchSymbolRef.current !== newSearchSymbol) {
+      return;
+    }
+
     setCurrentSearchResults(nextPageData);
   }, [currentSearchResults]);
 
@@ -48,7 +59,11 @@ export default function SearchResultContainer({
       >
         <div className="container-pre collapsible" />
         <div className="container">
-          <div className="search-results">
+          <div
+            className="search-results"
+            aria-busy={isLoading}
+            aria-live="polite"
+          >
             {currentSearchResults.items.length ? (
               currentSearchResults.items.map((item) => (
                 <SearchResult
@@ -58,7 +73,7 @@ export default function SearchResultContainer({
                 />
               ))
             ) : (
-              <div className="no-results">
+              <div className={cn(styles.searchResult, 'no-results')}>
                 <p>{t('common.noResults')}</p>
               </div>
             )}
@@ -66,26 +81,8 @@ export default function SearchResultContainer({
             {/* Conditionally render EinScrollTrigger only if there's a next page */}
             {currentSearchResults.next && (
               <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                <div className="search-result">
-                  <h2 className="ds-heading" data-size="lg">
-                    <Skeleton variant="text">
-                      A relatively long dummy title for loading skeleton
-                    </Skeleton>
-                  </h2>
-                  <div className="ds-paragraph" data-size="sm">
-                    <div>
-                      <Skeleton variant="text">
-                        - Journalpost – Published 01.01.1970
-                      </Skeleton>
-                    </div>
-                    <div>
-                      <Skeleton variant="text">eInnsyn dummy Enhet</Skeleton>
-                    </div>
-                    <div>
-                      <Skeleton variant="text">Saksmappe: 123456789</Skeleton>
-                    </div>
-                  </div>
-                </div>
+                <SearchResultSkeleton className={styles.searchResult} />
+                <SearchResultSkeleton className={styles.searchResult} />
               </EinScrollTrigger>
             )}
           </div>

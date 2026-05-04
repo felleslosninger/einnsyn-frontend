@@ -92,7 +92,10 @@ export function useDraggable({
         if (moved) {
           window.addEventListener(
             'click',
-            function cancelClick(_e) {
+            function cancelClick(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation?.();
               window.removeEventListener('click', cancelClick, true);
             },
             true,

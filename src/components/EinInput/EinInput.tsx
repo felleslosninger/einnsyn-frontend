@@ -33,6 +33,7 @@ export const EinInput = ({
   tooltip,
   copyToClipboard = false,
   ref,
+  className,
   ...props
 }: InputProps & EinInputProps) => {
   const t = useTranslation();
@@ -66,7 +67,9 @@ export const EinInput = ({
 
   return (
     <Field
-      className={cn(styles['ein-input'], { [styles['full-width']]: fullWidth })}
+      className={cn(className, styles['ein-input'], {
+        [styles['full-width']]: fullWidth,
+      })}
     >
       {label && (
         <Label>

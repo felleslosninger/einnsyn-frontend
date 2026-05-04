@@ -134,6 +134,51 @@
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
   },
+  "calendar": {
+    "label": "Meeting calendar",
+    "labelPlural": "Meeting calendars",
+    "shortLabel": "Calendar",
+    "shortLabelPlural": "Calendars",
+    "resultsFound": "Showing $1 search results",
+    "validationMessages": {
+      "weekendWarning": "There are weekend meetings scheduled. Display weekends to see them."
+    },
+    "viewOptions": {
+      "dynamic": "Dynamic",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "today": "Today",
+      "displayWeekends": "Display weekends",
+      "hideWeekends": "Hide weekends",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "showMore": "Show more"
+    },
+    "days": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "months": {
+      "0": "January",
+      "1": "February",
+      "2": "March",
+      "3": "April",
+      "4": "May",
+      "5": "June",
+      "6": "July",
+      "7": "August",
+      "8": "September",
+      "9": "October",
+      "10": "November",
+      "11": "December"
+    }
+  },
   "searchFilters": {
     "publisertDato": "Publication date",
     "publisertDatoPrefix": "published",

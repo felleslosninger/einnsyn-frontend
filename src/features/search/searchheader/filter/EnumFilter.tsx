@@ -50,7 +50,7 @@ export function EnumFilter({
   return (
     <EinDropdown
       trigger={label}
-      showChevron
+      showChevronRight
       className={cn(styles.enumFilter, className, 'dropdown-option')}
       preferredPosition={[
         'rightTop',

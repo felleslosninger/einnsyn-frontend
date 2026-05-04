@@ -1,0 +1,387 @@
+//pre and post containers
+
+@media (max-width: 1800px) {
+    .calendarPre {
+        display: none;
+    }
+}
+
+// Month view: lock the entire page to viewport height so only the
+// calendar scrolls internally. Week/day views grow naturally.
+:global(html.calendar-month-view) {
+    height: 100dvh;
+    overflow: hidden;
+}
+
+:global(html.calendar-month-view body),
+:global(html.calendar-month-view .einnsyn-body) {
+    height: 100%;
+    overflow: hidden;
+}
+
+:global(html.calendar-month-view .content-flex-grow) {
+    overflow: hidden;
+    min-height: 0;
+}
+
+:global(html.calendar-month-view) .calendarContainer {
+    height: 100%;
+    overflow: hidden;
+}
+
+.calendarContent {
+    height: 100%;
+    flex-basis: 2000px;
+    max-width: 2000px;
+    width: 100%;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+// Week/day: don't constrain height, let content determine size
+.calendarContent.weekView,
+.calendarContent.dayView {
+    height: auto;
+}
+
+.calendarBody.weekView,
+.calendarBody.dayView {
+    flex: 0 0 auto;
+}
+
+// Header section
+.calendarHeader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding-bottom: var(--ds-size-1);
+}
+
+.headerInfo {
+    width: 100%;
+    // padding-bottom: var(--ds-size-2);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.resultsFound {
+    font-size: var(--ds-body-sm-font-size);
+}
+
+.headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: var(--ds-size-2);
+}
+
+.displayHeading {
+    position: relative;
+    width: fit-content;
+    text-wrap: nowrap;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.clickableHeading {
+    cursor: pointer;
+    padding: var(--ds-size-1) var(--ds-size-2);
+    margin-left: -8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-1);
+
+    &:hover {
+        background-color: var(--ds-color-neutral-surface-hover);
+    }
+}
+
+.headingChevron {
+    // font-size: 1.1rem;
+    // flex-shrink: 0;
+    // color: var(--ds-color-neutral-text-subtle);
+}
+
+.hiddenDateInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.weekendWarningAlert {
+    width: 100%;
+
+    :global(.ds-alert) {
+        padding-block: var(--ds-size-1);
+    }
+}
+
+.viewOptions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: fit-content;
+    text-wrap: nowrap;
+    gap: var(--ds-size-5);
+}
+
+.arrowIcon {
+    height: 70%;
+    width: 70%;
+}
+
+// Calendar body
+
+.calendarBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendarGrid {
+    display: flex;
+    flex-direction: column;
+}
+
+.dynCalendarHeader {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    display: grid;
+    width: 100%;
+}
+
+.weekRow {
+    display: grid;
+    width: 100%;
+    flex: 1;
+    min-height: 290px;
+}
+
+.dynWeekRow {
+    max-height: 290px;
+    overflow: hidden;
+}
+
+.monthBlock {
+    display: flex;
+    flex-direction: column;
+}
+
+.monthHeading {
+    padding: var(--ds-size-4) 0 var(--ds-size-2);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+}
+
+/* Week rows */
+.withWeekends .weekRow,
+.withWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.noWeekends .weekRow,
+.noWeekends .dynCalendarHeader {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.singleColumn.weekRow,
+.singleColumn.dynCalendarHeader {
+    grid-template-columns: 1fr;
+}
+
+.dayHeaderCell {
+    padding-left: var(--ds-size-2);
+    background-color: var(--ds-color-surface-default);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+}
+
+.dayHeaderText {
+    font-size: 0.875rem;
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.dayCell {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 290px;
+    border-right: 1px solid var(--ds-color-neutral-border-subtle);
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.weekRow .dayCell:first-child {
+    border-left: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.emptyCell {
+    background-color: var(--ds-color-neutral-background-tinted);
+}
+
+
+.meetingList {
+    position: relative; // Needed for pseudo-elements
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    z-index: 2;
+    padding: var(--ds-size-2);
+    padding-top: var(--ds-size-1);
+}
+
+.dateText {
+    padding: var(--ds-size-2);
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.today {
+    .dateText {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+
+    :global(.ds-badge) {
+        --dsc-badge-background: #8E38F1;
+        --dsc-badge-color: #fff;
+    }
+}
+
+.dynamicCalendarWrapper {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    overflow-anchor: none;
+}
+
+
+// Meeting component styles — expanded variant
+.moetemappemoduleExpanded {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: var(--ds-size-2);
+    margin-bottom: var(--ds-size-2);
+    border-radius: 12px;
+    font-size: var(--ds-body-xs-font-size);
+    min-width: 300px;
+    max-width: 500px;
+    width: auto;
+
+    &:hover {
+        background-color: #EDF0FF;
+    }
+}
+
+.expandedTimeCol {
+    display: flex;
+    flex-direction: column;
+}
+
+.expandedTime {
+    margin: auto;
+    font-size: var(--ds-body-sm-font-size);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+.expandedInfoCol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-1);
+    min-width: 0;
+}
+
+.expandedOrg {
+    font-size: var(--ds-body-xs-font-size);
+    color: var(--ds-color-neutral-text-subtle);
+}
+
+// Meeting component styles — compact (month) variant
+.moetemappemodule {
+    background-color: #EDF0FF;
+    margin-bottom: var(--ds-size-2);
+    border-radius: 12px;
+    min-width: 0;
+    width: 100%;
+    font-size: var(--ds-body-xs-font-size);
+}
+
+.moduleHeading,
+.moduleInfo {
+    padding-left: var(--ds-size-3);
+    padding-right: var(--ds-size-3);
+}
+
+.moduleHeading {
+    font-size: var(--ds-body-sm-font-size);
+    padding-top: var(--ds-size-2);
+    padding-bottom: var(--ds-size-1);
+
+    .moduleHeadingLink {
+        color: #002C54;
+    }
+}
+
+.moduleHeading a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    font: inherit;
+    line-height: inherit;
+}
+
+.moduleInfo {
+    color: var(--ds-color-neutral-text-subtle);
+    padding-bottom: var(--ds-size-2);
+}
+
+.parentNameLabel {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.popup {
+    width: 400px;
+}
+
+.dayPopupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-size-3) var(--ds-size-3) var(--ds-size-2);
+    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+}
+
+.dayPopupBody {
+    padding: var(--ds-size-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-2);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.moreMeetingsButton {
+    padding: var(--ds-size-2);
+    font-size: small;
+    min-height: fit-content;
+    background-color: #d6daf0;
+    border: 0;
+    border-radius: 12px;
+
+    &:hover {
+        background-color: #b9bfdf;
+    }
+}

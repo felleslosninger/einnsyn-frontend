@@ -1,31 +1,129 @@
+@use '../../styles/easing.scss' as e;
+
 .searchFieldContainer {
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   background: var(--ds-color-neutral-surface-default);
-  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-md);
+}
 
-  &:has(input:focus) {
-    box-shadow: var(--_ds--focus, var(--dsc-focus-boxShadow));
-    outline: var(--_ds--focus, var(--dsc-focus-outline));
-    outline-offset: var(--_ds--focus, var(--ds-border-width-focus));
+.searchInputIcon {
+  position: absolute;
+  top: var(--ds-size-2);
+  left: var(--ds-size-3);
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.searchInputWithIcon {
+  .styledInput,
+  .input,
+  .paddedContent {
+    padding-left: calc(var(--ds-size-6) + var(--ds-size-3)); // icon size + gap
+    padding-right: var(--ds-size-4); // clear-button
   }
 }
 
-.inputContainer {
+.searchInputContainer {
+  --search-input-surface: var(--ds-color-neutral-surface-default, #fff);
   position: relative;
-  flex: 1 1 auto;
-  display: flex;
-  color: transparent;
-  background: transparent;
-  z-index: 0;
+  height: var(--ds-size-12);
 
-  padding-top: var(--ds-size-2);
-  padding-bottom: var(--ds-size-2);
-  padding-left: var(--ds-size-3);
-  padding-right: var(--ds-size-3);
+  // If we have an expandable container, add focus styles to it, if not, add to this container
+  &:not(:has(.expandableInputContainer)),
+  .expandableInputContainer {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 auto;
+    gap: var(--ds-size-3);
+    position: relative;
+    z-index: 2;
+    padding-left: var(--ds-size-3);
+    padding-right: var(--ds-size-3);
+    background: var(--search-input-surface);
+    border-color: var(--ds-color-neutral-border-subtle);
+    border-style: solid;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: var(--ds-border-width-default);
+    border-bottom-width: var(--ds-border-width-default);
+    max-height: 80vh;
+    overflow: hidden;
+  }
+
+  &:not(:has(.expandableInputContainer)):has(:focus),
+  .expandableInputContainer:has(:focus),
+  &.activeContainer:not(:has(.expandableInputContainer)),
+  &.activeContainer .expandableInputContainer {
+    border-radius: var(--ds-border-radius-md);
+    box-shadow: var(--dsc-focus-boxShadow);
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    z-index: 3;
+    border-color: transparent;
+  }
+
+
+  .expandableInputContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    min-height: 100%;
+  }
+
+  &.searchQueryContainer {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+
+    .expandableInputContainer {
+      border-left-width: var(--ds-border-width-default);
+      border-top-left-radius: var(--ds-border-radius-md);
+      border-bottom-left-radius: var(--ds-border-radius-md);
+    }
+  }
+
+  .searchIconContainer {
+    flex: 0 0 auto;
+    width: var(--ds-size-7);
+    height: var(--ds-size-7);
+  }
+}
+
+.searchInputContainer {
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
+  transition: min-width 0.3s e.$easeOutQuart;  
+}
+
+.enhetSelectorContainer.activeContainer {
+  min-width: 80%;
+}
+
+
+.enhetSelectorContainer {
+  min-width: 22%;
+}
+
+.styledInputContainer {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  .input {
+    color: transparent;
+    background: transparent;
+  }
+
+  &:has(:focus) {
+    .styledInput {
+      white-space: pre-wrap;
+    }
+  }
 }
 
 .styledInput,
@@ -37,30 +135,55 @@
   font-size: inherit;
   line-height: inherit;
   letter-spacing: normal;
-  height: var(--ds-size-8);
-  padding: 0;
+  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
+  padding-bottom: var(--ds-size-2);
+  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default)*2 ); // Full height minus borders
 }
 
 .styledInput {
-  display: flex;
-  align-items: center;
   overflow: hidden;
   pointer-events: none;
   z-index: 2;
+  position: relative;
+  white-space: nowrap;
+}
+
+.searchFieldContainer :not(:has(:focus)) .styledInput::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: var(--ds-size-8);
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      var(--search-input-surface)
+    );
+    border-right: var(--ds-size-6) solid var(--ds-color-neutral-surface-default, #fff);
+    pointer-events: none;
 }
 
 .input {
   position: absolute;
+  top: 0;
+  left: 0;
   flex: 1 1 auto;
   width: 100%;
   color: transparent;
   caret-color: var(--ds-color-neutral-text-default);
-  z-index: 1;
+  z-index: 2;
+  overflow: hidden;
+  resize: none;
+  white-space: nowrap;
+  border: none;
+  margin: 0;
 
   &:focus,
   &:focus-visible {
     box-shadow: none;
     outline: none;
+    white-space: pre-wrap;
   }
   
   &::selection,
@@ -71,7 +194,6 @@
 }
 
 .searchToken {
-  display: inline-block;
   position: relative;
 }
 
@@ -95,16 +217,36 @@
     1px 0 0 0 var(--ds-color-danger-surface-tinted);
 }
 
-.clearButton {
+.spacer {
   position: relative;
+  width: var(--ds-border-width-default);
+  height: var(--ds-size-12);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  &::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 60%;
+    background: var(--ds-color-neutral-border-subtle);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.clearButton {
+  position: absolute;
+  top: var(--ds-size-1);
+  right: var(--ds-size-2);
+  
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--ds-size-1);
-  margin-left: var(--ds-size-2);
-  margin-right: var(--ds-size-2);
   min-width: var(--ds-size-9);
   min-height: var(--ds-size-9);
+  margin-right: calc(-1 * var(--ds-size-2)); // Negate padding
   scale: 0.75;
 }
 
@@ -116,16 +258,9 @@
 .actionButtonContainer {
   display: flex;
   flex-direction: row;
-  margin-top: var(--ds-size-1);
-  margin-bottom: var(--ds-size-1);
-
-  padding-top: var(--ds-size-1);
-  padding-bottom: var(--ds-size-1);
-  padding-left: var(--ds-size-3);
-  padding-right: var(--ds-size-3);
-
-  &.withBorder {
-    border-left: 1px solid var(--ds-color-neutral-border-subtle);
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 
@@ -146,4 +281,8 @@
 .searchIcon {
   height: 100%;
   width: 100%;
+}
+
+.enhetSelector {
+  flex-shrink: 0;
 }
