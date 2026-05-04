@@ -27,12 +27,11 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
     const [activeContainer, setActiveContainer] = useState<string | undefined>(
       undefined,
     );
-    const placeholder = t('search.placeholder');
 
     const onInputWrapper = useCallback(
-      (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      (event: React.InputEvent<HTMLTextAreaElement>) => {
         onInput?.(event);
-        const target = event.target as HTMLTextAreaElement;
+        const target = event.currentTarget;
         setSearchQuery(target.value ?? '');
         target.style.height = `${target.scrollHeight}px`;
       },
