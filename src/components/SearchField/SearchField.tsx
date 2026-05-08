@@ -2,9 +2,9 @@
 
 import { Button } from '@digdir/designsystemet-react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
-import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
@@ -18,116 +18,31 @@ type SearchFieldProps = {
 
 export const SearchField = ({ className }: SearchFieldProps) => {
   const t = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { searchQuery, setSearchQuery } = useSearchField();
+  const containerRef = useRef<HTMLFormElement>(null);
+  const { searchQuery, setSearchQuery, pushSearchQuery } = useSearchField();
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
   const [activeContainer, setActiveContainer] = useState<string | undefined>(
     undefined,
   );
-  const [showKeyboardFocusRing, setShowKeyboardFocusRing] = useState(false);
 
-  useEffect(() => {
-    const onPointerDown = () => {
-      setShowKeyboardFocusRing(false);
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === 'Tab' ||
-        event.key.startsWith('Arrow') ||
-        event.key === 'Home' ||
-        event.key === 'End' ||
-        event.key === 'PageUp' ||
-        event.key === 'PageDown'
-      ) {
-        setShowKeyboardFocusRing(true);
-      }
-    };
-
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
+  const activateSearchQueryContainer = useCallback(() => {
+    setActiveContainer('searchQuery');
   }, []);
 
-  // Set focus to containing element when focusing on input
-  const onContainerFocus = useCallback(
-    (event: React.FocusEvent<HTMLDivElement>) => {
-      // Figure out which "section" got focus
-      const target = event.target as HTMLDivElement;
-      const container = target.closest(`.${styles.searchInputContainer}`);
+  const activateEnhetSelectorContainer = useCallback(() => {
+    setActiveContainer('enhetSelector');
+  }, []);
 
-      if (container?.matches(`.${styles.searchQueryContainer}`)) {
-        setActiveContainer('searchQuery');
-      } else if (container?.matches(`.${styles.enhetSelectorContainer}`)) {
-        setActiveContainer('enhetSelector');
-      } else {
-        setActiveContainer(undefined);
-      }
-    },
-    [],
-  );
-
-  // Remove focus on all containers when clicking outside
-  const removeFocus = useCallback(() => {
+  const deactivateContainer = useCallback(() => {
     setActiveContainer(undefined);
   }, []);
-  useOnOutsideClick(containerRef, removeFocus);
 
-  const onContainerBlur = useCallback(
-    (event: React.FocusEvent<HTMLDivElement>) => {
-      const nextFocusedElement = event.relatedTarget;
-
-      if (
-        nextFocusedElement instanceof Node &&
-        event.currentTarget.contains(nextFocusedElement)
-      ) {
-        return;
-      }
-
-      removeFocus();
-    },
-    [removeFocus],
-  );
-
-  const handleSearch = useCallback(() => {
-    setSearchQuery(searchQuery, true);
-  }, [setSearchQuery, searchQuery]);
-
-  const handleSearchInputKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (
-        event.key !== 'Enter' ||
-        event.shiftKey ||
-        event.nativeEvent.isComposing
-      ) {
-        return;
-      }
-
+  const onSubmit = useCallback(
+    (event: React.SubmitEvent<HTMLFormElement>) => {
+      pushSearchQuery(searchQuery);
       event.preventDefault();
-
-      const form = event.currentTarget.form;
-      if (form) {
-        form.requestSubmit();
-        return;
-      }
-
-      handleSearch();
     },
-    [handleSearch],
-  );
-
-  const handleSearchButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (event.currentTarget.form) {
-        return;
-      }
-
-      handleSearch();
-    },
-    [handleSearch],
+    [searchQuery, pushSearchQuery],
   );
 
   const handleClear = useCallback(() => {
@@ -138,21 +53,32 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     setActiveContainer(undefined);
   }, []);
 
+  const openEnhetSelector = useCallback(() => {
+    setActiveContainer('enhetSelector');
+  }, []);
+
   const showClearButton =
     !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
-    <div
+    <form
       className={cn(styles.searchFieldContainer, className, {
         [styles.hasActiveContainer]: activeContainer !== undefined,
-        [styles.showKeyboardFocusRing]: showKeyboardFocusRing,
       })}
       data-search-field-container="true"
-      onBlur={onContainerBlur}
-      onFocus={onContainerFocus}
+      method="get"
+      onSubmit={onSubmit}
+      action={optimisticPathname}
       ref={containerRef}
     >
+      {/* Include current query parameters as hidden inputs */}
+      {Array.from(optimisticSearchParams?.entries() ?? []).map(
+        ([key, value]) =>
+          key !== 'q' && (
+            <input key={key} type="hidden" name={key} value={value} />
+          ),
+      )}
+
       <div
         className={cn(
           styles.searchQueryContainer,
@@ -173,9 +99,10 @@ export const SearchField = ({ className }: SearchFieldProps) => {
                 aria-hidden="true"
               />
             }
-            onKeyDown={handleSearchInputKeyDown}
             value={searchQuery}
             setValue={setSearchQuery}
+            onFocus={activateSearchQueryContainer}
+            onBlur={deactivateContainer}
             name="q"
           />
 
@@ -205,6 +132,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
         <div className={cn(styles.expandableInputContainer)}>
           <EnhetSelector
             expanded={activeContainer === 'enhetSelector'}
+            onOpen={openEnhetSelector}
             close={closeEnhetSelector}
           />
         </div>
@@ -215,14 +143,10 @@ export const SearchField = ({ className }: SearchFieldProps) => {
           [styles.withBorder]: !!searchQuery,
         })}
       >
-        <EinButton
-          variant="primary"
-          type="submit"
-          onClick={handleSearchButtonClick}
-        >
+        <EinButton variant="primary" type="submit">
           {t('search.button')}
         </EinButton>
       </div>
-    </div>
+    </form>
   );
 };

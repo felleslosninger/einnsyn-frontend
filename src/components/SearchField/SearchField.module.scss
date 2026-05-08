@@ -135,9 +135,8 @@
   }
 }
 
-.showKeyboardFocusRing .searchInputContainer {
-  &:focus-within,
-  &.activeContainer {
+:global(html[data-focus-input="keyboard"]) {
+  .searchInputContainer:focus-within {
     --search-input-border-color: var(--ds-color-focus-outer);
     --search-input-outline: var(--dsc-focus-outline);
   }

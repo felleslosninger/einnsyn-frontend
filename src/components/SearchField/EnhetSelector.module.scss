@@ -421,6 +421,64 @@
   }
 }
 
+/*
+ * Mobile sheet (renders inside EinModal, slides up from the bottom).
+ * EinModal already provides the backdrop, slide animation and drag-to-close.
+ */
+.mobileSheetModal {
+  :global(.ein-modal-content) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--ds-color-neutral-surface-default);
+  }
+}
+
+.enhetSelectorDropdown.mobileDropdown {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+  background: var(--ds-color-neutral-surface-default);
+
+  .enhetSelectorDropdownListContainer {
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: var(--ds-border-width-default) solid
+      var(--ds-color-neutral-border-subtle);
+  }
+
+  .enhetSelectorDropdownList {
+    min-height: 0;
+    max-height: none;
+  }
+}
+
+.mobileFooter {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--ds-size-3);
+  padding: var(--ds-size-3) var(--ds-size-4);
+  border-top: var(--ds-border-width-default) solid
+    var(--ds-color-neutral-border-subtle);
+}
+
+.mobileFooterCount {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+}
+
+.mobileDoneButton {
+  flex: 0 0 auto;
+}
+
 :global(.ds-input).filterFieldInput {
   width: 100%;
   min-width: 0;

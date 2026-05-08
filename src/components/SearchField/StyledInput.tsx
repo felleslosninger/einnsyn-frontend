@@ -224,7 +224,6 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
 
     const onKeyDownWrapper = useCallback(
       (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        const target = event.target as HTMLTextAreaElement;
         onKeyDown?.(event);
 
         if (event.defaultPrevented) {
@@ -234,7 +233,8 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
         // Trigger search on Enter key
         if (event.key === 'Enter') {
           event.preventDefault();
-          target.blur();
+          event.currentTarget.form?.requestSubmit();
+          event.currentTarget.blur();
         }
         // Update search query without search on other keys
         else {

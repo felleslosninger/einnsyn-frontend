@@ -38,7 +38,6 @@ export type EinPopupProps = {
   children: ReactNode;
   animate?: boolean;
   transitionEvents?: EinTransitionEvents;
-  transitionFromTrigger?: boolean;
   className?: string;
   popupRef?: RefObject<HTMLDivElement | null>;
   triggerRef?: RefObject<Element | null>;
@@ -53,7 +52,6 @@ export default function EinPopup(props: EinPopupProps) {
     closeOnEsc = true,
     trapFocus = true,
     animate = false,
-    transitionFromTrigger = false,
     className,
     children,
     transitionEvents,
@@ -236,6 +234,7 @@ export default function EinPopup(props: EinPopupProps) {
         className,
         styles.einPopup,
         { [styles.open]: open, [styles.closed]: !open },
+        open ? 'open' : 'closed',
         'ein-popup',
       )}
       ref={popupRef}

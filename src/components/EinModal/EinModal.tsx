@@ -3,7 +3,8 @@
 import { Button } from '@digdir/designsystemet-react';
 import { XMarkIcon } from '@navikt/aksel-icons';
 import type { ReactNode, RefObject } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useDraggable } from '~/hooks/useDraggable';
 import { useModalBasepath } from '~/hooks/useModalBasepath';
@@ -14,31 +15,32 @@ import EinPopup from '../EinPopup/EinPopup';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 import styles from './EinModal.module.scss';
 
-type EinModalProps = {
+type EinModalProps = Readonly<{
   open: boolean;
   children: ReactNode;
   className?: string;
   containerRef?: RefObject<HTMLDivElement>;
   setOpen?: (open: boolean) => void;
-};
+  onClose?: () => void;
+}>;
 
-type EinModalHeaderProps = {
+type EinModalHeaderProps = Readonly<{
   title?: string;
   className?: string;
   children?: ReactNode;
-};
+  onClose?: () => void;
+}>;
 
-type EinModalBodyProps = {
+type EinModalBodyProps = Readonly<{
   children: ReactNode;
   className?: string;
   bodyRef?: RefObject<HTMLDivElement>;
-};
+}>;
 
-type EinModalFooterProps = {
+type EinModalFooterProps = Readonly<{
   children: ReactNode;
   className?: string;
-  bodyRef?: RefObject<HTMLDivElement>;
-};
+}>;
 
 export default function EinModal({
   open,
@@ -49,9 +51,21 @@ export default function EinModal({
 }: EinModalProps) {
   const navigation = useNavigation();
   const basepath = useModalBasepath();
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  // Update portal target for client-side rendering
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  // State-driven callers pass setOpen; route-driven callers (intercepted
+  // route segments) rely on navigation back to the basepath instead.
   const closeModal = () => {
-    setOpen?.(false);
-    navigation.push(basepath);
+    if (setOpen) {
+      setOpen(false);
+    } else {
+      navigation.push(basepath);
+    }
   };
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
@@ -95,7 +109,7 @@ export default function EinModal({
   // Disable scrollwheel outside container
   useScrollwheelTrap(containerRef, open);
 
-  return (
+  const popup = (
     <EinPopup
       open={open}
       setOpen={(value) => !value && closeModal()}
@@ -105,7 +119,6 @@ export default function EinModal({
         'ein-modal-container',
       )}
       popupRef={containerRef}
-      transitionFromTrigger
     >
       <div
         className={cn(styles['ein-modal-content'], 'ein-modal-content')}
@@ -122,12 +135,18 @@ export default function EinModal({
       />
     </EinPopup>
   );
+
+  if (portalTarget) {
+    return createPortal(popup, portalTarget);
+  }
+  return null;
 }
 
 export function EinModalHeader({
   title,
   className,
   children,
+  onClose,
 }: EinModalHeaderProps) {
   const t = useTranslation();
   const basepath = useModalBasepath();
@@ -135,7 +154,10 @@ export function EinModalHeader({
 
   const closeHandler = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigation.push(basepath);
+    onClose?.();
+    if (basepath !== navigation.pathname) {
+      navigation.push(basepath);
+    }
   };
 
   return (
