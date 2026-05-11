@@ -203,28 +203,32 @@ export default function DynamicView({
     scrollToDate(selectedDate);
   }, [selectedDate, displayWeekends, scrollToDate]);
 
-  // Apply pending scroll anchor adjustment after virtualization swap, or
-  // perform initial scroll to selectedDate if flagged.
+  // Scroll anchor compensation after month prepend/append (must be synchronous
+  // to avoid a visual jump before the browser paints).
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useLayoutEffect(() => {
     const container = scrollRef.current;
-    if (!container) return;
-
-    if (pendingAdjustRef.current) {
-      const { key, viewportOffset } = pendingAdjustRef.current;
-      pendingAdjustRef.current = null;
-      const anchor = monthRefs.current.get(key);
-      if (anchor) {
-        container.scrollTop = anchor.offsetTop - viewportOffset;
-      }
-      return;
+    if (!container || !pendingAdjustRef.current) return;
+    const { key, viewportOffset } = pendingAdjustRef.current;
+    pendingAdjustRef.current = null;
+    const anchor = monthRefs.current.get(key);
+    if (anchor) {
+      container.scrollTop = anchor.offsetTop - viewportOffset;
     }
+  }, [months]);
 
-    if (needsInitialScrollRef.current) {
+  // Initial scroll to selectedDate — deferred via rAF so it runs after all
+  // sibling/parent useEffects (including the one in CalendarContainer that
+  // applies the height constraint via the calendar-month-view class).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
+  useEffect(() => {
+    if (!needsInitialScrollRef.current) return;
+    const id = requestAnimationFrame(() => {
       if (scrollToDate(selectedDate)) {
         needsInitialScrollRef.current = false;
       }
-    }
+    });
+    return () => cancelAnimationFrame(id);
   }, [months, selectedDate, scrollToDate]);
 
   const reportVisibleMonth = useCallback(() => {
