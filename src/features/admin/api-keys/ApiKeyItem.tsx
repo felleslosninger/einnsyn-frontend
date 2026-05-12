@@ -70,7 +70,7 @@ export default function ApiKeyItem({
       </div>
       <div className="table-cell">
         <EinButton variant="secondary" onClick={handleDeleteClick}>
-          <TrashIcon title={t('admin.apiKey.deleteApiKey')} fontSize="1.5rem" />
+          <TrashIcon fontSize="1.5rem" aria-hidden="true" />
           {t('common.delete')}
         </EinButton>
 
