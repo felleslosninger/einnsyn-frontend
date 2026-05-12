@@ -49,14 +49,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     setSearchQuery('');
   }, [setSearchQuery]);
 
-  const closeEnhetSelector = useCallback(() => {
-    setActiveContainer(undefined);
-  }, []);
-
-  const openEnhetSelector = useCallback(() => {
-    setActiveContainer('enhetSelector');
-  }, []);
-
   const showClearButton =
     !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
 
@@ -131,9 +123,9 @@ export const SearchField = ({ className }: SearchFieldProps) => {
       >
         <div className={cn(styles.expandableInputContainer)}>
           <EnhetSelector
-            expanded={activeContainer === 'enhetSelector'}
-            onOpen={openEnhetSelector}
-            close={closeEnhetSelector}
+            active={activeContainer === 'enhetSelector'}
+            activate={activateEnhetSelectorContainer}
+            close={deactivateContainer}
           />
         </div>
       </div>

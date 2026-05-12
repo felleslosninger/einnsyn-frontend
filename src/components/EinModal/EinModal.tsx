@@ -3,7 +3,15 @@
 import { Button } from '@digdir/designsystemet-react';
 import { XMarkIcon } from '@navikt/aksel-icons';
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useDraggable } from '~/hooks/useDraggable';
@@ -14,6 +22,9 @@ import cn from '~/lib/utils/className';
 import EinPopup from '../EinPopup/EinPopup';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 import styles from './EinModal.module.scss';
+
+type EinModalContextValue = { close: () => void };
+const EinModalContext = createContext<EinModalContextValue | null>(null);
 
 type EinModalProps = Readonly<{
   open: boolean;
@@ -28,7 +39,6 @@ type EinModalHeaderProps = Readonly<{
   title?: string;
   className?: string;
   children?: ReactNode;
-  onClose?: () => void;
 }>;
 
 type EinModalBodyProps = Readonly<{
@@ -48,6 +58,7 @@ export default function EinModal({
   className,
   containerRef: containerRefProp,
   setOpen,
+  onClose,
 }: EinModalProps) {
   const navigation = useNavigation();
   const basepath = useModalBasepath();
@@ -58,15 +69,23 @@ export default function EinModal({
     setPortalTarget(document.body);
   }, []);
 
-  // State-driven callers pass setOpen; route-driven callers (intercepted
-  // route segments) rely on navigation back to the basepath instead.
-  const closeModal = () => {
+  // Any close trigger (X-button, drag-to-close, escape, outside-click) runs
+  // through here so callers see a single, consistent close path.
+  const closeModal = useCallback(() => {
+    onClose?.();
     if (setOpen) {
       setOpen(false);
-    } else {
+    } else if (basepath !== navigation.pathname) {
+      // Route-driven callers (intercepted route segments) rely on navigation
+      // back to the basepath instead of a setter.
       navigation.push(basepath);
     }
-  };
+  }, [onClose, setOpen, basepath, navigation]);
+
+  const contextValue = useMemo(
+    () => ({ close: closeModal }),
+    [closeModal],
+  );
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = containerRefProp ?? backupContainerRef;
@@ -85,17 +104,24 @@ export default function EinModal({
       diff.x = 0;
     },
     onEnd: (diff) => {
-      // Close if dragged down
       if (diff.y > 0) {
-        closeModal();
-      }
-      // Reset after EinPopup has updated classes
-      setTimeout(() => {
+        // Closing: keep the inline translate so EinTransition's snapshot
+        // starts at the drag position. Clear only the inline transition
+        // (useDraggable set it to `all 0s`) so the CSS exit transition on
+        // `transform` can fire. The two properties compose, so the snapshot
+        // slides from the drag position down off-screen.
         if (contentRef.current) {
-          contentRef.current.style.transform = '';
           contentRef.current.style.transition = '';
         }
-      });
+        closeModal();
+        return;
+      }
+      // Snap back: clear both inline styles so the settled-open CSS
+      // transition animates `translate` back to its rest position.
+      if (contentRef.current) {
+        contentRef.current.style.translate = '';
+        contentRef.current.style.transition = '';
+      }
     },
   });
 
@@ -113,6 +139,8 @@ export default function EinModal({
     <EinPopup
       open={open}
       setOpen={(value) => !value && closeModal()}
+      animate
+      arrow={false}
       className={cn(
         className,
         styles['ein-modal-container'],
@@ -120,19 +148,21 @@ export default function EinModal({
       )}
       popupRef={containerRef}
     >
-      <div
-        className={cn(styles['ein-modal-content'], 'ein-modal-content')}
-        ref={contentRef}
-      >
-        {children}
-      </div>
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
-      {/** biome-ignore lint/a11y/noStaticElementInteractions: Backdrop-click closes modal */}
-      <div
-        className={cn(styles['ein-modal-backdrop'], 'ein-modal-backdrop')}
-        onWheel={() => false}
-        onClick={handleBackdropClick}
-      />
+      <EinModalContext.Provider value={contextValue}>
+        <div
+          className={cn(styles['ein-modal-content'], 'ein-modal-content')}
+          ref={contentRef}
+        >
+          {children}
+        </div>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: Backdrop-click closes modal */}
+        <div
+          className={cn(styles['ein-modal-backdrop'], 'ein-modal-backdrop')}
+          onWheel={() => false}
+          onClick={handleBackdropClick}
+        />
+      </EinModalContext.Provider>
     </EinPopup>
   );
 
@@ -146,18 +176,14 @@ export function EinModalHeader({
   title,
   className,
   children,
-  onClose,
 }: EinModalHeaderProps) {
   const t = useTranslation();
   const basepath = useModalBasepath();
-  const navigation = useNavigation();
+  const einModal = useContext(EinModalContext);
 
   const closeHandler = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onClose?.();
-    if (basepath !== navigation.pathname) {
-      navigation.push(basepath);
-    }
+    einModal?.close();
   };
 
   return (

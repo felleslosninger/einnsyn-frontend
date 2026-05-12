@@ -1,9 +1,7 @@
 @use "../../styles/effects.scss" as fx;
 
 .enhetSelector {
-  --styled-input-min-height: calc(
-    var(--ds-size-12) - var(--ds-border-width-default) * 2
-  );
+  --styled-input-min-height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -45,7 +43,7 @@
   text-align: left;
   transition:
     background-color 0.2s fx.$easeOut,
-    color 0.2s fx.$easeOut,
+    color 0.2s linear,
     width 0.2s fx.$easeOut;
 
   &:hover {
@@ -108,36 +106,27 @@
   width: 100%;
   padding: var(--ds-size-3);
   background: transparent;
-  border-bottom: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
 .filterFieldInput {
   width: 100%;
 }
 
+// Positioning (top/left/width) is set by EinPopup via inline styles; visual
+// chrome (background, radius, shadow) comes from EinPopup's defaults. This
+// only controls the popup's natural inline size and clips the children to
+// the popup's rounded corners.
 .selectorPopup {
-  position: absolute;
-  top: calc(100% + var(--ds-size-1));
-  left: auto;
-  right: 0;
-  z-index: 20;
   width: min(68rem, calc(100vw - 2 * var(--ds-size-4)));
   min-width: min(48rem, calc(100vw - 2 * var(--ds-size-4)));
   max-width: calc(100vw - 2 * var(--ds-size-4));
-  overflow: hidden;
-  border: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-lg);
-  background: var(--ds-color-neutral-surface-default);
-  box-shadow: var(--ds-shadow-xl);
-}
 
-.enhetSelector[data-popup-layout='search-field'] .selectorPopup {
-  left: var(--selector-popup-inline-start);
-  right: auto;
-  width: var(--selector-popup-inline-size);
-  min-width: 0;
+  // overflow: auto keeps the rounded-corner clip and lets the popup scroll
+  // when EinPopup's viewport fallback shrinks it with a max-height.
+  :global(.ein-popup-content) {
+    overflow: auto;
+  }
 }
 
 .enhetSelectorDropdown {
@@ -158,13 +147,11 @@
   min-height: 0;
   background: var(--ds-color-neutral-surface-default);
   border-radius: var(--ds-border-radius-md);
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-subtle);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
 
   &:has(.enhetSelectorDropdownList:focus-visible) {
     box-shadow:
-      inset 0 0 0 var(--ds-border-width-default)
-        var(--ds-color-neutral-border-subtle),
+      inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle),
       var(--dsc-focus-boxShadow);
     outline: var(--dsc-focus-outline);
     outline-offset: var(--ds-border-width-focus);
@@ -183,8 +170,7 @@
   block-size: calc(var(--ds-size-12) + var(--ds-size-1));
   box-sizing: border-box;
   padding-inline: var(--ds-size-5);
-  border-bottom: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   background: var(--ds-color-neutral-surface-tinted);
 }
 
@@ -208,8 +194,7 @@
   border: none;
   border-radius: var(--ds-border-radius-full);
   background: var(--ds-color-neutral-surface-tinted);
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-subtle);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
   color: var(--ds-color-neutral-text-subtle);
   font-size: var(--ds-font-size-1);
   font-weight: 600;
@@ -231,8 +216,7 @@
 
   &:focus-visible {
     box-shadow:
-      inset 0 0 0 var(--ds-border-width-default)
-        var(--ds-color-neutral-border-subtle),
+      inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle),
       var(--dsc-focus-boxShadow);
     outline: var(--dsc-focus-outline);
     outline-offset: var(--ds-border-width-focus);
@@ -283,16 +267,14 @@
   &.focusedListItem,
   &.active {
     background-color: var(--ds-color-neutral-surface-tinted);
-    box-shadow: inset 0 0 0 var(--ds-border-width-default)
-      var(--ds-color-neutral-border-subtle);
+    box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
   }
 }
 
 .availableSelectedListItem {
   cursor: default;
   background-color: var(--ds-color-neutral-surface-tinted);
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-subtle);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
 }
 
 .availableSelectedListItem:disabled {
@@ -332,8 +314,7 @@
   padding: 0 var(--ds-size-3);
   border-radius: var(--ds-border-radius-full);
   background: var(--ds-color-neutral-surface-default);
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-subtle);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
   color: var(--ds-color-neutral-text-subtle);
   font-size: var(--ds-font-size-1);
   font-weight: 600;
@@ -372,8 +353,7 @@
 .availableListItem:hover .availableListAction,
 .availableListItem.focusedListItem .availableListAction,
 .availableListItem.active .availableListAction {
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-default);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-default);
   color: var(--ds-color-neutral-text-default);
 }
 
@@ -387,8 +367,7 @@
 .selectedColumnListItem:hover .selectedColumnAction,
 .selectedColumnListItem.focusedListItem .selectedColumnAction,
 .selectedColumnListItem.active .selectedColumnAction {
-  box-shadow: inset 0 0 0 var(--ds-border-width-default)
-    var(--ds-color-neutral-border-default);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-default);
   color: var(--ds-color-neutral-text-default);
 }
 
@@ -410,7 +389,6 @@
 
 @media (width < 900px) {
   .selectorPopup {
-    right: calc(-1 * var(--ds-size-3));
     width: min(100vw - 2 * var(--ds-size-3), 68rem);
     min-width: 0;
     max-width: min(100vw - 2 * var(--ds-size-3), 68rem);
@@ -445,8 +423,7 @@
   .enhetSelectorDropdownListContainer {
     border-radius: 0;
     box-shadow: none;
-    border-bottom: var(--ds-border-width-default) solid
-      var(--ds-color-neutral-border-subtle);
+    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   }
 
   .enhetSelectorDropdownList {
@@ -461,8 +438,7 @@
   align-items: center;
   gap: var(--ds-size-3);
   padding: var(--ds-size-3) var(--ds-size-4);
-  border-top: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
 .mobileFooterCount {

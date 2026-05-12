@@ -17,6 +17,7 @@ import {
 } from 'react';
 import { VList, type VListHandle } from 'virtua';
 import EinModal, { EinModalHeader } from '~/components/EinModal/EinModal';
+import EinPopup from '~/components/EinPopup/EinPopup';
 import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import useBreakpoint from '~/hooks/useBreakpoint';
@@ -39,13 +40,13 @@ import {
 
 export default function EnhetSelector({
   className,
-  expanded = false,
-  onOpen,
+  active = false,
+  activate,
   close,
 }: {
   className?: string;
-  expanded?: boolean;
-  onOpen?: () => void;
+  active?: boolean;
+  activate?: () => void;
   close?: () => void;
 }) {
   const languageCode = useLanguageCode();
@@ -123,11 +124,13 @@ export default function EnhetSelector({
   }, [rawEnhetMap]);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const summaryButtonRef = useRef<HTMLButtonElement>(null);
+  const searchFieldRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
-  const previousExpandedRef = useRef(expanded);
+  const previousExpandedRef = useRef(active);
 
   const selectedEnhetQueryValues = useMemo(
     () => parseEnhetParam(enhetSearchQuery),
@@ -194,35 +197,31 @@ export default function EnhetSelector({
 
   const onSummaryMouseDown = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (!expanded) {
+      if (!active) {
         return;
       }
 
       event.preventDefault();
       focusInput();
     },
-    [expanded, focusInput],
+    [active, focusInput],
   );
 
   const onSummaryFocus = useCallback(
     (event: React.FocusEvent<HTMLButtonElement>) => {
-      if (!isMobileLayout || expanded) {
+      if (!isMobileLayout || active) {
         return;
       }
 
       event.stopPropagation();
     },
-    [expanded, isMobileLayout],
+    [active, isMobileLayout],
   );
 
   const onSummaryClick = useCallback(() => {
-    if (isMobileLayout && !expanded) {
-      onOpen?.();
-      return;
-    }
-
+    activate?.();
     focusInput();
-  }, [expanded, focusInput, isMobileLayout, onOpen]);
+  }, [focusInput, activate]);
 
   const removeSelectedEnhetAtIndex = useCallback(
     (chipIndex: number) => {
@@ -250,10 +249,10 @@ export default function EnhetSelector({
 
   // Load the full list lazily on first expand.
   useEffect(() => {
-    if (expanded && !fullListLoaded) {
+    if (active && !fullListLoaded) {
       ensureFullList();
     }
-  }, [expanded, fullListLoaded, ensureFullList]);
+  }, [active, fullListLoaded, ensureFullList]);
 
   const enhetNodeList: EnhetNode[] = useMemo(
     () =>
@@ -268,130 +267,89 @@ export default function EnhetSelector({
   useEffect(() => {
     const wasExpanded = previousExpandedRef.current;
 
-    if (expanded && !wasExpanded) {
+    if (active && !wasExpanded) {
       focusInput();
     }
 
-    if (!expanded && wasExpanded) {
+    if (!active && wasExpanded) {
       setFilterValue('');
       setFocus(null);
     }
 
-    previousExpandedRef.current = expanded;
-  }, [expanded, focusInput]);
+    previousExpandedRef.current = active;
+  }, [active, focusInput]);
 
+  // Resolve the wrapping search field once on mount so EinPopup can clamp the
+  // popup's inline bounds to it (preventing it from extending past the form
+  // on the left).
   useLayoutEffect(() => {
     const selector = containerRef.current;
-    const popup = popupRef.current;
     if (!selector) {
+      return;
+    }
+    const searchField = selector.closest(
+      '[data-search-field-container="true"]',
+    );
+    searchFieldRef.current =
+      searchField instanceof HTMLElement ? searchField : null;
+  }, []);
+
+  // On the landing page, push the popup's overflow past the home header so the
+  // page layout expands to make room for it. No-op outside the landing page.
+  useEffect(() => {
+    const selector = containerRef.current;
+    const popup = popupRef.current;
+    if (!selector || !popup || !active || isMobileLayout) {
       return;
     }
 
     const pageRoot = selector.closest('.einnsyn-body');
     const homeHeader = selector.closest('header.section-home');
-
-    const resetPopupLayout = () => {
-      delete selector.dataset.popupLayout;
-      selector.style.removeProperty('--selector-popup-inline-size');
-      selector.style.removeProperty('--selector-popup-inline-start');
-    };
-
-    const resetLandingPageOverflow = () => {
-      if (pageRoot instanceof HTMLElement) {
-        pageRoot.style.removeProperty('--landing-page-selector-overflow');
-      }
-    };
-
     if (
-      !expanded ||
-      !popup ||
-      globalThis.window === undefined ||
-      isMobileLayout
+      !(pageRoot instanceof HTMLElement) ||
+      !(homeHeader instanceof HTMLElement)
     ) {
-      resetPopupLayout();
-      resetLandingPageOverflow();
       return;
     }
 
-    const searchField = selector.closest(
-      '[data-search-field-container="true"]',
-    );
-    if (!(searchField instanceof HTMLElement)) {
-      resetPopupLayout();
-      resetLandingPageOverflow();
-      return;
-    }
+    const resetOverflow = () => {
+      pageRoot.style.removeProperty('--landing-page-selector-overflow');
+    };
 
-    const updatePopupLayout = () => {
-      resetPopupLayout();
-
-      const selectorRect = selector.getBoundingClientRect();
-      const searchFieldRect = searchField.getBoundingClientRect();
-      let popupRect = popup.getBoundingClientRect();
-
-      if (popupRect.left < searchFieldRect.left - 0.5) {
-        selector.dataset.popupLayout = 'search-field';
-        selector.style.setProperty(
-          '--selector-popup-inline-size',
-          `${searchFieldRect.width}px`,
-        );
-        selector.style.setProperty(
-          '--selector-popup-inline-start',
-          `${searchFieldRect.left - selectorRect.left}px`,
-        );
-        popupRect = popup.getBoundingClientRect();
-      }
-
-      if (
-        !(pageRoot instanceof HTMLElement) ||
-        !(homeHeader instanceof HTMLElement)
-      ) {
-        resetLandingPageOverflow();
-        return;
-      }
-
+    const update = () => {
+      const popupRect = popup.getBoundingClientRect();
       const homeHeaderRect = homeHeader.getBoundingClientRect();
-      const popupOverflow = Math.max(
+      const overflow = Math.max(
         0,
         Math.ceil(popupRect.bottom - homeHeaderRect.bottom),
       );
-
       pageRoot.style.setProperty(
         '--landing-page-selector-overflow',
-        `${popupOverflow}px`,
+        `${overflow}px`,
       );
     };
 
-    updatePopupLayout();
+    update();
 
     if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', updatePopupLayout);
+      window.addEventListener('resize', update);
       return () => {
-        window.removeEventListener('resize', updatePopupLayout);
-        resetPopupLayout();
-        resetLandingPageOverflow();
+        window.removeEventListener('resize', update);
+        resetOverflow();
       };
     }
 
-    const resizeObserver = new ResizeObserver(() => {
-      updatePopupLayout();
-    });
-
-    resizeObserver.observe(selector);
-    resizeObserver.observe(searchField);
+    const resizeObserver = new ResizeObserver(update);
     resizeObserver.observe(popup);
-    if (homeHeader instanceof HTMLElement) {
-      resizeObserver.observe(homeHeader);
-    }
-    window.addEventListener('resize', updatePopupLayout);
+    resizeObserver.observe(homeHeader);
+    window.addEventListener('resize', update);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener('resize', updatePopupLayout);
-      resetPopupLayout();
-      resetLandingPageOverflow();
+      window.removeEventListener('resize', update);
+      resetOverflow();
     };
-  }, [expanded, isMobileLayout]);
+  }, [active, isMobileLayout]);
 
   const searchString = filterValue;
 
@@ -477,14 +435,14 @@ export default function EnhetSelector({
   );
 
   useEffect(() => {
-    if (!expanded || !focus) {
+    if (!active || !focus) {
       return;
     }
 
     const listRef =
       focus.list === 'available' ? availableListRef : selectedListRef;
     listRef.current?.scrollToIndex(focus.index, { align: 'nearest' });
-  }, [focus, expanded]);
+  }, [focus, active]);
 
   useEffect(() => {
     setFocus((prev) => {
@@ -506,7 +464,7 @@ export default function EnhetSelector({
   // miss those events; React synthetic events still bubble through the tree).
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!expanded) {
+      if (!active) {
         return;
       }
 
@@ -568,7 +526,7 @@ export default function EnhetSelector({
     },
     [
       addEnhetHandler,
-      expanded,
+      active,
       focus,
       removeEnhetHandler,
       selectedEnhetItems,
@@ -609,6 +567,181 @@ export default function EnhetSelector({
     );
   };
 
+  const handleSetOpen = useCallback(
+    (value: boolean) => {
+      if (!value) {
+        close?.();
+      }
+    },
+    [close],
+  );
+
+  const summaryButton = (
+    <button
+      ref={summaryButtonRef}
+      type="button"
+      className={cn(styles.summaryButton, {
+        [styles.summaryButtonActive]: active,
+      })}
+      aria-label={selectedSummary || t('search.enhetPlaceholder')}
+      aria-expanded={active}
+      aria-haspopup="listbox"
+      onClick={onSummaryClick}
+      onFocus={onSummaryFocus}
+      onMouseDown={onSummaryMouseDown}
+    >
+      <span className={cn(styles.summaryIcon)}>
+        <Buildings3Icon
+          className={cn(styles.searchIcon)}
+          fontSize="1.2rem"
+          aria-hidden="true"
+        />
+      </span>
+      <span
+        className={cn(styles.summaryText, {
+          [styles.placeholderText]: selectedSummary.length === 0,
+        })}
+      >
+        {summaryLabel}
+      </span>
+
+      {additionalSelectedCount > 0 && (
+        <span className={styles.summaryMore} aria-hidden="true">
+          +{additionalSelectedCount}
+        </span>
+      )}
+    </button>
+  );
+
+  const filterField = (
+    <div className={styles.filterField}>
+      <Search>
+        <Search.Input
+          ref={inputRef}
+          className={styles.filterFieldInput}
+          value={filterValue}
+          onChange={onInputChange}
+          onKeyDown={onInputKeyDown}
+          aria-label={t('search.enhetFilterPlaceholder')}
+          aria-activedescendant={focusedOptionId}
+          placeholder={t('search.enhetFilterPlaceholder')}
+          spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="none"
+        />
+        <Search.Clear aria-label={t('search.clear')} />
+      </Search>
+    </div>
+  );
+
+  const availableList = (
+    <div className={styles.enhetSelectorDropdownListContainer}>
+      <div className={styles.enhetSelectorDropdownLabelRow}>
+        <Heading
+          className={styles.enhetSelectorDropdownLabel}
+          level={2}
+          data-size="2xs"
+        >
+          {t('search.availableEnheter')} ({visibleEnhetNodeList.length})
+        </Heading>
+        {isMobileLayout && selectedEnhetIds.length > 0 && (
+          <button
+            type="button"
+            className={styles.selectedListClearButton}
+            onClick={clearSelectedEnheter}
+          >
+            {t('common.removeAll')}
+          </button>
+        )}
+      </div>
+      <VList
+        ref={availableListRef}
+        className={styles.enhetSelectorDropdownList}
+        style={{ contain: 'content' }}
+        aria-label={t('search.availableEnheter')}
+      >
+        {visibleEnhetNodeList.map((enhetNode, index) => {
+          const isSelected = selectedEnhetIds.includes(
+            getEnhetHref(enhetNode.enhet),
+          );
+          return (
+            <EnhetSelectorSelectItem
+              key={`add-${enhetNode.enhet.id}`}
+              id={`enhet-option-available-${enhetNode.enhet.id}`}
+              enhet={enhetNode.enhet}
+              onClick={() =>
+                isMobileLayout
+                  ? toggleEnhetHandler(enhetNode.enhet)
+                  : addEnhetHandler(enhetNode.enhet)
+              }
+              variant="available"
+              actionLabel={
+                isMobileLayout && isSelected
+                  ? t('common.remove')
+                  : t('common.add')
+              }
+              isSelected={isSelected}
+              isFocused={focus?.list === 'available' && focus.index === index}
+            />
+          );
+        })}
+        {!fullListLoaded &&
+          [0, 1, 2, 3].map((index) =>
+            renderSkeleton(`loading-available-${index}`),
+          )}
+        {fullListLoaded && visibleEnhetNodeList.length === 0 && (
+          <div className={styles.emptyState}>{t('common.noResults')}</div>
+        )}
+      </VList>
+    </div>
+  );
+
+  const selectedList = (
+    <div
+      className={cn(
+        styles.enhetSelectorDropdownListContainer,
+        styles.selectedListContainer,
+      )}
+    >
+      <div className={styles.enhetSelectorDropdownLabelRow}>
+        <Heading
+          className={styles.enhetSelectorDropdownLabel}
+          level={2}
+          data-size="2xs"
+        >
+          {t('search.selectedEnheter')}
+        </Heading>
+        {selectedEnhetIds.length > 0 && (
+          <button
+            type="button"
+            className={styles.selectedListClearButton}
+            onClick={clearSelectedEnheter}
+          >
+            {t('common.removeAll')}
+          </button>
+        )}
+      </div>
+      <VList
+        ref={selectedListRef}
+        className={styles.enhetSelectorDropdownList}
+        aria-label={t('search.selectedEnheter')}
+      >
+        {selectedEnhetItems.map((enhet, index) => (
+          <EnhetSelectorSelectItem
+            key={`remove-${enhet.id}`}
+            id={`enhet-option-selected-${enhet.id}`}
+            enhet={enhet}
+            onClick={() => removeEnhetHandler(enhet)}
+            variant="selected"
+            actionLabel={t('common.remove')}
+            isFocused={focus?.list === 'selected' && focus.index === index}
+          />
+        ))}
+      </VList>
+    </div>
+  );
+
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: keyboard handling delegates to the focused descendants (input, list buttons); this div only intercepts to enable list navigation across the portalled mobile sheet.
     <div
@@ -616,230 +749,42 @@ export default function EnhetSelector({
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
-      <div className={styles.selectorField}>
-        <button
-          type="button"
-          className={cn(styles.summaryButton, {
-            [styles.summaryButtonActive]: expanded,
-          })}
-          aria-label={selectedSummary || t('search.enhetPlaceholder')}
-          aria-expanded={expanded}
-          aria-haspopup="listbox"
-          onClick={onSummaryClick}
-          onFocus={onSummaryFocus}
-          onMouseDown={onSummaryMouseDown}
+      <div className={styles.selectorField}>{summaryButton}</div>
+
+      {isMobileLayout ? (
+        <EinModal
+          className={styles.mobileSheetModal}
+          open={active}
+          onClose={close}
         >
-          <span className={cn(styles.summaryIcon)}>
-            <Buildings3Icon
-              className={cn(styles.searchIcon)}
-              fontSize="1.2rem"
-              aria-hidden="true"
-            />
-          </span>
-          <span
-            className={cn(styles.summaryText, {
-              [styles.placeholderText]: selectedSummary.length === 0,
-            })}
+          <EinModalHeader title={t('search.enhetPlaceholder')} />
+          {filterField}
+          <div
+            className={cn(styles.enhetSelectorDropdown, styles.mobileDropdown)}
           >
-            {summaryLabel}
-          </span>
-
-          {additionalSelectedCount > 0 && (
-            <span className={styles.summaryMore} aria-hidden="true">
-              +{additionalSelectedCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {expanded &&
-        (() => {
-          const filterField = (
-            <div className={styles.filterField}>
-              <Search>
-                <Search.Input
-                  ref={inputRef}
-                  className={styles.filterFieldInput}
-                  value={filterValue}
-                  onChange={onInputChange}
-                  onKeyDown={onInputKeyDown}
-                  aria-label={t('search.enhetFilterPlaceholder')}
-                  aria-activedescendant={focusedOptionId}
-                  placeholder={t('search.enhetFilterPlaceholder')}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                />
-                <Search.Clear aria-label={t('search.clear')} />
-              </Search>
-            </div>
-          );
-
-          const dropdownGrid = (
-            <div
-              className={cn(styles.enhetSelectorDropdown, {
-                [styles.mobileDropdown]: isMobileLayout,
-              })}
-            >
-              <div className={styles.enhetSelectorDropdownListContainer}>
-                <div className={styles.enhetSelectorDropdownLabelRow}>
-                  <Heading
-                    className={styles.enhetSelectorDropdownLabel}
-                    level={2}
-                    data-size="2xs"
-                  >
-                    {t('search.availableEnheter')} (
-                    {visibleEnhetNodeList.length})
-                  </Heading>
-                  {isMobileLayout && selectedEnhetIds.length > 0 && (
-                    <button
-                      type="button"
-                      className={styles.selectedListClearButton}
-                      onClick={clearSelectedEnheter}
-                    >
-                      {t('common.removeAll')}
-                    </button>
-                  )}
-                </div>
-                <VList
-                  ref={availableListRef}
-                  className={styles.enhetSelectorDropdownList}
-                  style={{ contain: 'content' }}
-                  aria-label={t('search.availableEnheter')}
-                >
-                  {visibleEnhetNodeList.map((enhetNode, index) => {
-                    const isSelected = selectedEnhetIds.includes(
-                      getEnhetHref(enhetNode.enhet),
-                    );
-                    return (
-                      <EnhetSelectorSelectItem
-                        key={`add-${enhetNode.enhet.id}`}
-                        id={`enhet-option-available-${enhetNode.enhet.id}`}
-                        enhet={enhetNode.enhet}
-                        onClick={() =>
-                          isMobileLayout
-                            ? toggleEnhetHandler(enhetNode.enhet)
-                            : addEnhetHandler(enhetNode.enhet)
-                        }
-                        variant="available"
-                        actionLabel={
-                          isMobileLayout && isSelected
-                            ? t('common.remove')
-                            : t('common.add')
-                        }
-                        isSelected={isSelected}
-                        isFocused={
-                          focus?.list === 'available' && focus.index === index
-                        }
-                      />
-                    );
-                  })}
-                  {!fullListLoaded &&
-                    [0, 1, 2, 3].map((index) =>
-                      renderSkeleton(`loading-available-${index}`),
-                    )}
-                  {fullListLoaded && visibleEnhetNodeList.length === 0 && (
-                    <div className={styles.emptyState}>
-                      {t('common.noResults')}
-                    </div>
-                  )}
-                </VList>
-              </div>
-
-              {!isMobileLayout && (
-                <div
-                  className={cn(
-                    styles.enhetSelectorDropdownListContainer,
-                    styles.selectedListContainer,
-                  )}
-                >
-                  <div className={styles.enhetSelectorDropdownLabelRow}>
-                    <Heading
-                      className={styles.enhetSelectorDropdownLabel}
-                      level={2}
-                      data-size="2xs"
-                    >
-                      {t('search.selectedEnheter')}
-                    </Heading>
-                    {selectedEnhetIds.length > 0 && (
-                      <button
-                        type="button"
-                        className={styles.selectedListClearButton}
-                        onClick={clearSelectedEnheter}
-                      >
-                        {t('common.removeAll')}
-                      </button>
-                    )}
-                  </div>
-                  <VList
-                    ref={selectedListRef}
-                    className={styles.enhetSelectorDropdownList}
-                    aria-label={t('search.selectedEnheter')}
-                  >
-                    {selectedEnhetItems.map((enhet, index) => (
-                      <EnhetSelectorSelectItem
-                        key={`remove-${enhet.id}`}
-                        id={`enhet-option-selected-${enhet.id}`}
-                        enhet={enhet}
-                        onClick={() => removeEnhetHandler(enhet)}
-                        variant="selected"
-                        actionLabel={t('common.remove')}
-                        isFocused={
-                          focus?.list === 'selected' && focus.index === index
-                        }
-                      />
-                    ))}
-                  </VList>
-                </div>
-              )}
-            </div>
-          );
-
-          if (isMobileLayout) {
-            return (
-              <EinModal
-                className={styles.mobileSheetModal}
-                open={expanded}
-                setOpen={(value) => {
-                  if (!value) {
-                    close?.();
-                  }
-                }}
-              >
-                <EinModalHeader
-                  title={t('search.enhetPlaceholder')}
-                  onClose={close}
-                />
-                {filterField}
-                {dropdownGrid}
-                <div className={styles.mobileFooter}>
-                  <span className={styles.mobileFooterCount}>
-                    {selectedEnhetIds.length > 0
-                      ? `${selectedEnhetIds.length} ${t(
-                          'search.selectedEnheter',
-                        ).toLowerCase()}`
-                      : t('search.enhetPlaceholder')}
-                  </span>
-                  <Button
-                    type="button"
-                    data-variant="primary"
-                    onClick={close}
-                    className={styles.mobileDoneButton}
-                  >
-                    {t('site:closeModal')}
-                  </Button>
-                </div>
-              </EinModal>
-            );
-          }
-
-          return (
-            <div className={styles.selectorPopup} ref={popupRef}>
-              {filterField}
-              {dropdownGrid}
-            </div>
-          );
-        })()}
+            {availableList}
+          </div>
+        </EinModal>
+      ) : (
+        <EinPopup
+          open={active}
+          setOpen={handleSetOpen}
+          anchorRef={summaryButtonRef}
+          sizeReferenceRef={searchFieldRef}
+          popupRef={popupRef}
+          className={styles.selectorPopup}
+          preferredPosition={['belowRight']}
+          closeOnEsc={false}
+          trapFocus={false}
+          arrow={false}
+        >
+          {filterField}
+          <div className={styles.enhetSelectorDropdown}>
+            {availableList}
+            {selectedList}
+          </div>
+        </EinPopup>
+      )}
     </div>
   );
 }

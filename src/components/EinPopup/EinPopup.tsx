@@ -40,8 +40,16 @@ export type EinPopupProps = {
   transitionEvents?: EinTransitionEvents;
   className?: string;
   popupRef?: RefObject<HTMLDivElement | null>;
-  triggerRef?: RefObject<Element | null>;
+  anchorRef?: RefObject<Element | null>;
+  sizeReferenceRef?: RefObject<Element | null>;
   preferredPosition?: PopupPosition[];
+  // Skip the default visual chrome (drop-shadow, content background,
+  // border-radius, arrow). Useful for callers that fully style the popup.
+  unstyled?: boolean;
+  // Render a pointing arrow toward the anchor. Defaults to true. Only takes
+  // effect when chrome is enabled (i.e. `unstyled` is false) and the chosen
+  // position is one of the cardinal sides (above/below/left/right).
+  arrow?: boolean;
 };
 
 export default function EinPopup(props: EinPopupProps) {
@@ -56,26 +64,25 @@ export default function EinPopup(props: EinPopupProps) {
     children,
     transitionEvents,
     popupRef = fallbackPopupRef,
-    triggerRef: triggerRefProp,
+    anchorRef: anchorRefProp,
+    sizeReferenceRef,
     preferredPosition = ['below', 'above', 'right', 'left'],
+    unstyled = false,
+    arrow = true,
     setOpen = () => undefined,
   } = props;
-  const triggerRef = useRef<Element | null>(null);
+  const anchorRef = useRef<Element | null>(null);
 
   /**
-   * Set the position of the popup relative to the trigger element.
-   *
-   * @param popupElement
-   * @param triggerElement
-   * @returns
+   * Set the position of the popup relative to the anchor element.
    */
   const updatePopupPosition = useCallback(() => {
     const popupElement = popupRef.current;
-    const triggerElement = triggerRef.current;
+    const anchorElement = anchorRef.current;
 
     if (
       !(popupElement instanceof HTMLElement) ||
-      !(triggerElement instanceof HTMLElement) ||
+      !(anchorElement instanceof HTMLElement) ||
       getComputedStyle(popupElement).position !== 'absolute'
     ) {
       return;
@@ -83,16 +90,25 @@ export default function EinPopup(props: EinPopupProps) {
 
     // To we calculate the position of the popup, we need to find the current
     // dimensions of the popup element. Move it far up and left, so that it's current
-    // position does not affect its size.
+    // position does not affect its size. Clear any previous width override so
+    // the popup re-measures its natural size.
     const body = document.body;
     popupElement.style.top = `${-body.scrollHeight}px`;
     popupElement.style.left = `${-body.scrollWidth}px`;
+    popupElement.style.width = '';
+    popupElement.style.maxHeight = '';
     const popupRect = popupElement.getBoundingClientRect();
-    const triggerRect = triggerElement.getBoundingClientRect();
+    const anchorRect = anchorElement.getBoundingClientRect();
+    const sizeReferenceElement = sizeReferenceRef?.current;
+    const sizeReferenceRect =
+      sizeReferenceElement instanceof HTMLElement
+        ? sizeReferenceElement.getBoundingClientRect()
+        : undefined;
 
     const position = calculatePopupPosition({
       popup: popupRect,
-      reference: triggerRect,
+      anchor: anchorRect,
+      sizeReference: sizeReferenceRect,
       preferredPosition,
     });
     if (!position) {
@@ -118,6 +134,12 @@ export default function EinPopup(props: EinPopupProps) {
     // Set the final position of the popup popup
     popupElement.style.setProperty('top', `${position.top}px`);
     popupElement.style.setProperty('left', `${position.left}px`);
+    if (typeof position.width === 'number') {
+      popupElement.style.setProperty('width', `${position.width}px`);
+    }
+    if (typeof position.maxHeight === 'number') {
+      popupElement.style.setProperty('max-height', `${position.maxHeight}px`);
+    }
     popupElement.style.setProperty('--ein-popup-position', position.position);
     popupElement.style.setProperty(
       '--ein-popup-arrow-top',
@@ -127,20 +149,20 @@ export default function EinPopup(props: EinPopupProps) {
       '--ein-popup-arrow-left',
       position.arrowLeft ? `${position.arrowLeft}px` : '',
     );
-  }, [preferredPosition, popupRef]);
+  }, [preferredPosition, popupRef, sizeReferenceRef]);
 
-  // Update the ref of the trigger when the popup is opened
+  // Update the ref of the anchor when the popup is opened
   useLayoutEffect(() => {
     if (open) {
-      triggerRef.current = triggerRefProp?.current ?? document.activeElement;
-      if (triggerRef.current instanceof HTMLElement) {
-        triggerRef.current.classList.add('active');
+      anchorRef.current = anchorRefProp?.current ?? document.activeElement;
+      if (anchorRef.current instanceof HTMLElement) {
+        anchorRef.current.classList.add('active');
       }
-    } else if (!open && triggerRef.current instanceof HTMLElement) {
-      triggerRef.current.classList.remove('active');
-      triggerRef.current = null;
+    } else if (!open && anchorRef.current instanceof HTMLElement) {
+      anchorRef.current.classList.remove('active');
+      anchorRef.current = null;
     }
-  }, [open, triggerRefProp?.current]);
+  }, [open, anchorRefProp]);
 
   // Update popup position on resize
   useEffect(() => {
@@ -233,6 +255,8 @@ export default function EinPopup(props: EinPopupProps) {
       className={cn(
         className,
         styles.einPopup,
+        { [styles.einPopupChrome]: !unstyled },
+        { [styles.einPopupArrow]: !unstyled && arrow },
         { [styles.open]: open, [styles.closed]: !open },
         open ? 'open' : 'closed',
         'ein-popup',
