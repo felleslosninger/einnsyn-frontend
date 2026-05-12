@@ -58,20 +58,20 @@ body {
     padding-top: var(--ein-horizontal-spacing);
   }
 
-  > .container-pre {
+  >.container-pre {
     width: 200px;
     flex-grow: 0;
     flex-shrink: 0;
   }
 
-  > .container {
+  >.container {
     flex-grow: 0;
     flex-shrink: 1;
     width: 1400px;
     min-width: 400px;
   }
 
-  > .container-post {
+  >.container-post {
     flex-grow: 1;
     flex-shrink: 0;
     min-width: 200px;
@@ -80,12 +80,12 @@ body {
     justify-content: flex-end;
   }
 
-  > .container-post {
+  >.container-post {
     text-align: right;
   }
 
   @include mq.medium {
-    > .container-pre.collapsible {
+    >.container-pre.collapsible {
       width: 0;
       display: none;
     }
@@ -94,29 +94,32 @@ body {
   @include mq.small {
     flex-wrap: wrap;
 
-    > .container-pre,
-    > .container-post,
-    > .container {
+    >.container-pre,
+    >.container-post,
+    >.container {
       padding-left: var(--ds-size-4);
       padding-right: var(--ds-size-4);
     }
 
-    > .container-pre,
-    > .container-post {
+    >.container-pre,
+    >.container-post {
       width: 50%;
     }
-    > .container {
+
+    >.container {
       width: 100%;
     }
 
-    > .container-pre {
+    >.container-pre {
       order: 1;
     }
-    > .container-post {
+
+    >.container-post {
       order: 2;
 
     }
-    > .container {
+
+    >.container {
       order: 3;
     }
   }
@@ -124,5 +127,5 @@ body {
 }
 
 .text-container {
-    max-width: 600px;
+  max-width: 600px;
 }

@@ -4,6 +4,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
+import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
@@ -72,6 +73,7 @@ export default async function Layout({
                 <main className="content-flex-grow">{children}</main>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
+                <KeyboardFocusManager />
                 <ThemeManager />
               </div>
             </body>

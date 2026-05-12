@@ -1,16 +1,12 @@
-@use "../../styles/easing.scss" as e;
+@use "../../styles/effects.scss" as fx;
 
 .searchFieldContainer {
   --search-field-surface-default: var(--ds-color-neutral-surface-default);
   --search-field-inactive-surface: var(--search-field-surface-default);
   --search-field-inactive-surface-hover: var(--ds-color-neutral-surface-tinted);
-  --search-field-inactive-surface-active: var(
-    --ds-color-neutral-surface-tinted
-  );
+  --search-field-inactive-surface-active: var(--ds-color-neutral-surface-tinted);
   --search-field-segment-hover-surface: var(--ds-color-neutral-surface-default);
-  --search-field-segment-active-surface: var(
-    --ds-color-neutral-surface-default
-  );
+  --search-field-segment-active-surface: var(--ds-color-neutral-surface-default);
   position: relative;
   display: flex;
   flex-direction: row;
@@ -18,14 +14,13 @@
   gap: var(--ds-size-1);
   padding: var(--ds-size-1);
   background: var(--search-field-inactive-surface);
-  border: var(--ds-border-width-default) solid
-    var(--ds-color-neutral-border-subtle);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-radius: var(--ds-border-radius-full);
   box-shadow: 0 0.75rem 1.5rem -1.25rem rgb(17 24 39 / 0.18);
   transition:
-    background-color 0.2s e.$easeOutQuart,
-    border-color 0.2s e.$easeOutQuart,
-    box-shadow 0.2s e.$easeOutQuart;
+    background-color 0.2s fx.$easeOut,
+    border-color 0.2s fx.$easeOut,
+    box-shadow 0.2s fx.$easeOut;
 }
 
 .hasActiveContainer {
@@ -33,9 +28,7 @@
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
-.searchFieldContainer:not(.hasActiveContainer):has(
-    .searchInputContainer:hover
-  ) {
+.searchFieldContainer:not(.hasActiveContainer):has(.searchInputContainer:hover) {
   --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
@@ -100,8 +93,7 @@
     padding-left: var(--ds-size-4);
     padding-right: var(--ds-size-4);
     background: var(--search-input-surface);
-    border: var(--ds-border-width-default) solid
-      var(--search-input-border-color);
+    border: var(--ds-border-width-default) solid var(--search-input-border-color);
     border-radius: var(--ds-border-radius-full);
     box-shadow: var(--search-input-shadow);
     outline: var(--search-input-outline);
@@ -109,9 +101,9 @@
     max-height: 80vh;
     overflow: hidden;
     transition:
-      background-color 0.2s e.$easeOutQuart,
-      border-color 0.2s e.$easeOutQuart,
-      box-shadow 0.25s e.$easeOutQuart;
+      background-color 0.2s fx.$easeOut,
+      border-color 0.2s fx.$easeOut,
+      box-shadow 0.25s fx.$easeOut;
   }
 
   &:not(:has(.expandableInputContainer)):has(textarea:focus),
@@ -135,26 +127,23 @@
   }
 }
 
-.showKeyboardFocusRing .searchInputContainer {
-  &:focus-within,
-  &.activeContainer {
+:global(html[data-focus-input="keyboard"]) {
+  .searchInputContainer:focus-within {
     --search-input-border-color: var(--ds-color-focus-outer);
     --search-input-outline: var(--dsc-focus-outline);
   }
 }
 
 .searchInputContainer {
-  min-width: calc(
-    var(--ds-size-12) + var(--ds-size-6)
-  ); // Minimum width to fit icon
-  transition: min-width 0.3s e.$easeOutQuart;
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
+  transition: min-width 0.3s fx.$easeOut;
 }
 
 .enhetSelectorContainer {
   flex: 0 1 auto;
   min-width: calc(var(--ds-size-12) + var(--ds-size-6));
   max-width: 50%;
-  transition: min-width 0.2s e.$easeOutQuart;
+  transition: min-width 0.2s fx.$easeOut;
   position: relative;
 
   &::before {
@@ -169,7 +158,7 @@
     border-radius: var(--ds-border-radius-full);
     opacity: 0;
     transform: translate(-50%, -50%);
-    transition: opacity 0.2s e.$easeOutQuart;
+    transition: opacity 0.2s fx.$easeOut;
     pointer-events: none;
   }
 
@@ -184,10 +173,7 @@
   }
 }
 
-.searchFieldContainer:not(.hasActiveContainer):not(
-    :has(.searchInputContainer:hover)
-  )
-  .enhetSelectorContainer::before {
+.searchFieldContainer:not(.hasActiveContainer):not( :has(.searchInputContainer:hover)) .enhetSelectorContainer::before {
   opacity: 1;
 }
 
@@ -221,9 +207,7 @@
   letter-spacing: normal;
   padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
   padding-bottom: var(--ds-size-2);
-  min-height: calc(
-    var(--ds-size-12) - var(--ds-border-width-default) * 2
-  ); // Full height minus borders
+  min-height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2); // Full height minus borders
 }
 
 .styledInput {
@@ -241,11 +225,9 @@
   bottom: 0;
   right: 0;
   width: var(--ds-size-8);
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0),
-    var(--search-input-fade-surface)
-  );
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, 0),
+      var(--search-input-fade-surface));
   border-right: var(--ds-size-6) solid var(--search-input-fade-surface);
   pointer-events: none;
 }

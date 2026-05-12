@@ -1,23 +1,23 @@
 @use '../../styles/mediaQueries.scss' as mq;
-@use '../../styles/easing.scss' as e;
+@use '../../styles/effects.scss' as fx;
 
 .header {
-  --header-primary-row-offset: calc(
-    var(--ds-size-1) + var(--ds-border-width-default)
-  );
+  --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
 
-  > .containerWrapper > .containerPre,
-  > .containerWrapper > .container,
-  > .containerWrapper > .containerPost {
-    transition: padding .2s e.$easeOutQuart;
+  >.containerWrapper>.containerPre,
+  >.containerWrapper>.container,
+  >.containerWrapper>.containerPost {
+    transition: padding .2s fx.$easeOut;
     padding-top: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-top: var(--ds-size-4);
     }
   }
 
-  > .containerWrapper > .containerPre {
+  >.containerWrapper>.containerPre {
     padding-bottom: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-bottom: var(--ds-size-4);
     }
@@ -29,26 +29,29 @@
 
   border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
-  transition: box-shadow 0.2s e.$easeOutQuart;
+  transition: box-shadow 0.2s fx.$easeOut;
 
   position: sticky;
   top: 0;
+
   &.fixed {
     position: fixed;
     box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
     border-bottom: 0px;
-    transition: all 0.2s e.$easeOutQuart;
+    transition: all 0.2s fx.$easeOut;
   }
 
   &.scrolled {
-    > .containerWrapper > .containerPre,
-    > .containerWrapper > .container,
-    > .containerWrapper > .containerPost {
+
+    >.containerWrapper>.containerPre,
+    >.containerWrapper>.container,
+    >.containerWrapper>.containerPost {
       // Slower transition
       transition-duration: .4s;
-      transition-timing-function: e.$easeInOutQuart;
+      transition-timing-function: fx.$easeInOutQuart;
       padding-top: var(--ds-size-2);
       padding-bottom: var(--ds-size-2);
+
       @include mq.small-and-medium {
         padding-top: var(--ds-size-3);
         padding-bottom: var(--ds-size-3);
@@ -61,7 +64,7 @@
       padding-top: 0;
       padding-bottom: 0;
       overflow: hidden;
-      transition: all 0.2s e.$easeOutQuart;
+      transition: all 0.2s fx.$easeOut;
     }
   }
 
@@ -86,6 +89,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
       form {
         width: 100%;
         max-width: 800px;

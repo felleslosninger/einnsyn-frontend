@@ -15,13 +15,30 @@ export type PopupPosition =
   | 'aboveLeft'
   | 'aboveRight';
 
+const HORIZONTAL_POSITIONS = new Set<PopupPosition>([
+  'above',
+  'below',
+  'aboveLeft',
+  'aboveRight',
+  'belowLeft',
+  'belowRight',
+]);
+
 /**
- * Calculates the ideal position for a popup element relative to a reference element,
+ * Calculates the ideal position for a popup element relative to an anchor element,
  * ensuring it fits within the viewport.
+ *
+ * `anchor` is the element the popup attaches to (typically the trigger). When an
+ * optional `sizeReference` is provided, the popup is clamped to its inline bounds
+ * for above/below positions: if the popup would extend outside `sizeReference`
+ * horizontally, it is widened to that element's width and aligned to its left
+ * edge. Useful when the trigger sits inside a wider container and the popup
+ * should never escape that container's inline bounds.
  */
 export function calculatePopupPosition({
   popup,
-  reference,
+  anchor,
+  sizeReference,
   preferredPosition = ['below', 'above', 'right', 'left'],
   offset = 8,
   offsetX = offset,
@@ -29,7 +46,8 @@ export function calculatePopupPosition({
   snapTolerance = 0.33,
 }: {
   popup: HTMLElement | DOMRect;
-  reference: HTMLElement | DOMRect;
+  anchor: HTMLElement | DOMRect;
+  sizeReference?: HTMLElement | DOMRect;
   preferredPosition?: PopupPosition[];
   offset?: number;
   offsetX?: number;
@@ -41,6 +59,8 @@ export function calculatePopupPosition({
       position: string;
       top: number;
       left: number;
+      width?: number;
+      maxHeight?: number;
       arrowTop?: number;
       arrowLeft?: number;
     }
@@ -48,10 +68,13 @@ export function calculatePopupPosition({
   // Get Geometry for elements and viewport
   const popupRect =
     popup instanceof DOMRect ? popup : popup.getBoundingClientRect();
-  const referenceRect =
-    reference instanceof DOMRect
-      ? reference
-      : reference.getBoundingClientRect();
+  const anchorRect =
+    anchor instanceof DOMRect ? anchor : anchor.getBoundingClientRect();
+  const sizeReferenceRect = sizeReference
+    ? sizeReference instanceof DOMRect
+      ? sizeReference
+      : sizeReference.getBoundingClientRect()
+    : undefined;
 
   const viewport = {
     width: document.documentElement.clientWidth - 2 * offsetX,
@@ -66,69 +89,69 @@ export function calculatePopupPosition({
     () => { top: number; left: number }
   > = {
     above: () => ({
-      top: referenceRect.top + viewport.scrollY - popupRect.height - offsetY,
+      top: anchorRect.top + viewport.scrollY - popupRect.height - offsetY,
       left:
-        referenceRect.left +
+        anchorRect.left +
         viewport.scrollX +
-        referenceRect.width / 2 -
+        anchorRect.width / 2 -
         popupRect.width / 2,
     }),
     below: () => ({
-      top: referenceRect.bottom + viewport.scrollY + offsetY,
+      top: anchorRect.bottom + viewport.scrollY + offsetY,
       left:
-        referenceRect.left +
+        anchorRect.left +
         viewport.scrollX +
-        referenceRect.width / 2 -
+        anchorRect.width / 2 -
         popupRect.width / 2,
     }),
     left: () => ({
       top:
-        referenceRect.top +
+        anchorRect.top +
         viewport.scrollY +
-        referenceRect.height / 2 -
+        anchorRect.height / 2 -
         popupRect.height / 2,
-      left: referenceRect.left + viewport.scrollX - popupRect.width - offsetX,
+      left: anchorRect.left + viewport.scrollX - popupRect.width - offsetX,
     }),
     right: () => ({
       top:
-        referenceRect.top +
+        anchorRect.top +
         viewport.scrollY +
-        referenceRect.height / 2 -
+        anchorRect.height / 2 -
         popupRect.height / 2,
-      left: referenceRect.right + viewport.scrollX + offsetX,
+      left: anchorRect.right + viewport.scrollX + offsetX,
     }),
     // New positions - aligned to reference edges
     belowRight: () => ({
-      top: referenceRect.bottom + viewport.scrollY + offsetY,
-      left: referenceRect.right + viewport.scrollX - popupRect.width,
+      top: anchorRect.bottom + viewport.scrollY + offsetY,
+      left: anchorRect.right + viewport.scrollX - popupRect.width,
     }),
     belowLeft: () => ({
-      top: referenceRect.bottom + viewport.scrollY + offsetY,
-      left: referenceRect.left + viewport.scrollX,
+      top: anchorRect.bottom + viewport.scrollY + offsetY,
+      left: anchorRect.left + viewport.scrollX,
     }),
     leftTop: () => ({
-      top: referenceRect.top + viewport.scrollY,
-      left: referenceRect.left + viewport.scrollX - popupRect.width - offsetX,
+      top: anchorRect.top + viewport.scrollY,
+      left: anchorRect.left + viewport.scrollX - popupRect.width - offsetX,
     }),
     leftBottom: () => ({
-      top: referenceRect.bottom + viewport.scrollY - popupRect.height,
-      left: referenceRect.left + viewport.scrollX - popupRect.width - offsetX,
+      top: anchorRect.bottom + viewport.scrollY - popupRect.height,
+      left: anchorRect.left + viewport.scrollX - popupRect.width - offsetX,
     }),
     rightTop: () => ({
-      top: referenceRect.top + viewport.scrollY,
-      left: referenceRect.right + viewport.scrollX + offsetX,
+      top: anchorRect.top + viewport.scrollY,
+      left: anchorRect.right + viewport.scrollX + offsetX,
     }),
     rightBottom: () => ({
-      top: referenceRect.bottom + viewport.scrollY - popupRect.height,
-      left: referenceRect.right + viewport.scrollX + offsetX,
+      top: anchorRect.bottom + viewport.scrollY - popupRect.height,
+      left: anchorRect.right + viewport.scrollX + offsetX,
     }),
     aboveLeft: () => ({
-      top: referenceRect.top + viewport.scrollY - popupRect.height - offsetY,
-      left: referenceRect.left + viewport.scrollX,
+      top: anchorRect.top + viewport.scrollY - popupRect.height - offsetY,
+      left: anchorRect.left + viewport.scrollX,
     }),
     aboveRight: () => ({
-      top: referenceRect.top + viewport.scrollY - popupRect.height - offsetY,
-      left: referenceRect.right + viewport.scrollX - popupRect.width,
+      top: anchorRect.top + viewport.scrollY - popupRect.height - offsetY,
+      left: anchorRect.right + viewport.scrollX - popupRect.width,
     }),
   };
 
@@ -200,8 +223,8 @@ export function calculatePopupPosition({
     // Magnetically snap horizontally to the reference element
     if (position === 'above' || position === 'below') {
       const snapThreshold = popupRect.width * snapTolerance;
-      const refAbsLeft = referenceRect.left + viewport.scrollX;
-      const refAbsRight = referenceRect.right + viewport.scrollX;
+      const refAbsLeft = anchorRect.left + viewport.scrollX;
+      const refAbsRight = anchorRect.right + viewport.scrollX;
 
       // Check if the adjusted left is close to the reference's left edge
       if (Math.abs(left - refAbsLeft) < snapThreshold) {
@@ -227,8 +250,8 @@ export function calculatePopupPosition({
     // Magnetically snap vertically to the reference element
     if (position === 'left' || position === 'right') {
       const snapThreshold = popupRect.height * snapTolerance;
-      const refAbsTop = referenceRect.top + viewport.scrollY;
-      const refAbsBottom = referenceRect.bottom + viewport.scrollY;
+      const refAbsTop = anchorRect.top + viewport.scrollY;
+      const refAbsBottom = anchorRect.bottom + viewport.scrollY;
 
       // Check if the adjusted top is close to the reference's top edge
       if (Math.abs(top - refAbsTop) < snapThreshold) {
@@ -253,8 +276,23 @@ export function calculatePopupPosition({
       }
     }
 
+    // Clamp horizontal positions to sizeReference's inline bounds. When the
+    // popup would extend outside the sizeReference's left/right, snap to its
+    // bounds (widening the popup if necessary).
+    let width: number | undefined;
+    if (sizeReferenceRect && HORIZONTAL_POSITIONS.has(position)) {
+      const sizeRefLeft = sizeReferenceRect.left + viewport.scrollX;
+      const sizeRefRight = sizeReferenceRect.right + viewport.scrollX;
+      if (left < sizeRefLeft || left + popupRect.width > sizeRefRight) {
+        width = sizeReferenceRect.width;
+        left = sizeRefLeft;
+      }
+    }
+
+    const effectiveWidth = width ?? popupRect.width;
+
     // Does the position actually fit inside the viewport?
-    const finalRight = left + popupRect.width;
+    const finalRight = left + effectiveWidth;
     const finalBottom = top + popupRect.height;
     if (
       top >= viewport.scrollY &&
@@ -266,10 +304,10 @@ export function calculatePopupPosition({
       const arrowPositions = getArrowPosition(
         { top, left, bottom: finalBottom, right: finalRight },
         {
-          top: referenceRect.top + viewport.scrollY,
-          left: referenceRect.left + viewport.scrollX,
-          bottom: referenceRect.bottom + viewport.scrollY,
-          right: referenceRect.right + viewport.scrollX,
+          top: anchorRect.top + viewport.scrollY,
+          left: anchorRect.left + viewport.scrollX,
+          bottom: anchorRect.bottom + viewport.scrollY,
+          right: anchorRect.right + viewport.scrollX,
         },
       );
 
@@ -277,15 +315,71 @@ export function calculatePopupPosition({
         position,
         top,
         left,
+        width,
         arrowTop: arrowPositions.top,
         arrowLeft: arrowPositions.left,
       };
     }
   }
 
+  // No preferred position fits within the viewport. Fall back to the first
+  // preferred position, clamp it to viewport bounds, and emit maxHeight /
+  // maxWidth so the caller can shrink the popup to fit instead of overflowing.
+  const fallback = preferredPosition[0];
+  if (!fallback) {
+    return undefined;
+  }
+
+  const ideal = positionCalculators[fallback]();
+  let top = ideal.top;
+  let left = ideal.left;
+  let width = popupRect.width;
+
+  // sizeReference clamps the inline axis if provided
+  if (sizeReferenceRect && HORIZONTAL_POSITIONS.has(fallback)) {
+    width = sizeReferenceRect.width;
+    left = sizeReferenceRect.left + viewport.scrollX;
+  }
+
+  // Clamp horizontally to viewport
+  if (left < viewport.scrollX) {
+    left = viewport.scrollX;
+  }
+  if (left + width > viewport.width + viewport.scrollX) {
+    width = viewport.width + viewport.scrollX - left;
+  }
+
+  // Clamp vertically and compute available max-height
+  const isAbove =
+    fallback === 'above' ||
+    fallback === 'aboveLeft' ||
+    fallback === 'aboveRight';
+  let maxHeight: number;
+  if (isAbove) {
+    // Pin popup top to viewport top; cap height to space above the anchor
+    top = viewport.scrollY;
+    maxHeight = Math.max(0, anchorRect.top - offsetY);
+  } else {
+    if (top < viewport.scrollY) {
+      top = viewport.scrollY;
+    }
+    maxHeight = Math.max(
+      0,
+      viewport.scrollY + viewport.height - top,
+    );
+  }
+
   logger.warn(
-    'calculatePopupPosition: No preferred position fits within the viewport.',
+    'calculatePopupPosition: No preferred position fits — falling back with size constraints.',
   );
+
+  return {
+    position: fallback,
+    top,
+    left,
+    width: width !== popupRect.width ? width : undefined,
+    maxHeight,
+  };
 }
 
 type Rect = {

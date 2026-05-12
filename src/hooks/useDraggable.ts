@@ -70,7 +70,10 @@ export function useDraggable({
         };
         onMove?.(diff);
         if (ref.current) {
-          ref.current.style.transform = `translateX(${diff.x}px) translateY(${diff.y}px)`;
+          // Use the `translate` CSS property (independent of `transform`) so
+          // callers can keep using `transform` for their own animations
+          // without the inline drag offset overriding them.
+          ref.current.style.translate = `${diff.x}px ${diff.y}px`;
           ref.current.style.transition = 'all 0s';
         }
       };
@@ -88,18 +91,28 @@ export function useDraggable({
           x: coords.x - startCoords.x,
           y: coords.y - startCoords.y,
         });
-        // Prevent click-events to be fired if mouse moved
+        // Suppress the synthetic click that browsers may dispatch as part of
+        // the same interaction as the drag-release. Its lifetime is tied to
+        // the interaction boundary: it lives until either (a) it catches one
+        // click — the synthetic one belonging to this drag — or (b) the user
+        // starts a brand-new interaction (touchstart/mousedown), at which
+        // point any subsequent click is intentional and must pass through.
         if (moved) {
-          window.addEventListener(
-            'click',
-            function cancelClick(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation?.();
-              window.removeEventListener('click', cancelClick, true);
-            },
-            true,
-          );
+          const cancelClick = (clickEvent: Event) => {
+            clickEvent.preventDefault();
+            clickEvent.stopPropagation();
+            clickEvent.stopImmediatePropagation?.();
+            cleanup();
+          };
+          window.addEventListener('click', cancelClick, true);
+
+          const cleanup = () => {
+            window.removeEventListener('click', cancelClick, true);
+            document.removeEventListener('touchstart', cleanup, true);
+            document.removeEventListener('mousedown', cleanup, true);
+          };
+          document.addEventListener('touchstart', cleanup, true);
+          document.addEventListener('mousedown', cleanup, true);
         }
         cleanUpRef.current?.();
       };
