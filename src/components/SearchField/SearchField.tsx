@@ -3,8 +3,8 @@
 import { Button } from '@digdir/designsystemet-react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { useCallback, useRef, useState } from 'react';
-import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';

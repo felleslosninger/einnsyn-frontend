@@ -82,10 +82,7 @@ export default function EinModal({
     }
   }, [onClose, setOpen, basepath, navigation]);
 
-  const contextValue = useMemo(
-    () => ({ close: closeModal }),
-    [closeModal],
-  );
+  const contextValue = useMemo(() => ({ close: closeModal }), [closeModal]);
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = containerRefProp ?? backupContainerRef;

@@ -363,10 +363,7 @@ export function calculatePopupPosition({
     if (top < viewport.scrollY) {
       top = viewport.scrollY;
     }
-    maxHeight = Math.max(
-      0,
-      viewport.scrollY + viewport.height - top,
-    );
+    maxHeight = Math.max(0, viewport.scrollY + viewport.height - top);
   }
 
   logger.warn(

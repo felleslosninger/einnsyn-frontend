@@ -741,7 +741,6 @@ export default function EnhetSelector({
     </div>
   );
 
-
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: keyboard handling delegates to the focused descendants (input, list buttons); this div only intercepts to enable list navigation across the portalled mobile sheet.
     <div
