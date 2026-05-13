@@ -1,11 +1,11 @@
-.ein-button {
+.einButton {
   border-radius: var(--ds-border-radius-default);
 
-  &.full-width {
+  &.fullWidth {
     width: 100%;
   }
 
-  &.style-link {
+  &.styleLink {
     color: var(--ds-color-text-subtle);
     text-decoration: underline;
     display: inline;

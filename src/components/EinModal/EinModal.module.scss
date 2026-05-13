@@ -4,7 +4,7 @@
 $verticalPadding: calc(var(--ein-vertical-spacing));
 $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
-.einModalContainer {
+.einModalContainer:global(.ein-popup) {
   position: fixed;
   inset: 0;
   z-index: 1050;

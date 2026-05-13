@@ -1,8 +1,8 @@
 import { Button, type ButtonProps } from '@digdir/designsystemet-react';
 import { forwardRef } from 'react';
 import cn from '~/lib/utils/className';
-
-import './EinButton.scss';
+import { capitalize } from '~/lib/utils/stringutils';
+import styles from './EinButton.module.scss';
 
 type EinButtonProps = {
   /**
@@ -24,13 +24,20 @@ export const EinButton = forwardRef<
   HTMLButtonElement,
   ButtonProps & EinButtonProps
 >(({ fullWidth = false, style = 'primary', ...props }, ref) => {
+  const capitalizedStyle = capitalize(style);
   return (
     <Button
       {...props}
       ref={ref}
-      className={cn(props.className, 'ein-button', `style-${style}`, {
-        'full-width': fullWidth,
-      })}
+      className={cn(
+        props.className,
+        styles.einButton,
+        styles[capitalizedStyle],
+        'ein-button',
+        {
+          [styles.fullWidth]: fullWidth,
+        },
+      )}
     />
   );
 });
