@@ -55,6 +55,17 @@ export function useDraggable({
   // Allow dragging the header to close on touch devices
   const startHeaderDrag = useCallback(
     (e: TouchEvent | MouseEvent) => {
+      // Only react to primary mouse button and single-finger touches.
+      // Right/middle clicks and multi-touch gestures (pinch, two-finger
+      // scroll) should never start a drag-to-close.
+      if (isMouseEvent(e)) {
+        if (e.button !== 0) {
+          return;
+        }
+      } else if (e.touches.length > 1) {
+        return;
+      }
+
       const startCoords = getCoords(e);
       const isMouse = isMouseEvent(e);
       let moved = false;
