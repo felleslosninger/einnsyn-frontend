@@ -1,4 +1,4 @@
-@use './easing.scss' as e;
+@use './effects.scss' as fx;
 
 .header-dropdown {
   display: inline-block;
@@ -16,6 +16,7 @@
 .header-dropdown-content-section {
   padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+
   &:last-child {
     border-bottom: none;
   }
@@ -31,7 +32,7 @@
   //background-color: var(--ds-color-info-background-tinted);
   background-color: transparent;
   box-shadow: 0 0 0 0px var(--ds-color-info-background-tinted);
-  transition: box-shadow .25s e.$easeOutQuart, background-color .25s e.$easeOutQuart;
+  transition: box-shadow .25s fx.$easeOut, background-color .25s fx.$easeOut;
 
   &:hover,
   &.active {
@@ -39,7 +40,7 @@
     color: var(--ds-color-text-default);
     border: 1px solid var(--ds-color-info-surface-hover);
     background-color: var(--ds-color-info-surface-hover);
-    transition: box-shadow .23s e.$easeOutQuart, background-color .23s e.$easeOutQuart;
+    transition: box-shadow .23s fx.$easeOut, background-color .23s fx.$easeOut;
   }
 
   &.active {

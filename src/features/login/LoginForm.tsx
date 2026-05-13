@@ -3,7 +3,6 @@
 import { Alert, Checkbox } from '@digdir/designsystemet-react';
 import { useActionState, useEffect, useState } from 'react';
 import { eInnsynLoginAction } from '~/actions/authentication/auth.eInnsyn';
-import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { EinLink } from '~/components/EinLink/EinLink';
@@ -14,6 +13,7 @@ import {
 } from '~/components/EinModal/EinModal';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { AnsattportenLogin } from './AnsattportenLogin';

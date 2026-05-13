@@ -3,10 +3,19 @@
 import { Button } from '@digdir/designsystemet-react';
 import { XMarkIcon } from '@navikt/aksel-icons';
 import type { ReactNode, RefObject } from 'react';
-import { useRef } from 'react';
-import { useModalBasepath } from '~/app/@modal/ModalWrapper';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useDraggable } from '~/hooks/useDraggable';
+import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useScrollwheelTrap } from '~/hooks/useScrollwheelTrap';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -14,31 +23,34 @@ import EinPopup from '../EinPopup/EinPopup';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 import styles from './EinModal.module.scss';
 
-type EinModalProps = {
+type EinModalContextValue = { close: () => void };
+const EinModalContext = createContext<EinModalContextValue | null>(null);
+
+type EinModalProps = Readonly<{
   open: boolean;
   children: ReactNode;
   className?: string;
   containerRef?: RefObject<HTMLDivElement>;
   setOpen?: (open: boolean) => void;
-};
+  onClose?: () => void;
+}>;
 
-type EinModalHeaderProps = {
+type EinModalHeaderProps = Readonly<{
   title?: string;
   className?: string;
   children?: ReactNode;
-};
+}>;
 
-type EinModalBodyProps = {
+type EinModalBodyProps = Readonly<{
   children: ReactNode;
   className?: string;
   bodyRef?: RefObject<HTMLDivElement>;
-};
+}>;
 
-type EinModalFooterProps = {
+type EinModalFooterProps = Readonly<{
   children: ReactNode;
   className?: string;
-  bodyRef?: RefObject<HTMLDivElement>;
-};
+}>;
 
 export default function EinModal({
   open,
@@ -46,13 +58,31 @@ export default function EinModal({
   className,
   containerRef: containerRefProp,
   setOpen,
+  onClose,
 }: EinModalProps) {
   const navigation = useNavigation();
   const basepath = useModalBasepath();
-  const closeModal = () => {
-    setOpen?.(false);
-    navigation.push(basepath);
-  };
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  // Update portal target for client-side rendering
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  // Any close trigger (X-button, drag-to-close, escape, outside-click) runs
+  // through here so callers see a single, consistent close path.
+  const closeModal = useCallback(() => {
+    onClose?.();
+    if (setOpen) {
+      setOpen(false);
+    } else if (basepath !== navigation.pathname) {
+      // Route-driven callers (intercepted route segments) rely on navigation
+      // back to the basepath instead of a setter.
+      navigation.push(basepath);
+    }
+  }, [onClose, setOpen, basepath, navigation]);
+
+  const contextValue = useMemo(() => ({ close: closeModal }), [closeModal]);
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = containerRefProp ?? backupContainerRef;
@@ -62,7 +92,7 @@ export default function EinModal({
   useDraggable({
     ref: contentRef,
     enabled: isMobileLayout && open,
-    dragSelector: `.${styles['ein-modal-header'] ?? 'ein-modal-header'}`,
+    dragSelector: `.${styles.einModalHeader ?? 'ein-modal-header'}`,
     onMove: (diff) => {
       // Reduce movement upwards
       if (diff.y < 0) {
@@ -71,17 +101,24 @@ export default function EinModal({
       diff.x = 0;
     },
     onEnd: (diff) => {
-      // Close if dragged down
       if (diff.y > 0) {
-        closeModal();
-      }
-      // Reset after EinPopup has updated classes
-      setTimeout(() => {
+        // Closing: keep the inline translate so EinTransition's snapshot
+        // starts at the drag position. Clear only the inline transition
+        // (useDraggable set it to `all 0s`) so the CSS exit transition on
+        // `transform` can fire. The two properties compose, so the snapshot
+        // slides from the drag position down off-screen.
         if (contentRef.current) {
-          contentRef.current.style.transform = '';
           contentRef.current.style.transition = '';
         }
-      });
+        closeModal();
+        return;
+      }
+      // Snap back: clear both inline styles so the settled-open CSS
+      // transition animates `translate` back to its rest position.
+      if (contentRef.current) {
+        contentRef.current.style.translate = '';
+        contentRef.current.style.transition = '';
+      }
     },
   });
 
@@ -95,33 +132,37 @@ export default function EinModal({
   // Disable scrollwheel outside container
   useScrollwheelTrap(containerRef, open);
 
-  return (
+  const popup = (
     <EinPopup
       open={open}
       setOpen={(value) => !value && closeModal()}
-      className={cn(
-        className,
-        styles['ein-modal-container'],
-        'ein-modal-container',
-      )}
+      animate
+      arrow={false}
+      className={cn(className, styles.einModalContainer, 'ein-modal-container')}
       popupRef={containerRef}
-      transitionFromTrigger
     >
-      <div
-        className={cn(styles['ein-modal-content'], 'ein-modal-content')}
-        ref={contentRef}
-      >
-        {children}
-      </div>
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
-      {/** biome-ignore lint/a11y/noStaticElementInteractions: Backdrop-click closes modal */}
-      <div
-        className={cn(styles['ein-modal-backdrop'], 'ein-modal-backdrop')}
-        onWheel={() => false}
-        onClick={handleBackdropClick}
-      />
+      <EinModalContext.Provider value={contextValue}>
+        <div
+          className={cn(styles.einModalContent, 'ein-modal-content')}
+          ref={contentRef}
+        >
+          {children}
+        </div>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: EinPopup listens to esc-events */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: Backdrop-click closes modal */}
+        <div
+          className={cn(styles.einModalBackdrop, 'ein-modal-backdrop')}
+          onWheel={() => false}
+          onClick={handleBackdropClick}
+        />
+      </EinModalContext.Provider>
     </EinPopup>
   );
+
+  if (portalTarget) {
+    return createPortal(popup, portalTarget);
+  }
+  return null;
 }
 
 export function EinModalHeader({
@@ -131,17 +172,15 @@ export function EinModalHeader({
 }: EinModalHeaderProps) {
   const t = useTranslation();
   const basepath = useModalBasepath();
-  const navigation = useNavigation();
+  const einModal = useContext(EinModalContext);
 
   const closeHandler = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigation.push(basepath);
+    einModal?.close();
   };
 
   return (
-    <div
-      className={cn(className, styles['ein-modal-header'], 'ein-modal-header')}
-    >
+    <div className={cn(className, styles.einModalHeader, 'ein-modal-header')}>
       {children ?? (
         <h1 className="ds-heading" data-size="md">
           {title}
@@ -151,10 +190,10 @@ export function EinModalHeader({
         <Button
           icon
           type="submit"
-          aria-label={t('site:closeModal')}
+          aria-label={t('site.closeModal')}
           data-color="neutral"
           data-variant="tertiary"
-          className={styles['ein-modal-close-button']}
+          className={cn(styles.einModalCloseButton, 'ein-modal-close-button')}
         >
           <XMarkIcon fontSize="1.5rem" />
         </Button>
@@ -170,7 +209,7 @@ export function EinModalBody({
 }: EinModalBodyProps) {
   return (
     <div
-      className={cn(className, styles['ein-modal-body'], 'ein-modal-body')}
+      className={cn(className, styles.einModalBody, 'ein-modal-body')}
       ref={bodyRef}
     >
       {children}
@@ -180,9 +219,7 @@ export function EinModalBody({
 
 export function EinModalFooter({ children, className }: EinModalFooterProps) {
   return (
-    <div
-      className={cn(className, styles['ein-modal-footer'], 'ein-modal-footer')}
-    >
+    <div className={cn(className, styles.einModalFooter, 'ein-modal-footer')}>
       {children}
     </div>
   );

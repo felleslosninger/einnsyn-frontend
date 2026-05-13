@@ -8,6 +8,7 @@ import {
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
+import { parseEnhetParam } from '~/components/SearchField/enhetTokenInputUtils';
 import { logger } from '~/lib/utils/logger';
 import {
   searchQueryToTokens,
@@ -61,7 +62,7 @@ export const getSearchResults = async (
     enhet.push(enhetSlug);
   }
   if (searchParams.has('enhet')) {
-    enhet.push(...(searchParams.getAll('enhet') ?? ''));
+    enhet.push(...parseEnhetParam(searchParams.get('enhet') ?? ''));
   }
   if (enhet.length) {
     apiQuery.administrativEnhet = enhet;

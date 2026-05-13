@@ -15,13 +15,13 @@ import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
-import SettingsMenu from './components/SettingsMenu';
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
   const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
+  const isHome = rootPath === 'home';
 
   const [fixedHeader, setFixedHeader] = useState(false);
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
@@ -31,9 +31,43 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
+  const previousRootPathRef = useRef(rootPath);
+  const activeRouteTransitionRef = useRef<{
+    fromRootPath: string;
+    toRootPath: string;
+  } | null>(null);
+
+  if (previousRootPathRef.current !== rootPath) {
+    activeRouteTransitionRef.current = {
+      fromRootPath: previousRootPathRef.current,
+      toRootPath: rootPath,
+    };
+    previousRootPathRef.current = rootPath;
+  }
+
+  if (!loading) {
+    activeRouteTransitionRef.current = null;
+  }
+
+  const activeRouteTransition = activeRouteTransitionRef.current;
+  const waitForLoad =
+    loading &&
+    !(
+      activeRouteTransition &&
+      ((activeRouteTransition.fromRootPath === 'home' &&
+        activeRouteTransition.toRootPath === 'search') ||
+        (activeRouteTransition.fromRootPath === 'search' &&
+          activeRouteTransition.toRootPath === 'home'))
+    );
 
   // Update headerHeight *before* setting position: fixed
   useLayoutEffect(() => {
+    if (isHome) {
+      setFixedHeader(false);
+      setHeaderHeight(null);
+      return;
+    }
+
     if (switchedIsScrolledToTop && headerRef.current) {
       if (isScrolledToTop) {
         setFixedHeader(false);
@@ -43,13 +77,13 @@ export default function Header({ children }: { children: React.ReactNode }) {
         setHeaderHeight(headerRef.current.offsetHeight);
       }
     }
-  }, [switchedIsScrolledToTop, isScrolledToTop]);
+  }, [isHome, switchedIsScrolledToTop, isScrolledToTop]);
 
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
   const className = cn(styles.header, `section-${rootPath}`, {
-    [styles.scrolled]: hasScrolledDown,
-    [styles.fixed]: fixedHeader && headerHeight !== null,
+    [styles.scrolled]: !isHome && hasScrolledDown,
+    [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
   });
 
   const transitionDeps = [rootPath];
@@ -70,73 +104,108 @@ export default function Header({ children }: { children: React.ReactNode }) {
         const targetHead = createInvisibleClone(head);
         targetHead.className = className;
         const targetStyle = getStyle(targetHead);
-        // biome-ignore lint/style/noNonNullAssertion: We check for head above
-        const targetForm = targetHead.querySelector('form')!;
+        const targetForm = targetHead.querySelector('form');
+        if (!targetForm) {
+          removeInvisibleClone(targetHead);
+          return;
+        }
+        const currentHeadRect = head.getBoundingClientRect();
+        const currentFormRect = form.getBoundingClientRect();
         const targetHeadRect = targetHead.getBoundingClientRect();
         const targetFormRect = targetForm.getBoundingClientRect();
+        const targetFormOffset = getRelativeOffset(
+          targetFormRect,
+          targetHeadRect,
+        );
+
         removeInvisibleClone(targetHead);
 
         // Transition landing page search form to header search form
         if (fromHomeToSearch(fromRootPath, toRootPath)) {
+          lockElementToRect(head, currentHeadRect, currentHeadRect, {
+            preserveHeight: true,
+            preserveWidth: false,
+            resetMargins: false,
+            pinToViewport: true,
+          });
+          lockElementToRect(form, currentFormRect, currentHeadRect);
+
+          await animationFrame(1);
+
           // Animate header container
-          head.style.overflow = 'hidden';
-          head.style.height = `${targetHeadRect.height}px`;
-          head.style.transition = `all 400ms ${EASE_IN_OUT_QUART}`;
+          head.style.transition = [
+            `height 400ms ${EASE_IN_OUT_QUART}`,
+            `border-bottom-color 400ms ${EASE_IN_OUT_QUART}`,
+            `border-bottom-width 400ms ${EASE_IN_OUT_QUART}`,
+          ].join(', ');
           head.style.borderBottomColor = targetStyle['border-bottom-color'];
           head.style.borderBottomWidth = targetStyle['border-bottom-width'];
+          head.style.height = `${targetHeadRect.height}px`;
 
           // Animate input field
-          const currentFormRect = form.getBoundingClientRect();
-          const newY = targetFormRect.top - currentFormRect.top;
-          const newX = targetFormRect.left - currentFormRect.left;
-          form.style.transition = `all 400ms ${EASE_IN_OUT_QUART}`;
-          form.style.position = 'absolute';
-          form.style.top = `${currentFormRect.top}px`;
-          form.style.left = `${currentFormRect.left}px`;
+          form.style.transition = [
+            `top 400ms ${EASE_IN_OUT_QUART}`,
+            `left 400ms ${EASE_IN_OUT_QUART}`,
+            `width 400ms ${EASE_IN_OUT_QUART}`,
+            `max-width 400ms ${EASE_IN_OUT_QUART}`,
+          ].join(', ');
+          form.style.top = `${targetFormOffset.top}px`;
+          form.style.left = `${targetFormOffset.left}px`;
           form.style.width = `${targetFormRect.width}px`;
           form.style.maxWidth = `${targetFormRect.width}px`;
-          form.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
         } else if (fromSearchToHome(fromRootPath, toRootPath)) {
-          // Animate header container
-          head.style.transition = `all 400ms ${EASE_OUT_QUART}`;
-          head.style.overflow = 'hidden';
-          head.style.height = `${targetHeadRect.height}px`;
-          head.style.borderBottomColor = 'transparent';
-
           const headerTabs = head.querySelector('.header-tabs');
-          if (headerTabs instanceof HTMLElement) {
-            headerTabs.style.position = 'absolute';
-            headerTabs.style.top = `${headerTabs.offsetTop}px`;
-            headerTabs.style.left = `${headerTabs.offsetLeft}px`;
-            headerTabs.style.marginLeft = '0px';
-            headerTabs.style.marginRight = '0px';
-            headerTabs.style.width = `${headerTabs.offsetWidth}px`;
-            headerTabs.style.maxWidth = `${headerTabs.offsetWidth}px`;
+          const currentHeaderTabsRect =
+            headerTabs instanceof HTMLElement
+              ? headerTabs.getBoundingClientRect()
+              : null;
 
-            await animationFrame(2);
-            headerTabs.style.transition = `all 200ms ${EASE_OUT_QUART}`;
+          lockElementToRect(head, currentHeadRect, currentHeadRect, {
+            preserveHeight: true,
+            preserveWidth: false,
+            resetMargins: false,
+            pinToViewport: true,
+          });
+          lockElementToRect(form, currentFormRect, currentHeadRect);
+          if (
+            headerTabs instanceof HTMLElement &&
+            currentHeaderTabsRect instanceof DOMRect
+          ) {
+            lockElementToRect(
+              headerTabs,
+              currentHeaderTabsRect,
+              currentHeadRect,
+            );
+          }
+
+          await animationFrame(1);
+
+          // Animate header container
+          head.style.transition = [
+            `height 400ms ${EASE_OUT_QUART}`,
+            `border-bottom-color 400ms ${EASE_OUT_QUART}`,
+          ].join(', ');
+          head.style.borderBottomColor = 'transparent';
+          head.style.height = `${targetHeadRect.height}px`;
+
+          if (headerTabs instanceof HTMLElement) {
+            headerTabs.style.transition = `opacity 200ms ${EASE_OUT_QUART}`;
             headerTabs.style.opacity = '0';
           }
 
           // Animate input field
-          const currentFormRect = form.getBoundingClientRect();
-          const newY = targetFormRect.top - currentFormRect.top;
-          const newX = targetFormRect.left - currentFormRect.left;
-          form.style.position = 'absolute';
-          form.style.width = `${currentFormRect.width}px`;
-          form.style.maxWidth = `${currentFormRect.width}px`;
-
-          // Trigger a reflow, to make sure the starting position is registered
-          await animationFrame(2);
-
-          form.style.transition = `all 400ms ${EASE_OUT_QUART}`;
-          form.style.top = `${currentFormRect.top}px`;
-          form.style.left = `${currentFormRect.left}px`;
+          form.style.transition = [
+            `top 400ms ${EASE_OUT_QUART}`,
+            `left 400ms ${EASE_OUT_QUART}`,
+            `width 400ms ${EASE_OUT_QUART}`,
+            `max-width 400ms ${EASE_OUT_QUART}`,
+          ].join(', ');
+          form.style.top = `${targetFormOffset.top}px`;
+          form.style.left = `${targetFormOffset.left}px`;
           form.style.width = `${targetFormRect.width}px`;
           form.style.maxWidth = `${targetFormRect.width}px`;
-          form.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
         }
@@ -148,7 +217,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   return (
     <EinTransition
       dependencies={transitionDeps}
-      loading={loading}
+      loading={waitForLoad}
       events={transitionEvents}
     >
       <div>
@@ -172,7 +241,6 @@ export default function Header({ children }: { children: React.ReactNode }) {
             <div className={cn(styles.container, 'container')}>{children}</div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
-                <SettingsMenu />
                 <UserMenu />
               </div>
             </div>
@@ -204,6 +272,61 @@ function getStyle(element: HTMLElement) {
     obj[prop] = style.getPropertyValue(prop);
   }
   return obj;
+}
+
+function getRelativeOffset(rect: DOMRect, containerRect: DOMRect) {
+  return {
+    top: rect.top - containerRect.top,
+    left: rect.left - containerRect.left,
+  };
+}
+
+function lockElementToRect(
+  element: HTMLElement,
+  rect: DOMRect,
+  containerRect: DOMRect,
+  options: {
+    preserveHeight?: boolean;
+    preserveWidth?: boolean;
+    resetMargins?: boolean;
+    pinToViewport?: boolean;
+  } = {},
+) {
+  const {
+    preserveHeight = true,
+    preserveWidth = true,
+    resetMargins = true,
+    pinToViewport = false,
+  } = options;
+
+  element.style.overflow = 'hidden';
+
+  if (preserveWidth) {
+    element.style.width = `${rect.width}px`;
+    element.style.maxWidth = `${rect.width}px`;
+  }
+
+  if (preserveHeight) {
+    element.style.height = `${rect.height}px`;
+  }
+
+  if (resetMargins) {
+    element.style.margin = '0';
+  }
+
+  if (pinToViewport) {
+    element.style.position = 'fixed';
+    element.style.top = `${rect.top}px`;
+    element.style.left = `${rect.left}px`;
+    element.style.width = `${rect.width}px`;
+    element.style.maxWidth = `${rect.width}px`;
+    return;
+  }
+
+  const { top, left } = getRelativeOffset(rect, containerRect);
+  element.style.position = 'absolute';
+  element.style.top = `${top}px`;
+  element.style.left = `${left}px`;
 }
 
 function fromHomeToSearch(from: string, to: string) {
