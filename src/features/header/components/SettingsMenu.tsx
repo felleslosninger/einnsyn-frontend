@@ -37,9 +37,9 @@ export function SettingsMenuButton({ onClick }: DropdownButtonProps) {
       variant="tertiary"
       data-color="neutral"
       aria-label={t('site.settings')}
-      className={styles.settingsDropdownButton}
+      className={cn(styles.settingsDropdownButton, 'header-button')}
     >
-      <CogIcon fontSize="1.625rem" aria-hidden="true" />
+      <CogIcon fontSize="1.5rem" aria-hidden="true" />
     </EinButton>
   );
 }
