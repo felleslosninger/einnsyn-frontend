@@ -659,6 +659,7 @@ export default function EnhetSelector({
         className={styles.enhetSelectorDropdownList}
         style={{ contain: 'content' }}
         aria-label={t('search.availableEnheter')}
+        role="listbox"
       >
         {visibleEnhetNodeList.map((enhetNode, index) => {
           const isSelected = selectedEnhetIds.includes(
@@ -725,6 +726,7 @@ export default function EnhetSelector({
         ref={selectedListRef}
         className={styles.enhetSelectorDropdownList}
         aria-label={t('search.selectedEnheter')}
+        role="listbox"
       >
         {selectedEnhetItems.map((enhet, index) => (
           <EnhetSelectorSelectItem

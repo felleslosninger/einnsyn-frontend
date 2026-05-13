@@ -63,6 +63,8 @@ export const EnhetSelectorSelectItem = forwardRef<
         data-focused={isFocused}
         onMouseDown={onMouseDown}
         onClick={onClick}
+        role="option"
+        aria-selected={isSelectedColumn ? isSelected : undefined}
         className={cn(styles.selectorListItem, {
           [styles.focusedListItem]: isFocused,
           [styles.availableSelectedListItem]: isAlreadyAdded,
