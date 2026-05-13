@@ -138,11 +138,7 @@ export default function EinModal({
       setOpen={(value) => !value && closeModal()}
       animate
       arrow={false}
-      className={cn(
-        className,
-        styles.einModalContainer,
-        'ein-modal-container',
-      )}
+      className={cn(className, styles.einModalContainer, 'ein-modal-container')}
       popupRef={containerRef}
     >
       <EinModalContext.Provider value={contextValue}>
@@ -184,9 +180,7 @@ export function EinModalHeader({
   };
 
   return (
-    <div
-      className={cn(className, styles.einModalHeader, 'ein-modal-header')}
-    >
+    <div className={cn(className, styles.einModalHeader, 'ein-modal-header')}>
       {children ?? (
         <h1 className="ds-heading" data-size="md">
           {title}
@@ -225,9 +219,7 @@ export function EinModalBody({
 
 export function EinModalFooter({ children, className }: EinModalFooterProps) {
   return (
-    <div
-      className={cn(className, styles.einModalFooter, 'ein-modal-footer')}
-    >
+    <div className={cn(className, styles.einModalFooter, 'ein-modal-footer')}>
       {children}
     </div>
   );
