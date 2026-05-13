@@ -68,9 +68,7 @@ export const EinInput = ({
   return (
     <Field
       className={cn(className, styles.einInput, 'ein-input', {
-       
         [styles.fullWidth]: fullWidth,
-     ,
       })}
     >
       {label && (
