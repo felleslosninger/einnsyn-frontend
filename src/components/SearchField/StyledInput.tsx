@@ -359,7 +359,7 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
       >
         {icon && <div className={cn(styles.iconContainer)}>{icon}</div>}
 
-        <div className={cn(styles.styledInput, className)}>
+        <div className={cn(styles.styledInput, className)} aria-hidden="true">
           {searchTokens.map((token, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: StyledInput tokens are derived directly from the query string and do not have a stable identifier.
             <Fragment key={`${index}-${token.value}`}>
