@@ -122,10 +122,10 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       }
     }
 
-    &:global(.open:not(.preOpen)),
-    // Needed because of overdrag
     &:global(.toOpen),
-    &:global(.toClosed) {
+    &:global(.toClosed),
+    // Needed because of overdrag
+    &:global(.open:not(.preOpen)) {
 
       &,
       .ein-modal-backdrop,
