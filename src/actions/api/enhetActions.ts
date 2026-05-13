@@ -125,7 +125,8 @@ export const getInitialEnhetsForRequest = async ({
     );
     const selectedEnhets = findTrimmedEnhetsByIdsOrSlugs(list, selected);
     return mergeTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
-  } catch {
+  } catch (error) {
+    logger.error('Failed to build initial enhet list for request', error);
     return [];
   }
 };

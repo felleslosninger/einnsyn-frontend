@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import { getTrimmedEnhetList } from '~/actions/api/enhetActions';
 import { getEnhetHref } from '~/lib/utils/enhetUtils';
+import { logger } from '~/lib/utils/logger';
 import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 
 export type EnhetCacheSnapshot = {
@@ -94,7 +95,9 @@ export function ensureFullList(): Promise<void> {
       }
       snapshot = { enhetMap: nextMap, fullListLoaded: true };
       notify();
-    } catch {
+    } catch (error) {
+      logger.error('Failed to load enhet list', error);
+      // Clear the in-flight promise so a later call can retry.
       fullListPromise = null;
     }
   })();

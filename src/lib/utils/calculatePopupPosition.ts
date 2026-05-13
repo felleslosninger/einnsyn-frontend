@@ -366,7 +366,7 @@ export function calculatePopupPosition({
     maxHeight = Math.max(0, viewport.scrollY + viewport.height - top);
   }
 
-  logger.warn(
+  logger.debug(
     'calculatePopupPosition: No preferred position fits — falling back with size constraints.',
   );
 
