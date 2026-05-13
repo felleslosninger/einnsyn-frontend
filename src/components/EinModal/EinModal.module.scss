@@ -4,7 +4,7 @@
 $verticalPadding: calc(var(--ein-vertical-spacing));
 $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
-.ein-modal-container {
+.einModalContainer {
   position: fixed;
   inset: 0;
   z-index: 1050;
@@ -16,19 +16,19 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     background: transparent;
   }
 
-  .ein-modal-backdrop {
+  .einModalBackdrop {
     position: fixed;
     opacity: 0.5;
     background-color: var(--ds-color-neutral-text-default);
     //backdrop-filter: blur(5px);
   }
 
-  .ein-modal-content,
-  .ein-modal-backdrop {
+  .einModalContent,
+  .einModalBackdrop {
     inset: 0;
   }
 
-  .ein-modal-header {
+  .einModalHeader {
     display: flex;
     align-items: center;
     width: 100%;
@@ -41,7 +41,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     }
   }
 
-  .ein-modal-footer {
+  .einModalFooter {
     display: flex;
     align-items: center;
     width: 100%;
@@ -50,7 +50,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   }
 
-  .ein-modal-close-button {
+  .einModalCloseButton {
     flex: 0;
     text-decoration: none;
     margin-right: calc(0px - var(--ds-size-3));
@@ -60,19 +60,19 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   * Mobile layout (old PromptScreen)
   */
   @include mediaQueries.small {
-    .ein-modal-header {
+    .einModalHeader {
       padding: --var(--ds-size-2);
     }
 
-    .ein-modal-body {
+    .einModalBody {
       padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     }
 
-    .ein-modal-footer {
+    .einModalFooter {
       //padding: px(13) px(16);
     }
 
-    .ein-modal-content {
+    .einModalContent {
       display: flex;
       flex-direction: column;
       top: auto;
@@ -89,7 +89,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       pointer-events: all;
     }
 
-    .ein-modal-close-button {
+    .einModalCloseButton {
       background: transparent !important;
 
       :global(.text) {
@@ -99,11 +99,11 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
     // Visible drawer (settled-open, or start of exit before animation kicks in)
     &:global(.open) {
-      .ein-modal-content {
+      .einModalContent {
         transform: translateY(0);
       }
 
-      .ein-modal-backdrop {
+      .einModalBackdrop {
         opacity: 0.5;
       }
     }
@@ -120,11 +120,11 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       transform: scale(1);
       opacity: 1;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: translateY(101%);
       }
 
-      .ein-modal-backdrop {
+      .einModalBackdrop {
         opacity: 0;
       }
     }
@@ -139,8 +139,8 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     &:global(.ein-transition-exit-transition) {
 
       &,
-      .ein-modal-backdrop,
-      .ein-modal-content {
+      .einModalBackdrop,
+      .einModalContent {
         transition:
           transform fx.$transitionDuration fx.$easeOut,
           opacity fx.$transitionDuration linear;
@@ -154,7 +154,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   * Desktop layout (medium / large screens)
   */
   @include mediaQueries.medium-and-large {
-    .ein-modal-header {
+    .einModalHeader {
       justify-content: space-between;
 
       h1 {
@@ -162,7 +162,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       }
     }
 
-    .ein-modal-content {
+    .einModalContent {
       position: absolute;
       z-index: 1;
       display: flex;
@@ -184,7 +184,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       }
     }
 
-    .ein-modal-body {
+    .einModalBody {
       flex: 1 1 auto;
       overflow-y: auto;
       //overflow: auto;
@@ -193,7 +193,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       min-width: 500px;
     }
 
-    .ein-modal-footer {
+    .einModalFooter {
       //padding: px(27) px(40);
       flex: 0 0;
     }
@@ -205,7 +205,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       // Override EinPopup base transform:
       transform: none;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: scale(1);
       }
     }
@@ -220,7 +220,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       // Override EinPopup base transform:
       transform: none;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: scale(0.5);
       }
     }
@@ -228,7 +228,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     &:global(.ein-transition-enter-transition) {
 
       &,
-      .ein-modal-content {
+      .einModalContent {
         transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1);
         /* easeOutExpo */
       }
@@ -237,7 +237,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     &:global(.ein-transition-exit-transition) {
 
       &,
-      .ein-modal-content {
+      .einModalContent {
         transition: all 250ms ease;
       }
     }
