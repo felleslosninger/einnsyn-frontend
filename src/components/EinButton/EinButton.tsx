@@ -1,9 +1,8 @@
 import { Button, type ButtonProps } from '@digdir/designsystemet-react';
 import { forwardRef } from 'react';
 import cn from '~/lib/utils/className';
-
-import styles from './EinButton.module.scss';
 import { capitalize } from '~/lib/utils/stringutils';
+import styles from './EinButton.module.scss';
 
 type EinButtonProps = {
   /**
@@ -30,9 +29,15 @@ export const EinButton = forwardRef<
     <Button
       {...props}
       ref={ref}
-      className={cn(props.className, styles.einButton, styles[capitalizedStyle], 'ein-button', {
-        [styles.fullWidth]: fullWidth,
-      })}
+      className={cn(
+        props.className,
+        styles.einButton,
+        styles[capitalizedStyle],
+        'ein-button',
+        {
+          [styles.fullWidth]: fullWidth,
+        },
+      )}
     />
   );
 });
