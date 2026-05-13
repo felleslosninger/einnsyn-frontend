@@ -59,7 +59,6 @@ export const EnhetSelectorSelectItem = forwardRef<
         ref={ref}
         tabIndex={-1}
         aria-label={itemActionLabel ? `${itemActionLabel}: ${name}` : name}
-        aria-pressed={!isSelectedColumn ? isSelected : undefined}
         data-focused={isFocused}
         onMouseDown={onMouseDown}
         onClick={onClick}

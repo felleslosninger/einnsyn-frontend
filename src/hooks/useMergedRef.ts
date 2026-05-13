@@ -30,14 +30,20 @@ export function useMergedRefs<T>(...refs: (Ref<T> | undefined)[]) {
       (ref) => ref && !previousRefs.current.includes(ref),
     );
 
-    refsToClear.forEach((ref) => setRef(ref, null));
-    refsToAssign.forEach((ref) => setRef(ref, currentValue.current));
+    refsToClear.forEach((ref) => {
+      setRef(ref, null);
+    });
+    refsToAssign.forEach((ref) => {
+      setRef(ref, currentValue.current);
+    });
 
     previousRefs.current = refs;
   });
 
   return useCallback((value: T | null) => {
     currentValue.current = value;
-    currentRefs.current.forEach((ref) => setRef(ref, value));
+    currentRefs.current.forEach((ref) => {
+      setRef(ref, value);
+    });
   }, []);
 }

@@ -196,7 +196,7 @@ export function EinModalHeader({
         <Button
           icon
           type="submit"
-          aria-label={t('site:closeModal')}
+          aria-label={t('site.closeModal')}
           data-color="neutral"
           data-variant="tertiary"
           className={styles['ein-modal-close-button']}
