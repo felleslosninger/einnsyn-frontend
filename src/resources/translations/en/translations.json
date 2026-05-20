@@ -19,7 +19,8 @@
     "colorScheme": "Color scheme",
     "colorSchemeLight": "Light",
     "colorSchemeDark": "Dark",
-    "colorSchemeSystem": "System default"
+    "colorSchemeSystem": "System default",
+    "landingPage": "Go to landing page"
   },
   "admin": {
     "apiKey": {

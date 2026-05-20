@@ -1,5 +1,5 @@
 import { cachedAuthInfo } from '~/actions/authentication/auth';
-import AddOrganizationForm from '~/features/admin/AddOrganizationForm';
+import OrganizationForm from '~/features/admin/OrganizationForm';
 import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
 
 export default async function AddOrganization() {
@@ -7,5 +7,5 @@ export default async function AddOrganization() {
   if (!authInfo) {
     return <ApiKeyLogin />;
   }
-  return <AddOrganizationForm />;
+  return <OrganizationForm />;
 }

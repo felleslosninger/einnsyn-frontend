@@ -2,6 +2,7 @@
 
 import type { ApiKey, Enhet, EnhetRequest } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
+import { ENHETSTYPE_VALUES, Enhetstype } from './enhetValues';
 
 function str(formData: FormData, key: string): string | undefined {
   const val = formData.get(key);
@@ -58,21 +59,6 @@ export async function addApiKeyAction(
   }
 }
 
-const ENHETSTYPE_VALUES = [
-  'ADMINISTRATIVENHET',
-  'AVDELING',
-  'BYDEL',
-  'DUMMYENHET',
-  'FYLKE',
-  'KOMMUNE',
-  'ORGAN',
-  'SEKSJON',
-  'UTVALG',
-  'VIRKSOMHET',
-] as const;
-
-type Enhetstype = (typeof ENHETSTYPE_VALUES)[number];
-
 function isEnhetstype(value: string): value is Enhetstype {
   return ENHETSTYPE_VALUES.includes(value as Enhetstype);
 }
@@ -106,8 +92,7 @@ export async function addOrganizationAction(
   };
 
   try {
-    const enhet = await apiClient.enhet.add(organizationData);
-    return { success: true, enhet };
+    await apiClient.enhet.add(organizationData);
   } catch (error) {
     console.error('Failed to create organization:', error);
     return {
@@ -115,6 +100,8 @@ export async function addOrganizationAction(
       error: error instanceof Error ? error.message : String(error),
     };
   }
+
+  return { success: true };
 }
 
 export async function editOrganizationAction(

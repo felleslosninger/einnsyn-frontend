@@ -19,7 +19,8 @@
     "colorScheme": "Ivnnit",
     "colorSchemeLight": "Čuovgat",
     "colorSchemeDark": "Seavdnjat",
-    "colorSchemeSystem": "Systemastandárda"
+    "colorSchemeSystem": "Systemastandárda",
+    "landingPage": "Gå til forsiden"
   },
   "admin": {
     "apiKey": {

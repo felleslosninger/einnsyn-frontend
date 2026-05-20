@@ -1,6 +1,6 @@
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import DeleteOrganizationForm from '~/features/admin/DeleteOrganizationForm';
-import EditOrganizationForm from '~/features/admin/EditOrganizationForm';
+import OrganizationForm from '~/features/admin/OrganizationForm';
 import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
 
 export default async function EditOrganization() {
@@ -13,8 +13,8 @@ export default async function EditOrganization() {
   }
   return (
     <>
-      <EditOrganizationForm enhetId={authInfo.enhet?.id} />
-      {/* <DeleteOrganizationForm enhetId={authInfo.enhet?.id} /> */}
+      <OrganizationForm enhet={authInfo.enhet} />
+      <DeleteOrganizationForm enhet={authInfo.enhet} />
     </>
   );
 }

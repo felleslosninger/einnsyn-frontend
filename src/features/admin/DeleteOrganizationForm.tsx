@@ -10,12 +10,9 @@ import {
 import { useTranslation } from '~/hooks/useTranslation';
 import { useActionState } from 'react';
 import { deleteOrganizationAction } from './adminActions';
+import { Enhet } from '@digdir/einnsyn-sdk';
 
-export default function DeleteOrganizationForm({
-  enhetId,
-}: {
-  enhetId: string;
-}) {
+export default function DeleteOrganizationForm({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();
   const [state, formAction, isPending] = useActionState(
     deleteOrganizationAction,
@@ -81,7 +78,7 @@ export default function DeleteOrganizationForm({
                 }}
               >
                 <form action={formAction}>
-                  <input type="hidden" name="enhetId" value={enhetId} />
+                  <input type="hidden" name="enhetId" value={enhet.id} />
                   <Button
                     variant="primary"
                     data-color="danger"

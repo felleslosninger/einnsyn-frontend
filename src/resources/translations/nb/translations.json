@@ -19,7 +19,8 @@
     "colorScheme": "Fargevalg",
     "colorSchemeLight": "Lys",
     "colorSchemeDark": "Mørk",
-    "colorSchemeSystem": "Systemstandard"
+    "colorSchemeSystem": "Systemstandard",
+    "landingPage": "Gå til forsiden"
   },
   "admin": {
     "apiKey": {

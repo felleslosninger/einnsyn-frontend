@@ -13,7 +13,6 @@ export default function ApiKeyLogin() {
   const t = useTranslation();
   const basepath = useModalBasepath();
   const { origin } = useSessionData();
-  const { pending } = useFormStatus();
   const originUrl = new URL(basepath, origin).href;
 
   return (
@@ -32,9 +31,7 @@ export default function ApiKeyLogin() {
 
         <form action={ansattportenAuthAction}>
           <input type="hidden" name="originUrl" value={originUrl} />
-          <EinButton type="submit" disabled={pending}>
-            {t('admin.apiKey.login')}
-          </EinButton>
+          <EinButton type="submit">{t('admin.apiKey.login')}</EinButton>
         </form>
       </div>
       <div className="container-post" />
