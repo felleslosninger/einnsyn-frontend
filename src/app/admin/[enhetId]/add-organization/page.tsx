@@ -1,6 +1,6 @@
 import { cachedAuthInfo } from '~/actions/authentication/auth';
-import OrganizationForm from '~/features/admin/OrganizationForm';
 import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
+import OrganizationForm from '~/features/admin/OrganizationForm';
 
 export default async function AddOrganization() {
   const authInfo = await cachedAuthInfo();

@@ -1,6 +1,5 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
 import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { EinButton } from '~/components/EinButton/EinButton';

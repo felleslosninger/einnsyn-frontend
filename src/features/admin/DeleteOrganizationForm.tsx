@@ -3,14 +3,14 @@
 import {
   Alert,
   Button,
+  Dialog,
   Heading,
   Paragraph,
-  Dialog,
 } from '@digdir/designsystemet-react';
-import { useTranslation } from '~/hooks/useTranslation';
+import type { Enhet } from '@digdir/einnsyn-sdk';
 import { useActionState } from 'react';
+import { useTranslation } from '~/hooks/useTranslation';
 import { deleteOrganizationAction } from './adminActions';
-import { Enhet } from '@digdir/einnsyn-sdk';
 
 export default function DeleteOrganizationForm({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();

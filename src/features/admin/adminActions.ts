@@ -2,7 +2,7 @@
 
 import type { ApiKey, Enhet, EnhetRequest } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
-import { ENHETSTYPE_VALUES, Enhetstype } from './enhetValues';
+import { ENHETSTYPE_VALUES, type Enhetstype } from './enhetValues';
 
 function str(formData: FormData, key: string): string | undefined {
   const val = formData.get(key);

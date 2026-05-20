@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Alert,
   Button,
@@ -8,10 +9,10 @@ import {
   Heading,
   Input,
   Label,
+  Link,
   Select,
   Tag,
   ValidationMessage,
-  Link,
 } from '@digdir/designsystemet-react';
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { useActionState, useEffect, useRef, useState } from 'react';

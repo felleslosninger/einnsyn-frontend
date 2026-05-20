@@ -1,7 +1,7 @@
 import { cachedAuthInfo } from '~/actions/authentication/auth';
+import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
 import DeleteOrganizationForm from '~/features/admin/DeleteOrganizationForm';
 import OrganizationForm from '~/features/admin/OrganizationForm';
-import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
 
 export default async function EditOrganization() {
   const authInfo = await cachedAuthInfo();
