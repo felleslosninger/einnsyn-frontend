@@ -2,6 +2,13 @@
   "files": {
     "includes": ["src/**/*.ts", "src/**/*.tsx"]
   },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "lineWidth": 80,
