@@ -78,8 +78,24 @@
     "enhetPlaceholder": "Alle verksemder",
     "enhetFilterPlaceholder": "Søk",
     "enhetSelectorTitle": "Vel verksemd",
-    "availableEnheter": "Tilgjengelege verksemder",
-    "selectedEnheter": "Valde verksemder",
+    "enhetSelectorTitleDesktop": "Vel verksemder",
+    "enhetSelectorSubtitle": "Vel ei eller fleire verksemder for å avgrense søket.",
+    "availableEnheter": "Tilgjengelege",
+    "selectedEnheter": "Valde",
+    "applySelection": "Bruk val",
+    "selectionCount": "$1 verksemder valde",
+    "orgNumberPrefix": "org.nr",
+    "enhetstype": {
+      "ADMINISTRATIVENHET": "Administrativ eining",
+      "AVDELING": "Avdeling",
+      "BYDEL": "Bydel",
+      "FYLKE": "Fylke",
+      "KOMMUNE": "Kommune",
+      "ORGAN": "Organ",
+      "SEKSJON": "Seksjon",
+      "UTVALG": "Utval",
+      "VIRKSOMHET": "Verksemd"
+    },
     "searchingIn": "Søkjer i"
   },
   "routing": {

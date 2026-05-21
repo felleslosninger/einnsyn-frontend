@@ -8,9 +8,7 @@ import {
 } from '~/components/EinTransition/EinTransition';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import useIsChanged from '~/hooks/useIsChanged';
-import { useIsScrolledToTop } from '~/hooks/useIsScrolledToTop';
-import { useScrollingDirection } from '~/hooks/useScrollingDirection';
+import { useScrollState } from '~/hooks/useScrollState';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
@@ -23,11 +21,13 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
   const isHome = rootPath === 'home';
 
-  const [fixedHeader, setFixedHeader] = useState(false);
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
-  const isScrolledToTop = useIsScrolledToTop();
-  const switchedIsScrolledToTop = useIsChanged([isScrolledToTop]);
-  const hasScrolledDown = useScrollingDirection() === 'down';
+  const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
+    null,
+  );
+  const [fixedViewportTop, setFixedViewportTop] = useState(0);
+  const [fixedViewportLeft, setFixedViewportLeft] = useState(0);
+  const { isAtTop, isScrollingDown } = useScrollState();
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
@@ -60,29 +60,115 @@ export default function Header({ children }: { children: React.ReactNode }) {
           activeRouteTransition.toRootPath === 'home'))
     );
 
-  // Update headerHeight *before* setting position: fixed
+  // Keep the in-flow header height measured so we can switch to fixed
+  // immediately when scroll leaves the top without waiting for a second pass.
   useLayoutEffect(() => {
     if (isHome) {
-      setFixedHeader(false);
       setHeaderHeight(null);
       return;
     }
 
-    if (switchedIsScrolledToTop && headerRef.current) {
-      if (isScrolledToTop) {
-        setFixedHeader(false);
-        setHeaderHeight(null);
-      } else {
-        setFixedHeader(true);
-        setHeaderHeight(headerRef.current.offsetHeight);
-      }
+    const headerElement = headerRef.current;
+    if (!headerElement) {
+      return;
     }
-  }, [isHome, switchedIsScrolledToTop, isScrolledToTop]);
+
+    const updateHeaderHeight = () => {
+      const nextHeight = headerElement.offsetHeight;
+      setHeaderHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight,
+      );
+    };
+
+    updateHeaderHeight();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateHeaderHeight);
+      window.visualViewport?.addEventListener('resize', updateHeaderHeight);
+
+      return () => {
+        window.removeEventListener('resize', updateHeaderHeight);
+        window.visualViewport?.removeEventListener(
+          'resize',
+          updateHeaderHeight,
+        );
+      };
+    }
+
+    const resizeObserver = new ResizeObserver(updateHeaderHeight);
+    resizeObserver.observe(headerElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isHome]);
+
+  // Fixed-position width must track the visual viewport on mobile; `width:100%`
+  // can be wider than the visible area while browser chrome is animating.
+  useLayoutEffect(() => {
+    if (isHome) {
+      setFixedViewportWidth(null);
+      setFixedViewportTop(0);
+      setFixedViewportLeft(0);
+      return;
+    }
+
+    const updateViewportBounds = () => {
+      const viewport = window.visualViewport;
+      const nextTop = Math.round(viewport?.offsetTop ?? 0);
+      const nextWidth = Math.round(
+        viewport?.width ?? document.documentElement.clientWidth,
+      );
+      const nextLeft = Math.round(viewport?.offsetLeft ?? 0);
+
+      setFixedViewportTop((currentTop) =>
+        currentTop === nextTop ? currentTop : nextTop,
+      );
+      setFixedViewportWidth((currentWidth) =>
+        currentWidth === nextWidth ? currentWidth : nextWidth,
+      );
+      setFixedViewportLeft((currentLeft) =>
+        currentLeft === nextLeft ? currentLeft : nextLeft,
+      );
+    };
+
+    updateViewportBounds();
+    window.addEventListener('resize', updateViewportBounds);
+    window.visualViewport?.addEventListener('resize', updateViewportBounds);
+    window.visualViewport?.addEventListener('scroll', updateViewportBounds);
+
+    return () => {
+      window.removeEventListener('resize', updateViewportBounds);
+      window.visualViewport?.removeEventListener(
+        'resize',
+        updateViewportBounds,
+      );
+      window.visualViewport?.removeEventListener(
+        'scroll',
+        updateViewportBounds,
+      );
+    };
+  }, [isHome]);
+
+  const fixedHeader =
+    !isHome &&
+    !isAtTop &&
+    headerHeight !== null &&
+    fixedViewportWidth !== null;
+
+  const fixedHeaderStyle = fixedHeader
+    ? {
+        top: `${fixedViewportTop}px`,
+        width: `${fixedViewportWidth}px`,
+        maxWidth: `${fixedViewportWidth}px`,
+        left: `${fixedViewportLeft}px`,
+      }
+    : undefined;
 
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
   const className = cn(styles.header, `section-${rootPath}`, {
-    [styles.scrolled]: !isHome && hasScrolledDown,
+    [styles.scrolled]: !isHome && isScrollingDown,
     [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
   });
 
@@ -225,7 +311,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
         {fixedHeader && headerHeight !== null && (
           <div aria-hidden="true" style={{ height: `${headerHeight}px` }} />
         )}
-        <header ref={headerRef} className={className}>
+        <header ref={headerRef} className={className} style={fixedHeaderStyle}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>
             <div
               className={cn(

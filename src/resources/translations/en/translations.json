@@ -78,8 +78,24 @@
     "enhetPlaceholder": "All organizations",
     "enhetFilterPlaceholder": "Search",
     "enhetSelectorTitle": "Choose organization",
-    "availableEnheter": "Available organizations",
-    "selectedEnheter": "Selected organizations",
+    "enhetSelectorTitleDesktop": "Choose organizations",
+    "enhetSelectorSubtitle": "Choose one or more organizations to narrow your search.",
+    "availableEnheter": "Available",
+    "selectedEnheter": "Selected",
+    "applySelection": "Apply selection",
+    "selectionCount": "$1 organizations selected",
+    "orgNumberPrefix": "org.no",
+    "enhetstype": {
+      "ADMINISTRATIVENHET": "Administrative unit",
+      "AVDELING": "Department",
+      "BYDEL": "District",
+      "FYLKE": "County",
+      "KOMMUNE": "Municipality",
+      "ORGAN": "Body",
+      "SEKSJON": "Section",
+      "UTVALG": "Committee",
+      "VIRKSOMHET": "Organization"
+    },
     "searchingIn": "Searching in"
   },
   "routing": {

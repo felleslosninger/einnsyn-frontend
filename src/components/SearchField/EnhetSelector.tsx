@@ -1,14 +1,7 @@
 'use client';
 
-import { Heading, Search, Skeleton } from '@digdir/designsystemet-react';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { Button, Search, Skeleton } from '@digdir/designsystemet-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VList, type VListHandle } from 'virtua';
 import EinModal, { EinModalHeader } from '~/components/EinModal/EinModal';
 import EinPopup from '~/components/EinPopup/EinPopup';
@@ -19,6 +12,7 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import {
+  formatOrgnummer,
   getAncestorsAsString,
   getEnhetHref,
   getName,
@@ -127,9 +121,7 @@ export default function EnhetSelector({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const summaryButtonRef = useRef<HTMLButtonElement>(null);
-  const searchFieldRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
   const availableListRef = useRef<VListHandle>(null);
   const selectedListRef = useRef<VListHandle>(null);
   const previousExpandedRef = useRef(active);
@@ -138,7 +130,7 @@ export default function EnhetSelector({
     () => parseEnhetParam(enhetSearchQuery),
     [enhetSearchQuery],
   );
-  const selectedEnhetIds = useMemo(
+  const urlSelectedEnhetIds = useMemo(
     () =>
       normalizeEnhetParamValues(
         selectedEnhetQueryValues.map((value) => {
@@ -149,7 +141,22 @@ export default function EnhetSelector({
     [enhetMap, selectedEnhetQueryValues],
   );
 
-  const setSelectedEnhetIds = useCallback(
+  // Desktop picker buffers selections until the user clicks "Bruk valg" —
+  // changes only commit to the URL on Apply. Mobile stays real-time.
+  const isBuffered = !isMobileLayout && active;
+  const [draftSelectedIds, setDraftSelectedIds] = useState<string[]>([]);
+
+  // Re-seed the draft from the URL whenever the desktop modal opens.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-init only on transition into buffered mode; URL changes mid-open are intentionally not synced (the user is editing).
+  useEffect(() => {
+    if (isBuffered) {
+      setDraftSelectedIds(urlSelectedEnhetIds);
+    }
+  }, [isBuffered]);
+
+  const selectedEnhetIds = isBuffered ? draftSelectedIds : urlSelectedEnhetIds;
+
+  const commitSelectedEnhetIdsToUrl = useCallback(
     (nextSelectedEnhetIds: string[]) => {
       const newSearchParams = new URLSearchParams(
         optimisticSearchParams.toString(),
@@ -165,6 +172,22 @@ export default function EnhetSelector({
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );
+
+  const setSelectedEnhetIds = useCallback(
+    (nextSelectedEnhetIds: string[]) => {
+      if (isBuffered) {
+        setDraftSelectedIds(nextSelectedEnhetIds);
+      } else {
+        commitSelectedEnhetIdsToUrl(nextSelectedEnhetIds);
+      }
+    },
+    [isBuffered, commitSelectedEnhetIdsToUrl],
+  );
+
+  const applySelection = useCallback(() => {
+    commitSelectedEnhetIdsToUrl(draftSelectedIds);
+    close?.();
+  }, [commitSelectedEnhetIdsToUrl, draftSelectedIds, close]);
 
   const selectedEnhetList = useMemo(() => {
     return selectedEnhetIds.map((id) => {
@@ -281,78 +304,6 @@ export default function EnhetSelector({
     previousExpandedRef.current = active;
   }, [active, focusInput]);
 
-  // Resolve the wrapping search field once on mount so EinPopup can clamp the
-  // popup's inline bounds to it (preventing it from extending past the form
-  // on the left).
-  useLayoutEffect(() => {
-    const selector = containerRef.current;
-    if (!selector) {
-      return;
-    }
-    const searchField = selector.closest(
-      '[data-search-field-container="true"]',
-    );
-    searchFieldRef.current =
-      searchField instanceof HTMLElement ? searchField : null;
-  }, []);
-
-  // On the landing page, push the popup's overflow past the home header so the
-  // page layout expands to make room for it. No-op outside the landing page.
-  useEffect(() => {
-    const selector = containerRef.current;
-    const popup = popupRef.current;
-    if (!selector || !popup || !active || isMobileLayout) {
-      return;
-    }
-
-    const pageRoot = selector.closest('.einnsyn-body');
-    const homeHeader = selector.closest('header.section-home');
-    if (
-      !(pageRoot instanceof HTMLElement) ||
-      !(homeHeader instanceof HTMLElement)
-    ) {
-      return;
-    }
-
-    const resetOverflow = () => {
-      pageRoot.style.removeProperty('--landing-page-selector-overflow');
-    };
-
-    const update = () => {
-      const popupRect = popup.getBoundingClientRect();
-      const homeHeaderRect = homeHeader.getBoundingClientRect();
-      const overflow = Math.max(
-        0,
-        Math.ceil(popupRect.bottom - homeHeaderRect.bottom),
-      );
-      pageRoot.style.setProperty(
-        '--landing-page-selector-overflow',
-        `${overflow}px`,
-      );
-    };
-
-    update();
-
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', update);
-      return () => {
-        window.removeEventListener('resize', update);
-        resetOverflow();
-      };
-    }
-
-    const resizeObserver = new ResizeObserver(update);
-    resizeObserver.observe(popup);
-    resizeObserver.observe(homeHeader);
-    window.addEventListener('resize', update);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', update);
-      resetOverflow();
-    };
-  }, [active, isMobileLayout]);
-
   const searchString = filterValue;
 
   // Get a sorted tree structure of enheter, filtered by search string
@@ -360,10 +311,16 @@ export default function EnhetSelector({
     return filterEnhetList(enhetNodeList, searchString, languageCode);
   }, [enhetNodeList, searchString, languageCode]);
 
-  // Split the visible list into selected/available buckets for the mobile
-  // sheet, which pins selected items at the top so they're easy to find in
-  // long lists (~2000 items, ~20 selections spread across).
-  const { mobileSelectedNodes, mobileAvailableNodes } = useMemo(() => {
+  // Split the search-filtered list into selected/available buckets.
+  //
+  // - `availableNodes` (non-selected, filtered): used by both layouts as the
+  //   left/main column of "what you can add".
+  // - `searchMatchedSelectedNodes` (selected, filtered): the mobile sheet
+  //   pins these at the top under a "Valgte" header so users can find their
+  //   selections in long lists (~2000 items, ~20 selections spread across).
+  //   The desktop modal uses `selectedEnhetItems` instead (all selected,
+  //   unfiltered) so the right column is a stable manage-your-selection view.
+  const { searchMatchedSelectedNodes, availableNodes } = useMemo(() => {
     const selectedSet = new Set(selectedEnhetIds);
     const selected: EnhetNode[] = [];
     const available: EnhetNode[] = [];
@@ -374,7 +331,10 @@ export default function EnhetSelector({
         available.push(node);
       }
     }
-    return { mobileSelectedNodes: selected, mobileAvailableNodes: available };
+    return {
+      searchMatchedSelectedNodes: selected,
+      availableNodes: available,
+    };
   }, [visibleEnhetNodeList, selectedEnhetIds]);
 
   const addEnhetHandler = useCallback(
@@ -468,15 +428,15 @@ export default function EnhetSelector({
       if (prev?.list !== 'available') {
         return prev;
       }
-      if (visibleEnhetNodeList.length === 0) {
+      if (availableNodes.length === 0) {
         return null;
       }
-      const maxIndex = visibleEnhetNodeList.length - 1;
+      const maxIndex = availableNodes.length - 1;
       return prev.index > maxIndex
         ? { list: 'available', index: maxIndex }
         : prev;
     });
-  }, [visibleEnhetNodeList.length]);
+  }, [availableNodes.length]);
 
   // Bound to the container via React's onKeyDown so events still reach us when
   // the mobile sheet is rendered through a portal (DOM-bound listeners would
@@ -493,7 +453,7 @@ export default function EnhetSelector({
           setFocus((prev) => {
             const list = prev?.list ?? 'available';
             const items =
-              list === 'selected' ? selectedEnhetItems : visibleEnhetNodeList;
+              list === 'selected' ? selectedEnhetItems : availableNodes;
             if (items.length === 0) {
               return null;
             }
@@ -508,7 +468,7 @@ export default function EnhetSelector({
           setFocus((prev) => {
             const list = prev?.list ?? 'available';
             const items =
-              list === 'selected' ? selectedEnhetItems : visibleEnhetNodeList;
+              list === 'selected' ? selectedEnhetItems : availableNodes;
             if (items.length === 0) {
               return null;
             }
@@ -521,7 +481,7 @@ export default function EnhetSelector({
           }
           event.preventDefault();
           if (focus.list === 'available') {
-            const node = visibleEnhetNodeList[focus.index];
+            const node = availableNodes[focus.index];
             if (node) {
               addEnhetHandler(node.enhet);
             }
@@ -550,7 +510,7 @@ export default function EnhetSelector({
       removeEnhetHandler,
       selectedEnhetItems,
       close,
-      visibleEnhetNodeList,
+      availableNodes,
     ],
   );
 
@@ -565,12 +525,12 @@ export default function EnhetSelector({
       return undefined;
     }
     if (focus.list === 'available') {
-      const node = visibleEnhetNodeList[focus.index];
+      const node = availableNodes[focus.index];
       return node ? `enhet-option-available-${node.enhet.id}` : undefined;
     }
     const enhet = selectedEnhetItems[focus.index];
     return enhet ? `enhet-option-selected-${enhet.id}` : undefined;
-  }, [focus, visibleEnhetNodeList, selectedEnhetItems]);
+  }, [focus, availableNodes, selectedEnhetItems]);
 
   const renderSkeleton = (key: string) => {
     const name = skeletonString(10, 60);
@@ -585,15 +545,6 @@ export default function EnhetSelector({
       </div>
     );
   };
-
-  const handleSetOpen = useCallback(
-    (value: boolean) => {
-      if (!value) {
-        close?.();
-      }
-    },
-    [close],
-  );
 
   const SummaryComponent =
     layout === 'mobile' ? EnhetSummaryMobile : EnhetSummaryDesktop;
@@ -632,113 +583,25 @@ export default function EnhetSelector({
     </div>
   );
 
-  const availableList = (
-    <div className={styles.enhetSelectorDropdownListContainer}>
-      <div className={styles.enhetSelectorDropdownLabelRow}>
-        <Heading
-          className={styles.enhetSelectorDropdownLabel}
-          level={2}
-          data-size="2xs"
-        >
-          {t('search.availableEnheter')} ({visibleEnhetNodeList.length})
-        </Heading>
-        {isMobileLayout && selectedEnhetIds.length > 0 && (
-          <button
-            type="button"
-            className={styles.selectedListClearButton}
-            onClick={clearSelectedEnheter}
-          >
-            {t('common.removeAll')}
-          </button>
-        )}
-      </div>
-      <VList
-        ref={availableListRef}
-        className={styles.enhetSelectorDropdownList}
-        style={{ contain: 'content' }}
-        aria-label={t('search.availableEnheter')}
-        role="listbox"
-      >
-        {visibleEnhetNodeList.map((enhetNode, index) => {
-          const isSelected = selectedEnhetIds.includes(
-            getEnhetHref(enhetNode.enhet),
-          );
-          return (
-            <EnhetSelectorSelectItem
-              key={`add-${enhetNode.enhet.id}`}
-              id={`enhet-option-available-${enhetNode.enhet.id}`}
-              enhet={enhetNode.enhet}
-              onClick={() =>
-                isMobileLayout
-                  ? toggleEnhetHandler(enhetNode.enhet)
-                  : addEnhetHandler(enhetNode.enhet)
-              }
-              variant="available"
-              actionLabel={
-                isMobileLayout && isSelected
-                  ? t('common.remove')
-                  : t('common.add')
-              }
-              isSelected={isSelected}
-              isFocused={focus?.list === 'available' && focus.index === index}
-            />
-          );
-        })}
-        {!fullListLoaded &&
-          [0, 1, 2, 3].map((index) =>
-            renderSkeleton(`loading-available-${index}`),
-          )}
-        {fullListLoaded && visibleEnhetNodeList.length === 0 && (
-          <div className={styles.emptyState}>{t('common.noResults')}</div>
-        )}
-      </VList>
-    </div>
-  );
-
-  const selectedList = (
-    <div
-      className={cn(
-        styles.enhetSelectorDropdownListContainer,
-        styles.selectedListContainer,
-      )}
-    >
-      <div className={styles.enhetSelectorDropdownLabelRow}>
-        <Heading
-          className={styles.enhetSelectorDropdownLabel}
-          level={2}
-          data-size="2xs"
-        >
-          {t('search.selectedEnheter')}
-        </Heading>
-        {selectedEnhetIds.length > 0 && (
-          <button
-            type="button"
-            className={styles.selectedListClearButton}
-            onClick={clearSelectedEnheter}
-          >
-            {t('common.removeAll')}
-          </button>
-        )}
-      </div>
-      <VList
-        ref={selectedListRef}
-        className={styles.enhetSelectorDropdownList}
-        aria-label={t('search.selectedEnheter')}
-        role="listbox"
-      >
-        {selectedEnhetItems.map((enhet, index) => (
-          <EnhetSelectorSelectItem
-            key={`remove-${enhet.id}`}
-            id={`enhet-option-selected-${enhet.id}`}
-            enhet={enhet}
-            onClick={() => removeEnhetHandler(enhet)}
-            variant="selected"
-            actionLabel={t('common.remove')}
-            isFocused={focus?.list === 'selected' && focus.index === index}
-          />
-        ))}
-      </VList>
-    </div>
+  // Resolve a row's second line: ancestors when the enhet is a sub-unit,
+  // else "Type · org.nr 123 456 789" for top-level enheter so the user can
+  // disambiguate organisations that share a name.
+  const getRowSubtitle = useCallback(
+    (enhet: TrimmedEnhet): string | undefined => {
+      const ancestors = getAncestorsAsString(enhet, ' / ', languageCode);
+      if (ancestors) return ancestors;
+      const typeKey = `search.enhetstype.${enhet.enhetstype}`;
+      const typeLabel = t(typeKey);
+      const hasTypeLabel = typeLabel !== typeKey;
+      const orgnr = enhet.orgnummer ? formatOrgnummer(enhet.orgnummer) : '';
+      if (hasTypeLabel && orgnr) {
+        return `${typeLabel} · ${t('search.orgNumberPrefix')} ${orgnr}`;
+      }
+      if (hasTypeLabel) return typeLabel;
+      if (orgnr) return `${t('search.orgNumberPrefix')} ${orgnr}`;
+      return undefined;
+    },
+    [t, languageCode],
   );
 
   return (
@@ -774,12 +637,13 @@ export default function EnhetSelector({
                   onClick={clearSelectedEnheter}
                 />
               )}
-              {mobileSelectedNodes.length > 0 && (
+              {searchMatchedSelectedNodes.length > 0 && (
                 <div className={styles.mobileSectionHeader}>
-                  {t('search.selectedEnheter')} ({mobileSelectedNodes.length})
+                  {t('search.selectedEnheter')} (
+                  {searchMatchedSelectedNodes.length})
                 </div>
               )}
-              {mobileSelectedNodes.map((enhetNode) => {
+              {searchMatchedSelectedNodes.map((enhetNode) => {
                 const ancestors = getAncestorsAsString(
                   enhetNode.enhet,
                   ' / ',
@@ -796,13 +660,13 @@ export default function EnhetSelector({
                   />
                 );
               })}
-              {mobileSelectedNodes.length > 0 &&
-                mobileAvailableNodes.length > 0 && (
+              {searchMatchedSelectedNodes.length > 0 &&
+                availableNodes.length > 0 && (
                   <div className={styles.mobileSectionHeader}>
                     {t('search.availableEnheter')}
                   </div>
                 )}
-              {mobileAvailableNodes.map((enhetNode, index) => {
+              {availableNodes.map((enhetNode, index) => {
                 const ancestors = getAncestorsAsString(
                   enhetNode.enhet,
                   ' / ',
@@ -834,20 +698,122 @@ export default function EnhetSelector({
       ) : (
         <EinPopup
           open={active}
-          setOpen={handleSetOpen}
+          setOpen={(value) => !value && close?.()}
           anchorRef={summaryButtonRef}
-          sizeReferenceRef={searchFieldRef}
-          popupRef={popupRef}
-          className={styles.selectorPopup}
+          className={styles.desktopSelectorPopup}
           preferredPosition={['belowRight']}
           closeOnEsc={false}
           trapFocus={false}
           arrow={false}
         >
-          {filterField}
-          <div className={styles.enhetSelectorDropdown}>
-            {availableList}
-            {selectedList}
+          <div className={styles.desktopHeader}>
+            <div className={styles.desktopTitleBlock}>
+              <h1 className={styles.desktopTitle}>
+                {t('search.enhetSelectorTitleDesktop')}
+              </h1>
+              <p className={styles.desktopSubtitle}>
+                {t('search.enhetSelectorSubtitle')}
+              </p>
+            </div>
+          </div>
+          <div className={styles.desktopBody}>
+            {filterField}
+            <div className={styles.desktopColumns}>
+              <div className={styles.desktopColumn}>
+                <div className={styles.desktopColumnHeader}>
+                  <span className={styles.desktopColumnLabel}>
+                    {t('search.availableEnheter')}
+                  </span>
+                </div>
+                <VList
+                  ref={availableListRef}
+                  className={styles.desktopColumnList}
+                  style={{ contain: 'content' }}
+                  aria-label={t('search.availableEnheter')}
+                  role="listbox"
+                >
+                  {availableNodes.map((enhetNode, index) => (
+                    <EnhetSelectorSelectItem
+                      key={`available-${enhetNode.enhet.id}`}
+                      id={`enhet-option-available-${enhetNode.enhet.id}`}
+                      enhet={enhetNode.enhet}
+                      subtitle={getRowSubtitle(enhetNode.enhet)}
+                      variant="available"
+                      isFocused={
+                        focus?.list === 'available' && focus.index === index
+                      }
+                      onClick={() => addEnhetHandler(enhetNode.enhet)}
+                    />
+                  ))}
+                  {!fullListLoaded &&
+                    [0, 1, 2, 3].map((index) =>
+                      renderSkeleton(`loading-available-${index}`),
+                    )}
+                  {fullListLoaded && availableNodes.length === 0 && (
+                    <div className={styles.emptyState}>
+                      {t('common.noResults')}
+                    </div>
+                  )}
+                </VList>
+              </div>
+              <div className={styles.desktopColumn}>
+                <div className={styles.desktopColumnHeader}>
+                  <span className={styles.desktopColumnLabel}>
+                    {t('search.selectedEnheter')}
+                  </span>
+                  {selectedEnhetItems.length > 0 && (
+                    <button
+                      type="button"
+                      className={styles.desktopClearAllButton}
+                      onClick={clearSelectedEnheter}
+                    >
+                      {t('common.removeAll')}
+                    </button>
+                  )}
+                </div>
+                <VList
+                  ref={selectedListRef}
+                  className={styles.desktopColumnList}
+                  aria-label={t('search.selectedEnheter')}
+                  role="listbox"
+                >
+                  {selectedEnhetItems.map((enhet, index) => (
+                    <EnhetSelectorSelectItem
+                      key={`selected-${enhet.id}`}
+                      id={`enhet-option-selected-${enhet.id}`}
+                      enhet={enhet}
+                      subtitle={getRowSubtitle(enhet)}
+                      variant="selected"
+                      isFocused={
+                        focus?.list === 'selected' && focus.index === index
+                      }
+                      onClick={() => removeEnhetHandler(enhet)}
+                    />
+                  ))}
+                </VList>
+              </div>
+            </div>
+          </div>
+          <div className={styles.desktopFooter}>
+            <span className={styles.desktopFooterCount}>
+              {t('search.selectionCount', String(selectedEnhetItems.length))}
+            </span>
+            <Button
+              type="button"
+              data-color="neutral"
+              data-variant="tertiary"
+              onClick={close}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="button"
+              data-color="accent"
+              data-variant="primary"
+              onClick={applySelection}
+            >
+              {t('search.applySelection')}
+            </Button>
           </div>
         </EinPopup>
       )}

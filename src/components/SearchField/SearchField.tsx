@@ -66,7 +66,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
   return (
     <form
       className={cn(styles.searchFieldContainer, className)}
-      data-search-field-container="true"
       method="get"
       onSubmit={onSubmit}
       action={optimisticPathname}
@@ -101,11 +100,13 @@ export const SearchField = ({ className }: SearchFieldProps) => {
             data-styled-input-expandable="true"
           >
             <StyledInput
-              icon={ !isMobileLayout &&
-                <MagnifyingGlassIcon
-                  className={cn(styles.searchIcon)}
-                  aria-hidden="true"
-                />
+              icon={
+                !isMobileLayout && (
+                  <MagnifyingGlassIcon
+                    className={cn(styles.searchIcon)}
+                    aria-hidden="true"
+                  />
+                )
               }
               value={searchQuery}
               setValue={setSearchQuery}

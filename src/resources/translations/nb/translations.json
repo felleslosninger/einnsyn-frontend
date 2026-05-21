@@ -78,8 +78,24 @@
     "enhetPlaceholder": "Alle virksomheter",
     "enhetFilterPlaceholder": "Søk",
     "enhetSelectorTitle": "Velg virksomhet",
-    "availableEnheter": "Tilgjengelige virksomheter",
-    "selectedEnheter": "Valgte virksomheter",
+    "enhetSelectorTitleDesktop": "Velg virksomheter",
+    "enhetSelectorSubtitle": "Velg én eller flere virksomheter for å begrense søket.",
+    "availableEnheter": "Tilgjengelige",
+    "selectedEnheter": "Valgte",
+    "applySelection": "Bruk valg",
+    "selectionCount": "$1 virksomheter valgt",
+    "orgNumberPrefix": "org.nr",
+    "enhetstype": {
+      "ADMINISTRATIVENHET": "Administrativ enhet",
+      "AVDELING": "Avdeling",
+      "BYDEL": "Bydel",
+      "FYLKE": "Fylke",
+      "KOMMUNE": "Kommune",
+      "ORGAN": "Organ",
+      "SEKSJON": "Seksjon",
+      "UTVALG": "Utvalg",
+      "VIRKSOMHET": "Virksomhet"
+    },
     "searchingIn": "Søker i"
   },
   "routing": {

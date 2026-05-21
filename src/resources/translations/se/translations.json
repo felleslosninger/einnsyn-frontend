@@ -78,8 +78,24 @@
     "enhetPlaceholder": "Buot organisašuvnnat",
     "enhetFilterPlaceholder": "Oza",
     "enhetSelectorTitle": "Vállje organisašuvnna",
-    "availableEnheter": "Olamuttus organisašuvnnat",
-    "selectedEnheter": "Válljejuvvon organisašuvnnat",
+    "enhetSelectorTitleDesktop": "Vállje organisašuvnnaid",
+    "enhetSelectorSubtitle": "Vállje ovtta dahje eanet organisašuvnna ohcama ráddjet.",
+    "availableEnheter": "Olamuttus",
+    "selectedEnheter": "Válljejuvvon",
+    "applySelection": "Geavat válljema",
+    "selectionCount": "$1 organisašuvnna válljejuvvon",
+    "orgNumberPrefix": "org.nr",
+    "enhetstype": {
+      "ADMINISTRATIVENHET": "Hálddahusovttadat",
+      "AVDELING": "Ossodat",
+      "BYDEL": "Gávpotoassi",
+      "FYLKE": "Fylka",
+      "KOMMUNE": "Suohkan",
+      "ORGAN": "Orgána",
+      "SEKSJON": "Seakšuvdna",
+      "UTVALG": "Lávdegoddi",
+      "VIRKSOMHET": "Organisašuvdna"
+    },
     "searchingIn": "Ohcamin"
   },
   "routing": {

@@ -30,7 +30,6 @@ body {
 }
 
 .einnsyn-body {
-  --landing-page-selector-overflow: 0px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -38,7 +37,6 @@ body {
 
 .content-flex-grow {
   flex: 1;
-  padding-bottom: var(--landing-page-selector-overflow);
 }
 
 
@@ -92,38 +90,36 @@ body {
   }
 
   @include mq.small {
-    flex-wrap: wrap;
+    // Keep the side slots on the first row and the main slot full width below.
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'pre post'
+      'main main';
     padding-left: var(--ds-size-2);
     padding-right: var(--ds-size-2);
 
     >.container-pre,
     >.container-post,
     >.container {
+      min-width: 0;
       padding-left: var(--ds-size-2);
       padding-right: var(--ds-size-2);
     }
 
-    >.container-pre,
-    >.container-post {
-      width: 50%;
-    }
-
-    >.container {
-      width: 100%;
-      min-width: 0;
-    }
-
     >.container-pre {
-      order: 1;
+      grid-area: pre;
+      width: auto;
     }
 
     >.container-post {
-      order: 2;
-
+      grid-area: post;
+      width: auto;
     }
 
     >.container {
-      order: 3;
+      grid-area: main;
+      width: 100%;
     }
   }
 

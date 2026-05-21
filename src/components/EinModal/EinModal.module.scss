@@ -62,7 +62,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   }
 
   /*
-  * Mobile layout (old PromptScreen)
+  * Mobile layout (bottom-sheet drawer)
   */
   @include mediaQueries.small {
     transform: none;
@@ -96,10 +96,6 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
     .einModalBody {
       padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
-    }
-
-    .einModalFooter {
-      //padding: px(13) px(16);
     }
 
     .einModalContent {
@@ -221,14 +217,12 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     .einModalBody {
       flex: 1 1 auto;
       overflow-y: auto;
-      //overflow: auto;
       padding: $horizontalPadding $verticalPadding;
       gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
       min-width: 500px;
     }
 
     .einModalFooter {
-      //padding: px(27) px(40);
       flex: 0 0;
     }
 

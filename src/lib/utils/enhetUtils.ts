@@ -67,3 +67,13 @@ export const useAncestorsAsString = (
     [enhet, separator, languageCode],
   );
 };
+
+// Format a Norwegian org number as 3-3-3 ("921707134" → "921 707 134").
+export const formatOrgnummer = (orgnr: string | null | undefined): string => {
+  if (!orgnr) return '';
+  const digits = orgnr.replace(/\s/g, '');
+  if (digits.length === 9) {
+    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  }
+  return orgnr;
+};

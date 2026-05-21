@@ -31,13 +31,28 @@ type Subscriber = {
 
 const EPSILON_PX = 1;
 
-const readScrollY = () => window.scrollY ?? window.pageYOffset ?? 0;
+const getScrollRoot = () =>
+  document.scrollingElement ?? document.documentElement ?? document.body;
 
-const readIsAtTop = (y: number) => y <= 0;
+const readScrollY = () => {
+  const scrollRoot = getScrollRoot();
+  if (scrollRoot) {
+    return scrollRoot.scrollTop;
+  }
+
+  return (
+    window.scrollY ?? window.pageYOffset ?? document.documentElement.scrollTop ?? 0
+  );
+};
+
+const readViewportHeight = () =>
+  window.visualViewport?.height ?? window.innerHeight;
+
+const readIsAtTop = (y: number) => y <= EPSILON_PX;
 
 const readIsAtBottom = (y: number) => {
   const scrollHeight = document.documentElement.scrollHeight;
-  return window.innerHeight + y >= scrollHeight - EPSILON_PX;
+  return readViewportHeight() + y >= scrollHeight - EPSILON_PX;
 };
 
 // Module-level state
@@ -120,6 +135,24 @@ const queueHandleScroll = () => {
   }
 };
 
+const addScrollListeners = () => {
+  // Document dispatches the page/viewport scroll event; the scrollingElement
+  // is still the right place to read scrollTop from.
+  document.addEventListener('scroll', queueHandleScroll, {
+    passive: true,
+  });
+  window.addEventListener('resize', queueHandleScroll, { passive: true });
+  window.visualViewport?.addEventListener('resize', queueHandleScroll, {
+    passive: true,
+  });
+};
+
+const removeScrollListeners = () => {
+  document.removeEventListener('scroll', queueHandleScroll);
+  window.removeEventListener('resize', queueHandleScroll);
+  window.visualViewport?.removeEventListener('resize', queueHandleScroll);
+};
+
 const addListener = (subscriber: Subscriber) => {
   if (!IS_BROWSER) return;
 
@@ -131,8 +164,7 @@ const addListener = (subscriber: Subscriber) => {
     isAtTop = readIsAtTop(lastY);
     isAtBottom = readIsAtBottom(lastY);
 
-    window.addEventListener('scroll', queueHandleScroll, { passive: true });
-    window.addEventListener('resize', queueHandleScroll, { passive: true });
+    addScrollListeners();
   }
 
   subscriber.setIsAtTop(isAtTop);
@@ -142,8 +174,7 @@ const addListener = (subscriber: Subscriber) => {
 const removeListener = (subscriber: Subscriber) => {
   subscribers.delete(subscriber);
   if (subscribers.size === 0) {
-    window.removeEventListener('scroll', queueHandleScroll);
-    window.removeEventListener('resize', queueHandleScroll);
+    removeScrollListeners();
 
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
