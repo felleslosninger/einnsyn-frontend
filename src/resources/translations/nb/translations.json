@@ -145,9 +145,9 @@
     },
     "viewOptions": {
       "dynamic": "Dynamisk",
-      "month": "Måned",
-      "week": "Uke",
-      "day": "Dag",
+      "month": "Månedsvisning",
+      "week": "Ukesvisning",
+      "day": "Dagsvisning",
       "today": "I dag",
       "displayWeekends": "Vis helger",
       "hideWeekends": "Skjul helger",

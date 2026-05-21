@@ -17,6 +17,7 @@
 :global(html.calendar-month-view .einnsyn-body) {
     height: 100%;
     overflow: hidden;
+    background-color: var(--ds-color-brand2-background-tinted);
 }
 
 :global(html.calendar-month-view .content-flex-grow) {
@@ -88,8 +89,7 @@
 
 .clickableHeading {
     cursor: pointer;
-    padding: var(--ds-size-1) var(--ds-size-2);
-    margin-left: -8px;
+    padding: var(--ds-size-1) var(--ds-size-5);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -123,19 +123,20 @@
     }
 }
 
-.viewOptions {
+.viewOptions,
+.viewOptionsLeft {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     width: fit-content;
     text-wrap: nowrap;
-    gap: var(--ds-size-5);
+    gap: var(--ds-size-2);
 }
 
-.arrowIcon {
-    height: 70%;
-    width: 70%;
-}
+// .arrowIcon {
+//     height: 70%;
+//     width: 70%;
+// }
 
 // Calendar body
 
@@ -144,6 +145,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
+    background-color: var(--ds-color-brand2-background-default);
 }
 
 .calendarGrid {
@@ -179,6 +181,7 @@
 .monthHeading {
     padding: var(--ds-size-4) 0 var(--ds-size-2);
     border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
+    background-color: var(--ds-color-brand2-background-tinted);
 }
 
 /* Week rows */
@@ -199,12 +202,18 @@
 
 .dayHeaderCell {
     padding-left: var(--ds-size-2);
-    background-color: var(--ds-color-surface-default);
+    background-color: var(--ds-color-brand2-background-default);
+    border-top: solid 1px var(--ds-color-neutral-border-subtle);
+    border-right: solid 1px var(--ds-color-neutral-border-subtle);
     border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
+.dayHeaderCell:first-child {
+    border-left: solid 1px var(--ds-color-neutral-border-subtle);
+}
+
 .dayHeaderText {
-    font-size: 0.875rem;
+    font-size: var(--ds-body-sm-font-size);
     color: var(--ds-color-neutral-text-subtle);
 }
 
@@ -222,7 +231,7 @@
 }
 
 .emptyCell {
-    background-color: var(--ds-color-neutral-background-tinted);
+    background-color: var(--ds-color-brand2-surface-tinted);
 }
 
 
@@ -249,7 +258,7 @@
     }
 
     :global(.ds-badge) {
-        --dsc-badge-background: #8E38F1;
+        --dsc-badge-background: var(--ds-color-brand2-base-default);
         --dsc-badge-color: #fff;
     }
 }
@@ -307,7 +316,7 @@
 
 // Meeting component styles — compact (month) variant
 .moetemappemodule {
-    background-color: #EDF0FF;
+    background-color: var(--ds-color-brand2-surface-tinted);
     margin-bottom: var(--ds-size-2);
     border-radius: 12px;
     min-width: 0;
@@ -327,7 +336,8 @@
     padding-bottom: var(--ds-size-1);
 
     .moduleHeadingLink {
-        color: #002C54;
+        // color: #002C54;
+        color: var(--ds-color-neutral-text-default);
     }
 }
 
@@ -377,11 +387,12 @@
     padding: var(--ds-size-2);
     font-size: small;
     min-height: fit-content;
-    background-color: #d6daf0;
+    background-color: var(--ds-color-brand2-surface-active);
+    color: var(--ds-color-neutral-text-default);
     border: 0;
     border-radius: 12px;
 
     &:hover {
-        background-color: #b9bfdf;
+        background-color: var(--ds-color-brand2-border-default);
     }
 }

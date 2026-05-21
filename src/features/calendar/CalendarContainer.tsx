@@ -156,8 +156,8 @@ export default function CalendarContainer({
             : styles.calendarContainer,
       )}
     >
-      <div className={cn('calendar-pre collapsible', styles.calendarPre)} />
-      {/* <div className="container-pre collapsible" /> */}
+      {/* <div className={cn('calendar-pre collapsible', styles.calendarPre)} /> */}
+      <div className="container-pre collapsible" />
 
       <div
         className={cn(
@@ -193,8 +193,8 @@ export default function CalendarContainer({
         />
       </div>
 
-      <div className="calendar-post collapsible" />
-      {/* <div className="container-post collapsible" /> */}
+      {/* <div className="calendar-post collapsible" /> */}
+      <div className="container-post collapsible" />
     </div>
   );
 }

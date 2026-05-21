@@ -3,11 +3,13 @@
 import {
   Alert,
   Button,
+  Dropdown,
   Heading,
   Switch,
   ToggleGroup,
 } from '@digdir/designsystemet-react';
 import {
+  CalendarIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -209,34 +211,46 @@ export default function CalendarHeader({
         </span>
       </div>
       <div className={cn('header-actions', styles.headerActions)}>
-        <div className={cn('display-heading', styles.displayHeading)}>
-          <Heading
+        <div className={cn('view-options', styles.viewOptionsLeft)}>
+          <Button
+            variant="secondary"
+            data-color="neutral"
             data-size="sm"
-            level={1}
-            tabIndex={0}
-            className={styles.clickableHeading}
-            onClick={openDatePicker}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                openDatePicker();
-              }
-            }}
+            onClick={() => setSelectedDate(new Date())}
           >
-            {viewHeading}
-            <ChevronDownIcon className={styles.headingChevron} />
-          </Heading>
-          <input
-            ref={dateInputRef}
-            type="date"
-            className={styles.hiddenDateInput}
-            value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
-            onChange={handleDateChange}
-            aria-hidden="true"
-            tabIndex={-1}
-          />
+            {t('calendar.viewOptions.today')}
+          </Button>
+
+          {navButtons}
+          <div className={cn('display-heading', styles.displayHeading)}>
+            <Heading
+              data-size="sm"
+              level={1}
+              tabIndex={0}
+              className={styles.clickableHeading}
+              onClick={openDatePicker}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  openDatePicker();
+                }
+              }}
+            >
+              {viewHeading}
+              <ChevronDownIcon className={styles.headingChevron} />
+            </Heading>
+            <input
+              ref={dateInputRef}
+              type="date"
+              className={styles.hiddenDateInput}
+              value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
+              onChange={handleDateChange}
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+          </div>
         </div>
-        {navButtons}
+
         <div className={styles.weekendWarningAlert}>
           {hasWeekendWarning && !displayWeekends && selectedView !== 'day' && (
             <Alert data-color="warning" data-size="md">
@@ -246,29 +260,44 @@ export default function CalendarHeader({
         </div>
 
         <div className={cn('view-options', styles.viewOptions)}>
+          <Button
+            variant="tertiary"
+            data-color="neutral"
+            data-size="sm"
+            popoverTarget="dropdown"
+            aria-label={t('calendar.viewOptions.selectView')}
+          >
+            <CalendarIcon />
+            <span>{t(`calendar.viewOptions.${selectedView}`)}</span>
+            <ChevronDownIcon />
+          </Button>
+          <Dropdown id="dropdown">
+            <Dropdown.List>
+              <Dropdown.Item>
+                <Dropdown.Button onClick={() => setSelectedView('month')}>
+                  {t('calendar.viewOptions.month')}
+                </Dropdown.Button>
+              </Dropdown.Item>
+              <Dropdown.Item>
+                <Dropdown.Button onClick={() => setSelectedView('week')}>
+                  {t('calendar.viewOptions.week')}
+                </Dropdown.Button>
+              </Dropdown.Item>
+              <Dropdown.Item>
+                <Dropdown.Button onClick={() => setSelectedView('day')}>
+                  {t('calendar.viewOptions.day')}
+                </Dropdown.Button>
+              </Dropdown.Item>
+            </Dropdown.List>
+          </Dropdown>
+
           <Switch
+            data-color="neutral"
             label={t('calendar.viewOptions.displayWeekends')}
             checked={displayWeekends}
             onChange={() => setDisplayWeekends(!displayWeekends)}
             data-size="sm"
           />
-          <ToggleGroup
-            value={selectedView}
-            onChange={(value) => setSelectedView(value as CalendarView)}
-            data-size="sm"
-          >
-            <ToggleGroup.Item value="month">
-              {t('calendar.viewOptions.month')}
-            </ToggleGroup.Item>
-
-            <ToggleGroup.Item value="week">
-              {t('calendar.viewOptions.week')}
-            </ToggleGroup.Item>
-
-            <ToggleGroup.Item value="day">
-              {t('calendar.viewOptions.day')}
-            </ToggleGroup.Item>
-          </ToggleGroup>
         </div>
       </div>
     </div>
