@@ -15,6 +15,7 @@
     "loggedInAs": "Sisačálgašuvvan dego $1",
     "unknownError": "Dovdameahttun feaila dáhpáhuvai",
     "closeModal": "Gidde",
+    "done": "Geargan",
     "language": "Giella",
     "colorScheme": "Ivnnit",
     "colorSchemeLight": "Čuovgat",
@@ -75,9 +76,11 @@
     "placeholder": "Oza eInnsynas...",
     "clear": "Guoros ohcan",
     "enhetPlaceholder": "Buot organisašuvnnat",
-    "enhetFilterPlaceholder": "Oza organisašuvnna",
+    "enhetFilterPlaceholder": "Oza",
+    "enhetSelectorTitle": "Vállje organisašuvnna",
     "availableEnheter": "Olamuttus organisašuvnnat",
-    "selectedEnheter": "Válljejuvvon organisašuvnnat"
+    "selectedEnheter": "Válljejuvvon organisašuvnnat",
+    "searchingIn": "Ohcamin"
   },
   "routing": {
     "searchPath": "oza",
@@ -99,6 +102,7 @@
     "ok": "OK",
     "remove": "Váldde eret",
     "removeAll": "Váldde buot eret",
+    "change": "Rievdat",
     "select": "Vállje",
     "unnamed": "Nama haga",
     "close": "Gidde",

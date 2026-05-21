@@ -15,6 +15,7 @@
     "loggedInAs": "Innlogget som $1",
     "unknownError": "En ukjent feil oppstod",
     "closeModal": "Lukk",
+    "done": "Ferdig",
     "language": "Språk",
     "colorScheme": "Fargevalg",
     "colorSchemeLight": "Lys",
@@ -75,9 +76,11 @@
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
     "enhetPlaceholder": "Alle virksomheter",
-    "enhetFilterPlaceholder": "Finn virksomhet",
+    "enhetFilterPlaceholder": "Søk",
+    "enhetSelectorTitle": "Velg virksomhet",
     "availableEnheter": "Tilgjengelige virksomheter",
-    "selectedEnheter": "Valgte virksomheter"
+    "selectedEnheter": "Valgte virksomheter",
+    "searchingIn": "Søker i"
   },
   "routing": {
     "searchPath": "søk",
@@ -99,6 +102,7 @@
     "ok": "OK",
     "remove": "Fjern",
     "removeAll": "Fjern alle",
+    "change": "Endre",
     "select": "Velg",
     "unnamed": "Uten navn",
     "close": "Lukk",

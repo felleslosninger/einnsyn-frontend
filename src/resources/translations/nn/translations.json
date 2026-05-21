@@ -15,6 +15,7 @@
     "loggedInAs": "Innlogga som $1",
     "unknownError": "Ein ukjend feil oppstod",
     "closeModal": "Lukk",
+    "done": "Ferdig",
     "language": "Språk",
     "colorScheme": "Fargevalg",
     "colorSchemeLight": "Ljos",
@@ -75,9 +76,11 @@
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
     "enhetPlaceholder": "Alle verksemder",
-    "enhetFilterPlaceholder": "Finn verksemd",
+    "enhetFilterPlaceholder": "Søk",
+    "enhetSelectorTitle": "Vel verksemd",
     "availableEnheter": "Tilgjengelege verksemder",
-    "selectedEnheter": "Valde verksemder"
+    "selectedEnheter": "Valde verksemder",
+    "searchingIn": "Søkjer i"
   },
   "routing": {
     "searchPath": "søk",
@@ -99,6 +102,7 @@
     "ok": "OK",
     "remove": "Fjern",
     "removeAll": "Fjern alle",
+    "change": "Endre",
     "select": "Vel",
     "unnamed": "Utan namn",
     "close": "Lukk",

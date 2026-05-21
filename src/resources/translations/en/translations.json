@@ -15,6 +15,7 @@
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
     "closeModal": "Close modal",
+    "done": "Done",
     "language": "Language",
     "colorScheme": "Color scheme",
     "colorSchemeLight": "Light",
@@ -75,9 +76,11 @@
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
     "enhetPlaceholder": "All organizations",
-    "enhetFilterPlaceholder": "Find organization",
+    "enhetFilterPlaceholder": "Search",
+    "enhetSelectorTitle": "Choose organization",
     "availableEnheter": "Available organizations",
-    "selectedEnheter": "Selected organizations"
+    "selectedEnheter": "Selected organizations",
+    "searchingIn": "Searching in"
   },
   "routing": {
     "searchPath": "search",
@@ -99,6 +102,7 @@
     "ok": "OK",
     "remove": "Remove",
     "removeAll": "Remove all",
+    "change": "Change",
     "select": "Select",
     "unnamed": "Unnamed",
     "close": "Close",

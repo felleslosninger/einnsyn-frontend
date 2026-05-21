@@ -1,4 +1,5 @@
 @use "../../styles/effects.scss" as fx;
+@use "../../styles/mediaQueries.scss" as mq;
 
 .searchFieldContainer {
   --search-field-surface-default: var(--ds-color-neutral-surface-default);
@@ -7,6 +8,13 @@
   --search-field-inactive-surface-active: var(--ds-color-neutral-surface-tinted);
   --search-field-segment-hover-surface: var(--ds-color-neutral-surface-default);
   --search-field-segment-active-surface: var(--ds-color-neutral-surface-default);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.pillRow {
   position: relative;
   display: flex;
   flex-direction: row;
@@ -28,7 +36,7 @@
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
-.searchFieldContainer:not(.hasActiveContainer):has(.searchInputContainer:hover) {
+.pillRow:not(.hasActiveContainer):has(.searchInputContainer:hover) {
   --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
@@ -59,7 +67,7 @@
   height: var(--ds-size-12);
   z-index: 1;
 
-  .searchFieldContainer:not(.hasActiveContainer) &:hover {
+  .pillRow:not(.hasActiveContainer) &:hover {
     --search-input-surface: var(--search-field-segment-hover-surface);
     --search-input-fade-surface: var(--search-field-segment-hover-surface);
     --search-input-border-color: rgb(17 24 39 / 0.04);
@@ -173,7 +181,7 @@
   }
 }
 
-.searchFieldContainer:not(.hasActiveContainer):not( :has(.searchInputContainer:hover)) .enhetSelectorContainer::before {
+.pillRow:not(.hasActiveContainer):not(:has(.searchInputContainer:hover)) .enhetSelectorContainer::before {
   opacity: 1;
 }
 
@@ -218,7 +226,7 @@
   white-space: nowrap;
 }
 
-.searchFieldContainer :not(:has(:focus)) .styledInput::after {
+.pillRow :not(:has(:focus)) .styledInput::after {
   content: "";
   position: absolute;
   top: 0;
@@ -321,6 +329,18 @@
   }
 }
 
+.iconOnlySubmit {
+  // Square the action button into a circular icon button matching pill height
+  min-width: var(--ds-size-12);
+  width: var(--ds-size-12);
+  padding-inline: 0;
+}
+
+.submitIcon {
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+}
+
 .searchIconButton {
   display: flex;
   align-items: center;
@@ -344,4 +364,15 @@
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
+}
+
+// Mobile-only row that holds the EnhetSelector below the search pill.
+.enhetSelectorMobileRow {
+  width: 100%;
+}
+
+@include mq.small {
+  .actionButtonContainer {
+    margin-left: 0;
+  }
 }

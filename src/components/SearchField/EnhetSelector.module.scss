@@ -101,6 +101,79 @@
   white-space: nowrap;
 }
 
+// Mobile "Søker i [enhet]  |  Endre" trigger.
+.mobileSummaryButton {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  width: 100%;
+  padding: var(--ds-size-2) 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--ds-border-radius-md);
+  color: var(--ds-color-neutral-text-default);
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  appearance: none;
+  transition: background-color 0.2s fx.$easeOut;
+  font-size: var(--ds-font-size-2);
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+  }
+}
+
+.mobileSummaryText {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileSummaryPrefix {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.mobileSummaryLabel {
+  font-weight: 600;
+}
+
+.mobileSummaryMore {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-size-6);
+  margin-left: calc(var(--ds-size-2) - var(--ds-size-3)); // Negative margin to visually compensate for the gap between the icon and text.
+  padding: 0 var(--ds-size-2);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mobileSummaryChange {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--ds-color-accent-base-default);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 0.0625em;
+  text-underline-offset: 0.27em;
+  white-space: nowrap;
+}
+
+.mobileSummaryButton:hover .mobileSummaryChange {
+  text-decoration-thickness: 0.125em;
+}
+
 .filterField {
   position: relative;
   width: 100%;
@@ -403,56 +476,121 @@
  * Mobile sheet (renders inside EinModal, slides up from the bottom).
  * EinModal already provides the backdrop, slide animation and drag-to-close.
  */
-.mobileSheetModal {
+.mobileSheetModal:global(.ein-modal-container) {
   :global(.ein-modal-content) {
     display: flex;
     flex-direction: column;
+    height: 95vh;
+    height: 95dvh;
+    height: var(--ein-modal-sheet-max-height, 95dvh);
+    max-height: 95vh;
+    max-height: 95dvh;
+    max-height: var(--ein-modal-sheet-max-height, 95dvh);
     overflow: hidden;
     background: var(--ds-color-neutral-surface-default);
   }
 }
 
-.enhetSelectorDropdown.mobileDropdown {
+// Mobile sheet list — flat iOS-picker style: leading building icon, label,
+// trailing checkmark on selected rows. Differs from the desktop two-column
+// grid by being a simple flat list with the search field above.
+.mobileListContainer {
   flex: 1 1 auto;
   min-height: 0;
-  grid-template-columns: minmax(0, 1fr);
-  padding: 0;
-  gap: 0;
-  background: var(--ds-color-neutral-surface-default);
-
-  .enhetSelectorDropdownListContainer {
-    border-radius: 0;
-    box-shadow: none;
-    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  }
-
-  .enhetSelectorDropdownList {
-    min-height: 0;
-    max-height: none;
-  }
-}
-
-.mobileFooter {
   display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: var(--ds-size-3);
-  padding: var(--ds-size-3) var(--ds-size-4);
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  flex-direction: column;
+  background: var(--ds-color-neutral-surface-default);
 }
 
-.mobileFooterCount {
+.mobileList {
   flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.mobileSectionHeader {
+  padding: var(--ds-size-3) var(--ds-size-4) var(--ds-size-1);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mobileListItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  gap: var(--ds-size-3);
+  min-height: calc(var(--ds-size-12) + var(--ds-size-1));
+  padding: var(--ds-size-3) var(--ds-size-4);
+  border: 0;
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  transition: background-color 0.15s fx.$easeOut;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover,
+  &.focusedListItem,
+  &:active {
+    background-color: var(--ds-color-neutral-surface-hover);
+  }
+}
+
+.mobileListItemSelected {
+  .mobileListLabel {
+    font-weight: 600;
+  }
+}
+
+.mobileListIcon {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.mobileListText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
+  line-height: 1.25;
+}
+
+.mobileListAncestors {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+}
+
+.mobileListLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--ds-font-size-2);
 }
 
-.mobileDoneButton {
-  flex: 0 0 auto;
+.mobileListCheck {
+  color: var(--ds-color-accent-base-default);
 }
 
 :global(.ds-input).filterFieldInput {

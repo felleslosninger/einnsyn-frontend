@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Heading,
-  Search,
-  Skeleton,
-} from '@digdir/designsystemet-react';
-import { Buildings3Icon } from '@navikt/aksel-icons';
+import { Heading, Search, Skeleton } from '@digdir/designsystemet-react';
 import {
   useCallback,
   useEffect,
@@ -24,11 +18,17 @@ import useBreakpoint from '~/hooks/useBreakpoint';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
+import {
+  getAncestorsAsString,
+  getEnhetHref,
+  getName,
+} from '~/lib/utils/enhetUtils';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 import styles from './EnhetSelector.module.scss';
+import { EnhetSelectorMobileItem } from './EnhetSelectorMobileItem';
 import { EnhetSelectorSelectItem } from './EnhetSelectorSelectItem';
+import { EnhetSummaryDesktop, EnhetSummaryMobile } from './EnhetSummary';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import {
   addEnhetId,
@@ -43,11 +43,13 @@ export default function EnhetSelector({
   active = false,
   activate,
   close,
+  layout = 'desktop',
 }: {
   className?: string;
   active?: boolean;
   activate?: () => void;
   close?: () => void;
+  layout?: 'desktop' | 'mobile';
 }) {
   const languageCode = useLanguageCode();
   const t = useTranslation();
@@ -358,6 +360,23 @@ export default function EnhetSelector({
     return filterEnhetList(enhetNodeList, searchString, languageCode);
   }, [enhetNodeList, searchString, languageCode]);
 
+  // Split the visible list into selected/available buckets for the mobile
+  // sheet, which pins selected items at the top so they're easy to find in
+  // long lists (~2000 items, ~20 selections spread across).
+  const { mobileSelectedNodes, mobileAvailableNodes } = useMemo(() => {
+    const selectedSet = new Set(selectedEnhetIds);
+    const selected: EnhetNode[] = [];
+    const available: EnhetNode[] = [];
+    for (const node of visibleEnhetNodeList) {
+      if (selectedSet.has(getEnhetHref(node.enhet))) {
+        selected.push(node);
+      } else {
+        available.push(node);
+      }
+    }
+    return { mobileSelectedNodes: selected, mobileAvailableNodes: available };
+  }, [visibleEnhetNodeList, selectedEnhetIds]);
+
   const addEnhetHandler = useCallback(
     (enhet: TrimmedEnhet) => {
       const nextSelectedEnhetIds = addEnhetId(
@@ -576,41 +595,20 @@ export default function EnhetSelector({
     [close],
   );
 
+  const SummaryComponent =
+    layout === 'mobile' ? EnhetSummaryMobile : EnhetSummaryDesktop;
+
   const summaryButton = (
-    <button
+    <SummaryComponent
       ref={summaryButtonRef}
-      type="button"
-      className={cn(styles.summaryButton, {
-        [styles.summaryButtonActive]: active,
-      })}
-      aria-label={selectedSummary || t('search.enhetPlaceholder')}
-      aria-expanded={active}
-      aria-haspopup="listbox"
+      active={active}
+      selectedSummary={selectedSummary}
+      summaryLabel={summaryLabel}
+      additionalSelectedCount={additionalSelectedCount}
       onClick={onSummaryClick}
       onFocus={onSummaryFocus}
       onMouseDown={onSummaryMouseDown}
-    >
-      <span className={cn(styles.summaryIcon)}>
-        <Buildings3Icon
-          className={cn(styles.searchIcon)}
-          fontSize="1.2rem"
-          aria-hidden="true"
-        />
-      </span>
-      <span
-        className={cn(styles.summaryText, {
-          [styles.placeholderText]: selectedSummary.length === 0,
-        })}
-      >
-        {summaryLabel}
-      </span>
-
-      {additionalSelectedCount > 0 && (
-        <span className={styles.summaryMore} aria-hidden="true">
-          +{additionalSelectedCount}
-        </span>
-      )}
-    </button>
+    />
   );
 
   const filterField = (
@@ -758,12 +756,79 @@ export default function EnhetSelector({
           open={active}
           onClose={close}
         >
-          <EinModalHeader title={t('search.enhetPlaceholder')} />
+          <EinModalHeader title={t('search.enhetSelectorTitle')} />
           {filterField}
-          <div
-            className={cn(styles.enhetSelectorDropdown, styles.mobileDropdown)}
-          >
-            {availableList}
+          <div className={cn(styles.mobileListContainer)}>
+            <VList
+              ref={availableListRef}
+              className={styles.mobileList}
+              style={{ contain: 'content' }}
+              aria-label={t('search.availableEnheter')}
+              role="listbox"
+            >
+              {!searchString && (
+                <EnhetSelectorMobileItem
+                  id="enhet-option-all"
+                  label={t('search.enhetPlaceholder')}
+                  isSelected={selectedEnhetIds.length === 0}
+                  onClick={clearSelectedEnheter}
+                />
+              )}
+              {mobileSelectedNodes.length > 0 && (
+                <div className={styles.mobileSectionHeader}>
+                  {t('search.selectedEnheter')} ({mobileSelectedNodes.length})
+                </div>
+              )}
+              {mobileSelectedNodes.map((enhetNode) => {
+                const ancestors = getAncestorsAsString(
+                  enhetNode.enhet,
+                  ' / ',
+                  languageCode,
+                );
+                return (
+                  <EnhetSelectorMobileItem
+                    key={`selected-${enhetNode.enhet.id}`}
+                    id={`enhet-option-selected-${enhetNode.enhet.id}`}
+                    label={getName(enhetNode.enhet, languageCode)}
+                    ancestors={ancestors || undefined}
+                    isSelected
+                    onClick={() => toggleEnhetHandler(enhetNode.enhet)}
+                  />
+                );
+              })}
+              {mobileSelectedNodes.length > 0 &&
+                mobileAvailableNodes.length > 0 && (
+                  <div className={styles.mobileSectionHeader}>
+                    {t('search.availableEnheter')}
+                  </div>
+                )}
+              {mobileAvailableNodes.map((enhetNode, index) => {
+                const ancestors = getAncestorsAsString(
+                  enhetNode.enhet,
+                  ' / ',
+                  languageCode,
+                );
+                return (
+                  <EnhetSelectorMobileItem
+                    key={`available-${enhetNode.enhet.id}`}
+                    id={`enhet-option-available-${enhetNode.enhet.id}`}
+                    label={getName(enhetNode.enhet, languageCode)}
+                    ancestors={ancestors || undefined}
+                    isFocused={
+                      focus?.list === 'available' && focus.index === index
+                    }
+                    onClick={() => toggleEnhetHandler(enhetNode.enhet)}
+                  />
+                );
+              })}
+              {!fullListLoaded &&
+                [0, 1, 2, 3].map((index) =>
+                  renderSkeleton(`loading-mobile-${index}`),
+                )}
+              {fullListLoaded && visibleEnhetNodeList.length === 0 && (
+                <div className={styles.emptyState}>{t('common.noResults')}</div>
+              )}
+            </VList>
           </div>
         </EinModal>
       ) : (

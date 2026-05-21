@@ -6,7 +6,12 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
 .einModalContainer:global(.ein-popup) {
   position: fixed;
-  inset: 0;
+  top: var(--ein-modal-viewport-top, 0);
+  left: var(--ein-modal-viewport-left, 0);
+  width: var(--ein-modal-viewport-width, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  height: var(--ein-modal-viewport-height, 100dvh);
   z-index: 1050;
 
   > :global(.ein-popup-content) {
@@ -17,7 +22,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   }
 
   .einModalBackdrop {
-    position: fixed;
+    position: absolute;
     opacity: 0.5;
     background-color: var(--ds-color-neutral-text-default);
     //backdrop-filter: blur(5px);
@@ -60,8 +65,33 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   * Mobile layout (old PromptScreen)
   */
   @include mediaQueries.small {
+    transform: none;
+
     .einModalHeader {
-      padding: --var(--ds-size-2);
+      position: relative;
+      padding: var(--ds-size-5) var(--ds-size-3) var(--ds-size-2);
+      border-bottom: none;
+
+      // Native-style sheet title: body-sized, semibold, no letter-spacing.
+      // Overrides the desktop `ds-heading[data-size=md]` which is ~30px.
+      h1 {
+        font-size: var(--ds-font-size-3);
+        font-weight: 600;
+        line-height: 1.3;
+        letter-spacing: normal;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: var(--ds-size-2);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2.25rem;
+        height: 0.25rem;
+        border-radius: 999px;
+        background: var(--ds-color-neutral-border-strong);
+      }
     }
 
     .einModalBody {
@@ -79,8 +109,11 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       bottom: 0;
       transform: translateY(101%);
       height: fit-content;
-      max-height: 95%;
-      position: fixed;
+      max-height: 95vh;
+      max-height: 95dvh;
+      max-height: var(--ein-modal-sheet-max-height, 95dvh);
+      // Keep the drawer absolute against the fixed, viewport-sized container.
+      position: absolute;
       z-index: 1;
       overscroll-behavior: none;
       box-shadow: 0 0 16px #595959;
@@ -89,12 +122,13 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       pointer-events: all;
     }
 
-    .einModalCloseButton {
-      background: transparent !important;
-
-      :global(.text) {
-        display: none;
-      }
+    // Done text button replaces the X on mobile. Sized to match the title
+    // (body font), accent-colored, flush to the trailing edge of the header.
+    .einModalDoneButton {
+      flex: 0 0 auto;
+      padding-inline: var(--ds-size-2);
+      font-size: var(--ds-font-size-3);
+      background: transparent;
     }
 
     // Visible drawer (settled-open, or start of exit before animation kicks in)
@@ -117,7 +151,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     &:global(.open.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
     &:global(.open.ein-transition-exit-transition) {
       // Override EinPopup base scale/opacity:
-      transform: scale(1);
+      transform: none;
       opacity: 1;
 
       .einModalContent {

@@ -4,8 +4,14 @@
   margin-inline: calc(-1 * var(--ds-size-4));
 }
 
-@include mq.small-and-medium {
+@include mq.medium {
   .searchForm {
     margin-inline: calc(-1 * var(--ds-size-2));
+  }
+}
+
+@include mq.small {
+  .searchForm {
+    margin-inline: 0;
   }
 }

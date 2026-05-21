@@ -93,12 +93,14 @@ body {
 
   @include mq.small {
     flex-wrap: wrap;
+    padding-left: var(--ds-size-2);
+    padding-right: var(--ds-size-2);
 
     >.container-pre,
     >.container-post,
     >.container {
-      padding-left: var(--ds-size-4);
-      padding-right: var(--ds-size-4);
+      padding-left: var(--ds-size-2);
+      padding-right: var(--ds-size-2);
     }
 
     >.container-pre,
@@ -108,6 +110,7 @@ body {
 
     >.container {
       width: 100%;
+      min-width: 0;
     }
 
     >.container-pre {
