@@ -211,11 +211,11 @@
     color: var(--ds-color-neutral-text-subtle);
   }
 
-  // Match the main search bar: don't show the strong focus ring on click.
-  // Browsers treat clicks on text inputs as keyboard-style focus, so
-  // `:focus-visible` would otherwise fire here. The caret is the focus
-  // indicator for keyboard users.
-  &:focus-visible {
+  // Match the main search bar: only show the focus ring for keyboard focus.
+  // Browsers fire `:focus-visible` on text-input clicks too, so we gate the
+  // suppression on the global `data-focus-input` attribute (set elsewhere)
+  // to keep the ring for real keyboard navigation.
+  :global(html:not([data-focus-input="keyboard"])) &:focus-visible {
     outline: none;
     box-shadow: none;
   }
@@ -385,7 +385,6 @@
   min-height: calc(var(--ds-size-12) + var(--ds-size-2));
   padding: var(--ds-size-3) var(--ein-vertical-spacing);
   border: 0;
-  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -394,10 +393,6 @@
   text-align: left;
   appearance: none;
   transition: background-color 0.15s fx.$easeOut;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   &:hover,
   &.focusedListItem {
@@ -549,7 +544,6 @@
   min-height: calc(var(--ds-size-12) + var(--ds-size-1));
   padding: var(--ds-size-3) var(--ds-size-4);
   border: 0;
-  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -557,10 +551,6 @@
   cursor: pointer;
   appearance: none;
   transition: background-color 0.15s fx.$easeOut;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   &:hover,
   &.focusedListItem,
