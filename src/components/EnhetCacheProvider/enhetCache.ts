@@ -2,9 +2,8 @@
 
 import { useSyncExternalStore } from 'react';
 import { getTrimmedEnhetList } from '~/actions/api/enhetActions';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
+import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
-import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
 
 export type EnhetCacheSnapshot = {
   enhetMap: ReadonlyMap<string, TrimmedEnhet>;

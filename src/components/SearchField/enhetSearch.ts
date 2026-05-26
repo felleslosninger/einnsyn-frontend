@@ -1,5 +1,5 @@
 import type { LanguageCode } from '~/lib/translation/translation';
-import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
+import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
 
 export type EnhetNode = {
   currentName: string;
@@ -42,6 +42,18 @@ function getScore(
       const thisScore = Math.max(1, 10 - match.index / 10) * match.weight;
       return thisScore > best ? thisScore : best;
     }, 0);
+
+    // Orgnummer substring match for all-digit search words. Spaces in the
+    // stored orgnr are ignored so "974 658" and "974658" both work; if the
+    // search word itself contained spaces it has already been split.
+    if (enhet.orgnummer && /^\d+$/.test(searchWord)) {
+      const orgnr = enhet.orgnummer.replace(/\s/g, '');
+      const orgnrIndex = orgnr.indexOf(searchWord);
+      if (orgnrIndex >= 0) {
+        const orgnrScore = Math.max(1, 10 - orgnrIndex / 10);
+        if (orgnrScore > score) score = orgnrScore;
+      }
+    }
   }
 
   if (enhet.parent && typeof enhet.parent !== 'string') {

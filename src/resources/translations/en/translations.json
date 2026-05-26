@@ -84,7 +84,6 @@
     "selectedEnheter": "Selected",
     "applySelection": "Apply selection",
     "selectionCount": "$1 organizations selected",
-    "orgNumberPrefix": "org.no",
     "enhetstype": {
       "ADMINISTRATIVENHET": "Administrative unit",
       "AVDELING": "Department",

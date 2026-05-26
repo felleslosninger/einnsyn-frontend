@@ -42,7 +42,7 @@ $arrowHalfSize: calc($arrowSize / 2);
   filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.3));
 
   .einPopupContent {
-    border-radius: var(--ds-border-radius-default);
+    border-radius: var(--ds-border-radius-xl);
     background-color: var(--ds-color-neutral-surface-default);
   }
 }

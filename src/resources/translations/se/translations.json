@@ -84,7 +84,6 @@
     "selectedEnheter": "Válljejuvvon",
     "applySelection": "Geavat válljema",
     "selectionCount": "$1 organisašuvnna válljejuvvon",
-    "orgNumberPrefix": "org.nr",
     "enhetstype": {
       "ADMINISTRATIVENHET": "Hálddahusovttadat",
       "AVDELING": "Ossodat",

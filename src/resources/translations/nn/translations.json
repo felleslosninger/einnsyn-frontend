@@ -84,7 +84,6 @@
     "selectedEnheter": "Valde",
     "applySelection": "Bruk val",
     "selectionCount": "$1 verksemder valde",
-    "orgNumberPrefix": "org.nr",
     "enhetstype": {
       "ADMINISTRATIVENHET": "Administrativ eining",
       "AVDELING": "Avdeling",

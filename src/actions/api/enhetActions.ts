@@ -2,14 +2,14 @@
 
 import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { unstable_cache } from 'next/cache';
-import { parseEnhetParam } from '~/components/SearchField/enhetTokenInputUtils';
 import type { LanguageCode } from '~/lib/translation/translation';
-import { logger } from '~/lib/utils/logger';
 import {
   mergeTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
-} from '~/lib/utils/trimmedEnhetUtils';
+} from '~/lib/utils/enhetUtils';
+import { logger } from '~/lib/utils/logger';
+import { parseParamList } from '~/lib/utils/paramList';
 import { cachedPublicApiClient } from './getApiClient';
 
 const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
@@ -108,7 +108,7 @@ export const getInitialEnhetsForRequest = async ({
       selected.push(pathEnhet);
     }
     if (searchParamsEnhet) {
-      selected.push(...parseEnhetParam(searchParamsEnhet));
+      selected.push(...parseParamList(searchParamsEnhet));
     }
 
     // The collapsed selector does not need a preloaded list when nothing is

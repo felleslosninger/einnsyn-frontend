@@ -35,6 +35,7 @@ type EinModalProps = Readonly<{
   containerRef?: RefObject<HTMLDivElement>;
   setOpen?: (open: boolean) => void;
   onClose?: () => void;
+  transitionEvents?: EinTransitionEvents;
 }>;
 
 type EinModalHeaderProps = Readonly<{
@@ -61,6 +62,7 @@ export default function EinModal({
   containerRef: containerRefProp,
   setOpen,
   onClose,
+  transitionEvents: transitionEventsProp,
 }: EinModalProps) {
   const navigation = useNavigation();
   const basepath = useModalBasepath();
@@ -142,12 +144,13 @@ export default function EinModal({
     },
   });
 
-  // Hand backdrop control back to CSS at the exact moment the exit class is
-  // added. Both style changes flush together, so the transition fires from
-  // the dragged inline opacity down to the CSS-defined exit opacity (0).
   const transitionEvents = useMemo<EinTransitionEvents>(
     () => ({
-      onExitTransition: (popupSnapshot) => {
+      ...transitionEventsProp,
+      // Hand backdrop control back to CSS at the exact moment the exit class
+      // is added. Both style changes flush together, so the transition fires
+      // from the dragged inline opacity down to the CSS-defined exit opacity.
+      onExitTransition: (popupSnapshot, toDeps, fromDeps) => {
         const backdropSnapshot = popupSnapshot.querySelector(
           `.${styles.einModalBackdrop ?? 'ein-modal-backdrop'}`,
         );
@@ -155,9 +158,14 @@ export default function EinModal({
           backdropSnapshot.style.transition = '';
           backdropSnapshot.style.opacity = '';
         }
+        return transitionEventsProp?.onExitTransition?.(
+          popupSnapshot,
+          toDeps,
+          fromDeps,
+        );
       },
     }),
-    [],
+    [transitionEventsProp],
   );
 
   // Close on backdrop click

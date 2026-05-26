@@ -88,7 +88,7 @@ export default function EinPopup(props: EinPopupProps) {
       return;
     }
 
-    // To we calculate the position of the popup, we need to find the current
+    // To calculate the position of the popup, we need to find the current
     // dimensions of the popup element. Move it far up and left, so that it's current
     // position does not affect its size. Clear any previous width override so
     // the popup re-measures its natural size.
@@ -97,7 +97,16 @@ export default function EinPopup(props: EinPopupProps) {
     popupElement.style.left = `${-body.scrollWidth}px`;
     popupElement.style.width = '';
     popupElement.style.maxHeight = '';
-    const popupRect = popupElement.getBoundingClientRect();
+    // Use offset{Width,Height} so an in-flight enter-transition transform
+    // (e.g. scale(0.97)) doesn't shrink the measured size and place the
+    // popup slightly off — getBoundingClientRect() includes the transform.
+    const rectFromBoundingRect = popupElement.getBoundingClientRect();
+    const popupRect = new DOMRect(
+      rectFromBoundingRect.x,
+      rectFromBoundingRect.y,
+      popupElement.offsetWidth,
+      popupElement.offsetHeight,
+    );
     const anchorRect = anchorElement.getBoundingClientRect();
     const sizeReferenceElement = sizeReferenceRef?.current;
     const sizeReferenceRect =
@@ -139,6 +148,12 @@ export default function EinPopup(props: EinPopupProps) {
     }
     if (typeof position.maxHeight === 'number') {
       popupElement.style.setProperty('max-height', `${position.maxHeight}px`);
+      // Also expose as a CSS variable so children can size themselves
+      // against the available space (e.g. to fill it with `height:`).
+      popupElement.style.setProperty(
+        '--ein-popup-max-height',
+        `${position.maxHeight}px`,
+      );
     }
     popupElement.style.setProperty('--ein-popup-position', position.position);
     popupElement.style.setProperty(
@@ -173,9 +188,19 @@ export default function EinPopup(props: EinPopupProps) {
       }
       window.addEventListener('resize', updatePopupPosition);
 
+      // Follow anchor size changes — e.g. a summary button that grows as the
+      // user selects items. Without this, the popup is pinned to its initial
+      // position and drifts out of alignment as the anchor resizes.
+      let anchorObserver: ResizeObserver | undefined;
+      if (anchorRef.current instanceof Element) {
+        anchorObserver = new ResizeObserver(() => updatePopupPosition());
+        anchorObserver.observe(anchorRef.current);
+      }
+
       // Clean up the event listener on unmount or when open changes
       return () => {
         window.removeEventListener('resize', updatePopupPosition);
+        anchorObserver?.disconnect();
       };
     }
   }, [open, popupRef, updatePopupPosition]);

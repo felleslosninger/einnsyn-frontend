@@ -84,7 +84,6 @@
     "selectedEnheter": "Valgte",
     "applySelection": "Bruk valg",
     "selectionCount": "$1 virksomheter valgt",
-    "orgNumberPrefix": "org.nr",
     "enhetstype": {
       "ADMINISTRATIVENHET": "Administrativ enhet",
       "AVDELING": "Avdeling",

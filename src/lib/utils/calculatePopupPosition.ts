@@ -311,11 +311,24 @@ export function calculatePopupPosition({
         },
       );
 
+      // Emit the available vertical space so callers can cap their content to
+      // it (or fill it). For above-style positions that's the space above the
+      // anchor; otherwise it's the space from the popup's top to the viewport
+      // bottom. Matches the formula used in the fallback path below.
+      const isAbove =
+        position === 'above' ||
+        position === 'aboveLeft' ||
+        position === 'aboveRight';
+      const maxHeight = isAbove
+        ? Math.max(0, anchorRect.top - offsetY)
+        : Math.max(0, viewport.scrollY + viewport.height - top);
+
       return {
         position,
         top,
         left,
         width,
+        maxHeight,
         arrowTop: arrowPositions.top,
         arrowLeft: arrowPositions.left,
       };

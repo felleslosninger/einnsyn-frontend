@@ -1,5 +1,10 @@
 @use "../../styles/effects.scss" as fx;
 
+//
+// Shared - the outer container and the small `.selectorField` wrapper around
+// the summary button. Used by both layouts.
+//
+
 .enhetSelector {
   --styled-input-min-height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2);
   position: relative;
@@ -20,6 +25,12 @@
   width: 100%;
   max-width: 100%;
 }
+
+//
+// Summary buttons - the trigger that opens the popup/sheet. Desktop is a
+// pill-style button that sits inside the search field; mobile is a one-line
+// "Søker i [enhet]  |  Endre" below the search field.
+//
 
 .summaryButton {
   position: relative;
@@ -101,7 +112,6 @@
   white-space: nowrap;
 }
 
-// Mobile "Søker i [enhet]  |  Endre" trigger.
 .mobileSummaryButton {
   display: flex;
   align-items: center;
@@ -148,7 +158,8 @@
   align-items: center;
   justify-content: center;
   min-height: var(--ds-size-6);
-  margin-left: calc(var(--ds-size-2) - var(--ds-size-3)); // Negative margin to visually compensate for the gap between the icon and text.
+  // Negative margin to visually compensate for the gap between icon and text.
+  margin-left: calc(var(--ds-size-2) - var(--ds-size-3));
   padding: 0 var(--ds-size-2);
   border-radius: var(--ds-border-radius-full);
   background: var(--ds-color-neutral-surface-tinted);
@@ -174,10 +185,16 @@
   text-decoration-thickness: 0.125em;
 }
 
+// 
+// Filter field - the search input above the list. Same component (Search)
+// for both layouts; the desktop popup overrides padding to align with its
+// title/footer.
+// 
+
 .filterField {
   position: relative;
   width: 100%;
-  padding: var(--ds-size-3);
+  padding: 0 var(--ein-vertical-spacing) var(--ein-horizontal-spacing);
   background: transparent;
 }
 
@@ -185,30 +202,48 @@
   width: 100%;
 }
 
-/*
- * Desktop popup — non-modal dialog anchored to the search field. EinPopup
- * provides the backgroundless overlay (no backdrop, no focus trap) so the
- * rest of the page stays interactive.
- */
+:global(.ds-input).filterFieldInput {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+
+  &::placeholder {
+    color: var(--ds-color-neutral-text-subtle);
+  }
+
+  // Match the main search bar: don't show the strong focus ring on click.
+  // Browsers treat clicks on text inputs as keyboard-style focus, so
+  // `:focus-visible` would otherwise fire here. The caret is the focus
+  // indicator for keyboard users.
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+//
+// Desktop - popup anchored to the search field. Non-modal: no backdrop, no
+// focus trap, the rest of the page stays interactive. Lays out as
+// header / [filter + two columns] / footer.
+//
+
 .desktopSelectorPopup {
   width: min(1040px, calc(100vw - 2 * var(--ds-size-4)));
   max-width: calc(100vw - 2 * var(--ds-size-4));
 
-  // EinPopup's content wrapper needs to flex so header/body/footer stack and
-  // the body's lists can scroll within the popup's max-height.
+  // Use `height` (not max-height) so the popup stays a stable size while the
+  // user filters or removes items — the lists inside have their own scrollbars.
+  // `--ein-popup-max-height` is set by EinPopup from the space available below
+  // the anchor, so we never overflow a fixed-header viewport. The fallback
+  // keeps the layout sensible during the first render before JS measures.
   :global(.ein-popup-content) {
     display: flex;
     flex-direction: column;
-    max-height: min(720px, calc(100vh - 2 * var(--ds-size-4)));
+    height: min(720px,
+        calc(var(--ein-popup-max-height, 100vh) - var(--ds-size-4)));
     overflow: hidden;
   }
 
-  // The shared .filterField has tighter mobile padding; align its horizontal
-  // padding with the dialog header/footer so the search bar sits on the
-  // same vertical line as the title and the column content below.
-  .filterField {
-    padding: var(--ds-size-3) var(--ein-vertical-spacing);
-  }
 }
 
 .desktopHeader {
@@ -241,36 +276,6 @@
   line-height: 1.4;
 }
 
-.desktopCloseButton {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ds-size-10);
-  height: var(--ds-size-10);
-  margin-right: calc(-1 * var(--ds-size-2));
-  padding: 0;
-  border: none;
-  border-radius: var(--ds-border-radius-full);
-  background: transparent;
-  color: var(--ds-color-neutral-text-subtle);
-  cursor: pointer;
-  appearance: none;
-  transition:
-    background-color 0.15s fx.$easeOut,
-    color 0.15s fx.$easeOut;
-
-  &:hover {
-    background: var(--ds-color-neutral-surface-hover);
-    color: var(--ds-color-neutral-text-default);
-  }
-
-  &:focus-visible {
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
-  }
-}
-
 .desktopBody {
   display: flex;
   flex-direction: column;
@@ -298,7 +303,10 @@
   display: flex;
   align-items: center;
   gap: var(--ds-size-2);
-  padding: var(--ds-size-3) var(--ein-vertical-spacing);
+  // Sized so the sm "Remove all" Button fits without making this column
+  // taller than the (button-less) "Available" column.
+  min-height: calc(var(--ds-size-8) + var(--ds-size-3));
+  padding: 0 var(--ein-vertical-spacing);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
@@ -310,52 +318,43 @@
   letter-spacing: 0.08em;
 }
 
-.desktopColumnCount {
-  color: var(--ds-color-neutral-text-default);
-  font-size: var(--ds-font-size-2);
-  font-weight: 700;
-}
-
 .desktopClearAllButton {
   margin-left: auto;
-  border: none;
-  background: transparent;
-  color: var(--ds-color-accent-base-default);
-  font: inherit;
-  font-size: var(--ds-font-size-2);
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:focus-visible {
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
-  }
 }
 
+// Wrapper around the VList. The VList itself is the scroll container, so the
+// focus ring needs to live on this non-scrolling wrapper — otherwise the ring
+// scrolls away with the content. The keyboard-focused element is the VList
+// inside, so we match via `:has(:focus-visible)`.
 .desktopColumnList {
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-height: 0;
-  // Inset from column edges so the bordered list reads as its own area
-  // rather than running into the column divider on the side or the header
-  // above; horizontal inset matches the dialog's --ein-vertical-spacing.
-  list-style: none;
-  border-radius: var(--ds-border-radius-md);
   overflow: hidden;
+  border-radius: var(--ds-border-radius-default);
 
-  &:focus-visible {
+  &:has(:focus-visible)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+    outline: var(--dsc-focus-outline);
+    outline-offset: calc(-1 * var(--ds-border-width-focus));
+    box-shadow: var(--dsc-focus-boxShadow-inset);
+  }
+
+  // Suppress the browser's default outline on the inner VList — the wrapper's
+  // ring is what the user sees.
+  > :focus-visible {
     outline: none;
   }
 }
 
-.desktopColumn:first-child {
-  .desktopColumnList {
-    border-right: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-  }
+.desktopColumn:first-child .desktopColumnList {
+  border-right: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
 .desktopFooter {
@@ -373,11 +372,9 @@
   font-size: var(--ds-font-size-2);
 }
 
-/*
- * Desktop row — name + subtitle on the left, "Legg til" / "Fjern" pill on
- * the right. Same chrome in both columns; the dividing border on the parent
- * column is the only visual separator between Available and Selected.
- */
+// Desktop row — name + subtitle on the left, "Legg til"/"Fjern" pill on the
+// right. Same chrome in both columns; the dividing border on the left column
+// is the only visual separator between Available and Selected.
 .selectorListItem {
   position: relative;
   display: grid;
@@ -475,18 +472,13 @@
   color: var(--ds-color-neutral-text-default);
 }
 
-.emptyState {
-  display: flex;
-  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
-  align-items: center;
-  padding: var(--ds-size-4) var(--ds-size-5);
-  color: var(--ds-color-neutral-text-subtle);
-}
+//
+// Mobile - bottom-sheet modal that slides up from the bottom. EinModal
+// provides the backdrop, slide animation, and drag-to-close. The list is a
+// flat iOS-picker style: leading building icon, label + ancestors, trailing
+// checkmark on selected rows.
+//
 
-/*
- * Mobile sheet (renders inside EinModal, slides up from the bottom).
- * EinModal already provides the backdrop, slide animation and drag-to-close.
- */
 .mobileSheetModal:global(.ein-modal-container) {
   :global(.ein-modal-content) {
     display: flex;
@@ -502,9 +494,6 @@
   }
 }
 
-// Mobile sheet list — flat iOS-picker style: leading building icon, label,
-// trailing checkmark on selected rows. Differs from the desktop two-column
-// grid by being a simple flat list with the search field above.
 .mobileListContainer {
   flex: 1 1 auto;
   min-height: 0;
@@ -513,14 +502,29 @@
   background: var(--ds-color-neutral-surface-default);
 }
 
+// Wrapper around the mobile VList — see `.desktopColumnList` for rationale.
 .mobileList {
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-height: 0;
-  padding: 0;
   margin: 0;
-  list-style: none;
+  border-radius: var(--ds-border-radius-default);
+  overflow: hidden;
 
-  &:focus-visible {
+  &:has(:focus-visible)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+    outline: var(--dsc-focus-outline);
+    outline-offset: calc(-1 * var(--ds-border-width-focus));
+    box-shadow: var(--dsc-focus-boxShadow-inset);
+  }
+
+  > :focus-visible {
     outline: none;
   }
 }
@@ -604,12 +608,15 @@
   color: var(--ds-color-accent-base-default);
 }
 
-:global(.ds-input).filterFieldInput {
-  width: 100%;
-  min-width: 0;
-  flex: 1 1 auto;
+//
+// Shared empty state - shown by both layouts when the filter matches nothing.
+//
 
-  &::placeholder {
-    color: var(--ds-color-neutral-text-subtle);
-  }
+.emptyState {
+  display: flex;
+  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
+  align-items: center;
+  // Match the row padding so the message lines up with the list items above.
+  padding: var(--ds-size-3) var(--ein-vertical-spacing);
+  color: var(--ds-color-neutral-text-subtle);
 }

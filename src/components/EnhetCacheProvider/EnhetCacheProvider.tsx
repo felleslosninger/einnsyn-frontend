@@ -7,8 +7,7 @@ import {
   useEffect,
   useMemo,
 } from 'react';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
-import type { TrimmedEnhet } from '~/lib/utils/trimmedEnhetUtils';
+import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import {
   ensureFullList,
   seedEnhets,

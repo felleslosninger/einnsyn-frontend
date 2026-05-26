@@ -59,7 +59,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
       active={activeContainer === 'enhetSelector'}
       activate={activateEnhetSelectorContainer}
       close={deactivateContainer}
-      layout={isMobileLayout ? 'mobile' : 'desktop'}
     />
   );
 

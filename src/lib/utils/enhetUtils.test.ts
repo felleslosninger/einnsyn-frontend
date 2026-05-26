@@ -5,7 +5,7 @@ import {
   mergeTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
-} from './trimmedEnhetUtils';
+} from './enhetUtils';
 
 function makeEnhet(
   id: string,
@@ -35,7 +35,7 @@ function makeEnhet(
   };
 }
 
-describe('trimmedEnhetUtils', () => {
+describe('enhetUtils', () => {
   test('mergeTrimmedEnhetsWithAncestors includes ancestors up to the top-level node', () => {
     const root = makeEnhet('root');
     const dummyRoot = makeEnhet('dummy-root', { parent: root.id });
