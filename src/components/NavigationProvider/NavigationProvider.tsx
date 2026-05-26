@@ -61,7 +61,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const navigationStartedRef = useRef(false);
 
   const loadingSearchParams = useMemo(() => {
-    return navigationState.loadingSearchParamsString
+    return navigationState.loadingSearchParamsString !== undefined
       ? new URLSearchParams(navigationState.loadingSearchParamsString)
       : undefined;
   }, [navigationState.loadingSearchParamsString]);
