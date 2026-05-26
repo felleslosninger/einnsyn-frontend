@@ -3,6 +3,7 @@ import { FolderFileIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 import { getEnhetHref } from '~/lib/utils/enhetUtils';
 import EnhetLink from './common/EnhetLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
@@ -27,10 +28,14 @@ export default function SaksmappeResult({
   item: Saksmappe;
 }) {
   const translate = useTranslation();
+  const saksmappeLink = generateSaksmappeURL(item);
   const saksmappeHref = getSaksmappeHref(item);
   return (
     <div className={cn(className, 'search-result', 'saksmappe-result')}>
-      <EinLink href={saksmappeHref}>
+      <EinLink
+        className={'saksmappe-link'}
+        href={saksmappeLink /*saksmappeHref*/}
+      >
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
