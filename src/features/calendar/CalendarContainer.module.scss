@@ -6,53 +6,26 @@
     }
 }
 
-// Month view: lock the entire page to viewport height so only the
-// calendar scrolls internally. Week/day views grow naturally.
-:global(html.calendar-month-view) {
-    height: 100dvh;
-    overflow: hidden;
-}
-
-:global(html.calendar-month-view body),
-:global(html.calendar-month-view .einnsyn-body) {
-    height: 100%;
-    overflow: hidden;
-    background-color: var(--ds-color-neutral-background-default);
-}
-
-:global(html.calendar-month-view .content-flex-grow) {
-    overflow: hidden;
-    min-height: 0;
-}
-
-:global(html.calendar-month-view) .calendarContainer {
-    height: 100%;
-    overflow: hidden;
-}
-
 .calendarContent {
-    height: 100%;
     flex-basis: 2000px;
     max-width: 2000px;
     width: 100%;
     flex-shrink: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
 }
 
-// Week/day: don't constrain height, let content determine size
-.calendarContent.weekView,
-.calendarContent.dayView {
-    height: auto;
+// Header section — wrapper is sticky so controls stay visible while scrolling.
+// z-index:3 keeps it above scrolling meeting content (z-index:2) but below
+// the global page header (z-index:10) so header dropdowns always render on top.
+.calendarHeaderWrapper {
+    position: sticky;
+    top: var(--page-header-height, 0px);
+    z-index: 3;
+    background-color: var(--ds-color-neutral-background-default);
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-.calendarBody.weekView,
-.calendarBody.dayView {
-    flex: 0 0 auto;
-}
-
-// Header section
 .calendarHeader {
     position: relative;
     display: flex;
@@ -116,10 +89,18 @@
 }
 
 .weekendWarningAlert {
+    min-width: 30px;
     width: 100%;
+    text-wrap: nowrap;
+    text-overflow: clip;
+    overflow: hidden;
 
     :global(.ds-alert) {
         padding-block: var(--ds-size-1);
+        width: 100%;
+        text-wrap: nowrap;
+        text-overflow: clip;
+        overflow: hidden;
     }
 }
 
@@ -141,8 +122,6 @@
 // Calendar body
 
 .calendarBody {
-    flex: 1;
-    min-height: 0;
     display: flex;
     flex-direction: column;
     background-color: var(--ds-color-brand2-background-default);
@@ -155,7 +134,7 @@
 
 .dynCalendarHeader {
     position: sticky;
-    top: 0;
+    top: calc(var(--page-header-height, 0px) + var(--calendar-header-height, 0px));
     z-index: 9;
     display: grid;
     width: 100%;
@@ -265,11 +244,6 @@
 
 .dynamicCalendarWrapper {
     width: 100%;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
     overflow-anchor: none;
 }
 

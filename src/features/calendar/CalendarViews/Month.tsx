@@ -111,14 +111,30 @@ export default function DynamicView({
   setVisibleMonth: (date: Date) => void;
 }) {
   const t = useTranslation();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const dayHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      const h = document.querySelector('header')?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty(
+        '--page-header-height',
+        `${h}px`,
+      );
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    const headerEl = document.querySelector('header');
+    if (headerEl) ro.observe(headerEl);
+    return () => ro.disconnect();
+  }, []);
   const monthRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const pendingAdjustRef = useRef<{
     key: string;
     viewportOffset: number;
   } | null>(null);
   const needsInitialScrollRef = useRef(true);
+  // Prevent handleScroll from firing spuriously after a programmatic scrollTo.
+  const isProgrammaticScrollRef = useRef(false);
   // Year-month we've most recently centered on. Used so the weekends-toggle
   // rebuild keeps the user's current vantage point, and so reportVisibleMonth
   // doesn't spam the parent with the same month each scroll tick.
@@ -145,19 +161,27 @@ export default function DynamicView({
   monthsRef.current = months;
 
   const scrollToDate = useCallback((date: Date) => {
-    const container = scrollRef.current;
-    if (!container) return false;
     const key = blockKey({
       year: date.getFullYear(),
       month: date.getMonth(),
     });
     const block = monthRefs.current.get(key);
     if (!block) return false;
-    const stickyOffset = dayHeaderRef.current?.offsetHeight ?? 0;
+    // Use the day-header's rendered bottom as the sticky clearance — this
+    // automatically accounts for the page header + calendar header above it.
+    const stickyOffset =
+      dayHeaderRef.current?.getBoundingClientRect().bottom ?? 0;
     const dayEl = block.querySelector<HTMLElement>(
       `[data-day="${date.getDate()}"]`,
     );
-    container.scrollTop = (dayEl ?? block).offsetTop - stickyOffset;
+    const target = dayEl ?? block;
+    isProgrammaticScrollRef.current = true;
+    window.scrollTo({
+      top: target.getBoundingClientRect().top + window.scrollY - stickyOffset,
+    });
+    requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+    });
     return true;
   }, []);
 
@@ -207,19 +231,24 @@ export default function DynamicView({
   // to avoid a visual jump before the browser paints).
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useLayoutEffect(() => {
-    const container = scrollRef.current;
-    if (!container || !pendingAdjustRef.current) return;
+    if (!pendingAdjustRef.current) return;
     const { key, viewportOffset } = pendingAdjustRef.current;
     pendingAdjustRef.current = null;
     const anchor = monthRefs.current.get(key);
     if (anchor) {
-      container.scrollTop = anchor.offsetTop - viewportOffset;
+      isProgrammaticScrollRef.current = true;
+      window.scrollTo({
+        top:
+          anchor.getBoundingClientRect().top + window.scrollY - viewportOffset,
+      });
+      requestAnimationFrame(() => {
+        isProgrammaticScrollRef.current = false;
+      });
     }
   }, [months]);
 
   // Initial scroll to selectedDate — deferred via rAF so it runs after all
-  // sibling/parent useEffects (including the one in CalendarContainer that
-  // applies the height constraint via the calendar-month-view class).
+  // sibling/parent useEffects and the DOM has fully laid out.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useEffect(() => {
     if (!needsInitialScrollRef.current) return;
@@ -232,17 +261,16 @@ export default function DynamicView({
   }, [months, selectedDate, scrollToDate]);
 
   const reportVisibleMonth = useCallback(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-    const stickyOffset = dayHeaderRef.current?.offsetHeight ?? 0;
-    const probe = container.scrollTop + stickyOffset + 1;
+    const stickyOffset =
+      dayHeaderRef.current?.getBoundingClientRect().bottom ?? 0;
+    const probe = window.scrollY + stickyOffset + 1;
 
     let bestBlock: MonthBlock | null = null;
     let bestTop = Number.NEGATIVE_INFINITY;
     for (const block of months) {
       const el = monthRefs.current.get(blockKey(block));
       if (!el) continue;
-      const top = el.offsetTop;
+      const top = el.getBoundingClientRect().top + window.scrollY;
       if (top <= probe && top > bestTop) {
         bestBlock = block;
         bestTop = top;
@@ -265,13 +293,18 @@ export default function DynamicView({
   }, [months, setVisibleMonth]);
 
   const handleScroll = useCallback(() => {
-    const container = scrollRef.current;
-    if (!container) return;
+    if (isProgrammaticScrollRef.current) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = container;
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = window.innerHeight;
 
     // Near bottom → append next month, trim from top if over buffer
     if (scrollTop + clientHeight >= scrollHeight - SCROLL_EDGE_THRESHOLD) {
+      const anchorViewportOffsets = new Map<string, number>();
+      for (const [k, el] of monthRefs.current) {
+        anchorViewportOffsets.set(k, el.getBoundingClientRect().top);
+      }
       setMonths((prev) => {
         if (prev.length === 0) return prev;
         const last = prev[prev.length - 1];
@@ -282,11 +315,13 @@ export default function DynamicView({
         const over = next.length - (MONTHS_BUFFER * 2 + 1);
         if (over > 0) {
           const anchorBlock = next[over];
-          const anchorEl = monthRefs.current.get(blockKey(anchorBlock));
-          if (anchorEl) {
+          const viewportOffset = anchorViewportOffsets.get(
+            blockKey(anchorBlock),
+          );
+          if (viewportOffset !== undefined) {
             pendingAdjustRef.current = {
               key: blockKey(anchorBlock),
-              viewportOffset: anchorEl.offsetTop - container.scrollTop,
+              viewportOffset,
             };
           }
           return next.slice(over);
@@ -299,18 +334,22 @@ export default function DynamicView({
 
     // Near top → prepend previous month, trim from bottom if over buffer
     if (scrollTop <= SCROLL_EDGE_THRESHOLD) {
+      const firstMonths = monthsRef.current;
+      const first = firstMonths[0];
+      const anchorViewportOffset = first
+        ? monthRefs.current.get(blockKey(first))?.getBoundingClientRect().top
+        : undefined;
       setMonths((prev) => {
         if (prev.length === 0) return prev;
-        const first = prev[0];
+        const firstBlock = prev[0];
         const next = [
-          buildMonth(first.year, first.month - 1, displayWeekends),
+          buildMonth(firstBlock.year, firstBlock.month - 1, displayWeekends),
           ...prev,
         ];
-        const anchorEl = monthRefs.current.get(blockKey(first));
-        if (anchorEl) {
+        if (anchorViewportOffset !== undefined) {
           pendingAdjustRef.current = {
-            key: blockKey(first),
-            viewportOffset: anchorEl.offsetTop - container.scrollTop,
+            key: blockKey(firstBlock),
+            viewportOffset: anchorViewportOffset,
           };
         }
         const over = next.length - (MONTHS_BUFFER * 2 + 1);
@@ -323,6 +362,12 @@ export default function DynamicView({
     reportVisibleMonth();
   }, [displayWeekends, reportVisibleMonth]);
 
+  // Attach scroll listener to the window (page-level scroll).
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
   const weekdays = displayWeekends
     ? WEEKDAYS_WITH_WEEKENDS
     : WEEKDAYS_WITHOUT_WEEKENDS;
@@ -333,12 +378,10 @@ export default function DynamicView({
 
   return (
     <div
-      ref={scrollRef}
       className={cn(
         styles.dynamicCalendarWrapper,
         displayWeekends ? styles.withWeekends : styles.noWeekends,
       )}
-      onScroll={handleScroll}
     >
       <div ref={dayHeaderRef} className={styles.dynCalendarHeader}>
         {weekdays.map((d) => (
@@ -353,42 +396,47 @@ export default function DynamicView({
       {popup !== null &&
         typeof document !== 'undefined' &&
         createPortal(
-          <EinPopup
-            open={true}
-            setOpen={(open) => {
-              if (!open) setPopup(null);
-            }}
-            triggerRef={popupTriggerRef}
-            animate
-            className={styles.popup}
-          >
-            <div className={styles.dayPopupHeader}>
-              <Heading level={2} data-size="sm">
-                {t(`calendar.days.${popup.date.getDay()}`)}{' '}
-                {popup.date.getDate()}{' '}
-                {t(`calendar.months.${popup.date.getMonth()}`)}
-              </Heading>
-              <Button
-                icon
-                variant="tertiary"
-                data-color="neutral"
-                data-size="sm"
-                aria-label={t('site:closeModal')}
-                onClick={() => setPopup(null)}
-              >
-                <XMarkIcon />
-              </Button>
-            </div>
-            <div className={styles.dayPopupBody}>
-              {popup.meetings.map((item) => (
-                <MoetemappeModule
-                  key={item.id}
-                  item={item}
-                  variant="expanded"
-                />
-              ))}
-            </div>
-          </EinPopup>,
+          // position:fixed wrapper so EinPopup's anchor math works correctly
+          // with page-level scroll (getClosestPositionedAncestor finds this).
+          // zIndex:9999 ensures it renders above all calendar grid stacking contexts.
+          <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
+            <EinPopup
+              open={true}
+              setOpen={(open) => {
+                if (!open) setPopup(null);
+              }}
+              triggerRef={popupTriggerRef}
+              animate
+              className={styles.popup}
+            >
+              <div className={styles.dayPopupHeader}>
+                <Heading level={2} data-size="sm">
+                  {t(`calendar.days.${popup.date.getDay()}`)}{' '}
+                  {popup.date.getDate()}{' '}
+                  {t(`calendar.months.${popup.date.getMonth()}`)}
+                </Heading>
+                <Button
+                  icon
+                  variant="tertiary"
+                  data-color="neutral"
+                  data-size="sm"
+                  aria-label={t('site:closeModal')}
+                  onClick={() => setPopup(null)}
+                >
+                  <XMarkIcon />
+                </Button>
+              </div>
+              <div className={styles.dayPopupBody}>
+                {popup.meetings.map((item) => (
+                  <MoetemappeModule
+                    key={item.id}
+                    item={item}
+                    variant="expanded"
+                  />
+                ))}
+              </div>
+            </EinPopup>
+          </div>,
           document.body,
         )}
 

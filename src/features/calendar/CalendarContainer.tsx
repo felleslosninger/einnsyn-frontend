@@ -1,7 +1,14 @@
 'use client';
 
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import cn from '~/lib/utils/className';
 import CalendarBody from './CalendarBody';
@@ -88,6 +95,26 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
+  const calendarHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  // Keep --calendar-header-height in sync so the sticky day-names row in the
+  // month view can clear both the global header and this calendar header.
+  // useLayoutEffect so the variable is set before the first paint — avoids
+  // the day-names row sticking at the wrong position on initial render.
+  useLayoutEffect(() => {
+    const update = () => {
+      const h = calendarHeaderRef.current?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty(
+        '--calendar-header-height',
+        `${h}px`,
+      );
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    if (calendarHeaderRef.current) ro.observe(calendarHeaderRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   const [hasWeekendWarning, setHasWeekendWarning] = useState(false);
 
   useMemo(() => {
@@ -112,18 +139,6 @@ export default function CalendarContainer({
     document.documentElement.classList.add('calendar-page');
     return () => document.documentElement.classList.remove('calendar-page');
   }, []);
-
-  // Lock page scroll in month view so only the calendar scrolls internally.
-  // Week/day views let page height grow naturally to fit content.
-  useEffect(() => {
-    const cls = 'calendar-month-view';
-    if (selectedView === 'month') {
-      document.documentElement.classList.add(cls);
-    } else {
-      document.documentElement.classList.remove(cls);
-    }
-    return () => document.documentElement.classList.remove(cls);
-  }, [selectedView]);
 
   // Debounced sync: once the user settles on a scrolled-to month, write
   // first-of-month back to the URL so upstream data fetching picks up the
@@ -170,17 +185,19 @@ export default function CalendarContainer({
               : styles.monthView,
         )}
       >
-        <CalendarHeader
-          selectedView={selectedView}
-          setSelectedView={setSelectedView}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          visibleMonth={visibleMonth}
-          displayWeekends={displayWeekends}
-          setDisplayWeekends={setDisplayWeekends}
-          hasWeekendWarning={hasWeekendWarning}
-          resultCount={calendarResults.length}
-        />
+        <div ref={calendarHeaderRef} className={styles.calendarHeaderWrapper}>
+          <CalendarHeader
+            selectedView={selectedView}
+            setSelectedView={setSelectedView}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            visibleMonth={visibleMonth}
+            displayWeekends={displayWeekends}
+            setDisplayWeekends={setDisplayWeekends}
+            hasWeekendWarning={hasWeekendWarning}
+            resultCount={calendarResults.length}
+          />
+        </div>
         <CalendarBody
           isLoading={isLoading}
           selectedView={selectedView}
