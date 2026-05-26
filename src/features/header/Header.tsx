@@ -151,10 +151,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   }, [isHome]);
 
   const fixedHeader =
-    !isHome &&
-    !isAtTop &&
-    headerHeight !== null &&
-    fixedViewportWidth !== null;
+    !isHome && !isAtTop && headerHeight !== null && fixedViewportWidth !== null;
 
   const fixedHeaderStyle = fixedHeader
     ? {

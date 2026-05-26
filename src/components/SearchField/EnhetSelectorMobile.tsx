@@ -58,9 +58,9 @@ export function EnhetSelectorMobile({ state, active, activate, close }: Props) {
   );
 }
 
-// 
+//
 // Summary button (mobile trigger — "Søker i X | Endre")
-// 
+//
 
 type SummaryButtonProps = {
   active: boolean;
@@ -141,9 +141,9 @@ const SummaryButton = ({ active, state, activate }: SummaryButtonProps) => {
   );
 };
 
-// 
+//
 // Filter field
-// 
+//
 
 const FilterField = ({ state }: { state: EnhetSelectorState }) => {
   const t = useTranslation();
@@ -169,9 +169,9 @@ const FilterField = ({ state }: { state: EnhetSelectorState }) => {
   );
 };
 
-// 
+//
 // Flat list: "Alle" item, then selected matches (pinned), then available.
-// 
+//
 
 const MobileList = ({ state }: { state: EnhetSelectorState }) => {
   const t = useTranslation();
@@ -269,9 +269,9 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
   );
 };
 
-// 
+//
 // Row (iOS-picker style: leading icon, label + ancestors, trailing checkmark)
-// 
+//
 
 type MobileRowProps = {
   id: string;

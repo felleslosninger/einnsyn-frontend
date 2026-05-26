@@ -14,7 +14,7 @@ import cn from '~/lib/utils/className';
 import {
   getAncestorsAsString,
   getName,
-  type TrimmedEnhet
+  type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
@@ -233,9 +233,9 @@ const DesktopFooter = ({ state, close }: DesktopFooterProps) => {
   );
 };
 
-// 
+//
 // Filter field
-// 
+//
 
 const FilterField = ({ state }: { state: EnhetSelectorState }) => {
   const t = useTranslation();
@@ -261,9 +261,9 @@ const FilterField = ({ state }: { state: EnhetSelectorState }) => {
   );
 };
 
-// 
+//
 // Available / Selected columns
-// 
+//
 
 type ColumnProps = {
   state: EnhetSelectorState;
@@ -394,9 +394,9 @@ const SelectedColumn = ({ state, getRowSubtitle }: ColumnProps) => {
   );
 };
 
-// 
+//
 // Row (name + subtitle on the left, action pill on the right)
-// 
+//
 
 type DesktopRowProps = {
   id: string;
@@ -453,9 +453,9 @@ const DesktopRow = ({
   );
 };
 
-// 
+//
 // Helpers
-// 
+//
 
 const SkeletonRows = ({ keyPrefix }: { keyPrefix: string }) => (
   <>

@@ -41,7 +41,10 @@ const readScrollY = () => {
   }
 
   return (
-    window.scrollY ?? window.pageYOffset ?? document.documentElement.scrollTop ?? 0
+    window.scrollY ??
+    window.pageYOffset ??
+    document.documentElement.scrollTop ??
+    0
   );
 };
 

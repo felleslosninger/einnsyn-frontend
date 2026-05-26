@@ -276,9 +276,9 @@ export function useEnhetSelectorState({
     return { searchMatchedSelectedNodes: selected, availableNodes: available };
   }, [visibleNodes, selectedEnhetIds]);
 
-  // 
+  //
   // Keyboard navigation across the two lists.
-  // 
+  //
   const [focus, setFocus] = useState<EnhetSelectorFocus | null>(null);
 
   // Scroll the focused row into view whenever focus changes.
