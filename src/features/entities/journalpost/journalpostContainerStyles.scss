@@ -1,0 +1,49 @@
+.two-col-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: var(--ein-vertical-spacing);
+
+  > .fieldWrapper:first-child {
+    margin-block: var(--dsc-card-content-margin-block);
+  }
+}
+
+.main-document {
+  margin-top: var(--ein-vertical-spacing);
+
+  a {
+    margin: 0 8px;
+
+    svg {
+      font-size: 1.5em;
+      position: relative;
+      top: 8px;
+    }
+
+    &:first-of-type {
+      margin-left: 0;
+    }
+  }
+}
+
+.attachment-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: var(--ein-vertical-spacing);
+
+  .attachment {
+    .attachment-title {
+      margin-right: 8px;
+    }
+
+    a {
+      margin: 0 8px;
+
+      svg {
+        font-size: 1.5em;
+        position: relative;
+        top: 8px;
+      }
+    }
+  }
+}
