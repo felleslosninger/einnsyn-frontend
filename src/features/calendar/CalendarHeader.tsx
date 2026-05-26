@@ -213,7 +213,7 @@ export default function CalendarHeader({
       <div className={cn('header-actions', styles.headerActions)}>
         <div className={cn('view-options', styles.viewOptionsLeft)}>
           <Button
-            variant="secondary"
+            variant="tertiary"
             data-color="neutral"
             data-size="sm"
             onClick={() => setSelectedDate(new Date())}

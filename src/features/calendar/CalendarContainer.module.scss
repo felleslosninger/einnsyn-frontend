@@ -17,7 +17,7 @@
 :global(html.calendar-month-view .einnsyn-body) {
     height: 100%;
     overflow: hidden;
-    background-color: var(--ds-color-brand2-background-tinted);
+    background-color: var(--ds-color-neutral-background-default);
 }
 
 :global(html.calendar-month-view .content-flex-grow) {
@@ -181,7 +181,7 @@
 .monthHeading {
     padding: var(--ds-size-4) 0 var(--ds-size-2);
     border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
-    background-color: var(--ds-color-brand2-background-tinted);
+    background-color: var(--ds-color-neutral-background-default);
 }
 
 /* Week rows */
@@ -282,12 +282,10 @@
     margin-bottom: var(--ds-size-2);
     border-radius: 12px;
     font-size: var(--ds-body-xs-font-size);
-    min-width: 300px;
-    max-width: 500px;
     width: auto;
 
     &:hover {
-        background-color: #EDF0FF;
+        background-color: var(--ds-color-brand2-surface-tinted);
     }
 }
 
@@ -363,7 +361,9 @@
 }
 
 .popup {
-    width: 400px;
+    width: 650px;
+    height: 806px;
+    overflow: hidden;
 }
 
 .dayPopupHeader {
@@ -371,7 +371,6 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--ds-size-3) var(--ds-size-3) var(--ds-size-2);
-    border-bottom: solid 1px var(--ds-color-neutral-border-subtle);
 }
 
 .dayPopupBody {
@@ -379,8 +378,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--ds-size-2);
-    max-height: 400px;
-    overflow-y: auto;
+    height: 744px;
+    overflow-y: scroll;
 }
 
 .moreMeetingsButton {
