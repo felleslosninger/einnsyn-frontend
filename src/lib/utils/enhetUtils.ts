@@ -23,7 +23,7 @@ type TrimmedEnhetBase = Pick<
   | 'enhetstype'
 >;
 
-export type TrimmedEnhetParent = string | TrimmedEnhet;
+export type TrimmedEnhetParent = string;
 
 export type TrimmedEnhet = TrimmedEnhetBase & {
   parent?: TrimmedEnhetParent;
@@ -82,10 +82,7 @@ export const formatOrgnummer = (orgnr: string | null | undefined): string => {
 export function getEnhetParentId(
   enhet: Pick<TrimmedEnhet, 'parent'>,
 ): string | undefined {
-  if (typeof enhet.parent === 'string') {
-    return enhet.parent;
-  }
-  return enhet.parent?.id;
+  return enhet.parent;
 }
 
 export function getEnhetParentFromMap(
@@ -94,6 +91,7 @@ export function getEnhetParentFromMap(
 ): TrimmedEnhet | undefined {
   const parentId = getEnhetParentId(enhet);
   if (!parentId) {
+    // Root nodes are technical and should not be added
     return undefined;
   }
   return enhetsById.get(parentId);
