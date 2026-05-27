@@ -23,7 +23,6 @@
     top: var(--page-header-height, 0px);
     z-index: 3;
     background-color: var(--ds-color-neutral-background-default);
-    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
 .calendarHeader {
@@ -62,15 +61,10 @@
 
 .clickableHeading {
     cursor: pointer;
-    padding: var(--ds-size-1) var(--ds-size-5);
-    border-radius: 4px;
     display: flex;
     align-items: center;
     gap: var(--ds-size-1);
-
-    &:hover {
-        background-color: var(--ds-color-neutral-surface-hover);
-    }
+    color: var(--ds-color-neutral-text-default);
 }
 
 .headingChevron {
@@ -124,7 +118,7 @@
 .calendarBody {
     display: flex;
     flex-direction: column;
-    background-color: var(--ds-color-brand2-background-default);
+    background-color: var(--ds-color-neutral-background-default);
 }
 
 .calendarGrid {

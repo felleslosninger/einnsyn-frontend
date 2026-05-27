@@ -222,7 +222,11 @@ export default function CalendarHeader({
           </Button>
 
           {navButtons}
-          <div className={cn('display-heading', styles.displayHeading)}>
+          <Button
+            className={cn('display-heading', styles.displayHeading)}
+            variant="tertiary"
+            data-color="neutral"
+          >
             <Heading
               data-size="sm"
               level={1}
@@ -248,7 +252,7 @@ export default function CalendarHeader({
               aria-hidden="true"
               tabIndex={-1}
             />
-          </div>
+          </Button>
         </div>
 
         <div className={styles.weekendWarningAlert}>
