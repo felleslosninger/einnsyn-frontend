@@ -18,7 +18,19 @@ export type TrimmedEnhet = Pick<
   | 'parent'
 >;
 
+// Module-level cache — survives across requests in the same server process.
+// The enhet list is global/public data that changes at most a few times a day,
+// so a 1-hour TTL eliminates the repeated 4-5s API round-trips without
+// meaningfully staling the data.
+let _enhetListCache: TrimmedEnhet[] | null = null;
+let _enhetListExpiry = 0;
+const ENHET_CACHE_TTL_MS = 60 * 60 * 1000;
+
 export const getTrimmedEnhetList = async () => {
+  if (_enhetListCache && Date.now() < _enhetListExpiry) {
+    return _enhetListCache;
+  }
+
   const api = await cachedApiClient();
   try {
     logger.debug('Fetching enhet list from API');
@@ -41,6 +53,8 @@ export const getTrimmedEnhetList = async () => {
       });
     }
 
+    _enhetListCache = trimmedEnhetList;
+    _enhetListExpiry = Date.now() + ENHET_CACHE_TTL_MS;
     return trimmedEnhetList;
   } catch (error) {
     if (error instanceof EInnsynError) {
@@ -50,4 +64,5 @@ export const getTrimmedEnhetList = async () => {
   }
 };
 
+// React cache() handles per-request deduplication on top of the module-level cache.
 export const cachedTrimmedEnhetList = cache(getTrimmedEnhetList);

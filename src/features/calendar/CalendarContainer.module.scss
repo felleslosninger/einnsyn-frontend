@@ -82,36 +82,19 @@
     overflow: hidden;
 }
 
-.weekendWarningAlert {
-    min-width: 30px;
-    width: 100%;
-    text-wrap: nowrap;
-    text-overflow: clip;
-    overflow: hidden;
 
-    :global(.ds-alert) {
-        padding-block: var(--ds-size-1);
-        width: 100%;
-        text-wrap: nowrap;
-        text-overflow: clip;
-        overflow: hidden;
-    }
-}
-
-.viewOptions,
-.viewOptionsLeft {
+.viewOptions {
+    margin-left: auto;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    width: fit-content;
-    text-wrap: nowrap;
     gap: var(--ds-size-2);
 }
 
-// .arrowIcon {
-//     height: 70%;
-//     width: 70%;
-// }
+.viewOptionsLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+}
 
 // Calendar body
 
@@ -362,4 +345,40 @@
     &:hover {
         background-color: var(--ds-color-brand2-border-default);
     }
+}
+
+.warningDialog {
+    background-color: var(--ds-color-warning-surface-tinted);
+    border: 1px solid var(--ds-color-warning-border-default);
+    border-radius: 12px;
+    padding: var(--ds-size-4) var(--ds-size-5) var(--ds-size-4) var(--ds-size-4);
+    color: var(--ds-color-warning-text-default);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.18);
+    max-width: 350px;
+    min-width: 280px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--ds-size-2);
+    position: relative;
+}
+
+.warningDialogIcon {
+
+    align-self: start;
+    margin-right: var(--ds-size-2);
+    font-size: 2rem;
+}
+
+.warningDialogContent {
+
+    align-self: center;
+    font-size: var(--ds-body-md-font-size);
+    font-weight: 500;
+}
+
+.warningDialogClose {
+    grid-column: 3/3;
+    background: none;
+    border: none;
+    margin-top: var(--ds-size-2);
 }

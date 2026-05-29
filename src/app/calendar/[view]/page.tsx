@@ -1,6 +1,23 @@
+import { Suspense } from 'react';
 import CalendarContainer from '~/features/calendar/CalendarContainer';
 import { getCalendarResults } from '~/features/calendar/calendarActions';
-import { resolveCalendarDateRange } from '~/features/calendar/calendarHelpers';
+import {
+  type DateRange,
+  resolveCalendarDateRange,
+} from '~/features/calendar/calendarHelpers';
+
+async function CalendarResults({
+  enhet,
+  searchParams,
+  dateRange,
+}: {
+  enhet: string;
+  searchParams: URLSearchParams;
+  dateRange: DateRange;
+}) {
+  const calendarResults = await getCalendarResults(enhet, searchParams, dateRange);
+  return <CalendarContainer calendarResults={calendarResults} />;
+}
 
 export default async function Calendar({
   params,
@@ -12,11 +29,16 @@ export default async function Calendar({
   const { enhet = '' } = await params;
   const urlSearchParams = new URLSearchParams(await searchParams);
   const dateRange = resolveCalendarDateRange(urlSearchParams);
-  const calendarResults = await getCalendarResults(
-    enhet,
-    urlSearchParams,
-    dateRange,
-  );
 
-  return <CalendarContainer calendarResults={calendarResults} />;
+  return (
+    <Suspense
+      fallback={<CalendarContainer calendarResults={[]} initialLoading={true} />}
+    >
+      <CalendarResults
+        enhet={enhet}
+        searchParams={urlSearchParams}
+        dateRange={dateRange}
+      />
+    </Suspense>
+  );
 }

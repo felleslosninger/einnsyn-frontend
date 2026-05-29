@@ -23,11 +23,8 @@ export const getCalendarResults = async (
 
   const searchParameters = await buildSearchParameters(enhetSlug, searchParams);
 
-  // Expand utvalgObjekt
-  searchParameters.expand = [
-    'administrativEnhetObjekt.parent.parent',
-    'utvalgObjekt.parent.parent',
-  ];
+  // Only expand what the UI actually renders
+  searchParameters.expand = ['utvalgObjekt.parent'];
 
   // We only need Moetemappe
   searchParameters.entity = ['Moetemappe'];
@@ -40,7 +37,6 @@ export const getCalendarResults = async (
   searchParameters.sortBy = 'moetedato';
   searchParameters.sortOrder = 'asc';
 
-  // Max limit (we'll fetch all results by paginating)
   searchParameters.limit = 100;
 
   logger.debug('Search API query', searchParameters);
@@ -50,18 +46,16 @@ export const getCalendarResults = async (
       searchParameters,
     )) as PaginatedList<Moetemappe>;
 
-    // Iterate over paginated results to fetch all pages
     const results: Moetemappe[] = [];
     for await (const item of api.iterate(searchResults)) {
       results.push(item);
     }
-
     return results;
   } catch (error) {
     logger.error('Error fetching calendar results', {
       error: error instanceof Error ? error.message : String(error),
       searchParameters,
     });
-    return [] as Moetemappe[];
+    return [];
   }
 };
