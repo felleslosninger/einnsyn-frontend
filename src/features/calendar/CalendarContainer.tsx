@@ -49,9 +49,6 @@ export default function CalendarContainer({
   initialLoading = false,
 }: {
   calendarResults: Moetemappe[];
-  /** True when used as a Suspense fallback — forces skeleton display before
-   *  server data has streamed in. Once the real component mounts this is
-   *  always false and the normal navigation-loading flag takes over. */
   initialLoading?: boolean;
 }) {
   const {

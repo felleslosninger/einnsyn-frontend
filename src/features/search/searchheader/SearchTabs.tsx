@@ -21,6 +21,8 @@ export default function SearchTabs({ className }: { className?: string }) {
       return `/calendar?${searchParamsCopy.toString()}`;
     }
 
+    searchParamsCopy.delete('date');
+
     if (entityName === '') {
       searchParamsCopy.delete('entity');
     } else {

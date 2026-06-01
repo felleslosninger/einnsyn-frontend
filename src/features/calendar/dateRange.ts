@@ -6,7 +6,6 @@ export function getDateRange(selectedDate: Date, view: string) {
     case 'month': {
       // Fetch prev + current + next month so visible cells have
       // data and adjacent-month scrolls land on pre-loaded results.
-      //quite a lot of data to load. Needs optimization!
       const y = selectedDate.getFullYear();
       const m = selectedDate.getMonth();
       start.setTime(new Date(y, m - 1, 1).getTime());
