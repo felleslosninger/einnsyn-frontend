@@ -50,64 +50,59 @@ export default function WeekView({
   const calendarDays = generateCalendarDays();
 
   return (
-    <div className={styles.weekCalendarWrapper}>
-      <div
-        className={cn(
-          styles.calendarGrid,
-          displayWeekends ? styles.withWeekends : styles.noWeekends,
+    <div
+      className={cn(
+        styles.calendarGrid,
+        displayWeekends ? styles.withWeekends : styles.noWeekends,
+      )}
+    >
+      <div className={styles.dynCalendarHeader}>
+        {(displayWeekends ? [1, 2, 3, 4, 5, 6, 0] : [1, 2, 3, 4, 5]).map(
+          (d) => (
+            <div key={d} className={styles.dayHeaderCell}>
+              <span className={styles.dayHeaderText}>
+                {t(`calendar.days.${d}`)}
+              </span>
+            </div>
+          ),
         )}
-      >
-        <div className={styles.dynCalendarHeader}>
-          {(displayWeekends ? [1, 2, 3, 4, 5, 6, 0] : [1, 2, 3, 4, 5]).map(
-            (d) => (
-              <div key={d} className={styles.dayHeaderCell}>
-                <span className={styles.dayHeaderText}>
-                  {t(`calendar.days.${d}`)}
-                </span>
-              </div>
-            ),
-          )}
-        </div>
+      </div>
 
-        <div className={styles.weekRow}>
-          {calendarDays.map((day) => (
+      <div className={styles.weekRow}>
+        {calendarDays.map((day) => {
+          const dayMeetings = currentCalendarResults.filter(
+            (item) =>
+              item.moetedato &&
+              new Date(item.moetedato).toDateString() ===
+                day.date.toDateString(),
+          );
+          return (
             <div
               key={day.date.toISOString()}
               className={cn(styles.dayCell, day.isToday ? styles.today : '')}
             >
-              <div className={styles.dateHeader}>
+              <div>
                 {day.isToday ? (
-                  <Badge
-                    className={cn(styles.dateText, styles.badge)}
-                    count={day.dayNumber}
-                  ></Badge>
+                  <Badge className={styles.dateText} count={day.dayNumber} />
                 ) : (
                   <span className={styles.dateText}>{day.dayNumber}</span>
                 )}
               </div>
               <div className={styles.meetingList}>
                 {isLoading ? (
-                  // Render 1-2 skeletons per day to show activity
                   <>
                     <MoetemappeSkeleton />
-                    {Math.random() > 0.5 && <MoetemappeSkeleton />}
+                    <MoetemappeSkeleton />
                   </>
                 ) : (
-                  currentCalendarResults
-                    .filter(
-                      (item) =>
-                        item.moetedato &&
-                        new Date(item.moetedato).toDateString() ===
-                          day.date.toDateString(),
-                    )
-                    .map((item) => (
-                      <MoetemappeModule key={item.id} item={item} />
-                    ))
+                  dayMeetings.map((item) => (
+                    <MoetemappeModule key={item.id} item={item} />
+                  ))
                 )}
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );

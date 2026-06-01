@@ -23,8 +23,6 @@ const SCROLL_EDGE_THRESHOLD = 400;
 const WEEKDAYS_WITH_WEEKENDS = [1, 2, 3, 4, 5, 6, 0] as const; // Mon–Sun (JS getDay order)
 const WEEKDAYS_WITHOUT_WEEKENDS = [1, 2, 3, 4, 5] as const; // Mon–Fri
 
-// Indexed by Date.getDay() (0 = Sunday)
-
 type DayCell = {
   date: Date;
   inMonth: boolean;
@@ -103,12 +101,14 @@ export default function DynamicView({
   displayWeekends,
   currentCalendarResults,
   setVisibleMonth,
+  loadedMonths,
 }: {
   isLoading: boolean;
   selectedDate: Date;
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
   setVisibleMonth: (date: Date) => void;
+  loadedMonths: Set<string>;
 }) {
   const t = useTranslation();
   const dayHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -442,6 +442,7 @@ export default function DynamicView({
 
       {months.map((block) => {
         const key = blockKey(block);
+        const monthLoaded = loadedMonths.has(key);
         return (
           <div
             key={key}
@@ -479,18 +480,16 @@ export default function DynamicView({
                         new Date(item.moetedato).toDateString() ===
                           cell.date.toDateString(),
                     );
-                    const dayHasCache = dayMeetings.length > 0;
                     return (
                       <div
                         key={dateIsoKey(cell.date)}
                         data-day={cell.date.getDate()}
                         className={cn(
                           styles.dayCell,
-                          styles.currentMonth,
                           cell.isToday ? styles.today : '',
                         )}
                       >
-                        <div className={styles.dateHeader}>
+                        <div>
                           {cell.isToday ? (
                             <Badge
                               className={cn(styles.dateText, styles.today)}
@@ -504,7 +503,7 @@ export default function DynamicView({
                         </div>
 
                         <div className={styles.meetingList}>
-                          {isLoading && !dayHasCache ? (
+                          {isLoading && !monthLoaded ? (
                             <>
                               <MoetemappeSkeleton />
                               {Math.random() > 0.5 && <MoetemappeSkeleton />}

@@ -10,6 +10,15 @@
   align-items: center;
 }
 
+.tabDivider {
+  display: inline-block;
+  width: 1px;
+  height: 1.5em;
+  background: var(--ds-color-neutral-border-default, #d1d5db);
+  margin: 0 1rem;
+  vertical-align: middle;
+}
+
 .otherTabs {
   width: 100%;
   margin-right: calc(-1 * var(--ds-size-1)); // Visually align with search field

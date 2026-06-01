@@ -18,6 +18,15 @@ export default function MoetemappeModule({
   item,
   variant = 'compact',
 }: MoetemappeModuleProps) {
+  const utvalg = item.utvalgObjekt;
+  const utvalgNavn = typeof utvalg === 'string' ? utvalg : utvalg.navn;
+  const parentNavn =
+    typeof utvalg === 'string'
+      ? ''
+      : typeof utvalg.parent === 'string'
+        ? utvalg.parent
+        : utvalg.parent?.navn || '';
+
   if (variant === 'expanded') {
     return (
       <div className={cn('moetemappemodule', styles.moetemappemoduleExpanded)}>
@@ -32,17 +41,9 @@ export default function MoetemappeModule({
             href="localhost:3000"
             className={styles.moduleHeadingLink}
           >
-            {typeof item.utvalgObjekt === 'string'
-              ? item.utvalgObjekt
-              : item.utvalgObjekt.navn}
+            {utvalgNavn}
           </Link>
-          <span className={styles.expandedOrg}>
-            {typeof item.utvalgObjekt === 'string'
-              ? ''
-              : typeof item.utvalgObjekt.parent === 'string'
-                ? item.utvalgObjekt.parent
-                : item.utvalgObjekt.parent?.navn || ''}
-          </span>
+          <span className={styles.expandedOrg}>{parentNavn}</span>
         </div>
       </div>
     );
@@ -56,19 +57,11 @@ export default function MoetemappeModule({
           href="localhost:3000"
           className={styles.moduleHeadingLink}
         >
-          {typeof item.utvalgObjekt === 'string'
-            ? item.utvalgObjekt
-            : item.utvalgObjekt.navn}
+          {utvalgNavn}
         </Link>
       </div>
       <div className={cn('module-info', styles.moduleInfo)}>
-        <div className={styles.parentNameLabel}>
-          {typeof item.utvalgObjekt === 'string'
-            ? ''
-            : typeof item.utvalgObjekt.parent === 'string'
-              ? item.utvalgObjekt.parent
-              : item.utvalgObjekt.parent?.navn || ''}
-        </div>
+        <div className={styles.parentNameLabel}>{parentNavn}</div>
       </div>
     </div>
   );

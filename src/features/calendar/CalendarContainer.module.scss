@@ -1,11 +1,4 @@
-//pre and post containers
-
-@media (max-width: 1800px) {
-    .calendarPre {
-        display: none;
-    }
-}
-
+// ─── Layout ──────────────────────────────────────────────────────────────
 .calendarContent {
     flex-basis: 2000px;
     max-width: 2000px;
@@ -15,7 +8,8 @@
     flex-direction: column;
 }
 
-// Header section — wrapper is sticky so controls stay visible while scrolling.
+// ─── Header ──────────────────────────────────────────────────────────────
+// Wrapper is sticky so controls stay visible while scrolling.
 // z-index:3 keeps it above scrolling meeting content (z-index:2) but below
 // the global page header (z-index:10) so header dropdowns always render on top.
 .calendarHeaderWrapper {
@@ -33,20 +27,23 @@
     padding-bottom: var(--ds-size-1);
 }
 
-.headerInfo {
-    width: 100%;
-    // padding-bottom: var(--ds-size-2);
-    color: var(--ds-color-neutral-text-subtle);
-}
-
-.resultsFound {
-    font-size: var(--ds-body-sm-font-size);
-}
-
 .headerActions {
     width: 100%;
     display: flex;
     flex-direction: row;
+    gap: var(--ds-size-2);
+}
+
+.viewOptionsLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+}
+
+.viewOptions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
     gap: var(--ds-size-2);
 }
 
@@ -67,12 +64,6 @@
     color: var(--ds-color-neutral-text-default);
 }
 
-.headingChevron {
-    // font-size: 1.1rem;
-    // flex-shrink: 0;
-    // color: var(--ds-color-neutral-text-subtle);
-}
-
 .hiddenDateInput {
     position: absolute;
     opacity: 0;
@@ -82,22 +73,7 @@
     overflow: hidden;
 }
 
-
-.viewOptions {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: var(--ds-size-2);
-}
-
-.viewOptionsLeft {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-size-2);
-}
-
-// Calendar body
-
+// ─── Calendar body & grid ──────────────────────────────────────────────────
 .calendarBody {
     display: flex;
     flex-direction: column;
@@ -140,7 +116,7 @@
     background-color: var(--ds-color-neutral-background-default);
 }
 
-/* Week rows */
+// Grid column counts per weekend mode
 .withWeekends .weekRow,
 .withWeekends .dynCalendarHeader {
     grid-template-columns: repeat(7, 1fr);
@@ -190,7 +166,6 @@
     background-color: var(--ds-color-brand2-surface-tinted);
 }
 
-
 .meetingList {
     position: relative; // Needed for pseudo-elements
     overflow-y: auto;
@@ -224,8 +199,53 @@
     overflow-anchor: none;
 }
 
+// ─── Meeting module — compact (month) variant ──────────────────────────────
+.moetemappemodule {
+    background-color: var(--ds-color-brand2-surface-tinted);
+    margin-bottom: var(--ds-size-2);
+    border-radius: 12px;
+    min-width: 0;
+    width: 100%;
+    font-size: var(--ds-body-xs-font-size);
+}
 
-// Meeting component styles — expanded variant
+.moduleHeading,
+.moduleInfo {
+    padding-left: var(--ds-size-3);
+    padding-right: var(--ds-size-3);
+}
+
+.moduleHeading {
+    font-size: var(--ds-body-sm-font-size);
+    padding-top: var(--ds-size-2);
+    padding-bottom: var(--ds-size-1);
+
+    .moduleHeadingLink {
+        color: var(--ds-color-neutral-text-default);
+    }
+}
+
+.moduleHeading a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: inherit;
+    line-height: inherit;
+}
+
+.moduleInfo {
+    color: var(--ds-color-neutral-text-subtle);
+    padding-bottom: var(--ds-size-2);
+}
+
+.parentNameLabel {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+// ─── Meeting module — expanded (popup) variant ─────────────────────────────
 .moetemappemoduleExpanded {
     display: grid;
     grid-template-columns: 3.5rem 1fr;
@@ -251,66 +271,12 @@
     color: var(--ds-color-neutral-text-subtle);
 }
 
-.expandedInfoCol {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ds-size-1);
-    min-width: 0;
-}
-
 .expandedOrg {
     font-size: var(--ds-body-xs-font-size);
     color: var(--ds-color-neutral-text-subtle);
 }
 
-// Meeting component styles — compact (month) variant
-.moetemappemodule {
-    background-color: var(--ds-color-brand2-surface-tinted);
-    margin-bottom: var(--ds-size-2);
-    border-radius: 12px;
-    min-width: 0;
-    width: 100%;
-    font-size: var(--ds-body-xs-font-size);
-}
-
-.moduleHeading,
-.moduleInfo {
-    padding-left: var(--ds-size-3);
-    padding-right: var(--ds-size-3);
-}
-
-.moduleHeading {
-    font-size: var(--ds-body-sm-font-size);
-    padding-top: var(--ds-size-2);
-    padding-bottom: var(--ds-size-1);
-
-    .moduleHeadingLink {
-        // color: #002C54;
-        color: var(--ds-color-neutral-text-default);
-    }
-}
-
-.moduleHeading a {
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-
-    font: inherit;
-    line-height: inherit;
-}
-
-.moduleInfo {
-    color: var(--ds-color-neutral-text-subtle);
-    padding-bottom: var(--ds-size-2);
-}
-
-.parentNameLabel {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
+// ─── Day popup ─────────────────────────────────────────────────────────────
 .popup {
     width: 650px;
     height: 806px;
@@ -347,6 +313,7 @@
     }
 }
 
+// ─── Weekend-warning dialog ────────────────────────────────────────────────
 .warningDialog {
     background-color: var(--ds-color-warning-surface-tinted);
     border: 1px solid var(--ds-color-warning-border-default);
@@ -363,14 +330,12 @@
 }
 
 .warningDialogIcon {
-
     align-self: start;
     margin-right: var(--ds-size-2);
     font-size: 2rem;
 }
 
 .warningDialogContent {
-
     align-self: center;
     font-size: var(--ds-body-md-font-size);
     font-weight: 500;

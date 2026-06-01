@@ -78,14 +78,12 @@ export default function SearchTabs({ className }: { className?: string }) {
         >
           {t('moetesak.labelPlural')}
         </EinLink>
-      </div>
-
-      <div className={cn(styles.otherTabs)}>
+        <span className={styles.tabDivider} aria-hidden="true" />
         <EinLink
           className={getLinkClassName('calendar')}
           href={getLinkUrl('calendar')}
         >
-          {t('calendar.shortLabel')}
+          {t('calendar.label')}
         </EinLink>
       </div>
 

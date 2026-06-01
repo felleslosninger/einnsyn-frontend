@@ -1,7 +1,6 @@
 'use client';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
 
-import cn from '~/lib/utils/className';
 import styles from './CalendarContainer.module.scss';
 
 import DayView from './CalendarViews/Day';
@@ -15,9 +14,8 @@ interface CalendarBodyProps {
   selectedDate: Date;
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
-  setSelectedView: (view: CalendarView) => void;
-  setSelectedDate: (date: Date) => void;
   setVisibleMonth: (date: Date) => void;
+  loadedMonths: Set<string>;
 }
 
 export default function CalendarBody({
@@ -27,18 +25,10 @@ export default function CalendarBody({
   displayWeekends,
   currentCalendarResults,
   setVisibleMonth,
+  loadedMonths,
 }: CalendarBodyProps) {
   return (
-    <div
-      className={cn(
-        styles.calendarBody,
-        selectedView === 'week'
-          ? styles.weekView
-          : selectedView === 'day'
-            ? styles.dayView
-            : styles.monthView,
-      )}
-    >
+    <div className={styles.calendarBody}>
       {selectedView === 'week' && (
         <WeekView
           isLoading={isLoading}
@@ -61,6 +51,7 @@ export default function CalendarBody({
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}
           setVisibleMonth={setVisibleMonth}
+          loadedMonths={loadedMonths}
         />
       )}
     </div>

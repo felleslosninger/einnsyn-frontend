@@ -27,8 +27,13 @@ import {
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`;
 
-// Returns the single month key covered by a fetch for `d`.
-const fetchedMonthKeys = (d: Date): string[] => [monthKey(d)];
+// Month keys covered by one fetch (prev + current + next), matching the
+// month-view range produced by getDateRange.
+const monthKeysAround = (d: Date): string[] => [
+  monthKey(new Date(d.getFullYear(), d.getMonth() - 1, 1)),
+  monthKey(d),
+  monthKey(new Date(d.getFullYear(), d.getMonth() + 1, 1)),
+];
 
 const hasWeekendMeetings = (results: Moetemappe[]) => {
   return results.some((item) => {
@@ -49,12 +54,17 @@ export default function CalendarContainer({
    *  always false and the normal navigation-loading flag takes over. */
   initialLoading?: boolean;
 }) {
-  const { loadingSearchParamsString, searchParamsString, loading } =
-    useNavigation();
+  const {
+    loadingSearchParamsString,
+    searchParamsString,
+    loading,
+    optimisticPathname,
+    optimisticSearchParams,
+    replace,
+  } = useNavigation();
   const isLoading =
-    initialLoading || (loading && loadingSearchParamsString !== searchParamsString);
-  const { optimisticPathname, optimisticSearchParams, replace } =
-    useNavigation();
+    initialLoading ||
+    (loading && loadingSearchParamsString !== searchParamsString);
 
   const selectedView = useMemo(
     () => getSelectedCalendarView(optimisticSearchParams),
@@ -117,10 +127,6 @@ export default function CalendarContainer({
     return params.toString();
   }, [optimisticSearchParams]);
 
-  // Tracks which months are already in allResults so we can skip re-fetching.
-  const loadedMonthsRef = useRef<Set<string>>(
-    new Set(fetchedMonthKeys(selectedDate)),
-  );
   const prevFilterKeyRef = useRef(filterKey);
   // Ref so the merge effect can read the current value without it being a dep.
   const selectedDateRef = useRef(selectedDate);
@@ -128,22 +134,43 @@ export default function CalendarContainer({
 
   const [allResults, setAllResults] = useState<Moetemappe[]>(calendarResults);
 
-  // Merge incoming results into the accumulator, or reset on filter change.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: selectedDate read via ref intentionally
+  // Months whose data for the current filter is confirmed loaded. A cell shows
+  // skeletons while loading until its month lands here; once loaded, a month
+  // with no meetings renders blank instead of skeletons.
+  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
+    () => new Set(),
+  );
+  // Mirror into a ref so the debounce effect can read it without a dep.
+  const loadedMonthsRef = useRef(loadedMonths);
+  loadedMonthsRef.current = loadedMonths;
+
+  // An (optimistic) filter change invalidates every loaded month so all
+  // visible cells fall back to skeletons until fresh data arrives.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: filterKey is a trigger, not read in the body
   useEffect(() => {
+    setLoadedMonths(new Set());
+  }, [filterKey]);
+
+  // Merge incoming results into the accumulator and mark the fetched month
+  // range as loaded. Gated on !isLoading so stale in-flight results don't
+  // prematurely clear skeletons.
+  useEffect(() => {
+    if (isLoading) return;
     const filterChanged = filterKey !== prevFilterKeyRef.current;
     prevFilterKeyRef.current = filterKey;
+    const fetchedKeys = monthKeysAround(selectedDateRef.current);
 
     if (filterChanged) {
-      loadedMonthsRef.current = new Set(fetchedMonthKeys(selectedDateRef.current));
+      setLoadedMonths(new Set(fetchedKeys));
       setAllResults(calendarResults);
       return;
     }
 
-    for (const key of fetchedMonthKeys(selectedDateRef.current)) {
-      loadedMonthsRef.current.add(key);
-    }
-
+    setLoadedMonths((prev) => {
+      const next = new Set(prev);
+      for (const k of fetchedKeys) next.add(k);
+      return next;
+    });
     setAllResults((prev) => {
       const map = new Map(prev.map((r) => [r.id, r]));
       for (const r of calendarResults) {
@@ -155,7 +182,7 @@ export default function CalendarContainer({
         return at - bt;
       });
     });
-  }, [calendarResults, filterKey]);
+  }, [calendarResults, isLoading, filterKey]);
   // ─────────────────────────────────────────────────────────────────────────
 
   const calendarHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -178,11 +205,10 @@ export default function CalendarContainer({
     return () => ro.disconnect();
   }, []);
 
-  const [hasWeekendWarning, setHasWeekendWarning] = useState(false);
-
-  useMemo(() => {
-    setHasWeekendWarning(hasWeekendMeetings(allResults));
-  }, [allResults]);
+  const hasWeekendWarning = useMemo(
+    () => hasWeekendMeetings(allResults),
+    [allResults],
+  );
 
   // Local, scroll-driven "currently visible month" in the Month view.
   // Decoupled from selectedDate to avoid feedback loops through URL state.
@@ -222,32 +248,10 @@ export default function CalendarContainer({
   }, [visibleMonth, selectedDate, setSelectedDate]);
 
   return (
-    <div
-      className={cn(
-        'container-wrapper',
-        'main-content',
-        styles.calendarContainer,
-        selectedView === 'week'
-          ? styles.weekView
-          : selectedView === 'day'
-            ? styles.dayView
-            : styles.calendarContainer,
-      )}
-    >
-      {/* <div className={cn('calendar-pre collapsible', styles.calendarPre)} /> */}
+    <div className={cn('container-wrapper', 'main-content')}>
       <div className="container-pre collapsible" />
 
-      <div
-        className={cn(
-          'calendar-content',
-          styles.calendarContent,
-          selectedView === 'week'
-            ? styles.weekView
-            : selectedView === 'day'
-              ? styles.dayView
-              : styles.monthView,
-        )}
-      >
+      <div className={cn('calendar-content', styles.calendarContent)}>
         <div ref={calendarHeaderRef} className={styles.calendarHeaderWrapper}>
           <CalendarHeader
             selectedView={selectedView}
@@ -258,7 +262,6 @@ export default function CalendarContainer({
             displayWeekends={displayWeekends}
             setDisplayWeekends={setDisplayWeekends}
             hasWeekendWarning={hasWeekendWarning}
-            resultCount={allResults.length}
           />
         </div>
         <CalendarBody
@@ -267,13 +270,11 @@ export default function CalendarContainer({
           selectedDate={selectedDate}
           displayWeekends={displayWeekends}
           currentCalendarResults={allResults}
-          setSelectedView={setSelectedView}
-          setSelectedDate={setSelectedDate}
           setVisibleMonth={setVisibleMonth}
+          loadedMonths={loadedMonths}
         />
       </div>
 
-      {/* <div className="calendar-post collapsible" /> */}
       <div className="container-post collapsible" />
     </div>
   );

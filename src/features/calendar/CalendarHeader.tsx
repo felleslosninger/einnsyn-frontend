@@ -31,7 +31,6 @@ interface CalendarHeaderProps {
   displayWeekends: boolean;
   setDisplayWeekends: (display: boolean) => void;
   hasWeekendWarning: boolean;
-  resultCount: number;
 }
 
 export default function CalendarHeader({
@@ -43,7 +42,6 @@ export default function CalendarHeader({
   displayWeekends,
   setDisplayWeekends,
   hasWeekendWarning,
-  resultCount,
 }: CalendarHeaderProps) {
   const t = useTranslation();
   const dateInputRef = useRef<HTMLInputElement | null>(null);
@@ -138,7 +136,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeMonth(-1)}
             >
-              <ChevronUpIcon className={cn(styles.arrowIcon)} />
+              <ChevronUpIcon />
             </Button>
 
             <Button
@@ -149,7 +147,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeMonth(1)}
             >
-              <ChevronDownIcon className={cn(styles.arrowIcon)} />
+              <ChevronDownIcon />
             </Button>
           </>
         );
@@ -164,7 +162,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeWeek(-1)} // Previous Week
             >
-              <ChevronLeftIcon className={cn(styles.arrowIcon)} />
+              <ChevronLeftIcon />
             </Button>
 
             <Button
@@ -175,7 +173,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeWeek(1)} // Next Week
             >
-              <ChevronRightIcon className={cn(styles.arrowIcon)} />
+              <ChevronRightIcon />
             </Button>
           </>
         );
@@ -190,7 +188,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeDay(-1)} // Previous Day
             >
-              <ChevronLeftIcon className={cn(styles.arrowIcon)} />
+              <ChevronLeftIcon />
             </Button>
 
             <Button
@@ -201,7 +199,7 @@ export default function CalendarHeader({
               variant="tertiary"
               onClick={() => changeDay(1)} // Next Day
             >
-              <ChevronRightIcon className={cn(styles.arrowIcon)} />
+              <ChevronRightIcon />
             </Button>
           </>
         );
@@ -224,11 +222,6 @@ export default function CalendarHeader({
   return (
     <>
       <div className={cn('calendar-header', styles.calendarHeader)}>
-        {/* <div className={cn('header-info', styles.headerInfo)}>
-        <span className={styles.resultsFound}>
-          {t('calendar.resultsFound', resultCount.toString())}
-        </span>
-      </div> */}
         <div className={cn('header-actions', styles.headerActions)}>
           <div className={cn('view-options', styles.viewOptionsLeft)}>
             <Button
@@ -260,7 +253,7 @@ export default function CalendarHeader({
                 }}
               >
                 {viewHeading}
-                <ChevronDownIcon className={styles.headingChevron} />
+                <ChevronDownIcon />
               </Heading>
               <input
                 ref={dateInputRef}
@@ -285,7 +278,7 @@ export default function CalendarHeader({
               <span>{t(`calendar.viewOptions.${selectedView}`)}</span>
               <ChevronDownIcon />
             </Button>
-            <Dropdown id="dropdown">
+            <Dropdown id="dropdown" data-color="neutral">
               <Dropdown.List>
                 <Dropdown.Item>
                   <Dropdown.Button onClick={() => setSelectedView('month')}>

@@ -17,7 +17,11 @@ async function CalendarResults({
   searchParams: URLSearchParams;
   dateRange: DateRange;
 }) {
-  const calendarResults = await getCalendarResults(enhet, searchParams, dateRange);
+  const calendarResults = await getCalendarResults(
+    enhet,
+    searchParams,
+    dateRange,
+  );
   return <CalendarContainer calendarResults={calendarResults} />;
 }
 
@@ -34,7 +38,9 @@ export default async function Calendar({
 
   return (
     <Suspense
-      fallback={<CalendarContainer calendarResults={[]} initialLoading={true} />}
+      fallback={
+        <CalendarContainer calendarResults={[]} initialLoading={true} />
+      }
     >
       <CalendarResults
         enhet={enhet}
