@@ -245,7 +245,7 @@ export default function CalendarContainer({
   }, [visibleMonth, selectedDate, setSelectedDate]);
 
   return (
-    <div className={cn('container-wrapper', 'main-content')}>
+    <div className={cn('container-wrapper', 'main-content', styles.calendarWrapper)}>
       <div className="container-pre collapsible" />
 
       <div className={cn('calendar-content', styles.calendarContent)}>

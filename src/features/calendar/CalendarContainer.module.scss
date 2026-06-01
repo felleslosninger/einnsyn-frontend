@@ -1,3 +1,5 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
 // ─── Layout ──────────────────────────────────────────────────────────────
 .calendarContent {
     flex-basis: 2000px;
@@ -38,6 +40,7 @@
     display: flex;
     align-items: center;
     gap: var(--ds-size-2);
+    text-wrap: nowrap;
 }
 
 .viewOptions {
@@ -45,6 +48,7 @@
     display: flex;
     align-items: center;
     gap: var(--ds-size-2);
+    text-wrap: nowrap;
 }
 
 .displayHeading {
@@ -310,6 +314,86 @@
 
     &:hover {
         background-color: var(--ds-color-brand2-border-default);
+    }
+}
+
+// ─── Mobile (≤ 767px) ─────────────────────────────────────────────────────────
+@include mq.small {
+
+    // Strip the outer container padding so the grid fills edge-to-edge.
+    // Padding is added back below for elements that need breathing room.
+    .calendarWrapper {
+        padding-right: 0;
+    }
+
+    // Re-apply horizontal padding to the header and month headings.
+    .calendarHeaderWrapper {
+        padding-left: var(--ds-size-3);
+        padding-right: var(--ds-size-3);
+    }
+
+    .monthHeading {
+        padding-left: var(--ds-size-3);
+        padding-right: var(--ds-size-3);
+    }
+
+    .headerActions {
+        overflow-x: scroll;
+        gap: var(--ds-size-1);
+    }
+
+    // Day-name header: tighter padding and smaller text so full names fit
+    .dayHeaderCell {
+        padding-left: var(--ds-size-1);
+    }
+
+    .dayHeaderText {
+        font-size: 10px;
+    }
+
+    // Date number: compact
+    .dateText {
+        padding: var(--ds-size-1);
+        font-size: 12px;
+    }
+
+    // Meeting list: minimal padding inside narrow cells
+    .meetingList {
+        padding: 2px;
+        padding-top: 0;
+    }
+
+    // Day popup: override EinPopup's anchor positioning by switching to
+    // position:fixed (EinPopup skips its own positioning logic when the
+    // element is not position:absolute). Pin it to fill the screen below
+    // the sticky headers.
+    .popup {
+        position: fixed;
+        top: var(--page-header-height, 0px);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: calc(100vh - var(--page-header-height, 0px));
+        padding: var(--ds-size-2);
+
+        // Make the inner content wrapper a flex column so header and body
+        // share the available height correctly.
+        :global(.ein-popup-content) {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    }
+
+    .dayPopupHeader {
+        flex-shrink: 0;
+    }
+
+    .dayPopupBody {
+        flex: 1;
+        height: auto;
+        min-height: 0;
     }
 }
 
