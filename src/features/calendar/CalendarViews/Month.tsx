@@ -376,6 +376,13 @@ export default function DynamicView({
   const [popup, setPopup] = useState<PopupState>(null);
   const popupTriggerRef = useRef<HTMLElement | null>(null);
 
+  useEffect(() => {
+    document.documentElement.style.overflowY = popup !== null ? 'hidden' : '';
+    return () => {
+      document.documentElement.style.overflowY = '';
+    };
+  }, [popup]);
+
   return (
     <div
       className={cn(
