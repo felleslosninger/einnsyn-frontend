@@ -1,3 +1,9 @@
+.filterTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
 .filterDropdown {
   :global(.spacer) {
     width: var(--ein-horizontal-spacing);
@@ -12,21 +18,21 @@
 }
 
 .enumContent {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    button {
-        background: none;
-        border: none;
-        padding: var(--ein-half-vertical-spacing) var(--ein-horizontal-spacing);
-        text-align: left;
-        cursor: pointer;
-        border-radius: var(--ds-border-radius-small);
+  button {
+    background: none;
+    border: none;
+    padding: var(--ein-half-vertical-spacing) var(--ein-horizontal-spacing);
+    text-align: left;
+    cursor: pointer;
+    border-radius: var(--ds-border-radius-small);
 
-        &:hover {
-            background-color: var(--ds-color-surface-hover);
-        }
+    &:hover {
+      background-color: var(--ds-color-surface-hover);
     }
+  }
 }
 
 .dateInputs {

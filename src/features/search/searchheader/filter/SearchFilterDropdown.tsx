@@ -9,6 +9,7 @@ import { BooleanFilter } from './BooleanFilter';
 import { DateFilter } from './DateFilter';
 import { EnumFilter } from './EnumFilter';
 import styles from './SearchFilterDropdown.module.scss';
+import { FilterIcon } from '@navikt/aksel-icons';
 
 /**
  * SearchFilterDropdown Component
@@ -47,8 +48,16 @@ export default function SearchFilterDropdown({
 
   return (
     <EinDropdown
-      trigger={t('common.filter')}
-      showChevron={true}
+      trigger={
+        <span className={styles.filterTrigger}>
+          <FilterIcon
+            aria-hidden="true"
+            focusable="false"
+            className={styles.filterIcon}
+          />
+          {t('common.filter')}
+        </span>
+      }
       closeOnItemClick={false}
       preferredPosition={[
         'belowRight',
