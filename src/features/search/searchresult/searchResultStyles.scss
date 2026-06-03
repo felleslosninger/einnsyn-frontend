@@ -43,6 +43,31 @@
   padding-top: var(--ds-size-4); //Skal egt være var(--ds-size-5)? Ser mer korrekt ut med 3 
 }
 
+.search-result-dot {
+  display: inline-block;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--ds-color-text-subtle);
+}
+
+.search-result-dot--saksmappe {
+  background: #EDC567;
+}
+
+.search-result-dot--journalpost {
+  background: #009BFD;
+}
+
+.search-result-dot--moetemappe {
+  background: #D0A9F6;
+}
+
+.search-result-dot--moetesak {
+  background: #8FC997;
+}
+
 .search-result-subheader {
   display: flex;
   align-items: center;
@@ -60,32 +85,7 @@
 
 
   .search-result-dot {
-    flex: none;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 9999px;
-    border: 1px solid var(--ds-color-text-subtle);
     margin-right: -5px;
-  }
-
-  .search-result-dot--saksmappe {
-    background: #EDC567;
-    border-color: var(--ds-color-text-subtle);
-  }
-
-  .search-result-dot--journalpost {
-    background: #009BFD;
-    border-color: var(--ds-color-text-subtle);
-  }
-
-  .search-result-dot--moetemappe {
-    background: #D0A9F6;
-    border-color: var(--ds-color-text-subtle);
-  }
-
-  .search-result-dot--moetesak {
-    background: #8FC997;
-    border-color: var(--ds-color-text-subtle);
   }
 
   .search-result-type {
