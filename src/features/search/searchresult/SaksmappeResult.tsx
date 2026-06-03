@@ -1,5 +1,5 @@
 import type { Saksmappe } from '@digdir/einnsyn-sdk';
-import { FolderFileIcon } from '@navikt/aksel-icons';
+import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -30,25 +30,29 @@ export default function SaksmappeResult({
   return (
     <div className={cn(className, 'search-result', 'saksmappe-result')}>
       <EinLink href={saksmappeHref}>
-        <h2 className="ds-heading">{item.offentligTittel}</h2>
+        <h2 className="ds-heading" data-size="sm">
+          {item.offentligTittel}
+        </h2>
       </EinLink>
-      <div className="ds-paragraph" data-size="sm">
+      <div className="ds-paragraph search-result-body" data-size="sm">
         <SearchResultSubheader
-          icon={
-            <FolderFileIcon
-              aria-hidden="true"
-              focusable="false"
-              fontSize="1.2rem"
-            />
-          }
+          variant="saksmappe"
           item={item}
           label={translate('saksmappe.label')}
-        />
-        <div className="saksmappe-enhet">
-          <EnhetLink
-            withAncestors={false}
-            enhet={item.administrativEnhetObjekt}
+        >
+          {item.saksnummer && (
+            <span className="search-result-number">
+              {translate('common.number')} {item.saksnummer}
+            </span>
+          )}
+        </SearchResultSubheader>
+        <div className="search-result-enhet">
+          <Buildings3Icon
+            aria-hidden="true"
+            focusable="false"
+            fontSize="1.5rem"
           />
+          {item.administrativEnhet}
         </div>
       </div>
     </div>

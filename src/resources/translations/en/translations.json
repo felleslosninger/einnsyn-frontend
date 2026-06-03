@@ -73,7 +73,10 @@
     "header": "Search",
     "button": "Search",
     "placeholder": "Search in eInnsyn...",
-    "clear": "Clear search"
+    "clear": "Clear search",
+    "orderAccess": "Request access",
+    "openDocument": "Open document",
+    "addToCalendar": "Add to calendar"
   },
   "routing": {
     "searchPath": "search",
@@ -84,6 +87,9 @@
   "common": {
     "publishedAt": "Published",
     "updatedAt": "Updated",
+    "recordedAt": "Recorded",
+    "number": "No.",
+    "andMore": "+ $1 more",
     "all": "All",
     "noResults": "No results found",
     "delete": "Delete",
@@ -114,6 +120,8 @@
     "label": "Record",
     "labelPlural": "Records",
     "pathName": "journalpost",
+    "from": "From",
+    "to": "To",
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
