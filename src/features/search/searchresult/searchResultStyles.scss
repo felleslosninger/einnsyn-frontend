@@ -1,12 +1,12 @@
+.search-results {
+  padding-top: var(--ds-size-4);
+}
+
 .search-result {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   padding-bottom: var(--ds-size-13);
-
-  :first-child {
-    padding-top: var(--ds-size-4), 0;
-  }
 
   >a {
     display: inline-block;

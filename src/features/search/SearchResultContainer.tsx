@@ -11,6 +11,7 @@ import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchResult from './searchresult/SearchResult';
+import SearchSortDropdown from './SearchSortDropdown';
 
 export default function SearchResultContainer({
   searchResults,
@@ -48,6 +49,7 @@ export default function SearchResultContainer({
       >
         <div className="container-pre collapsible" />
         <div className="container">
+          <SearchSortDropdown />
           <div className="search-results">
             {currentSearchResults.items.length ? (
               currentSearchResults.items.map((item) => (

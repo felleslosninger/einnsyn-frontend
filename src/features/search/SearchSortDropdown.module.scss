@@ -1,0 +1,76 @@
+.sortContainer {
+  display: flex;
+  align-items: center;
+
+  .svg {
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
+.triggerButton {
+  padding: 0;
+  color: var(--ds-color-text-default);
+}
+
+.sortTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  color: var(--ds-color-neutral-text-default);
+
+
+}
+
+.prefix {
+  color: var(--ds-color-neutral-text-default);
+  font-weight: 500;
+}
+
+.sortOption {
+  display: block;
+  min-width: 300px;
+  font-size: 16px;
+  font-weight: 400;
+
+  &:hover {
+    background-color: var(--ds-color-surface-hover);
+  }
+
+  &.active {
+    font-weight: 500;
+    color: var(--ds-color-neutral-text-default);
+
+    .radioIndicator {
+      border-color: var(--ds-color-neutral-base-default);
+
+      &::after {
+        background: var(--ds-color-neutral-base-default);
+      }
+    }
+  }
+}
+
+.sortOptionInner {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+}
+
+.radioIndicator {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  border: 2px solid var(--ds-color-neutral-border-strong);
+
+  &::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: transparent;
+  }
+}

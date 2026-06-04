@@ -74,6 +74,7 @@
     "button": "Search",
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
+    "sortedBy": "Sorted by",
     "orderAccess": "Request access",
     "openDocument": "Open document",
     "addToCalendar": "Add to calendar"

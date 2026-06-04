@@ -4,6 +4,10 @@
   gap: var(--ds-size-2);
 }
 
+.filterIcon {
+  color: var(--ds-color-text-default);
+}
+
 .filterDropdown {
   :global(.spacer) {
     width: var(--ein-horizontal-spacing);
