@@ -75,6 +75,7 @@
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
     "sortedBy": "Sortert etter",
+    "selectedEnheter": "Verksemder du har valt",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Opne dokument",
     "addToCalendar": "Legg til i kalender"
@@ -92,6 +93,9 @@
     "number": "Nr",
     "andMore": "+ $1 fleire",
     "all": "Alle",
+    "phone": "Telefon",
+    "email": "E-post",
+    "address": "Adresse",
     "noResults": "Ingen treff",
     "delete": "Slett",
     "deleting": "Slettar...",

@@ -75,6 +75,7 @@
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
     "sortedBy": "Sorted by",
+    "selectedEnheter": "Selected organizations",
     "orderAccess": "Request access",
     "openDocument": "Open document",
     "addToCalendar": "Add to calendar"
@@ -92,6 +93,9 @@
     "number": "No.",
     "andMore": "+ $1 more",
     "all": "All",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
     "noResults": "No results found",
     "delete": "Delete",
     "deleting": "Deleting...",

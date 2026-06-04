@@ -75,6 +75,7 @@
     "placeholder": "Oza eInnsynas...",
     "clear": "Guoros ohcan",
     "sortedBy": "Lágiduvvon maŋŋil",
+    "selectedEnheter": "Válljejuvvon doaibmabijut",
     "orderAccess": "Diŋgo geahčču",
     "openDocument": "Rahpat dokumeantta",
     "addToCalendar": "Lasit kaleandárii"
@@ -92,6 +93,9 @@
     "number": "Nr",
     "andMore": "+ $1 eanet",
     "all": "Buot",
+    "phone": "Telefovdna",
+    "email": "Siidu",
+    "address": "Čujuhus",
     "noResults": "Bohtosat eai gávdnon",
     "delete": "Sihko",
     "deleting": "Sihkko...",
