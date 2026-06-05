@@ -11,6 +11,13 @@ $arrowHalfSize: calc($arrowSize / 2);
   .einPopupContent {
     position: relative;
     z-index: 1;
+
+    // When `autoFocus` moves focus here programmatically, don't show a ring
+    // (programmatic focus isn't :focus-visible). A caller that makes the
+    // container a real tab stop still gets the ring via :focus-visible.
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
   }
 
   // Visible (settled-open, or start of exit before animation kicks in)
