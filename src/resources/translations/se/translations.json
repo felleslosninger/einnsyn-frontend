@@ -95,11 +95,14 @@
       "UTVALG": "Lávdegoddi",
       "VIRKSOMHET": "Organisašuvdna"
     },
-    "searchingIn": "Ohcamin"
+    "searchingIn": "Ohcamin",
+    "backToResults": "Ruovttoluotta ohcanbohtosiidda",
+    "toSearch": "Ohcui"
   },
   "routing": {
     "searchPath": "oza",
     "saksmappePath": "ášši",
+    "moetemappePath": "čoahkkin",
     "calendarPath": "kaleandar",
     "statisticsPath": "statistihkka"
   },
@@ -121,8 +124,10 @@
     "select": "Vállje",
     "unnamed": "Nama haga",
     "close": "Gidde",
+    "open": "Raba",
     "copyToClipboard": "Kopier čuohpuspircui",
     "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
+    "title": "Bajilčála",
     "apply": "Geavat",
     "clear": "Sihko",
     "filter": "Sillit",
@@ -133,15 +138,48 @@
     "yes": "Jo",
     "no": "Ii"
   },
+  "breadcrumbs": {
+    "label": "Láidestanbálggis"
+  },
   "saksmappe": {
     "label": "Ášši",
     "labelPlural": "Áššit",
-    "saksnummer": "Áššinummar"
+    "saksnummer": "Áššinummar",
+    "journalfoert": "Journalastojuvvon",
+    "follow": "Čuovo ášši",
+    "publishedBy": "Almmuhan"
   },
   "journalpost": {
     "label": "Journalapoasta",
+    "numberLabel": "Journalapoasta #$1",
     "labelPlural": "Journalapoasttat",
+    "labelPluralInCase": "Journalapoasttat áššis",
     "pathName": "journalapoasta",
+    "connectedToCase": "Čadnon ášši",
+    "goToCase": "TÁššái",
+    "docNumber": "Doknr.",
+    "from": "Geas",
+    "to": "Geasa",
+    "fromTo": "Geas/geasa",
+    "moreParties": "+$1 eanet",
+    "allParties": "Korrespondansaoasit",
+    "docDate": "Dokumeantadáhton",
+    "recordDate": "Journálii registrerejuvvon",
+    "pubDate": "Almmuhuvvon",
+    "legalBasis": "Láhkavuođđu",
+    "attachmentPlural": "Mildosat",
+    "attachmentCount": "$1 mildosat",
+    "mainDocument": "Váldodokumeanta",
+    "expandAttachments": "Čájet buot mildosiid",
+    "collapseAttachments": "Čiega mildosiid",
+    "notPublished": "Ii almmuhuvvon",
+    "orderAccess": "Diŋgo geahčadeami",
+    "recordType": "Dok.málle",
+    "totalCount": "$1 oktiibuot",
+    "previous": "Ovddit journalapoasta",
+    "next": "Boahtte journalapoasta",
+    "favorite": "Mearkkaš favorihttan",
+    "moreActions": "Eanet doaibmabijut",
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",
@@ -160,7 +198,8 @@
   },
   "moetesak": {
     "label": "Čoahkkinášši",
-    "labelPlural": "Čoahkkináššit"
+    "labelPlural": "Čoahkkináššit",
+    "pathName": "čoahkkinášši"
   },
   "searchFilters": {
     "publisertDato": "Almmuhanbeassi",
@@ -210,5 +249,12 @@
     "privacy": "Personsuodjalusjulggaštus",
     "accessibility": "Gievrrasvuođajulggaštus",
     "github": "eInnsyn Githubas"
+  },
+  "virksomhet": {
+    "label": "fitnidat",
+    "navn": "namma",
+    "telefon": "telefovdna",
+    "adresse": "čujuhus",
+    "epost": "e-poasta"
   }
 }

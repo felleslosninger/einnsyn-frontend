@@ -95,11 +95,14 @@
       "UTVALG": "Utval",
       "VIRKSOMHET": "Verksemd"
     },
-    "searchingIn": "Søkjer i"
+    "searchingIn": "Søkjer i",
+    "backToResults": "Tilbake til søkeresultat",
+    "toSearch": "Til søk"
   },
   "routing": {
     "searchPath": "søk",
     "saksmappePath": "sak",
+    "moetemappePath": "moete",
     "calendarPath": "kalender",
     "statisticsPath": "statistikk"
   },
@@ -121,8 +124,10 @@
     "select": "Vel",
     "unnamed": "Utan namn",
     "close": "Lukk",
+    "open": "Opne",
     "copyToClipboard": "Kopier til utklippstavla",
     "copiedToClipboard": "Kopiert til utklippstavla",
+    "title": "Tittel",
     "apply": "Bruk",
     "clear": "Nullstill",
     "filter": "Filter",
@@ -133,15 +138,48 @@
     "yes": "Ja",
     "no": "Nei"
   },
+  "breadcrumbs": {
+    "label": "Brødsmulesti"
+  },
   "saksmappe": {
     "label": "Sak",
     "labelPlural": "Saker",
-    "saksnummer": "Saksnummer"
+    "saksnummer": "Saksnummer",
+    "journalfoert": "Journalført",
+    "follow": "Følg saka",
+    "publishedBy": "Publisert av"
   },
   "journalpost": {
     "label": "Journalpost",
+    "numberLabel": "Journalpost #$1",
     "labelPlural": "Journalpostar",
+    "labelPluralInCase": "Journalpostar i saka",
     "pathName": "journalpost",
+    "connectedToCase": "Tilknytta sak",
+    "goToCase": "Til saka",
+    "docNumber": "Doknr.",
+    "from": "Frå",
+    "to": "Til",
+    "fromTo": "Frå/til",
+    "moreParties": "+$1 til",
+    "allParties": "Korrespondansepartar",
+    "docDate": "Dokumentdato",
+    "recordDate": "Journaldato",
+    "pubDate": "Publiseringsdato",
+    "legalBasis": "Heimel",
+    "attachmentPlural": "Vedlegg",
+    "attachmentCount": "$1 vedlegg",
+    "mainDocument": "Hovuddokument",
+    "expandAttachments": "Vis alle vedlegg",
+    "collapseAttachments": "Skjul vedlegg",
+    "notPublished": "Ikkje publisert",
+    "orderAccess": "Bestill innsyn",
+    "recordType": "Type",
+    "totalCount": "$1 totalt",
+    "previous": "Førre journalpost",
+    "next": "Neste journalpost",
+    "favorite": "Marker som favoritt",
+    "moreActions": "Fleire handlingar",
     "type": {
       "inngaaende_dokument": "Inngåande dokument",
       "utgaaende_dokument": "Utgåande dokument",
@@ -160,7 +198,8 @@
   },
   "moetesak": {
     "label": "Møtesak",
-    "labelPlural": "Møtesaker"
+    "labelPlural": "Møtesaker",
+    "pathName": "moetesak"
   },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",
@@ -210,5 +249,12 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelegheitserklæring",
     "github": "eInnsyn på Github"
+  },
+  "virksomhet": {
+    "label": "Verksemd",
+    "navn": "namn",
+    "telefon": "telefon",
+    "adresse": "adresse",
+    "epost": "e-post"
   }
 }

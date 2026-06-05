@@ -2,7 +2,6 @@
 @use '../../styles/effects.scss' as fx;
 
 .header {
-  --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
 
   >.containerWrapper>.containerPre,
   >.containerWrapper>.container,
@@ -27,7 +26,6 @@
   width: 100%;
   z-index: 10;
 
-  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
 
@@ -100,13 +98,30 @@
       display: none;
     }
   }
+
+  // Entity pages (saksmappe / journalpost) show the breadcrumb trail in the
+  // header instead of the search field. Mirror the logo link's box on the
+  // breadcrumb nav (same top offset + min-height, vertically centred) so the
+  // trail lines up with the logo. `.container` itself stays a block: it's a
+  // flex item of `.container-wrapper` and stretches to the tallest column, so
+  // centring *inside* it would drop the breadcrumb below the logo.
+  &:global(.section-case) {
+    :global(.container) nav {
+      display: flex;
+      align-items: center;
+      min-height: var(--ds-size-12);
+    }
+
+    :global(.container) nav ol {
+      margin-block: 0;
+    }
+  }
 }
 
 .logoLink {
   display: inline-flex;
   align-items: center;
   min-height: var(--ds-size-12);
-  margin-top: var(--header-primary-row-offset);
   padding: var(--ds-size-2) 0;
   background-color: transparent;
   color: inherit;
@@ -135,6 +150,5 @@
   justify-content: flex-end;
   align-items: center;
   min-height: var(--ds-size-12);
-  margin-top: var(--header-primary-row-offset);
   gap: var(--ds-size-2);
 }

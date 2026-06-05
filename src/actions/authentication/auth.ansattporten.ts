@@ -14,7 +14,7 @@ import {
   deleteCookieAction,
   getCookie,
   updateCookieAction,
-} from '../cookies/cookieActions';
+} from '../cookies/cookie.actions';
 
 const ANSATTPORTEN_URL = process.env.ANSATTPORTEN_URL;
 const ANSATTPORTEN_CLIENT_ID = process.env.ANSATTPORTEN_CLIENT_ID;

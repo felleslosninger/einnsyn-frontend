@@ -7,6 +7,7 @@ export type NamedEnhet = Pick<
 >;
 
 interface AncestorNode extends NamedEnhet {
+  enhetstype?: Enhet['enhetstype'];
   parent?: string | AncestorNode;
 }
 
@@ -53,7 +54,9 @@ export const getAncestors = <T extends AncestorNode>(enhet: T): T[] => {
   const ancestors: T[] = [];
   let current: string | AncestorNode | undefined = enhet.parent;
   while (typeof current === 'object' && current?.parent) {
-    ancestors.unshift(current as T);
+    if (current.enhetstype !== 'DUMMYENHET') {
+      ancestors.unshift(current as T);
+    }
     current = current.parent;
   }
   return ancestors;
@@ -71,7 +74,9 @@ export const getAncestorsAsString = (
 
 // Format a Norwegian org number as 3-3-3 ("921707134" → "921 707 134").
 export const formatOrgnummer = (orgnr: string | null | undefined): string => {
-  if (!orgnr) return '';
+  if (!orgnr) {
+    return '';
+  }
   const digits = orgnr.replace(/\s/g, '');
   if (digits.length === 9) {
     return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;

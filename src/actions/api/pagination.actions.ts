@@ -9,3 +9,10 @@ export async function fetchNextPageAction<T extends Base>(
   const apiClient = await cachedApiClient();
   return await apiClient.fetchNextPage(nextUrl);
 }
+
+export async function fetchPreviousPageAction<T extends Base>(
+  previousUrl: string,
+): Promise<PaginatedList<T> | undefined> {
+  const apiClient = await cachedApiClient();
+  return await apiClient.fetchPreviousPage(previousUrl);
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { getTrimmedEnhetList } from '~/actions/api/enhetActions';
+import { getTrimmedEnhetList } from '~/actions/api/enhet.actions';
 import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
 

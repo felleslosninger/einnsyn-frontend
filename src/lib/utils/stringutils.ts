@@ -8,5 +8,5 @@ export function firstString(
   if (!value) {
     return undefined;
   }
-  return Array.isArray(value) ? value[0] : value;
+  return typeof value === "string" ? value : value[0];
 }

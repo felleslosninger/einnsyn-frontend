@@ -1,0 +1,16 @@
+.backLinkRow {
+  display: flex;
+  align-items: center;
+  padding-block: var(--ds-size-2);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  font-size: var(--ds-font-size-2, 0.95rem);
+
+  svg {
+    font-size: 1.25em;
+  }
+}
