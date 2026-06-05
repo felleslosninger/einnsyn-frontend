@@ -1,11 +1,17 @@
 @use '../../styles/mediaQueries.scss' as mediaQueries;
+@use "../../styles/effects.scss" as fx;
 
 $verticalPadding: calc(var(--ein-vertical-spacing));
 $horizontalPadding: calc(var(--ein-horizontal-spacing));
 
 .einModalContainer:global(.ein-popup) {
   position: fixed;
-  inset: 0;
+  top: var(--ein-modal-viewport-top, 0);
+  left: var(--ein-modal-viewport-left, 0);
+  width: var(--ein-modal-viewport-width, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  height: var(--ein-modal-viewport-height, 100dvh);
   z-index: 1050;
 
   > :global(.ein-popup-content) {
@@ -15,19 +21,19 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     background: transparent;
   }
 
-  .ein-modal-backdrop {
-    position: fixed;
+  .einModalBackdrop {
+    position: absolute;
     opacity: 0.5;
     background-color: var(--ds-color-neutral-text-default);
     //backdrop-filter: blur(5px);
   }
 
-  .ein-modal-content,
-  .ein-modal-backdrop {
+  .einModalContent,
+  .einModalBackdrop {
     inset: 0;
   }
 
-  .ein-modal-header {
+  .einModalHeader {
     display: flex;
     align-items: center;
     width: 100%;
@@ -40,7 +46,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     }
   }
 
-  .ein-modal-footer {
+  .einModalFooter {
     display: flex;
     align-items: center;
     width: 100%;
@@ -49,37 +55,61 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   }
 
-  .ein-modal-close-button {
+  .einModalCloseButton {
     flex: 0;
     text-decoration: none;
     margin-right: calc(0px - var(--ds-size-3));
   }
 
   /*
-  * Mobile layout (old PromptScreen)
+  * Mobile layout (bottom-sheet drawer)
   */
   @include mediaQueries.small {
-    .ein-modal-header {
-      padding: --var(--ds-size-2);
+    transform: none;
+
+    .einModalHeader {
+      position: relative;
+      padding: var(--ds-size-5) var(--ds-size-3) var(--ds-size-2);
+      border-bottom: none;
+
+      // Native-style sheet title: body-sized, semibold, no letter-spacing.
+      // Overrides the desktop `ds-heading[data-size=md]` which is ~30px.
+      h1 {
+        font-size: var(--ds-font-size-3);
+        font-weight: 600;
+        line-height: 1.3;
+        letter-spacing: normal;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: var(--ds-size-2);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2.25rem;
+        height: 0.25rem;
+        border-radius: 999px;
+        background: var(--ds-color-neutral-border-strong);
+      }
     }
 
-    .ein-modal-body {
+    .einModalBody {
       padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     }
 
-    .ein-modal-footer {
-      //padding: px(13) px(16);
-    }
-
-    .ein-modal-content {
+    .einModalContent {
       display: flex;
       flex-direction: column;
       top: auto;
       bottom: 0;
       transform: translateY(101%);
       height: fit-content;
-      max-height: 95%;
-      position: fixed;
+      max-height: 95vh;
+      max-height: 95dvh;
+      max-height: var(--ein-modal-sheet-max-height, 95dvh);
+      // Keep the drawer absolute against the fixed, viewport-sized container.
+      position: absolute;
       z-index: 1;
       overscroll-behavior: none;
       box-shadow: 0 0 16px #595959;
@@ -88,50 +118,62 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       pointer-events: all;
     }
 
-    .ein-modal-close-button {
-      background: transparent !important;
-
-      :global(.text) {
-        display: none;
-      }
+    // Done text button replaces the X on mobile. Sized to match the title
+    // (body font), accent-colored, flush to the trailing edge of the header.
+    .einModalDoneButton {
+      flex: 0 0 auto;
+      padding-inline: var(--ds-size-2);
+      font-size: var(--ds-font-size-3);
+      background: transparent;
     }
 
-    &:global(.open),
-    &:global(.closed.preClosed) {
-      .ein-modal-content {
+    // Visible drawer (settled-open, or start of exit before animation kicks in)
+    &:global(.open) {
+      .einModalContent {
         transform: translateY(0);
       }
 
-      .ein-modal-backdrop {
+      .einModalBackdrop {
         opacity: 0.5;
       }
     }
 
+    // Off-screen drawer: closed, start of enter (before .enter-transition),
+    // and target frame of exit. The content transform animates while any
+    // inline `translate` (from drag-to-close) composes with it, so the
+    // snapshot can slide from the drag position to off-screen without
+    // either property fighting the other.
     &:global(.closed),
-    &:global(.open.preOpen) {
-      // Override EinPopup:
-      transform: scale(1);
+    &:global(.open.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
+    &:global(.open.ein-transition-exit-transition) {
+      // Override EinPopup base scale/opacity:
+      transform: none;
       opacity: 1;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: translateY(101%);
       }
 
-      .ein-modal-backdrop {
+      .einModalBackdrop {
         opacity: 0;
       }
     }
 
-    &:global(.toOpen),
-    &:global(.toClosed),
-    // Needed because of overdrag
-    &:global(.open:not(.preOpen)) {
+    // Animation timing: active during enter/exit phases and at settled-open
+    // (needed for overdrag snap-back). The settled-open variant excludes any
+    // transition-phase class so prep frames (init, init-enter, init-exit)
+    // don't keep a transition active — otherwise `domTransitionend` falls back
+    // to its duration timeout and delays the actual animation.
+    &:global(.open):not([class*='ein-transition-']),
+    &:global(.ein-transition-enter-transition),
+    &:global(.ein-transition-exit-transition) {
 
       &,
-      .ein-modal-backdrop,
-      .ein-modal-content {
-        transition: all 350ms cubic-bezier(0.165, 0.84, 0.44, 1);
-        /* easeOutQuart */
+      .einModalBackdrop,
+      .einModalContent {
+        transition:
+          transform fx.$transitionDuration fx.$easeOut,
+          opacity fx.$transitionDuration linear;
       }
     }
   }
@@ -142,7 +184,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   * Desktop layout (medium / large screens)
   */
   @include mediaQueries.medium-and-large {
-    .ein-modal-header {
+    .einModalHeader {
       justify-content: space-between;
 
       h1 {
@@ -150,7 +192,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       }
     }
 
-    .ein-modal-content {
+    .einModalContent {
       position: absolute;
       z-index: 1;
       display: flex;
@@ -172,57 +214,58 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       }
     }
 
-    .ein-modal-body {
+    .einModalBody {
       flex: 1 1 auto;
       overflow-y: auto;
-      //overflow: auto;
       padding: $horizontalPadding $verticalPadding;
       gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
       min-width: 500px;
     }
 
-    .ein-modal-footer {
-      //padding: px(27) px(40);
+    .einModalFooter {
       flex: 0 0;
     }
 
-    &:global(.open),
-    &:global(.closed.preClosed) {
+    // Visible (settled-open)
+    &:global(.open) {
       opacity: 1;
 
-      // Override EinPopup:
+      // Override EinPopup base transform:
       transform: none;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: scale(1);
       }
     }
 
+    // Hidden: closed, start of enter (before .enter-transition),
+    // and target frame of exit
     &:global(.closed),
-    &:global(.open.preOpen) {
+    &:global(.open.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
+    &:global(.open.ein-transition-exit-transition) {
       opacity: 0;
 
-      // Override EinPopup:
+      // Override EinPopup base transform:
       transform: none;
 
-      .ein-modal-content {
+      .einModalContent {
         transform: scale(0.5);
       }
     }
 
-    &:global(.toOpen) {
+    &:global(.ein-transition-enter-transition) {
 
       &,
-      .ein-modal-content {
+      .einModalContent {
         transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1);
         /* easeOutExpo */
       }
     }
 
-    &:global(.toClosed) {
+    &:global(.ein-transition-exit-transition) {
 
       &,
-      .ein-modal-content {
+      .einModalContent {
         transition: all 250ms ease;
       }
     }

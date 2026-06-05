@@ -82,6 +82,7 @@ export default function SearchFilterDropdown({
 
       <EnumFilter
         label={t('searchFilters.journalpostType')}
+        initialValue={getProperty('journalposttype')}
         setValue={setJournalposttype}
         options={[
           {

@@ -7,13 +7,7 @@ import {
   useOptimisticPathname,
   useOptimisticSearchParams,
 } from '~/components/NavigationProvider/NavigationProvider';
-
-// Keep track of the last pathname before a modal is opened. A modal is never opened on
-// the server side, so we fall back to returning '/' in that case.
-let basepath = '/';
-export function useModalBasepath() {
-  return basepath;
-}
+import { setModalBasepath } from '~/hooks/useModalBasepath';
 
 export function ModalWrapper({ children }: { children: React.ReactNode }) {
   const pathname = useOptimisticPathname();
@@ -24,7 +18,9 @@ export function ModalWrapper({ children }: { children: React.ReactNode }) {
   // Update path name if we don't have an intercepted path
   useEffect(() => {
     if (!modalIsOpen) {
-      basepath = pathname + (searchParams ? `?${searchParams.toString()}` : '');
+      setModalBasepath(
+        pathname + (searchParams ? `?${searchParams.toString()}` : ''),
+      );
     }
   }, [modalIsOpen, pathname, searchParams]);
 

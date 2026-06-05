@@ -1,0 +1,612 @@
+@use "../../styles/effects.scss" as fx;
+
+//
+// Shared - the outer container and the small `.selectorField` wrapper around
+// the summary button. Used by both layouts.
+//
+
+.enhetSelector {
+  --styled-input-min-height: calc(var(--ds-size-12) - var(--ds-border-width-default) * 2);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.searchIcon {
+  width: 100%;
+  height: 100%;
+}
+
+.selectorField {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+//
+// Summary buttons - the trigger that opens the popup/sheet. Desktop is a
+// pill-style button that sits inside the search field; mobile is a one-line
+// "Søker i [enhet]  |  Endre" below the search field.
+//
+
+.summaryButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--styled-input-min-height);
+  padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
+  padding-right: var(--ds-size-1);
+  padding-bottom: var(--ds-size-2);
+  padding-left: calc(var(--ds-size-6) + var(--ds-size-3));
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--ds-color-neutral-text-default);
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  transition:
+    background-color 0.2s fx.$easeOut,
+    color 0.2s linear,
+    width 0.2s fx.$easeOut;
+
+  &:hover {
+    background: transparent;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.summaryButtonActive {
+  &:hover {
+    background: transparent;
+  }
+}
+
+.summaryIcon {
+  position: absolute;
+  top: calc((var(--styled-input-min-height) - var(--ds-size-6)) / 2);
+  left: 0;
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+  pointer-events: none;
+  transition: color 0.2s fx.$easeOut;
+}
+
+.summaryText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholderText {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.summaryMore {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-size-7);
+  padding: 0 var(--ds-size-2);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mobileSummaryButton {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  width: 100%;
+  padding: var(--ds-size-2) 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--ds-border-radius-md);
+  color: var(--ds-color-neutral-text-default);
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  appearance: none;
+  transition: background-color 0.2s fx.$easeOut;
+  font-size: var(--ds-font-size-2);
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+  }
+}
+
+.mobileSummaryText {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileSummaryPrefix {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.mobileSummaryLabel {
+  font-weight: 600;
+}
+
+.mobileSummaryMore {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-size-6);
+  // Negative margin to visually compensate for the gap between icon and text.
+  margin-left: calc(var(--ds-size-2) - var(--ds-size-3));
+  padding: 0 var(--ds-size-2);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mobileSummaryChange {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--ds-color-accent-base-default);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 0.0625em;
+  text-underline-offset: 0.27em;
+  white-space: nowrap;
+}
+
+.mobileSummaryButton:hover .mobileSummaryChange {
+  text-decoration-thickness: 0.125em;
+}
+
+// 
+// Filter field - the search input above the list. Same component (Search)
+// for both layouts; the desktop popup overrides padding to align with its
+// title/footer.
+// 
+
+.filterField {
+  position: relative;
+  width: 100%;
+  padding: 0 var(--ein-vertical-spacing) var(--ein-horizontal-spacing);
+  background: transparent;
+}
+
+.filterFieldInput {
+  width: 100%;
+}
+
+:global(.ds-input).filterFieldInput {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+
+  &::placeholder {
+    color: var(--ds-color-neutral-text-subtle);
+  }
+
+  // Match the main search bar: only show the focus ring for keyboard focus.
+  // Browsers fire `:focus-visible` on text-input clicks too, so we gate the
+  // suppression on the global `data-focus-input` attribute (set elsewhere)
+  // to keep the ring for real keyboard navigation.
+  :global(html:not([data-focus-input="keyboard"])) &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+//
+// Desktop - popup anchored to the search field. Non-modal: no backdrop, no
+// focus trap, the rest of the page stays interactive. Lays out as
+// header / [filter + two columns] / footer.
+//
+
+.desktopSelectorPopup {
+  width: min(1040px, calc(100vw - 2 * var(--ds-size-4)));
+  max-width: calc(100vw - 2 * var(--ds-size-4));
+
+  // Use `height` (not max-height) so the popup stays a stable size while the
+  // user filters or removes items — the lists inside have their own scrollbars.
+  // `--ein-popup-max-height` is set by EinPopup from the space available below
+  // the anchor, so we never overflow a fixed-header viewport. The fallback
+  // keeps the layout sensible during the first render before JS measures.
+  :global(.ein-popup-content) {
+    display: flex;
+    flex-direction: column;
+    height: min(720px,
+        calc(var(--ein-popup-max-height, 100vh) - var(--ds-size-4)));
+    overflow: hidden;
+  }
+
+}
+
+.desktopHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-size-3);
+  padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+}
+
+.desktopTitleBlock {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+}
+
+.desktopTitle {
+  margin: 0;
+  font-size: var(--ds-font-size-5);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: normal;
+}
+
+.desktopSubtitle {
+  margin: 0;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+  line-height: 1.4;
+}
+
+.desktopBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.desktopColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.desktopColumn {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.desktopColumnHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  // Sized so the sm "Remove all" Button fits without making this column
+  // taller than the (button-less) "Available" column.
+  min-height: calc(var(--ds-size-8) + var(--ds-size-3));
+  padding: 0 var(--ein-vertical-spacing);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.desktopColumnLabel {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.desktopClearAllButton {
+  margin-left: auto;
+}
+
+// Wrapper around the VList. The VList itself is the scroll container, so the
+// focus ring needs to live on this non-scrolling wrapper — otherwise the ring
+// scrolls away with the content. The keyboard-focused element is the VList
+// inside, so we match via `:has(:focus-visible)`.
+.desktopColumnList {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--ds-border-radius-default);
+
+  &:has(:focus-visible)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+    outline: var(--dsc-focus-outline);
+    outline-offset: calc(-1 * var(--ds-border-width-focus));
+    box-shadow: var(--dsc-focus-boxShadow-inset);
+  }
+
+  // Suppress the browser's default outline on the inner VList — the wrapper's
+  // ring is what the user sees.
+  > :focus-visible {
+    outline: none;
+  }
+}
+
+.desktopColumn:first-child .desktopColumnList {
+  border-right: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.desktopFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  padding: var(--ds-size-3) var(--ein-vertical-spacing);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.desktopFooterCount {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+}
+
+// Desktop row — name + subtitle on the left, "Legg til"/"Fjern" pill on the
+// right. Same chrome in both columns; the dividing border on the left column
+// is the only visual separator between Available and Selected.
+.selectorListItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  gap: var(--ds-size-3);
+  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
+  padding: var(--ds-size-3) var(--ein-vertical-spacing);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  list-style-type: none;
+  font: inherit;
+  text-align: left;
+  appearance: none;
+  transition: background-color 0.15s fx.$easeOut;
+
+  &:hover,
+  &.focusedListItem {
+    background-color: var(--ds-color-neutral-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: calc(-1 * var(--ds-border-width-focus));
+  }
+}
+
+.selectorListText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
+}
+
+.selectorListName {
+  font-size: var(--ds-font-size-3);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectorListSubtitle {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Action pill (Legg til / Fjern). Subtle by default; the row's hover state
+// brightens the border + text so the affordance reads on intent.
+.selectorListAction {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-size-2);
+  min-height: var(--ds-size-7);
+  padding: 0 var(--ds-size-3);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-surface-default);
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    background-color 0.15s fx.$easeOut,
+    box-shadow 0.15s fx.$easeOut,
+    color 0.15s fx.$easeOut;
+
+  svg {
+    display: block;
+  }
+}
+
+.selectorListActionLabel {
+  white-space: nowrap;
+}
+
+.selectorListItem:hover .selectorListAction,
+.selectorListItem.focusedListItem .selectorListAction {
+  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-default);
+  color: var(--ds-color-neutral-text-default);
+}
+
+//
+// Mobile - bottom-sheet modal that slides up from the bottom. EinModal
+// provides the backdrop, slide animation, and drag-to-close. The list is a
+// flat iOS-picker style: leading building icon, label + ancestors, trailing
+// checkmark on selected rows.
+//
+
+.mobileSheetModal:global(.ein-modal-container) {
+  :global(.ein-modal-content) {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+    height: 95dvh;
+    height: var(--ein-modal-sheet-max-height, 95dvh);
+    max-height: 95vh;
+    max-height: 95dvh;
+    max-height: var(--ein-modal-sheet-max-height, 95dvh);
+    overflow: hidden;
+    background: var(--ds-color-neutral-surface-default);
+  }
+}
+
+.mobileListContainer {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ds-color-neutral-surface-default);
+}
+
+// Wrapper around the mobile VList — see `.desktopColumnList` for rationale.
+.mobileList {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  border-radius: var(--ds-border-radius-default);
+  overflow: hidden;
+
+  &:has(:focus-visible)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+    outline: var(--dsc-focus-outline);
+    outline-offset: calc(-1 * var(--ds-border-width-focus));
+    box-shadow: var(--dsc-focus-boxShadow-inset);
+  }
+
+  > :focus-visible {
+    outline: none;
+  }
+}
+
+.mobileSectionHeader {
+  padding: var(--ds-size-3) var(--ds-size-4) var(--ds-size-1);
+  background: var(--ds-color-neutral-surface-tinted);
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mobileListItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  gap: var(--ds-size-3);
+  min-height: calc(var(--ds-size-12) + var(--ds-size-1));
+  padding: var(--ds-size-3) var(--ds-size-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  transition: background-color 0.15s fx.$easeOut;
+
+  &:hover,
+  &.focusedListItem,
+  &:active {
+    background-color: var(--ds-color-neutral-surface-hover);
+  }
+}
+
+.mobileListItemSelected {
+  .mobileListLabel {
+    font-weight: 600;
+  }
+}
+
+.mobileListIcon {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.mobileListText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
+  line-height: 1.25;
+}
+
+.mobileListAncestors {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-1);
+}
+
+.mobileListLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ds-font-size-2);
+}
+
+.mobileListCheck {
+  color: var(--ds-color-accent-base-default);
+}
+
+//
+// Shared empty state - shown by both layouts when the filter matches nothing.
+//
+
+.emptyState {
+  display: flex;
+  min-height: calc(var(--ds-size-12) + var(--ds-size-2));
+  align-items: center;
+  // Match the row padding so the message lines up with the list items above.
+  padding: var(--ds-size-3) var(--ein-vertical-spacing);
+  color: var(--ds-color-neutral-text-subtle);
+}

@@ -10,6 +10,7 @@
 
   nav {
     display: flex;
+    align-items: center;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     padding: var(--ds-size-4) 0;
   }

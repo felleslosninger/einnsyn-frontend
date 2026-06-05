@@ -142,6 +142,30 @@ export function EinTransition<T extends unknown[] = [number]>(
     [enabled, withClassNames, props.events],
   );
 
+  // Detect when we need to transition
+  const changedDeps = useIsChanged(dependencies, true);
+  const shouldTransition = IS_BROWSER && enabled && changedDeps !== null;
+
+  // Capture a snapshot of the outgoing element along with its DOM position.
+  // We do this during render, before React commits, so that the parent and
+  // nextSibling references stay valid even when the element is about to
+  // unmount (e.g. when children transition to null).
+  const snapshot =
+    shouldTransition && childRef.current
+      ? {
+          element: domFreeze(childRef.current),
+          parent: childRef.current.parentElement,
+          nextSibling: childRef.current.nextSibling,
+        }
+      : null;
+
+  // On the first render of a fresh-enter (no previous element to snapshot),
+  // there is no chance for the useLayoutEffect below to hide the element
+  // before paint — so we hide it inline here. The element stays hidden until
+  // enterInit applies the initial pose, preventing a flash at the final pose.
+  const isFreshEnter =
+    shouldTransition && children !== null && !childRef.current;
+
   // Clone element and attach our ref
   const childWithRef =
     children === null
@@ -151,15 +175,12 @@ export function EinTransition<T extends unknown[] = [number]>(
           'aria-busy': transitionStep !== 'idle',
           style: {
             ...children.props.style,
-            display: hideNew ? 'none' : children.props.style?.display || '',
+            display:
+              hideNew || isFreshEnter
+                ? 'none'
+                : children.props.style?.display || '',
           },
         } as RefAttributes<HTMLElement>);
-
-  // Detect when we need to transition
-  const changedDeps = useIsChanged(dependencies, true);
-  const shouldTransition = IS_BROWSER && enabled && changedDeps !== null;
-  const frozenDom =
-    shouldTransition && childRef.current ? domFreeze(childRef.current) : null;
 
   // Start transition when dependencies change
   useLayoutEffect(() => {
@@ -178,29 +199,37 @@ export function EinTransition<T extends unknown[] = [number]>(
       const transitionId = ++transitionIdCounter;
       transitionIdRef.current = transitionId;
 
-      const currentElement = childRef.current;
-      const parent = currentElement?.parentElement;
-      if (!parent || !frozenDom) {
-        setHideNew(false);
+      if (!snapshot?.parent) {
+        // Fresh enter (no previous element to snapshot, or it had no parent).
+        // Keep the new element hidden until enterInit positions it at the
+        // initial pose, otherwise it paints once at its final pose.
+        fromDepsRef.current = changedDeps.previous;
+        setHideNew(true);
         setTransitionStep('waitForLoad');
         return;
       }
 
-      // Remove any existing snapshot
+      // Remove any existing snapshot from a prior transition
       if (snapshotRef.current?.parentElement) {
         snapshotRef.current.parentElement.removeChild(snapshotRef.current);
       }
 
-      // Insert the frozen element after the original
-      parent.insertBefore(frozenDom, currentElement.nextSibling);
-      snapshotRef.current = frozenDom;
+      // Insert the snapshot at the original element's position. The original
+      // may already be gone (transition to null children) — that's fine, we
+      // captured parent/nextSibling at render time before commit.
+      const referenceNode =
+        snapshot.nextSibling?.parentNode === snapshot.parent
+          ? snapshot.nextSibling
+          : null;
+      snapshot.parent.insertBefore(snapshot.element, referenceNode);
+      snapshotRef.current = snapshot.element;
 
-      // Hid the new content until we're ready to show it
+      // Hide the new content until we're ready to show it
       fromDepsRef.current = changedDeps.previous;
       setHideNew(true);
       setTransitionStep('init');
     }
-  }, [changedDeps, frozenDom, shouldTransition, transitionStep]);
+  }, [changedDeps, snapshot, shouldTransition, transitionStep]);
 
   // Handle transition transitionSteps
   // biome-ignore lint/correctness/useExhaustiveDependencies: Do not trigger when 'loading' changes, this is handled in a separate step
@@ -329,16 +358,14 @@ export function EinTransition<T extends unknown[] = [number]>(
             return;
           }
 
-          // Show the new element
-          setHideNew(false);
-
-          // Give React a moment to actually render it
-          if (checkStale()) return;
-          await animationFrame(1);
-
-          // Initialize entry
+          // Apply the initial entry pose while the element is still hidden,
+          // so it never paints at its final pose before the animation starts.
           if (checkStale()) return;
           await events.onInitEnterTransition?.(newElement, toDeps, fromDeps);
+
+          // Reveal — the element is now positioned at the initial pose.
+          setHideNew(false);
+          if (checkStale()) return;
           await animationFrame(1);
 
           if (checkStale()) return;
@@ -366,6 +393,14 @@ export function EinTransition<T extends unknown[] = [number]>(
         // Done, clean up
         else if (transitionStep === 'done') {
           if (checkStale()) return;
+
+          // Remove any lingering snapshot. enterInit normally does this, but
+          // when transitioning to null children we skip enterInit and reach
+          // `done` directly, so the snapshot would otherwise stay in the DOM.
+          if (snapshotRef.current?.parentElement) {
+            snapshotRef.current.parentElement.removeChild(snapshotRef.current);
+            snapshotRef.current = null;
+          }
 
           const newElement = childRef.current;
 
