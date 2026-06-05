@@ -22,14 +22,14 @@
     "@vercel/otel": "^2.1.2",
     "next": "^16.2.6",
     "openid-client": "^6.8.4",
-    "react": "^19.2.6",
+    "react": "^19.2.7",
     "react-dom": "^19.2.6",
     "sass": "^1.100.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@types/node": "^25.9.1",
-    "@types/react": "^19.2.15",
+    "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
