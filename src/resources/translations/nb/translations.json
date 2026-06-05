@@ -95,11 +95,14 @@
       "UTVALG": "Utvalg",
       "VIRKSOMHET": "Virksomhet"
     },
-    "searchingIn": "Søker i"
+    "searchingIn": "Søker i",
+    "backToResults": "Tilbake til søkeresultat",
+    "toSearch": "Til søk"
   },
   "routing": {
     "searchPath": "søk",
     "saksmappePath": "sak",
+    "moetemappePath": "moete",
     "calendarPath": "kalender",
     "statisticsPath": "statistikk"
   },
@@ -121,6 +124,7 @@
     "select": "Velg",
     "unnamed": "Uten navn",
     "close": "Lukk",
+    "open": "Åpne",
     "copyToClipboard": "Kopier til utklippstavle",
     "copiedToClipboard": "Kopiert til utklippstavle",
     "title": "Tittel",
@@ -134,14 +138,22 @@
     "yes": "Ja",
     "no": "Nei"
   },
+  "breadcrumbs": {
+    "label": "Brødsmulesti"
+  },
   "saksmappe": {
     "label": "Sak",
     "labelPlural": "Saker",
-    "saksnummer": "Saksnummer"
+    "saksnummer": "Saksnummer",
+    "journalfoert": "Journalført",
+    "follow": "Følg saken",
+    "publishedBy": "Publisert av"
   },
   "journalpost": {
     "label": "Journalpost",
+    "numberLabel": "Journalpost #$1",
     "labelPlural": "Journalposter",
+    "labelPluralInCase": "Journalposter i saken",
     "pathName": "journalpost",
     "connectedToCase": "Tilknyttet sak",
     "goToCase": "Til saken",
@@ -149,13 +161,25 @@
     "from": "Fra",
     "to": "Til",
     "fromTo": "Fra/til",
+    "moreParties": "+$1 til",
+    "allParties": "Korrespondanseparter",
     "docDate": "Dokumentdato",
     "recordDate": "Journaldato",
     "pubDate": "Publiseringsdato",
     "legalBasis": "Hjemmel",
     "attachmentPlural": "Vedlegg",
+    "attachmentCount": "$1 vedlegg",
+    "mainDocument": "Hoveddokument",
+    "expandAttachments": "Vis alle vedlegg",
+    "collapseAttachments": "Skjul vedlegg",
     "notPublished": "Ikke publisert",
+    "orderAccess": "Bestill innsyn",
     "recordType": "Type",
+    "totalCount": "$1 totalt",
+    "previous": "Forrige journalpost",
+    "next": "Neste journalpost",
+    "favorite": "Marker som favoritt",
+    "moreActions": "Flere handlinger",
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",
@@ -174,7 +198,8 @@
   },
   "moetesak": {
     "label": "Møtesak",
-    "labelPlural": "Møtesaker"
+    "labelPlural": "Møtesaker",
+    "pathName": "moetesak"
   },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",

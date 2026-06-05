@@ -95,11 +95,14 @@
       "UTVALG": "Committee",
       "VIRKSOMHET": "Organization"
     },
-    "searchingIn": "Searching in"
+    "searchingIn": "Searching in",
+    "backToResults": "Back to search results",
+    "toSearch": "Go to search"
   },
   "routing": {
     "searchPath": "search",
     "saksmappePath": "case",
+    "moetemappePath": "meeting",
     "calendarPath": "calendar",
     "statisticsPath": "statistics"
   },
@@ -121,6 +124,7 @@
     "select": "Select",
     "unnamed": "Unnamed",
     "close": "Close",
+    "open": "Open",
     "copyToClipboard": "Copy to clipboard",
     "copiedToClipboard": "Copied to clipboard",
     "title": "Title",
@@ -134,14 +138,22 @@
     "yes": "Yes",
     "no": "No"
   },
+  "breadcrumbs": {
+    "label": "Breadcrumb trail"
+  },
   "saksmappe": {
     "label": "Case",
     "labelPlural": "Cases",
-    "saksnummer": "Case number"
+    "saksnummer": "Case number",
+    "journalfoert": "Recorded",
+    "follow": "Follow case",
+    "publishedBy": "Published by"
   },
   "journalpost": {
     "label": "Record",
+    "numberLabel": "Record #$1",
     "labelPlural": "Records",
+    "labelPluralInCase": "Records in the case",
     "pathName": "record",
     "connectedToCase": "Associated case",
     "goToCase": "Go to case",
@@ -149,13 +161,25 @@
     "from": "From",
     "to": "To",
     "fromTo": "From/to",
+    "moreParties": "+$1 more",
+    "allParties": "Correspondence parties",
     "docDate": "Document date",
     "recordDate": "Journal date",
     "pubDate": "Published date",
     "legalBasis": "Legal basis",
     "attachmentPlural": "Attachments",
+    "attachmentCount": "$1 attachments",
+    "mainDocument": "Main document",
+    "expandAttachments": "Show all attachments",
+    "collapseAttachments": "Hide attachments",
     "notPublished": "Not published",
+    "orderAccess": "Request access",
     "recordType": "Type",
+    "totalCount": "$1 total",
+    "previous": "Previous record",
+    "next": "Next record",
+    "favorite": "Mark as favorite",
+    "moreActions": "More actions",
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
@@ -174,7 +198,8 @@
   },
   "moetesak": {
     "label": "Meeting case",
-    "labelPlural": "Meeting cases"
+    "labelPlural": "Meeting cases",
+    "pathName": "case"
   },
   "searchFilters": {
     "publisertDato": "Publication date",
