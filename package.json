@@ -17,22 +17,22 @@
     "@digdir/designsystemet-css": "^1.14.0",
     "@digdir/designsystemet-react": "^1.14.0",
     "@digdir/einnsyn-sdk": "^1.3.1",
-    "@navikt/aksel-icons": "^8.10.6",
+    "@navikt/aksel-icons": "^8.11.0",
     "@opentelemetry/api": "^1.9.1",
     "@vercel/otel": "^2.1.2",
     "next": "^16.2.6",
     "openid-client": "^6.8.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "sass": "^1.99.0",
+    "sass": "^1.100.0",
     "virtua": "^0.49.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.15",
-    "@types/node": "^25.9.0",
+    "@biomejs/biome": "^2.4.16",
+    "@types/node": "^25.9.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "tsx": "^4.22.2",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }

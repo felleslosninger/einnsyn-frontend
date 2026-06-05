@@ -18,11 +18,9 @@ on:
       - ".github/**"
       - ".gitignore"
 
-permissions:
-  contents: write
-  id-token: write
-  packages: write
-  pull-requests: write
+# Default to read-only at the workflow level; each job declares the write
+# permissions it actually needs.
+permissions: read-all
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

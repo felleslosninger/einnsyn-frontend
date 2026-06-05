@@ -23,7 +23,7 @@ export default function EnhetLink({
     return <></>;
   }
 
-  const ancestors = withAncestors ? getAncestors(enhet) : [enhet];
+  const ancestors = withAncestors ? [...getAncestors(enhet), enhet] : [enhet];
 
   return ancestors.map((enhet, index) => (
     <Fragment key={enhet.id}>
