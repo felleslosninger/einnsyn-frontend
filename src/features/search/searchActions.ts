@@ -62,7 +62,9 @@ export const getSearchResults = async (
     enhet.push(enhetSlug);
   }
   if (searchParams.has('enhet')) {
-    enhet.push(...parseParamList(searchParams.get('enhet')));
+    enhet.push(
+      ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
+    );
   }
   if (enhet.length) {
     apiQuery.administrativEnhet = enhet;
