@@ -71,7 +71,7 @@ export function EnhetSelectorDesktop({
     <>
       <div className={styles.selectorField}>
         <SummaryButton
-          ref={summaryButtonRef}
+          buttonRef={summaryButtonRef}
           active={active}
           state={state}
           activate={activate}
@@ -114,11 +114,11 @@ type SummaryButtonProps = {
   active: boolean;
   state: EnhetSelectorState;
   activate: () => void;
-  ref?: React.Ref<HTMLButtonElement>;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
 };
 
 const SummaryButton = ({
-  ref,
+  buttonRef,
   active,
   state,
   activate,
@@ -148,9 +148,8 @@ const SummaryButton = ({
     [active, focusInput],
   );
 
-  return (
     <button
-      ref={ref}
+      ref={buttonRef}
       type="button"
       className={cn(styles.summaryButton, {
         [styles.summaryButtonActive]: active,
