@@ -3,6 +3,7 @@ import { TasklistIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { useMoetesakURLGenerator } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetesakResult({
@@ -13,9 +14,10 @@ export default function MoetesakResult({
   item: Moetesak;
 }) {
   const translate = useTranslation();
+  const moetesakURL = useMoetesakURLGenerator();
   return (
     <div className={cn(className, 'search-result', 'moetesak-result')}>
-      <EinLink href="">
+      <EinLink href={moetesakURL(item)}>
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className="ds-paragraph" data-size="sm">

@@ -3,6 +3,7 @@ import { MeetingLargeIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { useMoetemappeURLGenerator } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetemappeResult({
@@ -13,9 +14,10 @@ export default function MoetemappeResult({
   item: Moetemappe;
 }) {
   const translate = useTranslation();
+  const moetemappeURL = useMoetemappeURLGenerator();
   return (
     <div className={cn(className, 'search-result', 'moetemappe-result')}>
-      <EinLink href="">
+      <EinLink href={moetemappeURL(item)}>
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className="ds-paragraph" data-size="sm">
