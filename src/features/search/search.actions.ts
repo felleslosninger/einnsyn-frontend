@@ -157,7 +157,7 @@ export const getSearchResults = async (
 
   try {
     apiQuery.expand = [
-      'administrativEnhetObjekt.parent.parent',
+      `administrativEnhetObjekt.parent.parent.parent.parent`, // Automatically fetch 4 levels
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',
