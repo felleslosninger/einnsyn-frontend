@@ -1,12 +1,14 @@
-import { headers } from 'next/headers';
-import { cache } from 'react';
-import { type LanguageCode, resolveLanguageCode } from './translation';
+'use server';
 
-export const getLanguageCode = cache(async (): Promise<LanguageCode> => {
-  const myHeaders = await headers();
+import { getSettings } from '~/actions/cookies/settingsCookie';
+import { getTranslateFunction, type LanguageCode } from './translation';
 
-  const acceptLanguageHeader = myHeaders.get('Accept-Language') || '';
-  const language = resolveLanguageCode(acceptLanguageHeader) ?? 'nb';
-
+export const getLanguageCode = async (): Promise<LanguageCode> => {
+  const { language } = await getSettings();
   return language;
-});
+};
+
+export const getTranslator = async () => {
+  const languageCode = await getLanguageCode();
+  return getTranslateFunction(languageCode);
+};

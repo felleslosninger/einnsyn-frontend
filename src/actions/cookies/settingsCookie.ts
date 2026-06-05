@@ -1,6 +1,11 @@
 'use server';
 
-import type { LanguageCode } from '~/lib/translation/translation';
+import { headers } from 'next/headers';
+import {
+  type LanguageCode,
+  resolveLanguageCode,
+  supportedLanguages,
+} from '~/lib/translation/translation';
 import {
   type CookieSettings,
   getCookie,
@@ -15,10 +20,14 @@ export type Settings = {
   colorScheme: 'auto' | 'light' | 'dark';
 };
 
-const defaultSettings: Settings = {
-  language: 'nb',
+const staticDefaults = {
   stayLoggedIn: false,
   colorScheme: 'auto',
+} satisfies Omit<Settings, 'language'>;
+
+const resolveDefaultLanguage = async (): Promise<LanguageCode> => {
+  const acceptLanguage = (await headers()).get('Accept-Language') || '';
+  return resolveLanguageCode(acceptLanguage, supportedLanguages) ?? 'nb';
 };
 
 /**
@@ -38,10 +47,14 @@ export const updateSettingsAction = async (
   });
 };
 
-export const getSettings = async () => {
-  const settingsCookieContent = await getCookie<Settings>(SETTINGS_COOKIE_NAME);
+export const getSettings = async (): Promise<Settings> => {
+  const settingsCookieContent = await getCookie<Partial<Settings>>(
+    SETTINGS_COOKIE_NAME,
+  );
   return {
-    ...defaultSettings,
+    ...staticDefaults,
     ...settingsCookieContent,
+    language:
+      settingsCookieContent?.language ?? (await resolveDefaultLanguage()),
   };
 };
