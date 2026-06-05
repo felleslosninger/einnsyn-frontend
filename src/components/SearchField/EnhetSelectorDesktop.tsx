@@ -148,6 +148,7 @@ const SummaryButton = ({
     [active, focusInput],
   );
 
+  return (
     <button
       ref={buttonRef}
       type="button"
