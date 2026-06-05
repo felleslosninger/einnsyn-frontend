@@ -1,5 +1,5 @@
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
-import { fetchNextPageAction } from '~/actions/api/pagination';
+import { fetchNextPageAction } from '~/actions/api/pagination.actions';
 
 // Client-side helper function for fetching next page with optional merging
 export async function fetchNextPage<T extends Base>(

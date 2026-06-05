@@ -1,4 +1,4 @@
-import { getInitialEnhetsForRequest } from '~/actions/api/enhetActions';
+import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import { SearchHeader } from '~/features/search';
 import { firstString } from '~/lib/utils/stringutils';

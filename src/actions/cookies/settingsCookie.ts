@@ -5,7 +5,7 @@ import {
   type CookieSettings,
   getCookie,
   updateCookieAction,
-} from './cookieActions';
+} from './cookie.actions';
 
 const SETTINGS_COOKIE_NAME = 'settings';
 
