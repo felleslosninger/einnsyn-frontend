@@ -90,9 +90,16 @@ export function SessionDataProvider({
   }, [optimisticSessionData, updateSettings]);
 
   // Trigger a window resize event on settings change, as this can affect the layout.
+  // Deferred to the next frame so it runs outside React's render/commit cycle:
+  // settings changes go through an optimistic (transition) update, and dispatching
+  // synchronously here makes window-resize listeners that call ReactDOM.flushSync
+  // (e.g. virtua's WindowVirtualizer/VList) flush while React is still rendering.
   // biome-ignore lint/correctness/useExhaustiveDependencies: Always trigger a resize event when settings change
   useEffect(() => {
-    window.dispatchEvent(new Event('resize'));
+    const frame = requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+    return () => cancelAnimationFrame(frame);
   }, [sessionDataWithUpdate.settings]);
 
   return (
