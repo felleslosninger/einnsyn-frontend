@@ -12,5 +12,5 @@ export default async function Journalpost({
   const { journalpost = '' } = await params;
   const active = await getJournalpost(journalpost).catch(() => null);
 
-  return <JournalpostContainer journalpost={active} />;
+  return <JournalpostContainer journalpost={active} inline />;
 }

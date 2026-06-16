@@ -2,10 +2,15 @@
 
 import { Skeleton } from '@digdir/designsystemet-react';
 import { useEffect, useState } from 'react';
+import cn from '~/lib/utils/className';
 import { skeletonString } from '~/lib/utils/skeletonUtils';
 import styles from './JournalpostContainer.module.scss';
 
-export default function JournalpostContainerSkeleton() {
+export default function JournalpostContainerSkeleton({
+  inline = false,
+}: {
+  inline?: boolean;
+}) {
   const [data, setData] = useState({
     label: '',
     title: '',
@@ -28,15 +33,21 @@ export default function JournalpostContainerSkeleton() {
   }, []);
 
   return (
-    <article className={styles.content} aria-busy="true" aria-live="polite">
-      <div className={styles.heading}>
-        <span className={styles.label}>
-          <Skeleton variant="text">{data.label}</Skeleton>
-        </span>
-        <h2 className={styles.title}>
-          <Skeleton variant="text">{data.title}</Skeleton>
-        </h2>
-      </div>
+    <article
+      className={cn(styles.content, { [styles.inline]: inline })}
+      aria-busy="true"
+      aria-live="polite"
+    >
+      {!inline && (
+        <div className={styles.heading}>
+          <span className={styles.label}>
+            <Skeleton variant="text">{data.label}</Skeleton>
+          </span>
+          <h2 className={styles.title}>
+            <Skeleton variant="text">{data.title}</Skeleton>
+          </h2>
+        </div>
+      )}
 
       <dl className={styles.fields}>
         {data.fields.map((field) => (

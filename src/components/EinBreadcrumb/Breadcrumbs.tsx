@@ -104,11 +104,11 @@ export default function EinBreadcrumb({
   });
 
   return (
-    <Breadcrumbs className={styles.breadcrumbs} aria-label={t('breadcrumbs.label')}>
-      <Breadcrumbs.List
-        ref={listRef}
-        className={styles.breadcrumbs}
-      >
+    <Breadcrumbs
+      className={styles.breadcrumbs}
+      aria-label={t('breadcrumbs.label')}
+    >
+      <Breadcrumbs.List ref={listRef} className={styles.breadcrumbsList}>
         {visibleItems.map((slot) =>
           slot.kind === 'ellipsis' ? (
             <Breadcrumbs.Item key="ellipsis">

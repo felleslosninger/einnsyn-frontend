@@ -34,7 +34,14 @@
 
   &.fixed {
     position: fixed;
-    box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
+    // Downward-only shadow (offset-y + negative spread cancel the upward bleed)
+    // so no shadow ever paints ABOVE the header. A symmetric `0 0 1rem` leaks a
+    // top shadow that becomes visible mid-transition: when scrolling up to the
+    // top the header switches fixed -> sticky instantly while the shadow fades
+    // over 0.2s, and during an overscroll bounce the now-sticky header dips
+    // below y=0, revealing the top half of the shadow. (Same leak on mobile
+    // whenever the visual-viewport offsetTop is nonzero.)
+    box-shadow: 0 0.5rem 1rem -0.5rem rgba(0 0 0 / 20%);
     border-bottom: 0px;
     transition: all 0.2s fx.$easeOut;
   }

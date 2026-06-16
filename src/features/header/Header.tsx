@@ -22,6 +22,22 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const isHome = rootPath === 'home';
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
+  // The header's height in its EXPANDED pose. The fixed spacer and the saksmappe
+  // detail pane reserve against this STABLE value (not the live collapsing
+  // height) so a minimize/expand never changes in-flow geometry — which would
+  // reflow the document, trip scroll anchoring, and feed the scroll-direction
+  // detector, oscillating the header (the compact/expanded flicker).
+  const [expandedHeaderHeight, setExpandedHeaderHeight] = useState<
+    number | null
+  >(null);
+  // The header's height in its COMPACT (docked-minimized) pose. The saksmappe
+  // detail pane pins to this so it doesn't track the header's per-frame animated
+  // height while collapsing/expanding (which would re-commit a scroll direction
+  // and cancel the in-flight expand). Frozen across every expand (captured only
+  // while minimized + fixed).
+  const [compactHeaderHeight, setCompactHeaderHeight] = useState<number | null>(
+    null,
+  );
   const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
     null,
   );
@@ -31,6 +47,10 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
+  // Latest `minimized` / `fixed` values, readable inside the (set-up-once)
+  // height observer so it only records the resting expanded height.
+  const minimizedRef = useRef(false);
+  const fixedRef = useRef(false);
   const previousRootPathRef = useRef(rootPath);
   const activeRouteTransitionRef = useRef<{
     fromRootPath: string;
@@ -65,6 +85,8 @@ export default function Header({ children }: { children: React.ReactNode }) {
   useLayoutEffect(() => {
     if (isHome) {
       setHeaderHeight(null);
+      setExpandedHeaderHeight(null);
+      setCompactHeaderHeight(null);
       return;
     }
 
@@ -78,6 +100,25 @@ export default function Header({ children }: { children: React.ReactNode }) {
       setHeaderHeight((currentHeight) =>
         currentHeight === nextHeight ? currentHeight : nextHeight,
       );
+      // Record the height ONLY when the header is at rest expanded — not
+      // minimized and not fixed. While fixed it may be mid-collapse/expand
+      // animation; capturing those transient heights would let the (frozen)
+      // spacer track the animation and re-create the scroll-anchoring flicker.
+      if (!minimizedRef.current && !fixedRef.current) {
+        setExpandedHeaderHeight((currentHeight) =>
+          currentHeight === nextHeight ? currentHeight : nextHeight,
+        );
+      }
+      // Mirror image: record the COMPACT height only while docked-minimized
+      // (scrolled + collapsed). True throughout a collapse (scroll-down,
+      // harmless — a re-commit there is a no-op), false throughout an expand
+      // (scroll-up) — so the value the detail pane pins to is frozen across the
+      // whole expand and can't feed a per-frame scroll perturbation.
+      if (minimizedRef.current && fixedRef.current) {
+        setCompactHeaderHeight((currentHeight) =>
+          currentHeight === nextHeight ? currentHeight : nextHeight,
+        );
+      }
     };
 
     updateHeaderHeight();
@@ -152,6 +193,8 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   const fixedHeader =
     !isHome && !isAtTop && headerHeight !== null && fixedViewportWidth !== null;
+  // Expose to the height observer so it skips transient heights while fixed.
+  fixedRef.current = fixedHeader;
 
   const fixedHeaderStyle = fixedHeader
     ? {
@@ -164,10 +207,42 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
+  const minimized = !isHome && isScrollingDown;
+  // Expose the latest minimized state to the (set-up-once) height observer above.
+  minimizedRef.current = minimized;
+
   const className = cn(styles.header, `section-${rootPath}`, {
-    [styles.scrolled]: !isHome && isScrollingDown,
+    [styles.scrolled]: minimized,
     [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
+    // Global hook (not module-hashed) so feature components rendered into the
+    // header slot — e.g. SaksmappeHeader — can collapse themselves via CSS.
+    'header-minimized': minimized,
   });
+
+  // Publish the stable docked (expanded) header height so feature content in the
+  // header slot — the saksmappe detail pane — can reserve its max-height against
+  // it instead of the live collapsing height. That keeps the pane's box constant
+  // across minimize toggles, so toggling doesn't reflow the document.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    if (!isHome && expandedHeaderHeight !== null) {
+      root.style.setProperty(
+        '--ein-header-docked-h',
+        `${expandedHeaderHeight}px`,
+      );
+    } else {
+      root.style.removeProperty('--ein-header-docked-h');
+    }
+    // Stable compact height for the detail pane's sticky top (see above).
+    if (!isHome && compactHeaderHeight !== null) {
+      root.style.setProperty(
+        '--ein-header-compact-h',
+        `${compactHeaderHeight}px`,
+      );
+    } else {
+      root.style.removeProperty('--ein-header-compact-h');
+    }
+  }, [isHome, expandedHeaderHeight, compactHeaderHeight]);
 
   const transitionDeps = [rootPath];
   const transitionEvents: EinTransitionEvents<typeof transitionDeps> = useMemo(
@@ -304,9 +379,16 @@ export default function Header({ children }: { children: React.ReactNode }) {
       events={transitionEvents}
     >
       <div>
-        {/* Spacer for fixed header: only render while header is fixed. */}
-        {fixedHeader && headerHeight !== null && (
-          <div aria-hidden="true" style={{ height: `${headerHeight}px` }} />
+        {/* Spacer for the fixed header. Uses the STABLE expanded height (not the
+            live collapsing height) so minimizing/expanding the fixed header
+            never changes the in-flow document height — the header overlays
+            content instead of reflowing it, which is what otherwise trips scroll
+            anchoring and oscillates the compact/expanded state. */}
+        {fixedHeader && (
+          <div
+            aria-hidden="true"
+            style={{ height: `${expandedHeaderHeight ?? headerHeight ?? 0}px` }}
+          />
         )}
         <header ref={headerRef} className={className} style={fixedHeaderStyle}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>

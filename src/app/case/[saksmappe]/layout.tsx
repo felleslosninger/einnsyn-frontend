@@ -3,7 +3,6 @@ import { cachedApiClient } from '~/actions/api/getApiClient';
 import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
 import { getSaksmappe } from '~/actions/api/saksmappe.actions';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
-import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
 
 export default async function SaksmappeLayout({
   params,
@@ -43,7 +42,8 @@ export default async function SaksmappeLayout({
     <div className="container-wrapper">
       <div className="container-pre collapsible" />
       <div className="container">
-        <SaksmappeHeader saksmappe={saksmappeEntity} />
+        {/* SaksmappeHeader now lives in the @header/case slot so it sits in the
+            sticky site header and collapses on scroll. */}
         <JournalpostList
           journalposts={journalposts}
           saksmappe={saksmappeEntity}

@@ -7,6 +7,12 @@
   padding: 0 var(--ein-vertical-spacing) var(--ein-half-horizontal-spacing);
 }
 
+// Inline inside a list row: the row supplies the title and the horizontal inset,
+// so drop both here and align the content with the row title.
+.inline {
+  padding-inline: 0;
+}
+
 .heading {
   display: flex;
   flex-direction: column;

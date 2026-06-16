@@ -1,29 +1,19 @@
 @use "../../../styles/mediaQueries" as mq;
 @use "../../../styles/effects" as fx;
 
-// Duration of the open/close animation, shared by the list crimp and the
-// detail pane's slide/fade so they stay in sync.
-$transitionDuration: 350ms;
+// Duration of the smooth height ease between the closed and open sizes.
+$heightDuration: 320ms;
+// Duration of the quick opacity crossfade between the two row-body faces (which
+// each include their own title, so the whole content fades out/in).
+$fadeDuration: 160ms;
 
 .journalpostList {
   // `--jp-number-col` is the SINGLE source of truth for the journalpostnummer
-  // column width: `.body`, each `.item` row, and the detail pane's left edge
-  // all read it, so the pane's left edge lands exactly where `.itemBody` begins
-  // and the number stays fully visible when the pane is open. Set in JS from the
-  // widest loaded journalpostnummer.
-  //
-  // `--jp-full-w` is the list's full (un-crimped) width = `.body`'s width. When
-  // a detail is open the rows are pinned to this fixed width so they NEVER
-  // reflow; only the scroll container crimps around them (clipping). Measured.
-  // `--jp-rail-w` is the crimped width when open: the number column + the
-  // column gap, so the pane's left edge lands exactly at the body (column 2)
-  // start and covers all the list text. `--jp-sticky-top` is the sticky global-header height the
-  // list pins below. Measured at runtime; values here are fallbacks.
+  // column width: every `.itemSummary` reads it so all rows' body text starts at
+  // the same x and the number stays fully visible. Set in JS from the widest
+  // loaded journalpostnummer.
   --jp-number-col: 3rem;
   --jp-col-gap: var(--ds-size-3);
-  --jp-full-w: 100%;
-  --jp-rail-w: calc(var(--jp-number-col) + var(--jp-col-gap));
-  --jp-sticky-top: 0px;
   // `.numberBadge` geometry. Referenced here and by `numberColWidth` in the
   // component so the column width tracks the rendered badge.
   --jp-badge-size: 2rem;
@@ -32,8 +22,8 @@ $transitionDuration: 350ms;
   margin: calc(var(--ein-horizontal-spacing) * 2) 0;
 }
 
-// Static toolbar above the list's scroll region, so it (and the SaksmappeHeader
-// above it) stays visible while the list scrolls.
+// Static toolbar above the list's scroll region, so it stays visible while the
+// list scrolls.
 .listHeader {
   display: flex;
   align-items: center;
@@ -73,19 +63,12 @@ $transitionDuration: 350ms;
   flex: 1;
   max-width: 28rem;
   justify-content: flex-end;
-  transition: opacity 0.2s ease;
 
   @include mq.small {
     flex-basis: 100%;
     max-width: none;
     margin-left: 0;
   }
-}
-
-// Fade the toolbar away while a detail pane is open.
-.split .toolbar {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .search {
@@ -164,71 +147,47 @@ $transitionDuration: 350ms;
   pointer-events: none;
 }
 
-.body {
-  // Row of [list | detail]. The PAGE scrolls this (it is NOT a scroll
-  // container), so a tall detail pane uses the global scroll. clip on x
-  // contains the detail pane's translateX slide-in and the crimped rows'
-  // overflow without becoming a scroll container, so the sticky .list still
-  // pins to the page.
-  display: flex;
-  align-items: flex-start;
-  position: relative;
-  // `clip` (not `hidden`) contains the slide-in/crimp overflow WITHOUT becoming
-  // a scroll container — `overflow: hidden` here makes `.body` scrollable, and
-  // when the tall detail grows it gets scrolled, offsetting the sticky `.list`
-  // downward inside it (the gap above the list).
-  //overflow-x: clip;
-}
-
 .list {
-  // The list's OWN scroll region: a bounded, sticky column with an inner
-  // scroll. flex-basis is the full width when closed and crimps to the rail
-  // width when a detail opens, animating the scrollbar inward so it reads as
-  // the list's own. overflow-x: clip clips the fixed-width rows during the
-  // crimp (they do not reflow); overflow-y: auto is the inner list scroll.
-  flex: 0 0 var(--jp-full-w);
+  // The list scrolls with the PAGE (window scroll via WindowVirtualizer) — it is
+  // NOT its own scroll region: no overflow-y / no max-height, so it's an in-flow
+  // block as tall as its content and the wheel drives the document scroll (which
+  // also lets the site header minimize). Rows are full width; an open row grows
+  // in place to reveal its inline detail (see `.bodySwap`).
   min-width: 0;
-  position: sticky;
-  top: var(--jp-sticky-top);
-  max-height: calc(100dvh - var(--jp-sticky-top) - var(--ds-size-6));
-  overflow-y: auto;
-  overflow-x: clip;
   list-style: none;
   margin: 0;
   padding: var(--ds-size-2) 0;
   display: flex;
   flex-direction: column;
-  transition: flex-basis $transitionDuration fx.$easeOut;
   border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
 .item {
-  // Same grid columns as the rail/detail split, so the number cell IS the
-  // --jp-number-col track and .itemBody starts at the exact x the detail pane's
-  // left edge sits at. Pinned to the full measured width (which equals the full
-  // list width), so the rows fill the list when closed AND never reflow during
-  // the crimp open/close — they're just clipped more as the rail narrows.
+  // A row: its summary (the number + body grid) and, when open, an inline
+  // expand region below it. A subtle separator delineates rows.
+  padding: var(--ds-size-3) 0;
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.itemSummary {
+  // The number cell IS the --jp-number-col track, so `.itemBody` starts at the
+  // same x on every row. `position: relative` anchors the stretched open link
+  // (closed) and the close action (open).
+  position: relative;
   display: grid;
   grid-template-columns: var(--jp-number-col) minmax(0, 1fr);
   column-gap: var(--jp-col-gap);
   align-items: start;
-  width: var(--jp-full-w);
-  padding: var(--ds-size-3) 0;
 }
 
-// When a detail is open, crimp the list to the rail width. The scrollbar rides
-// the right edge inward; the rows keep their fixed width (see `.item`) and are
-// simply clipped, so nothing reflows.
-.split .list {
-  flex-basis: var(--jp-rail-w);
-  // Hide the rail's scrollbar while a detail is open (it still scrolls) — the
-  // closed/browsing list keeps its scrollbar.
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+// Explicit close, top-right of an open row. Reuses `.iconButton`'s tertiary
+// icon-button look; this only adds the positioning.
+.closeAction {
+  position: absolute;
+  inset-block-start: var(--ds-size-1);
+  inset-inline-end: 0;
+  z-index: 2;
 }
 
 // virtua wraps each item in its own element, so `.item:last-child` always
@@ -238,10 +197,10 @@ $transitionDuration: 350ms;
 }
 
 .itemNumber {
-  // The clickable link IS the badge pill (a bit bigger than the inner number),
-  // so the border, radius and selected fill live here rather than on
-  // `.numberBadge`. `justify-self: center` keeps it hugging its content,
-  // centered within the number column.
+  // The badge pill (a bit bigger than the inner number), so the border, radius
+  // and selected fill live here rather than on `.numberBadge`. It's a link that
+  // opens the row when closed, and a plain (filled) indicator when open.
+  // `justify-self: center` keeps it hugging its content, centered in the column.
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -275,8 +234,26 @@ $transitionDuration: 350ms;
 }
 
 .itemTitle {
+  // `width: fit-content` keeps it text-width. The size is set per face (closed =
+  // small, open = large); there's no font-size transition — the two faces (each
+  // with its own title) crossfade, so the title fades small ↔ large.
+  display: block;
+  width: fit-content;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+// Closed face: list-sized title.
+.summaryFace .itemTitle {
   font-size: var(--ds-font-size-4, 0.95rem);
+}
+
+// Open face: heading-sized title. Cap its width so a long title wraps before
+// reaching the close button (top-right), and add space before the detail.
+.detailFace .itemTitle {
+  max-width: calc(100% - 2.75rem);
+  margin-block-end: var(--ds-size-2);
+  font-size: var(--ds-font-size-7, 1.5rem);
 }
 
 .itemMeta {
@@ -349,9 +326,7 @@ $transitionDuration: 350ms;
   font-size: 1rem;
 }
 
-// Compact (split) list item. The filled badge is the selection indicator —
-// the row itself stays untinted since the detail pane covers everything but
-// the number column when an item is open.
+// The filled badge marks the open row.
 .selected .itemNumber {
   background: var(--ds-color-accent-base-default);
   border-color: var(--ds-color-accent-base-default);
@@ -359,134 +334,57 @@ $transitionDuration: 350ms;
 }
 
 
-// Detail pane
+// Row body crossfade
 
-// Slot for the detail pane: the body grid's second column, sharing row 1 with
-// the list. No explicit height here (the height lives on `.detailPane`), so
-// when closed the empty slot contributes nothing and a short list isn't
-// inflated to a viewport tall. `pointer-events: none` keeps the empty area
-// around the pane from intercepting clicks on the number rail behind it.
-.detailSlot {
-  flex: 1 1 0;
-  // Stretch to the body's height (= max(list, detail content)) so the pane can
-  // fill the list's height even when its own content is short.
-  align-self: stretch;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 1;
+// The height container. Its height is set explicitly from the active face by the
+// component and transitions smoothly; because the target flips the instant the
+// row toggles, the height starts easing immediately. `position: relative`
+// anchors the absolutely-positioned faces. `clip` contains the taller content
+// while the box grows/shrinks without becoming a scroll container; the small
+// clip-margin keeps focus rings from being cut at rest.
+.bodySwap {
+  position: relative;
+  overflow: clip;
+  overflow-clip-margin: var(--ds-size-2);
+  transition: height $heightDuration fx.$easeOut;
+}
+
+// The two faces of the row body — the closed state (title link + summary) and
+// the open state (heading + detail). Each carries its own title and they
+// crossfade in place via opacity (a quick fade). The title is the first child,
+// so its top margin aligns it with the number badge in the adjacent column.
+.face {
+  transition: opacity $fadeDuration fx.$easeOut;
+}
+
+// `position` is FIXED per face (never toggled): the summary stays in flow, the
+// detail stays an absolute overlay. Only opacity changes between states — a
+// `position` change to `static` skips the opacity transition (the box is
+// regenerated in flow), which made the incoming face pop in instead of fade.
+// The summary being in flow also gives the box its natural (closed) height, so
+// rows are sized correctly server-side, before JS measures them (no flash).
+.summaryFace {
+  position: static;
+  opacity: 1;
+}
+
+.detailFace {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  opacity: 0;
+  // `pointer-events: none` lets clicks pass through the faded-out overlay to the
+  // summary's title link beneath it (both faces are always mounted).
   pointer-events: none;
 }
 
-.detailPane {
-  // Pinned to the open detail-column width and anchored to the right, so the
-  // crimp (which resizes the flex column) never reflows the content while the
-  // pane slides in/out. `flex: 1 0 auto` fills the stretched slot (so the pane
-  // is at least as tall as the list) and grows past it when the detail is
-  // taller; the PAGE (global) scroll reads it.
-  width: calc(var(--jp-full-w) - var(--jp-rail-w));
-  margin-left: auto;
-  flex: 1 0 auto;
+// Open: the detail is visible/interactive, the summary faded out + click-through.
+.selected .summaryFace {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.selected .detailFace {
+  opacity: 1;
   pointer-events: auto;
-  background: var(--ds-color-neutral-background-default);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  border-radius: var(--ds-border-radius-lg, 0.5rem);
-  box-shadow: 0 1rem 2.25rem 0 rgb(17 24 39 / 0.22);
-  //box-shadow: 0 0 1rem #0003;
-
-  // Hidden pose: the initial frame of an enter, and the target frame of an
-  // exit. Slide in/out from the right edge with a fade. The init-enter class
-  // is present alone during the prep frame and persists until `done`, so we
-  // negate the enter class to only match the prep frame.
-  &:global(.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
-  &:global(.ein-transition-exit-transition) {
-    opacity: 0;
-
-    section {
-      transform: scale(0.90);
-      transform-origin: center center;
-    }
-  }
-
-  // Animate during the enter and exit transitions
-  &:global(.ein-transition-enter-transition),
-  &:global(.ein-transition-exit-transition) {
-    transition:
-      opacity $transitionDuration fx.$easeOut,
-      transform $transitionDuration fx.$easeOut;
-
-    section {
-      transition: transform $transitionDuration fx.$easeOut;
-    }
-  }
-}
-
-.detailHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ds-size-3);
-  padding: var(--ein-half-horizontal-spacing) var(--ein-vertical-spacing);
-}
-
-.detailNav {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-2);
-}
-
-.detailNumber {
-  margin-right: var(--ds-size-2);
-  font-size: var(--ds-font-size-3, 0.875rem);
-  color: var(--ds-color-neutral-text-subtle);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.detailActions {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-1);
-}
-
-.detailBody {
-  // No inner scroll: the page scrolls the (unbounded) detail.
-  padding-top: var(--ds-size-3);
-  min-width: 0;
-}
-
-// Quick, direction-aware slide+fade when switching the open journalpost (the
-// pane itself stays put — only this content swaps). `--slide-dir` is set in JS
-// from the browse direction: −1 up, +1 down, 0 = plain fade. The motion reads
-// as one continuous sweep — the outgoing content slides out in the browse
-// direction and fades, then the incoming content slides in from the opposite
-// edge to its resting place (the steps run sequentially, so they never stack).
-$switchDuration: $transitionDuration / 2;
-$switchDistance: 0.75rem;
-
-.detailContent {
-
-  // Exit end-pose and enter start-pose (the hidden prep frame): faded out and
-  // offset. Exit moves WITH the browse direction; enter starts on the opposite
-  // edge so it travels the same way into view. The init-enter class persists
-  // until `done`, so negate the enter class to match only the prep frame.
-  &:global(.ein-transition-exit-transition) {
-    opacity: 0;
-    transform: translateY(calc(var(--slide-dir, 0) * #{-$switchDistance}));
-  }
-
-  &:global(.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)) {
-    opacity: 0;
-    transform: translateY(calc(var(--slide-dir, 0) * #{$switchDistance}));
-  }
-
-  // Animate during the enter and exit transitions.
-  &:global(.ein-transition-enter-transition),
-  &:global(.ein-transition-exit-transition) {
-    transition:
-      opacity $switchDuration fx.$easeOut,
-      transform $switchDuration fx.$easeOut;
-  }
 }

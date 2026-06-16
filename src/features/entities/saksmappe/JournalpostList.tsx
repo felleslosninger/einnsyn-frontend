@@ -6,13 +6,7 @@ import {
   type PaginatedList,
   type Saksmappe,
 } from '@digdir/einnsyn-sdk';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  PaperclipIcon,
-  SortDownIcon,
-  XMarkIcon,
-} from '@navikt/aksel-icons';
+import { PaperclipIcon, SortDownIcon, XMarkIcon } from '@navikt/aksel-icons';
 import {
   useCallback,
   useEffect,
@@ -21,13 +15,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Virtualizer, type VirtualizerHandle } from 'virtua';
-import { EinButton } from '~/components/EinButton/EinButton';
+import { WindowVirtualizer, type WindowVirtualizerHandle } from 'virtua';
 import { EinLink } from '~/components/EinLink/EinLink';
-import {
-  EinTransition,
-  type EinTransitionEvents,
-} from '~/components/EinTransition/EinTransition';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import JournalpostContainer from '~/features/entities/journalpost/JournalpostContainer';
 import JournalpostContainerSkeleton from '~/features/entities/journalpost/JournalpostContainerSkeleton';
@@ -107,8 +96,8 @@ export default function JournalpostList({
     return match?.[1];
   }, [pathname]);
 
-  // Drive the visible detail pane from the optimistic pathname so the
-  // open/close animation can begin the instant the user clicks a link,
+  // Drive the visible expanded row from the optimistic pathname so the
+  // expand/collapse animation can begin the instant the user clicks a link,
   // before the server route has resolved.
   const optimisticSelectedKey = useMemo(() => {
     const match = optimisticPathname.match(/\/journalpost\/([^/?#]+)/);
@@ -116,7 +105,7 @@ export default function JournalpostList({
   }, [optimisticPathname]);
 
   // The journalpost being navigated to, resolved from the list payload we
-  // already hold in memory. Lets the detail pane render real metadata
+  // already hold in memory. Lets the expanded row render real metadata
   // immediately and skeleton only the documents — the one part that needs the
   // heavier detail expand (`dokumentbeskrivelse.dokumentobjekt`).
   const optimisticJournalpost = useMemo(() => {
@@ -125,11 +114,11 @@ export default function JournalpostList({
   }, [page.items, optimisticSelectedKey]);
 
   // Build every in-view link from the saksmappe identifier exactly as it
-  // appears in the current URL. If the close/prev/next links used a different
-  // identifier than the journalpost links (e.g. slug vs id — the embedded
+  // appears in the current URL. If the close link used a different identifier
+  // than the journalpost links (e.g. slug vs id — the embedded
   // `journalpost.saksmappe` often lacks a slug), opening/closing would change
   // the `[saksmappe]` route param and remount the whole subtree, canceling the
-  // detail-pane transition.
+  // expand/collapse transition.
   const saksmappePath = t('routing.saksmappePath');
   const journalpostPath = t('journalpost.pathName');
   const saksmappeSegment =
@@ -144,10 +133,9 @@ export default function JournalpostList({
     ? saksmappe.administrativEnhetObjekt.navn
     : '';
 
-  // Drive the active row, its highlight and the prev/next arrows from the
-  // optimistic key so they stay in agreement with the detail pane during the
-  // loading window — the pane already shows the optimistic target, so the row
-  // and arrows must point at it too (and a second "next" advances correctly).
+  // Drive the active row and its highlight from the optimistic key so they stay
+  // in agreement with the expanded content during the loading window — the row
+  // already shows the optimistic target, so the highlight must point at it too.
   const selectedIndex = useMemo(() => {
     if (!optimisticSelectedKey) return -1;
     return page.items.findIndex(
@@ -158,9 +146,9 @@ export default function JournalpostList({
   // Size the number column to fit the widest journalpostnummer in the loaded
   // window. The number renders inside `.numberBadge` (a bordered pill), so the
   // cell width is the badge — `max(--jp-badge-size, digits + badge padding +
-  // border)` — plus the cell's own horizontal padding. Mirrors the badge's
-  // own min-width so the column var matches the rendered cell width and the
-  // detail pane's left edge stays aligned with `.itemBody`.
+  // border)` — plus the cell's own horizontal padding. Mirrors the badge's own
+  // min-width so the column var matches the rendered cell width and every row's
+  // body text starts at the same x.
   const numberColWidth = useMemo(() => {
     let maxChars = 1;
     for (const j of page.items) {
@@ -170,22 +158,16 @@ export default function JournalpostList({
       if (len > maxChars) maxChars = len;
     }
     // Only ever grow: a page-extend that drops the widest number shouldn't
-    // reflow the rail and pane narrower mid-scroll.
+    // reflow the column narrower mid-scroll.
     maxChars = Math.max(maxChars, maxNumberCharsRef.current);
     maxNumberCharsRef.current = maxChars;
     return `calc(max(var(--jp-badge-size), ${maxChars}ch + var(--jp-badge-pad) * 2 + var(--ds-border-width-default) * 2) + var(--ds-size-2) * 2)`;
   }, [page.items]);
 
-  const optimisticIsSplit = !!optimisticSelectedKey;
   // `children` is rendered by the *current* (non-optimistic) route, so it
   // mismatches the target while a navigation is in flight. Render the partial
   // detail (real metadata, skeleton documents) in that window.
   const isContentLoading = optimisticSelectedKey !== selectedKey;
-  const prev = selectedIndex > 0 ? page.items[selectedIndex - 1] : undefined;
-  const next =
-    selectedIndex >= 0 && selectedIndex < page.items.length - 1
-      ? page.items[selectedIndex + 1]
-      : undefined;
 
   // Skeleton the documents only when the in-memory item doesn't carry them yet.
   // List-window items hold `dokumentbeskrivelse` as unexpanded ids (strings),
@@ -203,67 +185,20 @@ export default function JournalpostList({
     <JournalpostContainer
       journalpost={optimisticJournalpost}
       documentsPending={optimisticDocsPending}
+      inline
     />
   ) : (
-    <JournalpostContainerSkeleton />
+    <JournalpostContainerSkeleton inline />
   );
 
-  // Direction-aware slide for switching the open journalpost while the pane
-  // stays open. Everything travels in the browse direction: selecting an
-  // earlier post (or browsing up) slides the old content up and out while the
-  // new content slides up into view; a later post slides everything down. The
-  // sign is read by CSS from `--slide-dir` (−1 up, +1 down, 0 = plain fade when
-  // the direction is unknown). Deps carry [key, index]; the index gives us the
-  // direction by comparing the previous and next selection.
-  const switchEvents = useMemo<
-    EinTransitionEvents<[string | undefined, number]>
-  >(() => {
-    const setDirection = (
-      element: HTMLElement,
-      toDeps: [string | undefined, number],
-      fromDeps: [string | undefined, number] | undefined,
-    ) => {
-      const to = toDeps[1];
-      const from = fromDeps?.[1];
-      const dir =
-        from == null || from < 0 || to < 0 || to === from
-          ? 0
-          : to > from
-            ? 1
-            : -1;
-      element.style.setProperty('--slide-dir', String(dir));
-    };
-    return {
-      onInitExitTransition: setDirection,
-      onInitEnterTransition: setDirection,
-    };
-  }, []);
+  // The content for the open row: the resolved route content once it matches the
+  // selected key, otherwise the optimistic in-memory render so the row can
+  // expand instantly without waiting for the detail route.
+  const selectedDetail =
+    isContentLoading || !children ? loadingDetail : children;
 
-  const vlistRef = useRef<VirtualizerHandle>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const vlistRef = useRef<WindowVirtualizerHandle>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  // `--jp-full-w` = the list's full width (so split rows can be pinned to it and
-  // never reflow during the crimp); `--jp-sticky-top` = the sticky global-header
-  // height the list pins below. useLayoutEffect so the values are set before
-  // paint (a deep link renders split immediately). Re-measured on layout change.
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    const body = bodyRef.current;
-    if (!root || !body) return;
-    const globalHeader = document.querySelector('header');
-    const update = () => {
-      root.style.setProperty('--jp-full-w', `${body.clientWidth}px`);
-      const stickyTop = globalHeader?.getBoundingClientRect().height ?? 0;
-      root.style.setProperty('--jp-sticky-top', `${stickyTop}px`);
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(body);
-    if (globalHeader) ro.observe(globalHeader);
-    return () => ro.disconnect();
-  }, []);
 
   const loadingPrevRef = useRef(false);
   const loadingNextRef = useRef(false);
@@ -300,40 +235,69 @@ export default function JournalpostList({
     }
   }, [page]);
 
-  // Keep the selected item visible, but only nudge the scroll region when it's
-  // actually off-screen — an already-visible item (the common case when opening
-  // or browsing prev/next) stays exactly where it is.
+  // The list scrolls with the page (WindowVirtualizer), so `scrollOffset` is the
+  // window scroll (page-space) while `getItemOffset`/`getItemSize` stay
+  // list-relative. Normalize the two by measuring the list's document-top.
+  // `getBoundingClientRect().top + scrollY` is the list's absolute position in
+  // the document (stable across scroll; only moves when the layout/header
+  // changes), so it must be re-read on each call rather than cached.
+  const listRelativeViewport = useCallback(() => {
+    const listEl = listRef.current;
+    if (!listEl) return null;
+    const handle = vlistRef.current;
+    if (!handle) return null;
+    const listTop = listEl.getBoundingClientRect().top + window.scrollY;
+    // Height of the sticky site header the list scrolls under, so we can treat
+    // the area it covers as "not visible".
+    const stickyTop =
+      document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    return {
+      handle,
+      // Window scroll expressed in the list's own coordinate space.
+      rel: handle.scrollOffset - listTop,
+      stickyTop,
+      viewportSize: handle.viewportSize,
+    };
+  }, []);
+
+  // Keep the selected item visible, but only nudge the scroll when it's actually
+  // off-screen (or hidden under the sticky header) — an already-visible item
+  // (the common case when opening) stays put, so the row expands in place
+  // without yanking the page.
   useEffect(() => {
     if (selectedIndex < 0) return;
-    const handle = vlistRef.current;
-    if (!handle) return;
+    const v = listRelativeViewport();
+    if (!v) return;
 
-    const itemTop = handle.getItemOffset(selectedIndex);
-    const itemBottom = itemTop + handle.getItemSize(selectedIndex);
-    const viewTop = handle.scrollOffset;
-    const viewBottom = viewTop + handle.viewportSize;
+    const itemTop = v.handle.getItemOffset(selectedIndex);
+    const itemBottom = itemTop + v.handle.getItemSize(selectedIndex);
+    // Usable viewport in list-space; the header overlays the top `stickyTop` px.
+    const viewTop = v.rel + v.stickyTop;
+    const viewBottom = v.rel + v.viewportSize;
 
-    // Already fully in view → leave the scroll position untouched.
+    // Already fully in view (and clear of the header) → leave scroll untouched.
     if (itemTop >= viewTop && itemBottom <= viewBottom) return;
 
-    // Off-screen → scroll the minimum needed to bring it to the nearest edge.
-    handle.scrollToIndex(selectedIndex, { align: 'nearest' });
-  }, [selectedIndex]);
+    // Off-screen → bring it to the nearest edge, just below the sticky header.
+    v.handle.scrollToIndex(selectedIndex, {
+      align: 'nearest',
+      offset: -v.stickyTop,
+    });
+  }, [selectedIndex, listRelativeViewport]);
 
   const onScroll = useCallback(() => {
-    const handle = vlistRef.current;
-    if (!handle) return;
+    const v = listRelativeViewport();
+    if (!v) return;
     const lastIndex = page.items.length - 1;
     if (lastIndex < 0) return;
 
-    const offset = handle.scrollOffset;
-    if (page.previous && offset < EXTEND_THRESHOLD_PX) {
+    if (page.previous && v.rel < EXTEND_THRESHOLD_PX) {
       extendBackward();
     }
 
     const totalSize =
-      handle.getItemOffset(lastIndex) + handle.getItemSize(lastIndex);
-    const distanceToEnd = totalSize - (offset + handle.viewportSize);
+      v.handle.getItemOffset(lastIndex) + v.handle.getItemSize(lastIndex);
+    const distanceToEnd = totalSize - (v.rel + v.viewportSize);
     if (page.next && distanceToEnd < EXTEND_THRESHOLD_PX) {
       extendForward();
     }
@@ -343,21 +307,19 @@ export default function JournalpostList({
     page.items.length,
     extendBackward,
     extendForward,
+    listRelativeViewport,
   ]);
 
   return (
     <div
-      ref={rootRef}
-      className={cn(styles.journalpostList, {
-        [styles.split]: optimisticIsSplit,
-      })}
+      className={styles.journalpostList}
       style={{ '--jp-number-col': numberColWidth } as React.CSSProperties}
     >
       <div className={styles.listHeader}>
         <div className={styles.titleGroup}>
           <h2 className={styles.title}>{t('journalpost.labelPluralInCase')}</h2>
         </div>
-        <div className={styles.toolbar} inert={optimisticIsSplit || undefined}>
+        <div className={styles.toolbar}>
           <button
             type="button"
             className={styles.iconButton}
@@ -368,203 +330,204 @@ export default function JournalpostList({
         </div>
       </div>
 
-      <div ref={bodyRef} className={styles.body}>
-        <div ref={listRef} className={styles.list}>
-          <Virtualizer
-            ref={vlistRef}
-            scrollRef={listRef}
-            shift={shift}
-            ssrCount={page.items.length}
-            itemSize={120}
-            onScroll={onScroll}
-          >
-            {page.items.map((j) => (
+      <div ref={listRef} className={styles.list}>
+        <WindowVirtualizer
+          ref={vlistRef}
+          shift={shift}
+          ssrCount={page.items.length}
+          itemSize={120}
+          onScroll={onScroll}
+        >
+          {page.items.map((j) => {
+            const selected = journalpostKey(j) === optimisticSelectedKey;
+            return (
               <JournalpostListItem
                 key={j.id}
                 journalpost={j}
-                href={journalpostHref(j)}
+                openHref={journalpostHref(j)}
+                closeHref={saksmappeHref}
                 ownerEnhetName={ownerEnhetName}
-                selected={journalpostKey(j) === optimisticSelectedKey}
+                selected={selected}
                 languageCode={languageCode}
+                detail={selected ? selectedDetail : null}
               />
-            ))}
-          </Virtualizer>
-        </div>
-
-        <div className={styles.detailSlot}>
-          <EinTransition dependencies={[optimisticIsSplit]} withClassNames>
-            {optimisticIsSplit ? (
-              <section
-                className={styles.detailPane}
-                aria-label={t('journalpost.label')}
-              >
-                <header className={styles.detailHeader}>
-                  <div className={styles.detailNav}>
-                    {optimisticJournalpost?.journalpostnummer != null && (
-                      <span className={styles.detailNumber}>
-                        {t(
-                          'journalpost.numberLabel',
-                          String(optimisticJournalpost.journalpostnummer),
-                        )}
-                      </span>
-                    )}
-                    <DetailNavButton
-                      target={prev}
-                      href={prev ? journalpostHref(prev) : ''}
-                      label={t('journalpost.previous')}
-                    >
-                      <ChevronUpIcon aria-hidden="true" />
-                    </DetailNavButton>
-                    <DetailNavButton
-                      target={next}
-                      href={next ? journalpostHref(next) : ''}
-                      label={t('journalpost.next')}
-                    >
-                      <ChevronDownIcon aria-hidden="true" />
-                    </DetailNavButton>
-                  </div>
-                  <div className={styles.detailActions}>
-                    <EinButton
-                      asChild
-                      variant="tertiary"
-                      icon
-                      aria-label={t('common.close')}
-                    >
-                      <EinLink href={saksmappeHref} unstyled>
-                        <XMarkIcon aria-hidden="true" />
-                      </EinLink>
-                    </EinButton>
-                  </div>
-                </header>
-                <div className={styles.detailBody}>
-                  <EinTransition<[string | undefined, number]>
-                    dependencies={[optimisticSelectedKey, selectedIndex]}
-                    withClassNames
-                    events={switchEvents}
-                  >
-                    <div className={styles.detailContent}>
-                      {isContentLoading || !children ? loadingDetail : children}
-                    </div>
-                  </EinTransition>
-                </div>
-              </section>
-            ) : null}
-          </EinTransition>
-        </div>
+            );
+          })}
+        </WindowVirtualizer>
       </div>
     </div>
   );
 }
 
-// Prev/next browse control. When there's a target it's a real navigation, so
-// render a Designsystemet tertiary icon button as a link (EinLink, unstyled so
-// the link rules don't fight the button box); at the ends of the list there's
-// nothing to go to, so render a genuinely disabled button instead.
-function DetailNavButton({
-  target,
-  href,
-  label,
-  children,
-}: {
-  target: Journalpost | undefined;
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  if (!target) {
-    return (
-      <EinButton variant="tertiary" icon disabled aria-label={label}>
-        {children}
-      </EinButton>
-    );
-  }
-  return (
-    <EinButton asChild variant="tertiary" icon aria-label={label}>
-      <EinLink href={href} unstyled>
-        {children}
-      </EinLink>
-    </EinButton>
-  );
-}
-
 function JournalpostListItem({
   journalpost,
-  href,
+  openHref,
+  closeHref,
   ownerEnhetName,
   selected,
   languageCode,
+  detail,
 }: {
   journalpost: Journalpost;
-  href: string;
+  openHref: string;
+  closeHref: string;
   ownerEnhetName: string;
   selected: boolean;
   languageCode: ReturnType<typeof useLanguageCode>;
+  detail: React.ReactNode;
 }) {
   const t = useTranslation();
-  const url = href;
   const kind = journalpostKind(journalpost.journalposttype);
-
   const attachmentCount = (journalpost.dokumentbeskrivelse ?? []).length;
-  // .filter((d) => typeof d !== 'string')
-  // .filter((d) => d.tilknyttetRegistreringSom.endsWith('vedlegg')).length;
+
+  // The detail face stays mounted always (empty until first opened), so its
+  // opacity can transition 0 → 1 on open — a face mounted fresh at opacity 1
+  // would pop in with no fade. The `detail` prop drops to null the instant the
+  // row deselects (close/switch), so cache the last non-null detail (React
+  // elements are immutable, cheap to re-render) to keep showing it while it
+  // fades back out.
+  const lastDetailRef = useRef(detail);
+  if (detail != null) lastDetailRef.current = detail;
+
+  // Set `.bodySwap`'s height explicitly from the *active* face and let CSS
+  // transition it: because the target flips the instant `selected` changes, the
+  // height starts easing immediately — decoupled from the content's own quick
+  // opacity crossfade. The active face stays in flow (the inactive one is an
+  // absolute overlay), so `.offsetHeight` reads its natural height and the box is
+  // sized right even before this measures, e.g. server-side.
+  const summaryFaceRef = useRef<HTMLDivElement>(null);
+  const detailFaceRef = useRef<HTMLDivElement>(null);
+  const [bodyHeight, setBodyHeight] = useState<number>();
+  useLayoutEffect(() => {
+    const active = selected ? detailFaceRef.current : summaryFaceRef.current;
+    if (!active) return;
+    const measure = () => setBodyHeight(active.offsetHeight);
+    measure();
+    // Follow the active face's own reflow too (e.g. documents resolving).
+    const ro = new ResizeObserver(measure);
+    ro.observe(active);
+    return () => ro.disconnect();
+  }, [selected]);
 
   return (
     <div className={cn(styles.item, { [styles.selected]: selected })}>
-      <EinLink
-        href={url}
-        className={styles.itemNumber}
-        aria-label={`${t('journalpost.label')} ${journalpost.journalpostnummer}`}
-      >
-        <span className={styles.numberBadge}>
-          {journalpost.journalpostnummer}
-        </span>
-      </EinLink>
-      <div className={styles.itemBody}>
-        <EinLink href={url} className={styles.itemTitle}>
-          {journalpost.offentligTittel}
-        </EinLink>
-        <div className={styles.itemMeta}>
-          <span>{t(`searchFilters.journalpostTypes.${kind}`)}</span>
-          <span aria-hidden="true" className={styles.metaSeparator}>
-            —
-          </span>
-          {journalpost.publisertDato && (
-            <span>
-              {t('common.publishedAt')}{' '}
-              {dateFormat(journalpost.publisertDato, languageCode)}
+      <div className={styles.itemSummary}>
+        {/* Number badge: a link that opens the row when closed (one of several
+            independent controls in a row), a plain indicator when open. */}
+        {selected ? (
+          <span className={styles.itemNumber}>
+            <span className={styles.numberBadge}>
+              {journalpost.journalpostnummer}
             </span>
-          )}
-          {journalpost.oppdatertDato &&
-            journalpost.oppdatertDato !== journalpost.publisertDato && (
-              <>
+          </span>
+        ) : (
+          <EinLink
+            href={openHref}
+            className={styles.itemNumber}
+            aria-label={`${t('journalpost.label')} ${journalpost.journalpostnummer}`}
+          >
+            <span className={styles.numberBadge}>
+              {journalpost.journalpostnummer}
+            </span>
+          </EinLink>
+        )}
+        <div className={styles.itemBody}>
+          {/* The closed and open states are two crossfading faces. Each carries
+              its OWN title, so the whole content — title included — fades out/in
+              (the title isn't morphed; it crossfades small→large). The active
+              face is in flow and sets the eased box height; the inactive one is
+              an absolute overlay, faded out. Both show the same data, so they
+              never read as duplicated. */}
+          <div
+            className={styles.bodySwap}
+            style={
+              bodyHeight != null ? { height: `${bodyHeight}px` } : undefined
+            }
+          >
+            <div
+              ref={summaryFaceRef}
+              className={cn(styles.face, styles.summaryFace)}
+              inert={selected || undefined}
+            >
+              {/* Closed title: its text is a link that opens the row. */}
+              <h3 className={styles.itemTitle}>
+                <EinLink href={openHref}>{journalpost.offentligTittel}</EinLink>
+              </h3>
+              <div className={styles.itemMeta}>
+                <span>{t(`searchFilters.journalpostTypes.${kind}`)}</span>
                 <span aria-hidden="true" className={styles.metaSeparator}>
                   —
                 </span>
-                <span>
-                  {t('common.updatedAt')}{' '}
-                  {dateFormat(journalpost.oppdatertDato, languageCode)}
-                </span>
-              </>
-            )}
-        </div>
-        <Korrespondansepart
-          journalpost={journalpost}
-          owner={ownerEnhetName}
-          className={styles.itemKorr}
-        />
-        <div className={styles.itemFooter}>
-          {attachmentCount > 0 && (
-            <span className={styles.attachmentBadge}>
-              <PaperclipIcon
-                aria-hidden="true"
-                className={styles.attachmentIcon}
+                {journalpost.publisertDato && (
+                  <span>
+                    {t('common.publishedAt')}{' '}
+                    {dateFormat(journalpost.publisertDato, languageCode)}
+                  </span>
+                )}
+                {journalpost.oppdatertDato &&
+                  journalpost.oppdatertDato !== journalpost.publisertDato && (
+                    <>
+                      <span aria-hidden="true" className={styles.metaSeparator}>
+                        —
+                      </span>
+                      <span>
+                        {t('common.updatedAt')}{' '}
+                        {dateFormat(journalpost.oppdatertDato, languageCode)}
+                      </span>
+                    </>
+                  )}
+              </div>
+              <Korrespondansepart
+                journalpost={journalpost}
+                owner={ownerEnhetName}
+                className={styles.itemKorr}
               />
-              <span>
-                {t('journalpost.attachmentCount', String(attachmentCount))}
-              </span>
-            </span>
-          )}
+              <div className={styles.itemFooter}>
+                {attachmentCount > 0 && (
+                  <span className={styles.attachmentBadge}>
+                    <PaperclipIcon
+                      aria-hidden="true"
+                      className={styles.attachmentIcon}
+                    />
+                    <span>
+                      {t(
+                        'journalpost.attachmentCount',
+                        String(attachmentCount),
+                      )}
+                    </span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Always mounted (empty until first opened) so its opacity can
+                transition in on open. */}
+            <div
+              ref={detailFaceRef}
+              className={cn(styles.face, styles.detailFace)}
+              inert={!selected || undefined}
+            >
+              {/* Open title: a plain heading (the top-right close button
+                  collapses the row). */}
+              <h3 className={styles.itemTitle}>
+                {journalpost.offentligTittel}
+              </h3>
+              {selected ? detail : lastDetailRef.current}
+            </div>
+          </div>
         </div>
+
+        {/* Explicit close (top-right) when the row is open — the title itself is
+            no longer a link. */}
+        {selected && (
+          <EinLink
+            href={closeHref}
+            className={cn(styles.iconButton, styles.closeAction)}
+            aria-label={t('common.close')}
+          >
+            <XMarkIcon aria-hidden="true" />
+          </EinLink>
+        )}
       </div>
     </div>
   );

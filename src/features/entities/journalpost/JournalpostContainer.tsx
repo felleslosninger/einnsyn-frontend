@@ -12,6 +12,7 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { generateFileUrl } from '~/lib/utils/urlGenerators';
 import styles from './JournalpostContainer.module.scss';
@@ -19,9 +20,14 @@ import styles from './JournalpostContainer.module.scss';
 export default function JournalpostContainer({
   journalpost,
   documentsPending = false,
+  inline = false,
 }: {
   journalpost: Journalpost | null;
   documentsPending?: boolean;
+  // Rendered inside a journalpost list row, which already supplies the title.
+  // Drop the heading (avoids duplicating it) and the horizontal inset so the
+  // content aligns with the row title.
+  inline?: boolean;
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
@@ -76,10 +82,12 @@ export default function JournalpostContainer({
   const typeLabel = t(`journalpost.type.${journalpost.journalposttype}`);
 
   return (
-    <article className={styles.content}>
-      <div className={styles.heading}>
-        <h2 className={styles.title}>{journalpost.offentligTittel}</h2>
-      </div>
+    <article className={cn(styles.content, { [styles.inline]: inline })}>
+      {!inline && (
+        <div className={styles.heading}>
+          <h2 className={styles.title}>{journalpost.offentligTittel}</h2>
+        </div>
+      )}
 
       <dl className={styles.fields}>
         <Field label={t('journalpost.recordType')}>

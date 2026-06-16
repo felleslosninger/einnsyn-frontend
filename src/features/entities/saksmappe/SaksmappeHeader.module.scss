@@ -1,17 +1,42 @@
 @use "../../../styles/mediaQueries" as mq;
+@use "../../../styles/effects" as fx;
 
 .saksmappeHeader {
-  margin: calc(var(--ein-horizontal-spacing)*1.5) 0;
+  margin: var(--ein-horizontal-spacing) 0;
+  transition: margin 0.2s fx.$easeOut;
+
+  // When the site header collapses on scroll-down, tighten the bottom gap so the
+  // minimized bar is just breadcrumb + one-line title.
+  :global(.header-minimized) & {
+    margin: var(--ds-size-2) 0;
+  }
 }
 
 .body {
+  // Single column by default (mobile/medium); two columns (main | enhet) on
+  // large. When minimized on large the enhet column shrinks to nothing, handing
+  // its width to the title column so the title reflows from two lines to one as
+  // it gains room (rather than snapping line counts). These animate: they only
+  // change the FIXED header's internal layout, so they don't reflow the document
+  // (the spacer + detail max-height are frozen).
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--ein-vertical-spacing);
   align-items: start;
+  transition:
+    grid-template-columns 0.2s fx.$easeOut,
+    gap 0.2s fx.$easeOut;
 
-  @include mq.small-and-medium {
-    grid-template-columns: minmax(0, 1fr);
+  :global(.header-minimized) & {
+    gap: 0;
+  }
+
+  @include mq.large {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+
+    :global(.header-minimized) & {
+      grid-template-columns: minmax(0, 1fr) minmax(0px, 0px);
+    }
   }
 }
 
@@ -19,6 +44,54 @@
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-3);
+  transition: gap 0.2s fx.$easeOut;
+
+  // Close the inter-row gaps as the kind row / meta group collapse, so the
+  // surviving one-line title isn't padded by their (zero-height) tracks.
+  :global(.header-minimized) & {
+    gap: 0;
+  }
+}
+
+// Wrapper around the meta row + follow link so a single element collapses
+// (matching the kind row and enhet card) rather than three loose siblings.
+.metaAndFollow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+}
+
+// Smoothly collapses its single child to zero height. Animating
+// `grid-template-rows` from 1fr to 0fr DOES ease (unlike height: auto -> 0); the
+// child clips via overflow:hidden + min-height:0. Used for the kind row and the
+// meta/follow group (the enhet card collapses the same way — see .enhetCard).
+// Now that the fixed header's spacer and the detail pane's max-height are frozen
+// (stable), animating the header's internal height no longer reflows the
+// document, so the collapse can ease instead of snap.
+.collapseRow {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows 0.2s fx.$easeOut,
+    opacity 0.2s fx.$easeOut;
+
+  >* {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  :global(.header-minimized) & {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    // Defer visibility:hidden to the end of the collapse so the contained links
+    // leave the focus order only once hidden (not mid-animation).
+    transition:
+      grid-template-rows 0.2s fx.$easeOut,
+      opacity 0.2s fx.$easeOut,
+      visibility 0s linear 0.2s;
+  }
 }
 
 .kindRow {
@@ -51,6 +124,15 @@
 .title {
   margin: 0;
   line-height: 1.15;
+  transition: font-size 0.2s fx.$easeOut;
+
+  // Stays visible when minimized at a smaller step. No forced single-line clamp:
+  // as the enhet column shrinks the title column grows, so the title reflows
+  // from two lines to one gradually (driven by the growing width + smaller font)
+  // instead of snapping between line counts.
+  :global(.header-minimized) & {
+    font-size: var(--ds-font-size-6);
+  }
 }
 
 .metaRow {
@@ -82,7 +164,6 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ds-size-2);
-  margin-top: var(--ds-size-1);
   font-size: var(--ds-font-size-3, 0.875rem);
   width: fit-content;
 
@@ -95,6 +176,33 @@
   align-self: start;
   border-left: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   padding-left: var(--ein-vertical-spacing);
+  // Collapses its height like .collapseRow (grid-rows 1fr -> 0fr) while its grid
+  // COLUMN shrinks to nothing (see .body @large), so it shrinks away in both
+  // dimensions and frees the title's width.
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows 0.2s fx.$easeOut,
+    opacity 0.2s fx.$easeOut,
+    padding 0.2s fx.$easeOut;
+
+  >* {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  :global(.header-minimized) & {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    padding-block: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      grid-template-rows 0.2s fx.$easeOut,
+      opacity 0.2s fx.$easeOut,
+      padding 0.2s fx.$easeOut,
+      visibility 0s linear 0.2s;
+  }
 }
 
 .enhetCardHeading {
