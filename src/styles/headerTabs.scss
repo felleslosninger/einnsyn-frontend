@@ -1,6 +1,6 @@
 .header-tabs {
   position: relative;
-  margin-left: calc(-1 * var(--ds-size-5));
+  margin-left: calc(-1 * var(--ds-size-2));
   margin-right: calc(-1 * var(--ds-size-5));
   padding-top: var(--ds-size-4);
   display: flex;
@@ -18,6 +18,10 @@
   border-bottom: 3px solid transparent;
   line-height: var(--ds-line-height-sm);
   white-space: nowrap;
+
+  &:first-child {
+    padding-left: var(--ds-size-3);
+  }
 
   &.active {
     color: var(--ds-color-neutral-text-default);
