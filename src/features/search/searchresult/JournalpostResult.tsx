@@ -13,8 +13,9 @@ function getFirstDocumentUrl(item: Journalpost): string | null {
     if (typeof dok === 'string') continue;
     for (const obj of dok.dokumentobjekt ?? []) {
       if (typeof obj === 'string') continue;
-      if (obj.url)
-        return `/api/v2/fil?iri=${encodeURIComponent(obj.referanseDokumentfil)}`;
+      if (!obj.url) continue;
+      const iri = obj.referanseDokumentfil || obj.id;
+      return `/fil?iri=${encodeURIComponent(iri)}`;
     }
   }
   return null;
