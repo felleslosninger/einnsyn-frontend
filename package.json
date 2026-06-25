@@ -14,7 +14,7 @@
     "test": "node --test --import=tsx"
   },
   "dependencies": {
-    "@digdir/designsystemet-css": "^1.16.0",
+    "@digdir/designsystemet-css": "^1.16.1",
     "@digdir/designsystemet-react": "^1.16.0",
     "@digdir/einnsyn-sdk": "^1.3.1",
     "@navikt/aksel-icons": "^8.13.0",
