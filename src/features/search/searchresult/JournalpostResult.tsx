@@ -4,6 +4,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { generateJournalpostURL } from '~/lib/utils/urlGenerators';
 import EnhetLink from './common/EnhetLink';
 import SaksmappeLink from './common/SaksmappeLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
@@ -19,7 +20,10 @@ export default function JournalpostResult({
 
   return (
     <div className={cn(className, 'search-result', 'journalpost-result')}>
-      <EinLink href="">
+      <EinLink
+        className={'journalpost-link'}
+        href={generateJournalpostURL(item)}
+      >
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className="ds-paragraph" data-size="sm">

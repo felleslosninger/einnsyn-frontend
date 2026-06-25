@@ -95,6 +95,7 @@
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavle",
     "copiedToClipboard": "Kopiert til utklippstavle",
+    "title": "Tittel",
     "apply": "Bruk",
     "clear": "Nullstill",
     "filter": "Filter",
@@ -114,6 +115,19 @@
     "label": "Journalpost",
     "labelPlural": "Journalposter",
     "pathName": "journalpost",
+    "connectedToCase": "Tilknyttet sak",
+    "goToCase": "Til saken",
+    "docNumber": "Doknr.",
+    "from": "Fra",
+    "to": "Til",
+    "fromTo": "Fra/til",
+    "docDate": "Dokumentdato",
+    "recordDate": "Journaldato",
+    "pubDate": "Publiseringsdato",
+    "legalBasis": "Hjemmel",
+    "attachmentPlural": "Vedlegg",
+    "notPublished": "Ikke publisert",
+    "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",
@@ -192,5 +206,12 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelighetserklæring",
     "github": "eInnsyn på Github"
+  },
+  "virksomhet": {
+    "label": "Verksemd",
+    "navn": "navn",
+    "telefon": "telefon",
+    "adresse": "adresse",
+    "epost": "e-post"
   }
 }
