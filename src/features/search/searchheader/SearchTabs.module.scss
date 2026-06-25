@@ -2,6 +2,7 @@
   position: relative;
   display: flex;
   align-items: baseline;
+  overflow: scroll;
 }
 
 .searchTabs,
@@ -22,7 +23,7 @@
 
 .searchFilter {
   width: 100%;
-  margin-right: calc(-1 * var(--ds-size-1)); // Visually align with search field
+  margin-right: calc(var(--ds-size-1)); // Visually align with search field
   justify-content: flex-end;
   margin-top: auto;
   margin-bottom: auto;
