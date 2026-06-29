@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
     "test": "node --test --import=tsx"
   },
   "dependencies": {
