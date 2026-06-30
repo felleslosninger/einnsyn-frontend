@@ -1,4 +1,4 @@
-import type { Saksmappe } from '@digdir/einnsyn-sdk';
+import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -27,6 +27,13 @@ export default function SaksmappeResult({
 }) {
   const translate = useTranslation();
   const saksmappeHref = getSaksmappeHref(item);
+
+  const enhet = item.administrativEnhetObjekt;
+
+  if (!isEnhet(enhet)) {
+    return null;
+  }
+
   return (
     <div className={cn(className, 'search-result', 'saksmappe-result')}>
       <EinLink href={saksmappeHref}>
@@ -52,7 +59,7 @@ export default function SaksmappeResult({
             focusable="false"
             fontSize="1.5rem"
           />
-          {item.administrativEnhet}
+          {enhet.navn}
         </div>
       </div>
     </div>

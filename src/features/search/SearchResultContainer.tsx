@@ -96,10 +96,11 @@ export default function SearchResultContainer({
                 </EinScrollTrigger>
               )}
             </div>
-            {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
           </div>
         </div>
-        <div className="container-post" />
+        <div className="container-post">
+          {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
+        </div>
       </div>
     </EinTransition>
   );
