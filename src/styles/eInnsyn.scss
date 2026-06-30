@@ -91,13 +91,13 @@ body {
 
   @include mq.small {
     flex-wrap: wrap;
-    padding-left: var(--ds-size-4);  // reduce outer edge spacing on mobile
+    padding-left: var(--ds-size-4);
     padding-right: var(--ds-size-4);
 
     >.container-pre,
     >.container-post,
     >.container {
-      padding-left: 0;  // wrapper already provides the edge spacing – no double padding
+      padding-left: 0;
       padding-right: 0;
     }
 
@@ -108,11 +108,11 @@ body {
 
     >.container {
       width: 100%;
-      min-width: 0; // override desktop min-width: 400px – prevents overflow on narrow screens
+      min-width: 320;
     }
 
     >.container-post {
-      min-width: 0; // override desktop min-width: 200px – allows flex layout to shrink freely
+      min-width: 0;
     }
 
     >.container-pre {

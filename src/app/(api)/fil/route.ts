@@ -10,16 +10,15 @@ export async function GET(request: NextRequest) {
   const auth = await getAuth();
   const headers: HeadersInit = {};
   if (auth?.accessToken) {
-    headers['Authorization'] = `BEARER ${auth.accessToken}`;
+    headers.Authorization = `BEARER ${auth.accessToken}`;
   }
 
   const filBaseUrl =
     process.env.FIL_BASE_URL ?? `${process.env.API_URL}/v2/fil`;
 
-  const upstream = await fetch(
-    `${filBaseUrl}?iri=${encodeURIComponent(iri)}`,
-    { headers },
-  );
+  const upstream = await fetch(`${filBaseUrl}?iri=${encodeURIComponent(iri)}`, {
+    headers,
+  });
 
   if (!upstream.ok) {
     return new Response(upstream.statusText, { status: upstream.status });

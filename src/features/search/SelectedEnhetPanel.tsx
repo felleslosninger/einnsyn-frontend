@@ -1,13 +1,13 @@
 'use client';
 
+import { Details, Heading } from '@digdir/designsystemet-react';
 import type { Enhet } from '@digdir/einnsyn-sdk';
+import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useEffect, useState } from 'react';
 import { getEnhetInfo } from '~/actions/api/enhet';
+import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './SelectedEnhetPanel.module.scss';
-import { Card, Details, Heading } from '@digdir/designsystemet-react';
-import { Buildings3Icon } from '@navikt/aksel-icons';
-import { EinLink } from '~/components/EinLink/EinLink';
 
 function EnhetCard({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();

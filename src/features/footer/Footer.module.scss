@@ -10,7 +10,7 @@
 
   nav {
     display: flex;
-    flex-wrap: wrap; // allow links to stack on narrow screens (WCAG 1.4.10)
+    flex-wrap: wrap;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     padding: var(--ds-size-4) 0;
   }

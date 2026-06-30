@@ -5,7 +5,6 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import SaksmappeLink from './common/SaksmappeLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 function getFirstDocumentUrl(item: Journalpost): string | null {
