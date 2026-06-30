@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { getEnhetInfo } from '~/actions/api/enhet';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './SelectedEnhetPanel.module.scss';
-import { Heading } from '@digdir/designsystemet-react';
+import { Card, Details, Heading } from '@digdir/designsystemet-react';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 
@@ -37,6 +37,8 @@ function EnhetCard({ enhet }: { enhet: Enhet }) {
   );
 }
 
+const SMALL_SCREEN_QUERY = '(max-width: 767px)';
+
 export default function SelectedEnheterPanel({
   enhetIds,
 }: {
@@ -44,13 +46,40 @@ export default function SelectedEnheterPanel({
 }) {
   const t = useTranslation();
   const [enheter, setEnheter] = useState<Enhet[]>([]);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
     if (!enhetIds.length) return;
     getEnhetInfo(enhetIds).then(setEnheter);
   }, [enhetIds]);
 
+  useEffect(() => {
+    const mq = window.matchMedia(SMALL_SCREEN_QUERY);
+    setIsSmallScreen(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   if (!enheter.length) return null;
+
+  if (isSmallScreen) {
+    return (
+      <Details className={styles.details} data-color="neutral" data-size="sm">
+        <Details.Summary>
+          <Heading level={4} data-size="sm" className={styles.detailsheading}>
+            <Buildings3Icon />
+            {t('search.selectedEnheter')}
+          </Heading>
+        </Details.Summary>
+        <Details.Content>
+          {enheter.map((enhet) => (
+            <EnhetCard key={enhet.id} enhet={enhet} />
+          ))}
+        </Details.Content>
+      </Details>
+    );
+  }
 
   return (
     <aside className={styles.panel}>

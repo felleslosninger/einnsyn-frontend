@@ -55,7 +55,7 @@ export default async function Layout({
     <html lang={settings.language}>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* viewport is set via `export const viewport` above – no manual meta needed */}
       </head>
       <NavigationProvider>
         <SessionDataProvider

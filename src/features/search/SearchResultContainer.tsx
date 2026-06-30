@@ -16,6 +16,7 @@ import styles from './SearchResultContainer.module.scss';
 import SearchResult from './searchresult/SearchResult';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
+import { Buildings3Icon } from '@navikt/aksel-icons';
 
 export default function SearchResultContainer({
   searchResults,

@@ -1,3 +1,18 @@
+@use '../../../styles/mediaQueries.scss' as mq;
+
+@include mq.small {
+
+  // At small screens container-post flips above the main container.
+  // Hide the empty collapsible pre-column and give post the full width.
+  .container-wrapper>.container-pre.collapsible {
+    display: none;
+  }
+
+  .container-wrapper>.container-post {
+    width: 100%;
+  }
+}
+
 .search-results {
   padding-top: var(--ds-size-4);
 }
@@ -22,7 +37,7 @@
     width: 100%;
     color: var(--ds-color-text-subtle);
     font-family: var(--ds-font-family);
-    font-size: 21px;
+    font-size: 1.3125rem; // 21px in rem – scales with browser text zoom (WCAG 1.4.4)
     font-style: normal;
     font-weight: 500;
     line-height: 150%;
@@ -72,11 +87,10 @@
 
   color: var(--ds-color-text-default);
   font-family: var(--ds-font-family);
-  font-size: 16px;
+  font-size: 1rem; // 16px in rem – scales with browser text zoom (WCAG 1.4.4)
   font-style: normal;
   font-weight: 400;
-  line-height: 16px;
-  /* 100% */
+  line-height: 1.5; // unitless – stays proportional at any text size (WCAG 1.4.4)
   letter-spacing: 0.024px;
 
 
@@ -118,7 +132,7 @@
   gap: var(--ds-size-1);
   color: var(--ds-color-text-default);
   font-family: var(--ds-font-family);
-  font-size: 16px;
+  font-size: 1rem;
   font-style: normal;
   font-weight: 400;
   line-height: 160%;
@@ -135,21 +149,30 @@
 
 .search-result-correspondence {
   display: flex;
+  flex-wrap: wrap; // stack the two groups on narrow screens
   align-items: center;
-  gap: var(--ds-size-1);
+  gap: var(--ds-size-2);
   color: var(--ds-color-text-default);
 
   .correspondence-icon {
     width: 19.5px;
     height: 19.5px;
+    flex-shrink: 0;
   }
 
   .correspondence-enhet {
-    margin-right: var(--ds-size-2);
+    white-space: nowrap;
+  }
+
+  .correspondence-to {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-size-1);
+    flex-wrap: wrap;
   }
 
   .correspondence-label {
-    margin: 0 var(--ds-size-1);
+    white-space: nowrap;
   }
 }
 
@@ -171,7 +194,7 @@
   }
 }
 
-.container-wrapper > .container-post {
+.container-wrapper>.container-post {
   justify-content: flex-start;
   text-align: left;
 }

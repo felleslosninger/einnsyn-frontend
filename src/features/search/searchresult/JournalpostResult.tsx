@@ -135,8 +135,10 @@ function JournalpostCorrespondence({
         focusable="false"
       />
       <span className="correspondence-enhet">{enhet.navn}</span>
-      <span className="correspondence-label">{directionLabel}:</span>
-      <span className="correspondence-party">{party}</span>
+      <span className="correspondence-to">
+        <span className="correspondence-label">{directionLabel}:</span>
+        <span className="correspondence-party">{party}</span>
+      </span>
     </div>
   );
 }

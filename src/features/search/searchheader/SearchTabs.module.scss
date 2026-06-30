@@ -2,7 +2,8 @@
   position: relative;
   display: flex;
   align-items: baseline;
-  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .searchTabs,
