@@ -1,5 +1,5 @@
 import '@digdir/designsystemet-css';
-import '@digdir/designsystemet-theme';
+import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
@@ -55,7 +55,7 @@ export default async function Layout({
     <html lang={settings.language}>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* viewport is set via `export const viewport` above – no manual meta needed */}
       </head>
       <NavigationProvider>
         <SessionDataProvider

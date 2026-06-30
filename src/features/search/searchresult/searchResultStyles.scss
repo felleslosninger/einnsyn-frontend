@@ -1,38 +1,200 @@
-.search-result {
-  padding: 0 0 var(--ein-horizontal-spacing) 0;
-  width: 100%;
+@use '../../../styles/mediaQueries.scss' as mq;
 
-  > a {
-    display: inline-block;
-    max-width: 100%;
+@include mq.small {
+
+  // At small screens container-post flips above the main container.
+  // Hide the empty collapsible pre-column and give post the full width.
+  .container-wrapper>.container-pre.collapsible {
+    display: none;
+  }
+
+  .container-wrapper>.container-post {
+    width: 100%;
+  }
+}
+
+.search-results {
+  padding-top: var(--ds-size-4);
+}
+
+.search-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: var(--ds-size-13);
+
+  >a {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+
+    :hover {
+      text-decoration: underline;
+    }
   }
 
   h2 {
-    max-width: 100%;
-    position: relative;
+    width: 100%;
+    color: var(--ds-color-text-subtle);
+    font-family: var(--ds-font-family);
+    font-size: 1.3125rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+}
 
-  .journalpost-enhet {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    svg {
-      font-size: 1.5rem;
-    }
-  }
+.search-result-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  padding-top: var(--ds-size-4);
+}
+
+.search-result-dot {
+  display: inline-block;
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+}
+
+.search-result-dot--saksmappe {
+  background: var(--ds-color-support-color-3-base-primary);
+}
+
+.search-result-dot--journalpost {
+  background: var(--ds-color-support-color-4-base-primary);
+}
+
+.search-result-dot--moetemappe {
+  background: var(--ds-color-brand2-base-primary);
+}
+
+.search-result-dot--moetesak {
+  background: var(--ds-color-support-color-5-base-primary);
 }
 
 .search-result-subheader {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  gap: var(--ds-size-3);
 
-  .search-result-icon {
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-family);
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.024px;
+
+
+  .search-result-dot {
+    margin-right: -5px;
+  }
+
+  .search-result-type {
+    letter-spacing: 0.04em;
+  }
+
+  .search-result-number {
+    letter-spacing: 1.12px;
+    text-decoration: none;
+
+    a {
+      text-decoration: none;
+      color: var(--ds-color-text-default);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+
+  }
+
+  .search-result-meta {
     display: flex;
     align-items: center;
-    line-height: 1;
+    flex-wrap: wrap;
+    gap: var(--ds-size-2) var(--ds-size-5);
   }
+}
+
+.search-result-enhet {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-family);
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 160%;
+  letter-spacing: 0.024px;
+  gap: var(--ds-size-3);
+
+  svg {
+    flex: none;
+    width: 19.5px;
+    height: 19.5px;
+    margin-right: -8px;
+  }
+}
+
+.search-result-correspondence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-2);
+  color: var(--ds-color-text-default);
+
+  .correspondence-icon {
+    width: 19.5px;
+    height: 19.5px;
+    flex-shrink: 0;
+  }
+
+  .correspondence-enhet {
+    white-space: nowrap;
+  }
+
+  .correspondence-to {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-size-1);
+    flex-wrap: wrap;
+  }
+
+  .correspondence-label {
+    white-space: nowrap;
+  }
+}
+
+.search-result-action {
+  white-space: normal;
+  cursor: pointer;
+  text-underline-offset: .27em;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  width: fit-content;
+  text-decoration: none;
+  color: var(--ds-color-text-subtle);
+  padding-top: var(--ds-size-2);
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
+.container-wrapper>.container-post {
+  justify-content: flex-start;
+  text-align: left;
 }

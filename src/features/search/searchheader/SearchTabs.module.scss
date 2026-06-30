@@ -1,6 +1,9 @@
 .tabsContainer {
   position: relative;
   display: flex;
+  align-items: baseline;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .searchTabs,
@@ -9,8 +12,20 @@
   align-items: center;
 }
 
+.searchTab {
+  display: inline;
+}
+
+.tabInner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
 .searchFilter {
   width: 100%;
-  margin-right: calc(-1 * var(--ds-size-1)); // Visually align with search field
+  margin-right: calc(var(--ds-size-1)); // Visually align with search field
   justify-content: flex-end;
+  margin-top: auto;
+  margin-bottom: auto;
 }

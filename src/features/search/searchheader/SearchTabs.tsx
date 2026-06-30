@@ -48,25 +48,58 @@ export default function SearchTabs({ className }: { className?: string }) {
           className={getLinkClassName('Saksmappe')}
           href={getLinkUrl('Saksmappe')}
         >
-          {t('saksmappe.labelPlural')}
+          <span className={styles.tabInner}>
+            <span
+              className={cn(
+                'search-result-dot',
+                'search-result-dot--saksmappe',
+              )}
+              aria-hidden="true"
+            />
+            {t('saksmappe.labelPlural')}
+          </span>
         </EinLink>
         <EinLink
           className={getLinkClassName('Journalpost')}
           href={getLinkUrl('Journalpost')}
         >
-          {t('journalpost.labelPlural')}
+          <span className={styles.tabInner}>
+            <span
+              className={cn(
+                'search-result-dot',
+                'search-result-dot--journalpost',
+              )}
+              aria-hidden="true"
+            />
+            {t('journalpost.labelPlural')}
+          </span>
         </EinLink>
         <EinLink
           className={getLinkClassName('Moetemappe')}
           href={getLinkUrl('Moetemappe')}
         >
-          {t('moetemappe.labelPlural')}
+          <span className={styles.tabInner}>
+            <span
+              className={cn(
+                'search-result-dot',
+                'search-result-dot--moetemappe',
+              )}
+              aria-hidden="true"
+            />
+            {t('moetemappe.labelPlural')}
+          </span>
         </EinLink>
         <EinLink
           className={getLinkClassName('Moetesak')}
           href={getLinkUrl('Moetesak')}
         >
-          {t('moetesak.labelPlural')}
+          <span className={styles.tabInner}>
+            <span
+              className={cn('search-result-dot', 'search-result-dot--moetesak')}
+              aria-hidden="true"
+            />
+            {t('moetesak.labelPlural')}
+          </span>
         </EinLink>
       </div>
 

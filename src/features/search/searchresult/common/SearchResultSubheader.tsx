@@ -1,76 +1,54 @@
-import {
-  isEnhet,
-  type Journalpost,
-  type Moetemappe,
-  type Moetesak,
-  type Saksmappe,
+import type {
+  Journalpost,
+  Moetemappe,
+  Moetesak,
+  Saksmappe,
 } from '@digdir/einnsyn-sdk';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { capitalize } from '~/lib/utils/stringutils';
-import EnhetLink from './EnhetLink';
+
+export type SearchResultVariant =
+  | 'saksmappe'
+  | 'journalpost'
+  | 'moetemappe'
+  | 'moetesak';
 
 export default function SearchResultSubheader({
-  icon,
+  variant,
   label,
   item,
+  children,
 }: {
-  icon?: React.ReactNode;
+  variant: SearchResultVariant;
   label: string;
-  item: Journalpost | Saksmappe | Moetesak | Moetemappe | string | undefined;
+  item: Journalpost | Saksmappe | Moetesak | Moetemappe;
+  children?: React.ReactNode;
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-
-  if (item === undefined || typeof item === 'string') {
-    return null;
-  }
 
   const publishedDate = item.publisertDato
     ? dateFormat(item.publisertDato, languageCode)
     : undefined;
 
-  const updatedDate = item.oppdatertDato
-    ? dateFormat(item.oppdatertDato, languageCode)
-    : undefined;
-
-  const journalenhet = item.journalenhet;
-
   return (
     <div className="search-result-subheader">
-      {icon && <span className="search-result-icon">{icon}</span>}
+      <span
+        className={cn('search-result-dot', `search-result-dot--${variant}`)}
+        aria-hidden="true"
+      />
       <span className="search-result-type">{capitalize(label)}</span>
-      {publishedDate && (
-        <>
-          <span className="spacer"> &ndash; </span>
+      <span className="search-result-meta">
+        {children}
+        {publishedDate && (
           <span className="search-result-published-date">
-            {capitalize(t('common.publishedAt'))}&nbsp;
-            {publishedDate}
+            {capitalize(t('common.publishedAt'))} {publishedDate}
           </span>
-        </>
-      )}
-      {updatedDate && updatedDate !== publishedDate && (
-        <>
-          <span className="spacer"> &ndash; </span>
-          <span className="search-result-updated-date">
-            {capitalize(t('common.updatedAt'))}&nbsp;
-            {updatedDate}
-          </span>
-        </>
-      )}
-      {journalenhet && isEnhet(journalenhet) && (
-        <>
-          <span className="spacer"> &ndash; </span>
-          <span className="search-result-enhet">
-            <EnhetLink
-              enhet={journalenhet}
-              withAncestors={false}
-              className="search-result-enhet-link"
-            />
-          </span>
-        </>
-      )}
+        )}
+      </span>
     </div>
   );
 }

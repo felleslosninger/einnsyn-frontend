@@ -16,6 +16,18 @@ import {
 
 type Journalposttype = FilterParameters['journalposttype'];
 
+const SORT_MAP: Record<
+  string,
+  { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' }
+> = {
+  publisertDatoDesc: { sortBy: 'publisertDato', sortOrder: 'desc' },
+  publisertDatoAsc: { sortBy: 'publisertDato', sortOrder: 'asc' },
+  oppdatertDatoDesc: { sortBy: 'oppdatertDato', sortOrder: 'desc' },
+  oppdatertDatoAsc: { sortBy: 'oppdatertDato', sortOrder: 'asc' },
+  offentligTittelAsc: { sortBy: 'tittel', sortOrder: 'asc' },
+  offentligTittelDesc: { sortBy: 'tittel', sortOrder: 'desc' },
+};
+
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
     items: [],
@@ -151,9 +163,15 @@ export const getSearchResults = async (
     logger.debug('Search API query', apiQuery);
   }
 
+  const sortParam = searchParams.get('sort') ?? 'publisertDatoDesc';
+  const sortConfig = SORT_MAP[sortParam] ?? SORT_MAP.publisertDatoDesc;
+  apiQuery.sortBy = sortConfig.sortBy;
+  apiQuery.sortOrder = sortConfig.sortOrder;
+
   try {
     apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent',
+      'utvalgObjekt.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',
