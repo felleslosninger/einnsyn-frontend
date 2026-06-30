@@ -3,7 +3,6 @@ import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import EnhetLink from './common/EnhetLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetesakResult({

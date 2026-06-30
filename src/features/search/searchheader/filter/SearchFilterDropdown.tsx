@@ -1,5 +1,6 @@
 'use client';
 
+import { FilterIcon } from '@navikt/aksel-icons';
 import { useCallback, useMemo } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
@@ -9,7 +10,6 @@ import { BooleanFilter } from './BooleanFilter';
 import { DateFilter } from './DateFilter';
 import { EnumFilter } from './EnumFilter';
 import styles from './SearchFilterDropdown.module.scss';
-import { FilterIcon } from '@navikt/aksel-icons';
 
 /**
  * SearchFilterDropdown Component

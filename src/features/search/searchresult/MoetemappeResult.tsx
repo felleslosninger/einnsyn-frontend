@@ -1,11 +1,10 @@
-import { isEnhet, type Moetemappe } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon, CalendarIcon } from '@navikt/aksel-icons';
+import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import EnhetLink from './common/EnhetLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetemappeResult({

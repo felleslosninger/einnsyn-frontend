@@ -164,7 +164,7 @@ export const getSearchResults = async (
   }
 
   const sortParam = searchParams.get('sort') ?? 'publisertDatoDesc';
-  const sortConfig = SORT_MAP[sortParam] ?? SORT_MAP['publisertDatoDesc'];
+  const sortConfig = SORT_MAP[sortParam] ?? SORT_MAP.publisertDatoDesc;
   apiQuery.sortBy = sortConfig.sortBy;
   apiQuery.sortOrder = sortConfig.sortOrder;
 
