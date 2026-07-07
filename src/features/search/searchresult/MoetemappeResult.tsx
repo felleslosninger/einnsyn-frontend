@@ -57,9 +57,10 @@ export default function MoetemappeResult({
           <span>-</span>
           <span>{item.utvalg}</span>
         </div>
+        {/* TODO: implement add to calendar functionality
         <EinLink href="" className="search-result-action">
           {translate('search.addToCalendar')}
-        </EinLink>
+        </EinLink> */}
       </div>
     </div>
   );

@@ -83,11 +83,13 @@ export default function JournalpostResult({
           >
             {translate('search.openDocument')}
           </a>
+        ) : null}
+        {/* TODO: Implement order access functionality
         ) : (
           <EinLink href="" className="search-result-action">
             {translate('search.orderAccess')}
           </EinLink>
-        )}
+        )} */}
       </div>
     </div>
   );

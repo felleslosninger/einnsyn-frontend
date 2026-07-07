@@ -49,6 +49,7 @@ export default function SelectedEnheterPanel({
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const enhetIdsKey = enhetIds.join('|');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey is an intentional stable proxy for enhetIds to avoid re-running on every new array reference
   useEffect(() => {
     if (!enhetIds.length) return;
     getEnhetInfo(enhetIds).then(setEnheter);

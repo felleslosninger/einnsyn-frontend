@@ -26,6 +26,8 @@ const SORT_MAP: Record<
   oppdatertDatoAsc: { sortBy: 'oppdatertDato', sortOrder: 'asc' },
   offentligTittelAsc: { sortBy: 'tittel', sortOrder: 'asc' },
   offentligTittelDesc: { sortBy: 'tittel', sortOrder: 'desc' },
+  enhetAsc: { sortBy: 'administrativEnhetNavn', sortOrder: 'asc' },
+  enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
