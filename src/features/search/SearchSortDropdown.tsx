@@ -30,9 +30,11 @@ export default function SearchSortDropdown() {
   const searchParams = useOptimisticSearchParams();
   const pathname = useOptimisticPathname();
 
-  const currentSort =
-    (searchParams?.get('sort') as SortOption | null) ?? DEFAULT_SORT;
-
+  const sortParam = searchParams?.get('sort');
+  const currentSort: SortOption =
+    sortParam && SORT_OPTIONS.includes(sortParam as SortOption)
+      ? (sortParam as SortOption)
+      : DEFAULT_SORT;
   const getSortUrl = (sortKey: SortOption) => {
     const p = new URLSearchParams(searchParams ?? undefined);
     p.set('sort', sortKey);

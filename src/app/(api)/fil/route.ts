@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const auth = await getAuth();
   const headers: HeadersInit = {};
   if (auth?.accessToken) {
-    headers.Authorization = `BEARER ${auth.accessToken}`;
+    headers.Authorization = `Bearer ${auth.accessToken}`;
   }
 
   const filBaseUrl =

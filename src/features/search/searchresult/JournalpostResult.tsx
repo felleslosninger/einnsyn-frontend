@@ -47,16 +47,20 @@ export default function JournalpostResult({
           item={item}
           label={translate('journalpost.label')}
         >
-          {item.journalpostnummer != null && (
-            <span className="search-result-number">
-              {translate('common.number')}{' '}
-              {typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer
+          {(() => {
+            const saksnummer =
+              typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer
                 ? item.saksmappe.saksnummer
                 : typeof item.saksmappe === 'string'
                   ? item.saksmappe
-                  : null}
-            </span>
-          )}
+                  : null;
+
+            return saksnummer ? (
+              <span className="search-result-number">
+                {translate('common.number')} {saksnummer}
+              </span>
+            ) : null;
+          })()}
 
           {item.journalposttype && (
             <span className="search-result-doctype">

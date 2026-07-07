@@ -15,6 +15,7 @@ import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
+import './searchresult/searchResultStyles.scss';
 import SearchResult from './searchresult/SearchResult';
 
 export default function SearchResultContainer({

@@ -47,12 +47,12 @@ export default function SelectedEnheterPanel({
   const t = useTranslation();
   const [enheter, setEnheter] = useState<Enhet[]>([]);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const enhetIdsKey = enhetIds.join('|');
 
   useEffect(() => {
     if (!enhetIds.length) return;
     getEnhetInfo(enhetIds).then(setEnheter);
-  }, [enhetIds]);
-
+  }, [enhetIdsKey]);
   useEffect(() => {
     const mq = window.matchMedia(SMALL_SCREEN_QUERY);
     setIsSmallScreen(mq.matches);
