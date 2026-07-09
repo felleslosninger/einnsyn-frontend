@@ -243,26 +243,17 @@ export default function MonthView({
     });
   }, [months]);
 
-  // Initial scroll to selectedDate (deferred via rAF so it runs after all
-  // sibling/parent effects and layout).
+  // Initial scroll to selectedDate.
+  // Deferred via rAF so it runs after all sibling/parent effects and layout.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useEffect(() => {
     if (!needsInitialScrollRef.current) return;
+    if (isLoading) return;
     const id = requestAnimationFrame(() => {
       if (scrollToDate(selectedDate)) needsInitialScrollRef.current = false;
     });
     return () => cancelAnimationFrame(id);
-  }, [months, selectedDate, scrollToDate]);
-
-  // Re-anchor to selectedDate the moment loading finishes. Data-hydrated
-  // meetings expand cell heights, which would otherwise shift the viewport
-  // and make reportVisibleMonth misdetect the visible month.
-  const prevIsLoadingRef = useRef(isLoading);
-  useLayoutEffect(() => {
-    const wasLoading = prevIsLoadingRef.current;
-    prevIsLoadingRef.current = isLoading;
-    if (wasLoading && !isLoading) scrollToDate(selectedDate);
-  }, [isLoading, selectedDate, scrollToDate]);
+  }, [months, selectedDate, scrollToDate, isLoading]);
 
   const reportVisibleMonth = useCallback(() => {
     const stickyOffset =
