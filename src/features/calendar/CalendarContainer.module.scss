@@ -1,10 +1,106 @@
-// ─── Grid & day cells ─────────────────────────────────────────────────────
+@use '../../styles/mediaQueries.scss' as mq;
+
+// ─── Layout ───────────────────────────────────────────────────────────────
+// `.calendarWrapper` is applied on the outer container. Desktop inherits the
+// shared `.container-wrapper` padding; mobile drops it (see the mobile section
+// below) so the calendar grid can go edge-to-edge.
+
+.calendarContent {
+    flex-basis: 2000px;
+    max-width: 2000px;
+    width: 100%;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────
+// Sticky so controls stay visible while the month view scrolls internally.
+// z-index:3 keeps it above the meeting content (z-index:2 on .meetingList)
+// but below the global page header (z-index:10) so dropdowns can spill over.
+.calendarHeaderWrapper {
+    position: sticky;
+    top: var(--page-header-height, 0px);
+    z-index: 3;
+    background-color: var(--ds-color-neutral-background-default);
+}
+
+.calendarHeader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding-bottom: var(--ds-size-1);
+}
+
+.headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: var(--ds-size-2);
+}
+
+.viewOptionsLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+    text-wrap: nowrap;
+}
+
+.viewOptions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+    text-wrap: nowrap;
+}
+
+.displayHeading {
+    position: relative;
+    width: fit-content;
+    text-wrap: nowrap;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.clickableHeading {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-1);
+    color: var(--ds-color-neutral-text-default);
+}
+
+.hiddenDateInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+// ─── Calendar body & grid ─────────────────────────────────────────────────
+.calendarBody {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--ds-color-neutral-background-default);
+}
+
 .calendarGrid {
     display: flex;
     flex-direction: column;
 }
 
+// Sticky day-names row in the month view. Clears both the global header
+// and the calendar header sitting above it.
 .dynCalendarHeader {
+    position: sticky;
+    top: calc(
+        var(--page-header-height, 0px) + var(--calendar-header-height, 0px)
+    );
+    z-index: 9;
     display: grid;
     width: 100%;
 }
@@ -61,10 +157,16 @@
     border-left: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
+// "Padding" cells outside the current month in the month view.
+.emptyCell {
+    background-color: var(--ds-color-brand2-surface-tinted);
+}
+
 .meetingList {
     overflow-y: auto;
     overflow-x: hidden;
     flex: 1;
+    z-index: 2;
     padding: var(--ds-size-1) var(--ds-size-2) var(--ds-size-2);
 }
 
@@ -86,7 +188,25 @@
     }
 }
 
-// ─── Meeting card — compact ───────────────────────────────────────────────
+.monthBlock {
+    display: flex;
+    flex-direction: column;
+}
+
+.monthHeading {
+    padding: var(--ds-size-4) 0 var(--ds-size-2);
+    border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+    background-color: var(--ds-color-neutral-background-default);
+}
+
+// Wraps the whole infinite-scroll month strip. overflow-anchor:none disables
+// the browser's scroll-anchoring so our own re-anchor logic stays in charge.
+.dynamicCalendarWrapper {
+    width: 100%;
+    overflow-anchor: none;
+}
+
+// ─── Meeting card — compact (grid variant) ────────────────────────────────
 .moetemappemodule {
     background-color: var(--ds-color-brand2-surface-tinted);
     margin-bottom: var(--ds-size-2);
@@ -129,7 +249,7 @@
     text-overflow: ellipsis;
 }
 
-// ─── Meeting card — expanded (used in day popup) ──────────────────────────
+// ─── Meeting card — expanded (day popup) ──────────────────────────────────
 .moetemappemoduleExpanded {
     display: grid;
     grid-template-columns: 3.5rem 1fr;
@@ -166,5 +286,118 @@
 
     :global(.ds-skeleton) {
         border-radius: 12px;
+    }
+}
+
+// ─── Day popup ────────────────────────────────────────────────────────────
+.popup {
+    width: 650px;
+    height: 806px;
+    overflow: hidden;
+}
+
+.dayPopupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-size-3) var(--ds-size-3) var(--ds-size-2);
+}
+
+.dayPopupBody {
+    padding: var(--ds-size-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-size-2);
+    height: 744px;
+    overflow-y: scroll;
+}
+
+.moreMeetingsButton {
+    padding: var(--ds-size-2);
+    font-size: small;
+    min-height: fit-content;
+    background-color: var(--ds-color-brand2-surface-active);
+    color: var(--ds-color-neutral-text-default);
+    border: 0;
+    border-radius: 12px;
+
+    &:hover {
+        background-color: var(--ds-color-brand2-border-default);
+    }
+}
+
+// ─── Mobile (≤ 767px) ─────────────────────────────────────────────────────
+@include mq.small {
+    // Grid goes edge-to-edge; give the header + month heading their own
+    // padding so text still has breathing room.
+    .calendarWrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .calendarHeaderWrapper,
+    .monthHeading {
+        padding-left: var(--ds-size-3);
+        padding-right: var(--ds-size-3);
+    }
+
+    .headerActions {
+        overflow-x: scroll;
+        gap: var(--ds-size-1);
+    }
+
+    .dayHeaderCell {
+        padding-left: var(--ds-size-1);
+    }
+
+    .dayHeaderText {
+        font-size: 10px;
+    }
+
+    .dateText {
+        padding: var(--ds-size-1);
+        font-size: 12px;
+    }
+
+    .meetingList {
+        padding: 2px;
+        padding-top: 0;
+    }
+
+    .moetemappemodule {
+        padding: 2px;
+    }
+
+    // Fill the space below both headers. position:fixed skips EinPopup's
+    // anchor math, letting pure CSS control placement.
+    .popup {
+        position: fixed;
+        top: calc(
+            var(--page-header-height, 0px) +
+                var(--calendar-header-height, 0px)
+        );
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        height: auto;
+        border-radius: var(--ds-border-radius-default)
+            var(--ds-border-radius-default) 0 0;
+
+        :global(.ein-popup-content) {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    }
+
+    .dayPopupHeader {
+        flex-shrink: 0;
+    }
+
+    .dayPopupBody {
+        flex: 1;
+        height: auto;
+        min-height: 0;
     }
 }

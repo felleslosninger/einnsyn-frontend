@@ -78,3 +78,22 @@ export const resolveCalendarDateRange = (params: URLSearchParams): DateRange =>
     getSelectedCalendarDate(params),
     getSelectedCalendarView(params),
   );
+
+// ISO 8601 week number.
+export const getIsoWeekNumber = (date: Date): number => {
+  const t = new Date(date);
+  t.setHours(0, 0, 0, 0);
+  // Move to the Thursday of the current week (ISO weeks are Mon–Sun and
+  // "own" the year that contains their Thursday).
+  t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7));
+  const week1 = new Date(t.getFullYear(), 0, 4);
+  return (
+    1 +
+    Math.round(
+      ((t.getTime() - week1.getTime()) / 86400000 -
+        3 +
+        ((week1.getDay() + 6) % 7)) /
+        7,
+    )
+  );
+};

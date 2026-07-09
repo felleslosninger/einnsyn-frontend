@@ -184,6 +184,15 @@
     "github": "eInnsyn på Github"
   },
   "calendar": {
+    "label": "Møtekalender",
+    "viewOptions": {
+      "month": "Månadsvising",
+      "week": "Vekevising",
+      "day": "Dagvising",
+      "today": "I dag",
+      "displayWeekends": "Vis helger",
+      "selectView": "Vel vising"
+    },
     "days": {
       "0": "Sundag",
       "1": "Måndag",
@@ -192,6 +201,21 @@
       "4": "Torsdag",
       "5": "Fredag",
       "6": "Laurdag"
-    }
+    },
+    "months": {
+      "0": "Januar",
+      "1": "Februar",
+      "2": "Mars",
+      "3": "April",
+      "4": "Mai",
+      "5": "Juni",
+      "6": "Juli",
+      "7": "August",
+      "8": "September",
+      "9": "Oktober",
+      "10": "November",
+      "11": "Desember"
+    },
+    "moreMeetings": "$1 fleire møte"
   }
 }

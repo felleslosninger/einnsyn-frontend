@@ -184,6 +184,15 @@
     "github": "eInnsyn Githubas"
   },
   "calendar": {
+    "label": "Čoahkkinkaleandar",
+    "viewOptions": {
+      "month": "Mánnu",
+      "week": "Vahkku",
+      "day": "Beaivi",
+      "today": "Odne",
+      "displayWeekends": "Čájet vahkkoloahpaid",
+      "selectView": "Vállje čájeheami"
+    },
     "days": {
       "0": "Sotnabeaivi",
       "1": "Mánnodat",
@@ -192,6 +201,21 @@
       "4": "Duorastat",
       "5": "Bearjadat",
       "6": "Lávvardat"
-    }
+    },
+    "months": {
+      "0": "Ođđajagimánnu",
+      "1": "Guovvamánnu",
+      "2": "Njukčamánnu",
+      "3": "Cuoŋománnu",
+      "4": "Miessemánnu",
+      "5": "Geassemánnu",
+      "6": "Suoidnemánnu",
+      "7": "Borgemánnu",
+      "8": "Čakčamánnu",
+      "9": "Golggotmánnu",
+      "10": "Skábmamánnu",
+      "11": "Juovlamánnu"
+    },
+    "moreMeetings": "$1 eanet čoahkkima"
   }
 }
