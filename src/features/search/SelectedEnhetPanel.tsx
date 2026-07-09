@@ -68,7 +68,7 @@ export default function SelectedEnheterPanel({
     return (
       <Details className={styles.details} data-color="neutral" data-size="sm">
         <Details.Summary>
-          <Heading level={4} data-size="sm" className={styles.detailsheading}>
+          <Heading level={4} data-size="sm" className={styles.detailsHeading}>
             <Buildings3Icon />
             {t('search.selectedEnheter')}
           </Heading>

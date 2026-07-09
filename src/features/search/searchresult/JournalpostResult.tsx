@@ -7,14 +7,24 @@ import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
+function getSaksnummer(item: Journalpost): string | null {
+  if (typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer) {
+    return item.saksmappe.saksnummer;
+  }
+  if (typeof item.saksmappe === 'string') {
+    return item.saksmappe;
+  }
+  return null;
+}
+
 function getFirstDocumentUrl(item: Journalpost): string | null {
   for (const dok of item.dokumentbeskrivelse ?? []) {
     if (typeof dok === 'string') continue;
     for (const obj of dok.dokumentobjekt ?? []) {
       if (typeof obj === 'string') continue;
-      if (!obj.url) continue;
-      const iri = obj.referanseDokumentfil || obj.id;
-      return `/fil?iri=${encodeURIComponent(iri)}`;
+      const params = new URLSearchParams({ id: obj.id });
+      if (obj.format) params.set('format', obj.format);
+      return `/fil?${params.toString()}`;
     }
   }
   return null;
@@ -29,6 +39,7 @@ export default function JournalpostResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
+  const saksnummer = getSaksnummer(item);
   const documentUrl = getFirstDocumentUrl(item);
   const recordedDate = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
@@ -47,20 +58,11 @@ export default function JournalpostResult({
           item={item}
           label={translate('journalpost.label')}
         >
-          {(() => {
-            const saksnummer =
-              typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer
-                ? item.saksmappe.saksnummer
-                : typeof item.saksmappe === 'string'
-                  ? item.saksmappe
-                  : null;
-
-            return saksnummer ? (
-              <span className="search-result-number">
-                {translate('common.number')} {saksnummer}
-              </span>
-            ) : null;
-          })()}
+          {saksnummer && (
+            <span className="search-result-number">
+              {translate('common.number')} {saksnummer}
+            </span>
+          )}
 
           {item.journalposttype && (
             <span className="search-result-doctype">

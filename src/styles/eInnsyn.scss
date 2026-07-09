@@ -101,29 +101,20 @@ body {
       padding-right: 0;
     }
 
-    >.container-pre,
+    >.container-pre {
+      width: 50%;
+      order: 1;
+    }
+
     >.container-post {
       width: 50%;
+      min-width: 0;
+      order: 2;
     }
 
     >.container {
       width: 100%;
       min-width: 320px;
-    }
-
-    >.container-post {
-      min-width: 0;
-    }
-
-    >.container-pre {
-      order: 1;
-    }
-
-    >.container-post {
-      order: 2;
-    }
-
-    >.container {
       order: 3;
     }
   }

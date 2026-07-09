@@ -2,10 +2,12 @@ import type { NextRequest } from 'next/server';
 import { getAuth } from '~/actions/cookies/authCookie';
 
 export async function GET(request: NextRequest) {
-  const iri = request.nextUrl.searchParams.get('iri');
-  if (!iri) {
-    return new Response('Missing iri parameter', { status: 400 });
+  const id = request.nextUrl.searchParams.get('id');
+  if (!id) {
+    return new Response('Missing id parameter', { status: 400 });
   }
+
+  const format = request.nextUrl.searchParams.get('format');
 
   const auth = await getAuth();
   const headers: HeadersInit = {};
@@ -13,16 +15,18 @@ export async function GET(request: NextRequest) {
     headers.Authorization = `Bearer ${auth.accessToken}`;
   }
 
-  const filBaseUrl =
-    process.env.FIL_BASE_URL ?? `${process.env.API_URL}/v2/fil`;
-
-  const upstream = await fetch(`${filBaseUrl}?iri=${encodeURIComponent(iri)}`, {
-    headers,
-  });
+  const upstream = await fetch(
+    `${process.env.API_URL}/v2/dokumentobjekt/${encodeURIComponent(id)}/download`,
+    { headers },
+  );
 
   if (!upstream.ok) {
     return new Response(upstream.statusText, { status: upstream.status });
   }
+
+  const extension = format?.toLowerCase();
+  const fallbackFilename = extension ? `${id}.${extension}` : id;
+  const fallbackDisposition = `inline; filename="${fallbackFilename}"`;
 
   return new Response(upstream.body, {
     status: upstream.status,
@@ -30,7 +34,7 @@ export async function GET(request: NextRequest) {
       'Content-Type':
         upstream.headers.get('Content-Type') ?? 'application/octet-stream',
       'Content-Disposition':
-        upstream.headers.get('Content-Disposition') ?? 'inline',
+        upstream.headers.get('Content-Disposition') ?? fallbackDisposition,
     },
   });
 }
