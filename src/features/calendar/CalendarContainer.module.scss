@@ -1,10 +1,6 @@
 @use '../../styles/mediaQueries.scss' as mq;
 
 // ─── Layout ───────────────────────────────────────────────────────────────
-// `.calendarWrapper` is applied on the outer container. Desktop inherits the
-// shared `.container-wrapper` padding; mobile drops it (see the mobile section
-// below) so the calendar grid can go edge-to-edge.
-
 .calendarContent {
     flex-basis: 2000px;
     max-width: 2000px;
@@ -15,9 +11,8 @@
 }
 
 // ─── Header ───────────────────────────────────────────────────────────────
-// Sticky so controls stay visible while the month view scrolls internally.
-// z-index:3 keeps it above the meeting content (z-index:2 on .meetingList)
-// but below the global page header (z-index:10) so dropdowns can spill over.
+// z-index:3 stays above .meetingList (z-index:2) but below the global page
+// header (z-index:10) so its dropdowns can spill over.
 .calendarHeaderWrapper {
     position: sticky;
     top: var(--page-header-height, 0px);
@@ -93,8 +88,7 @@
     flex-direction: column;
 }
 
-// Sticky day-names row in the month view. Clears both the global header
-// and the calendar header sitting above it.
+// Sticky day-names row in the month view.
 .dynCalendarHeader {
     position: sticky;
     top: calc(
@@ -157,7 +151,7 @@
     border-left: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
-// "Padding" cells outside the current month in the month view.
+// Days outside the current month in the month view.
 .emptyCell {
     background-color: var(--ds-color-brand2-surface-tinted);
 }
@@ -199,8 +193,8 @@
     background-color: var(--ds-color-neutral-background-default);
 }
 
-// Wraps the whole infinite-scroll month strip. overflow-anchor:none disables
-// the browser's scroll-anchoring so our own re-anchor logic stays in charge.
+// overflow-anchor:none disables the browser's scroll-anchoring so the
+// month view's own re-anchor logic stays in charge.
 .dynamicCalendarWrapper {
     width: 100%;
     overflow-anchor: none;
@@ -328,8 +322,6 @@
 
 // ─── Mobile (≤ 767px) ─────────────────────────────────────────────────────
 @include mq.small {
-    // Grid goes edge-to-edge; give the header + month heading their own
-    // padding so text still has breathing room.
     .calendarWrapper {
         padding-left: 0;
         padding-right: 0;
@@ -368,8 +360,7 @@
         padding: 2px;
     }
 
-    // Fill the space below both headers. position:fixed skips EinPopup's
-    // anchor math, letting pure CSS control placement.
+    // position:fixed skips EinPopup's anchor math so pure CSS controls placement.
     .popup {
         position: fixed;
         top: calc(

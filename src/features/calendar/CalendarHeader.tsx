@@ -102,7 +102,7 @@ export default function CalendarHeader({
 
   const nav = useMemo(() => {
     // Month chevrons operate on visibleMonth so the arrow matches what the
-    // user actually sees (they may have scrolled away from selectedDate).
+    // user sees (they may have scrolled away from selectedDate).
     const shift = (unit: 'month' | 'week' | 'day', offset: number) => {
       const base = unit === 'month' ? visibleMonth : selectedDate;
       const next = new Date(base);

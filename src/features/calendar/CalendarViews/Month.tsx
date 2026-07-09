@@ -18,9 +18,8 @@ import styles from '../CalendarContainer.module.scss';
 import MoetemappeModule from '../Moetemappe';
 import { MoetemappeSkeleton } from '../MoetemappeSkeleton';
 
-// Virtualize the month strip: keep 2 * MONTHS_BUFFER + 1 = 9 months in the DOM.
+// Keep 2 * MONTHS_BUFFER + 1 = 9 months rendered.
 const MONTHS_BUFFER = 4;
-// Distance from top/bottom (in px) that triggers a prepend/append.
 const SCROLL_EDGE_THRESHOLD = 400;
 
 const WEEKDAYS_WITH_WEEKENDS = [1, 2, 3, 4, 5, 6, 0] as const;
@@ -53,7 +52,7 @@ const buildMonth = (
   month: number,
   displayWeekends: boolean,
 ): MonthBlock => {
-  // Normalize month over/underflow (e.g. month = -1 or 12)
+  // Normalize month over/underflow (e.g. -1 or 12).
   const anchor = new Date(year, month, 1);
   const y = anchor.getFullYear();
   const m = anchor.getMonth();
@@ -118,31 +117,19 @@ export default function MonthView({
   const dayHeaderRef = useRef<HTMLDivElement | null>(null);
   const monthRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Scroll compensation state:
-  // - pendingAdjustRef: after a prepend/append, re-anchor the scroll so the
-  //   user's viewport doesn't jump when items are added/removed.
   const pendingAdjustRef = useRef<{
     key: string;
     viewportOffset: number;
   } | null>(null);
-  // - needsInitialScrollRef: on mount (and after weekends rebuild) we need
-  //   to scroll to selectedDate once the DOM is measured.
   const needsInitialScrollRef = useRef(true);
-  // - isProgrammaticScrollRef: prevents handleScroll from reacting to our
-  //   own scrollTo calls.
   const isProgrammaticScrollRef = useRef(false);
 
-  // The year-month we most recently centered on. Lets reportVisibleMonth
-  // skip re-notifying the parent for the same month, and lets the weekends
-  // rebuild keep the user's vantage point.
   const currentCenterRef = useRef({
     year: selectedDate.getFullYear(),
     month: selectedDate.getMonth(),
   });
   const lastHandledSelectedKeyRef = useRef(dateKey(selectedDate));
 
-  // Show the last non-loading snapshot while a new fetch is in flight, so
-  // the grid doesn't blank out during transitions.
   const [cachedResults, setCachedResults] = useState<Moetemappe[]>(
     currentCalendarResults,
   );
@@ -172,8 +159,7 @@ export default function MonthView({
     const key = blockKey({ year: date.getFullYear(), month: date.getMonth() });
     const block = monthRefs.current.get(key);
     if (!block) return false;
-    // Sticky clearance = the day-header row's rendered bottom; accounts for
-    // page header + calendar header stacked above it.
+    // Clear both the global header and the calendar header stacked above.
     const stickyOffset =
       dayHeaderRef.current?.getBoundingClientRect().bottom ?? 0;
     const dayEl = block.querySelector<HTMLElement>(
@@ -190,8 +176,7 @@ export default function MonthView({
     return true;
   }, []);
 
-  // Rebuild the month strip when the weekends toggle changes, keeping the
-  // user's current vantage point.
+  // Weekends toggle rebuild.
   const initialMountRef = useRef(true);
   useEffect(() => {
     if (initialMountRef.current) {
@@ -225,8 +210,7 @@ export default function MonthView({
     scrollToDate(selectedDate);
   }, [selectedDate, displayWeekends, scrollToDate]);
 
-  // Scroll-anchor compensation after month prepend/append. Runs synchronously
-  // in useLayoutEffect so the browser never paints the jump.
+  // Sync re-anchor after prepend/append so the browser never paints a jump.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useLayoutEffect(() => {
     if (!pendingAdjustRef.current) return;
@@ -243,8 +227,7 @@ export default function MonthView({
     });
   }, [months]);
 
-  // Initial scroll to selectedDate.
-  // Deferred via rAF so it runs after all sibling/parent effects and layout.
+  // Initial scroll waits for !isLoading so it lands on final layout.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useEffect(() => {
     if (!needsInitialScrollRef.current) return;
@@ -281,16 +264,13 @@ export default function MonthView({
       year: bestBlock.year,
       month: bestBlock.month,
     };
-    // Seed the selected-key with first-of-month so the parent's debounced
-    // URL sync (which writes first-of-month back) is recognized as our own
-    // echo and doesn't yank scroll.
+    // Seed with first-of-month so when the parent echoes it back into
+    // selectedDate we recognize it as our own signal and don't re-scroll.
     lastHandledSelectedKeyRef.current = dateKey(firstOfMonth);
     setVisibleMonth(firstOfMonth);
   }, [months, setVisibleMonth]);
 
   const appendNextMonth = useCallback(() => {
-    // Snapshot each block's current viewport offset so we can pick an anchor
-    // after the state update.
     const offsets = new Map<string, number>();
     for (const [k, el] of monthRefs.current) {
       offsets.set(k, el.getBoundingClientRect().top);
@@ -366,13 +346,11 @@ export default function MonthView({
     ? WEEKDAYS_WITH_WEEKENDS
     : WEEKDAYS_WITHOUT_WEEKENDS;
 
-  // Day popup for cells with more than 3 meetings.
   type PopupState = { meetings: Moetemappe[]; date: Date } | null;
   const [popup, setPopup] = useState<PopupState>(null);
   const popupTriggerRef = useRef<HTMLElement | null>(null);
 
-  // Lock page scroll while the popup is open. Target <html> because the
-  // global stylesheet sets `overflow-y: scroll` on <html>, not <body>.
+  // Target <html> because the global stylesheet sets overflow-y on <html>.
   useEffect(() => {
     document.documentElement.style.overflowY = popup ? 'hidden' : '';
     return () => {
@@ -400,8 +378,7 @@ export default function MonthView({
       {popup !== null &&
         typeof document !== 'undefined' &&
         createPortal(
-          // A position:fixed wrapper so EinPopup's anchor math finds a
-          // positioned ancestor; zIndex ensures it renders above the grid.
+          // position:fixed gives EinPopup a positioned ancestor for its anchor math.
           <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
             <EinPopup
               open={true}

@@ -26,8 +26,8 @@ import {
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`;
 
-// Server fetch covers prev + current + next month (see getDateRange). Mirror
-// that here so the loading-tracker knows which months are hydrated by one fetch.
+// Months covered by one server fetch: prev + current + next. Mirrors
+// getDateRange's month-view range.
 const monthKeysAround = (d: Date): string[] => [
   monthKey(new Date(d.getFullYear(), d.getMonth() - 1, 1)),
   monthKey(d),
@@ -96,9 +96,8 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
-  // ── Client-side month cache ─────────────────────────────────────────────
-  // filterKey covers every URL param that affects which meetings come back,
-  // excluding date (scrolling) and UI-only params (view, weekends).
+  // URL params that affect which meetings come back — everything except the
+  // date axis (scrolling) and UI-only params.
   const filterKey = useMemo(() => {
     const params = new URLSearchParams(optimisticSearchParams.toString());
     params.delete(SELECTED_DATE_KEY);
@@ -113,24 +112,20 @@ export default function CalendarContainer({
 
   const [allResults, setAllResults] = useState<Moetemappe[]>(calendarResults);
 
-  // Months whose data (for the current filter) is confirmed loaded. A cell
-  // shows skeletons while loading until its month is in this set; once
-  // loaded, an empty month renders blank instead of skeletons.
+  // Months confirmed loaded for the current filter — an empty month lands
+  // here so its cells render blank instead of skeletons.
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
     () => new Set(),
   );
   const loadedMonthsRef = useRef(loadedMonths);
   loadedMonthsRef.current = loadedMonths;
 
-  // Optimistic filter change → invalidate every loaded month so visible cells
-  // fall back to skeletons until fresh data arrives.
   // biome-ignore lint/correctness/useExhaustiveDependencies: filterKey is a trigger, not read in the body
   useEffect(() => {
     setLoadedMonths(new Set());
   }, [filterKey]);
 
-  // Merge incoming results and mark the fetched range as loaded. Gated on
-  // !isLoading so stale in-flight results don't prematurely clear skeletons.
+  // Gated on !isLoading so stale in-flight results don't clear skeletons.
   useEffect(() => {
     if (isLoading) return;
     const filterChanged = filterKey !== prevFilterKeyRef.current;
@@ -160,11 +155,8 @@ export default function CalendarContainer({
       });
     });
   }, [calendarResults, isLoading, filterKey]);
-  // ─────────────────────────────────────────────────────────────────────────
 
-  // Publish the calendar-header height as a CSS variable so the sticky
-  // day-names row in the month view can clear it. useLayoutEffect so the
-  // variable is set before the first paint.
+  // Publish header heights as CSS vars for the month view's sticky day-names row.
   const calendarHeaderRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     const update = () => {
@@ -180,8 +172,6 @@ export default function CalendarContainer({
     return () => ro.disconnect();
   }, []);
 
-  // Same for the global page header — the month view's sticky day-names row
-  // needs to clear both.
   useLayoutEffect(() => {
     const header = document.querySelector('header');
     if (!header) return;
@@ -197,14 +187,14 @@ export default function CalendarContainer({
     return () => ro.disconnect();
   }, []);
 
-  // Scroll-driven "currently visible month" in the month view. Decoupled
-  // from selectedDate to avoid feedback loops through URL state.
+  // Scroll-driven visible month, decoupled from selectedDate to avoid a
+  // URL-state feedback loop.
   const [visibleMonth, setVisibleMonth] = useState<Date>(selectedDate);
   useEffect(() => setVisibleMonth(selectedDate), [selectedDate]);
 
-  // Debounced sync: once the user settles on a scrolled-to month, write
-  // first-of-month back to the URL so upstream data fetching picks up the
-  // new range. Skipped entirely when the visible month is already cached.
+  // When the user settles on a scrolled-to month, sync first-of-month to
+  // the URL so upstream data fetching picks up the new range. Skipped if
+  // already client-cached.
   useEffect(() => {
     const sameMonth =
       visibleMonth.getFullYear() === selectedDate.getFullYear() &&

@@ -1,4 +1,3 @@
-// URL query keys owned by the calendar
 export const SELECTED_VIEW_KEY = 'view';
 export const SELECTED_DATE_KEY = 'date';
 export const SELECTED_WEEKEND_TOGGLE_KEY = 'weekends';
@@ -9,8 +8,8 @@ export type DateRange = { from: string; to: string };
 const isCalendarView = (value: string | null): value is CalendarView =>
   value === 'day' || value === 'week' || value === 'month';
 
-// Parse YYYY-MM-DD as local time (not UTC) so calendar cells don't drift
-// across day boundaries in negative UTC offsets.
+// Parse YYYY-MM-DD as local time, not UTC, so cells don't drift across day
+// boundaries in negative UTC offsets.
 const parseLocalDate = (value: string | null): Date | undefined => {
   if (!value) return undefined;
   const [y, m, d] = value.split('-').map(Number);
@@ -39,9 +38,8 @@ export const getSelectedCalendarView = (
 export const getSelectedWeekendToggle = (params: URLSearchParams): boolean =>
   params.get(SELECTED_WEEKEND_TOGGLE_KEY) === 'true';
 
-// Date range to fetch given the current view. Month view widens to
-// prev + current + next so scrolling into an adjacent month lands on
-// pre-loaded data.
+// Month view fetches prev + current + next so scrolling into an adjacent month
+// lands on pre-loaded data.
 export const getDateRange = (
   selectedDate: Date,
   view: CalendarView,
@@ -79,12 +77,10 @@ export const resolveCalendarDateRange = (params: URLSearchParams): DateRange =>
     getSelectedCalendarView(params),
   );
 
-// ISO 8601 week number.
+// ISO 8601 week number: weeks own the year containing their Thursday.
 export const getIsoWeekNumber = (date: Date): number => {
   const t = new Date(date);
   t.setHours(0, 0, 0, 0);
-  // Move to the Thursday of the current week (ISO weeks are Mon–Sun and
-  // "own" the year that contains their Thursday).
   t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7));
   const week1 = new Date(t.getFullYear(), 0, 4);
   return (
