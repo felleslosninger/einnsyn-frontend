@@ -29,7 +29,9 @@ export const getCalendarResults = async (
   }
 
   try {
-    const firstPage = (await api.search.search(query)) as PaginatedList<Moetemappe>;
+    const firstPage = (await api.search.search(
+      query,
+    )) as PaginatedList<Moetemappe>;
     const results: Moetemappe[] = [];
     for await (const item of api.iterate(firstPage)) {
       results.push(item);

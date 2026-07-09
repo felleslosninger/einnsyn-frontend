@@ -73,7 +73,8 @@ export const getDateRange = (
   return { from: toDateString(start), to: toDateString(end) };
 };
 
-export const resolveCalendarDateRange = (
-  params: URLSearchParams,
-): DateRange =>
-  getDateRange(getSelectedCalendarDate(params), getSelectedCalendarView(params));
+export const resolveCalendarDateRange = (params: URLSearchParams): DateRange =>
+  getDateRange(
+    getSelectedCalendarDate(params),
+    getSelectedCalendarView(params),
+  );

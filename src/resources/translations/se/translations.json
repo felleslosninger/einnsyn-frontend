@@ -182,5 +182,16 @@
     "privacy": "Personsuodjalusjulggaštus",
     "accessibility": "Gievrrasvuođajulggaštus",
     "github": "eInnsyn Githubas"
+  },
+  "calendar": {
+    "days": {
+      "0": "Sotnabeaivi",
+      "1": "Mánnodat",
+      "2": "Disdat",
+      "3": "Gaskavahkku",
+      "4": "Duorastat",
+      "5": "Bearjadat",
+      "6": "Lávvardat"
+    }
   }
 }
