@@ -74,7 +74,8 @@ export default function CalendarContainer({
       const next = new URLSearchParams(optimisticSearchParams.toString());
       if (value === '') next.delete(key);
       else next.set(key, value);
-      replace(`${optimisticPathname}?${next.toString()}`);
+      const qs = next.toString();
+      replace(qs ? `${optimisticPathname}?${qs}` : optimisticPathname);
     },
     [optimisticPathname, optimisticSearchParams, replace],
   );

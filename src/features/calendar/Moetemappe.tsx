@@ -23,6 +23,7 @@ const getUtvalgNames = (item: Moetemappe) => {
 const formatTime = (moetedato: string | undefined): string => {
   if (!moetedato) return '';
   const d = new Date(moetedato);
+  if (Number.isNaN(d.getTime())) return '';
   const hh = String(d.getHours()).padStart(2, '0');
   const mm = String(d.getMinutes()).padStart(2, '0');
   return `${hh}:${mm}`;

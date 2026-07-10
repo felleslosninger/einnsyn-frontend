@@ -160,19 +160,13 @@ export default function CalendarHeader({
             className={styles.displayHeading}
             variant="tertiary"
             data-color="neutral"
+            type="button"
+            onClick={openDatePicker}
           >
             <Heading
               data-size="sm"
               level={1}
-              tabIndex={0}
               className={styles.clickableHeading}
-              onClick={openDatePicker}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  openDatePicker();
-                }
-              }}
             >
               {viewHeading}
               <ChevronDownIcon />
