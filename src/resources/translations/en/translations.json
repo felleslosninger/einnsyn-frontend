@@ -95,6 +95,7 @@
     "close": "Close",
     "copyToClipboard": "Copy to clipboard",
     "copiedToClipboard": "Copied to clipboard",
+    "title": "Title",
     "apply": "Apply",
     "clear": "Clear",
     "filter": "Filter",
@@ -113,7 +114,20 @@
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
-    "pathName": "journalpost",
+    "pathName": "record",
+    "connectedToCase": "Associated case",
+    "goToCase": "Go to case",
+    "docNumber": "Doc. no.",
+    "from": "From",
+    "to": "To",
+    "fromTo": "From/to",
+    "docDate": "Document date",
+    "recordDate": "Journal date",
+    "pubDate": "Published date",
+    "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "notPublished": "Not published",
+    "recordType": "Type",
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
@@ -197,5 +211,12 @@
     "privacy": "Privacy Policy",
     "accessibility": "Accessibility Statement",
     "github": "eInnsyn on Github"
+  },
+  "virksomhet": {
+    "label": "Organization",
+    "navn": "Name",
+    "telefon": "Telephone",
+    "adresse": "address",
+    "epost": "email"
   }
 }
