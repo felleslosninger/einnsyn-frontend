@@ -1,5 +1,6 @@
 'use client';
 
+import { FilterIcon } from '@navikt/aksel-icons';
 import { useCallback, useMemo } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
@@ -47,8 +48,16 @@ export default function SearchFilterDropdown({
 
   return (
     <EinDropdown
-      trigger={t('common.filter')}
-      showChevron={true}
+      trigger={
+        <span className={styles.filterTrigger}>
+          <FilterIcon
+            aria-hidden="true"
+            focusable="false"
+            className={styles.filterIcon}
+          />
+          {t('common.filter')}
+        </span>
+      }
       closeOnItemClick={false}
       preferredPosition={[
         'belowRight',

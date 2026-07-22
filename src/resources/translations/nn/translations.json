@@ -73,7 +73,12 @@
     "header": "Søk",
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
-    "clear": "Tøm søk"
+    "clear": "Tøm søk",
+    "sortedBy": "Sortert etter",
+    "selectedEnheter": "Verksemder du har valt",
+    "orderAccess": "Bestill innsyn",
+    "openDocument": "Opne dokument",
+    "addToCalendar": "Legg til i kalender"
   },
   "routing": {
     "searchPath": "søk",
@@ -84,7 +89,13 @@
   "common": {
     "publishedAt": "Publisert",
     "updatedAt": "Oppdatert",
+    "recordedAt": "Journalført",
+    "number": "Nr",
+    "andMore": "+ $1 fleire",
     "all": "Alle",
+    "phone": "Telefon",
+    "email": "E-post",
+    "address": "Adresse",
     "noResults": "Ingen treff",
     "delete": "Slett",
     "deleting": "Slettar...",
@@ -114,6 +125,8 @@
     "label": "Journalpost",
     "labelPlural": "Journalpostar",
     "pathName": "journalpost",
+    "from": "Frå",
+    "to": "Til",
     "type": {
       "inngaaende_dokument": "Inngåande dokument",
       "utgaaende_dokument": "Utgåande dokument",
