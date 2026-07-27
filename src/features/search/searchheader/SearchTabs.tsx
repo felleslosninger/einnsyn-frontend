@@ -41,68 +41,71 @@ export default function SearchTabs({ className }: { className?: string }) {
       data-color="neutral"
     >
       <div className={styles.searchTabsScroll}>
-      <div className={cn(styles.searchTabs)}>
-        <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
-          {t('common.all')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Saksmappe')}
-          href={getLinkUrl('Saksmappe')}
-        >
-          <span className={styles.tabInner}>
-            <span
-              className={cn(
-                'search-result-dot',
-                'search-result-dot--saksmappe',
-              )}
-              aria-hidden="true"
-            />
-            {t('saksmappe.labelPlural')}
-          </span>
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Journalpost')}
-          href={getLinkUrl('Journalpost')}
-        >
-          <span className={styles.tabInner}>
-            <span
-              className={cn(
-                'search-result-dot',
-                'search-result-dot--journalpost',
-              )}
-              aria-hidden="true"
-            />
-            {t('journalpost.labelPlural')}
-          </span>
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetemappe')}
-          href={getLinkUrl('Moetemappe')}
-        >
-          <span className={styles.tabInner}>
-            <span
-              className={cn(
-                'search-result-dot',
-                'search-result-dot--moetemappe',
-              )}
-              aria-hidden="true"
-            />
-            {t('moetemappe.labelPlural')}
-          </span>
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetesak')}
-          href={getLinkUrl('Moetesak')}
-        >
-          <span className={styles.tabInner}>
-            <span
-              className={cn('search-result-dot', 'search-result-dot--moetesak')}
-              aria-hidden="true"
-            />
-            {t('moetesak.labelPlural')}
-          </span>
-        </EinLink>
-      </div>
+        <div className={cn(styles.searchTabs)}>
+          <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
+            {t('common.all')}
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Saksmappe')}
+            href={getLinkUrl('Saksmappe')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--saksmappe',
+                )}
+                aria-hidden="true"
+              />
+              {t('saksmappe.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Journalpost')}
+            href={getLinkUrl('Journalpost')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--journalpost',
+                )}
+                aria-hidden="true"
+              />
+              {t('journalpost.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Moetemappe')}
+            href={getLinkUrl('Moetemappe')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--moetemappe',
+                )}
+                aria-hidden="true"
+              />
+              {t('moetemappe.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Moetesak')}
+            href={getLinkUrl('Moetesak')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--moetesak',
+                )}
+                aria-hidden="true"
+              />
+              {t('moetesak.labelPlural')}
+            </span>
+          </EinLink>
+        </div>
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
