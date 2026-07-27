@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   const upstream = await fetch(
-    `${process.env.API_URL}/v2/dokumentobjekt/${encodeURIComponent(id)}/download`,
+    `${process.env.API_URL}/dokumentobjekt/${encodeURIComponent(id)}/download`,
     { headers },
   );
 

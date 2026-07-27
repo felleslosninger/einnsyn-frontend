@@ -40,6 +40,7 @@ export default function SearchTabs({ className }: { className?: string }) {
       data-size="sm"
       data-color="neutral"
     >
+      <div className={styles.searchTabsScroll}>
       <div className={cn(styles.searchTabs)}>
         <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
           {t('common.all')}
@@ -101,6 +102,7 @@ export default function SearchTabs({ className }: { className?: string }) {
             {t('moetesak.labelPlural')}
           </span>
         </EinLink>
+      </div>
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
