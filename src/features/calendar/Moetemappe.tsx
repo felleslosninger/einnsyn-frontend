@@ -1,5 +1,5 @@
-import { Link } from '@digdir/designsystemet-react';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { EinLink } from '~/components/EinLink/EinLink';
 import styles from './CalendarContainer.module.scss';
 
 type Props = {
@@ -34,32 +34,28 @@ export default function MoetemappeModule({ item, variant = 'compact' }: Props) {
 
   if (variant === 'expanded') {
     return (
-      <div className={styles.moetemappemoduleExpanded}>
+      <EinLink href="" className={styles.moetemappemoduleExpanded}>
         <div className={styles.expandedTimeCol}>
           <span className={styles.expandedTime}>
             {formatTime(item.moetedato)}
           </span>
         </div>
         <div className={styles.moduleHeading}>
-          <Link color="main" href="" className={styles.moduleHeadingLink}>
-            {utvalgNavn}
-          </Link>
+          <span className={styles.moduleHeadingText}>{utvalgNavn}</span>
           <span className={styles.expandedOrg}>{parentNavn}</span>
         </div>
-      </div>
+      </EinLink>
     );
   }
 
   return (
-    <div className={styles.moetemappemodule}>
+    <EinLink href="" className={styles.moetemappemodule}>
       <div className={styles.moduleHeading}>
-        <Link color="main" href="" className={styles.moduleHeadingLink}>
-          {utvalgNavn}
-        </Link>
+        <span className={styles.moduleHeadingText}>{utvalgNavn}</span>
       </div>
       <div className={styles.moduleInfo}>
         <div className={styles.parentNameLabel}>{parentNavn}</div>
       </div>
-    </div>
+    </EinLink>
   );
 }

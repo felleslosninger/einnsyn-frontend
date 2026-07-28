@@ -208,6 +208,16 @@
     min-width: 0;
     width: 100%;
     font-size: var(--ds-body-xs-font-size);
+
+    &:global(.ein-link) {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    &:hover {
+        background-color: var(--ds-color-brand2-surface-active);
+    }
 }
 
 .moduleHeading,
@@ -222,7 +232,7 @@
     padding-bottom: var(--ds-size-1);
 }
 
-.moduleHeadingLink {
+.moduleHeadingText {
     color: var(--ds-color-neutral-text-default);
     display: block;
     overflow: hidden;
@@ -245,16 +255,22 @@
 
 // ─── Meeting card — expanded (day popup) ──────────────────────────────────
 .moetemappemoduleExpanded {
-    display: grid;
-    grid-template-columns: 3.5rem 1fr;
-    gap: var(--ds-size-2);
+    background-color: var(--ds-color-brand2-surface-tinted);
     margin-bottom: var(--ds-size-2);
     border-radius: 12px;
     font-size: var(--ds-body-xs-font-size);
     width: auto;
 
+    &:global(.ein-link) {
+        display: grid;
+        grid-template-columns: 3.5rem 1fr;
+        gap: var(--ds-size-2);
+        text-decoration: none;
+        color: inherit;
+    }
+
     &:hover {
-        background-color: var(--ds-color-brand2-surface-tinted);
+        background-color: var(--ds-color-brand2-surface-active);
     }
 }
 

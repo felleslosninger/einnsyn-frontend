@@ -13,7 +13,7 @@ export default function SearchHeader() {
   const { searchQuery, pushSearchQuery } = useSearchField();
 
   const onSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
+    (event: React.SubmitEvent<HTMLFormElement>) => {
       pushSearchQuery(searchQuery);
       event.preventDefault();
     },
