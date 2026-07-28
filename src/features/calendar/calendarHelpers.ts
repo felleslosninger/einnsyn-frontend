@@ -52,8 +52,8 @@ export const getDateRange = (
   let end: Date;
   switch (view) {
     case 'month':
-      start = new Date(y, m - 1, 1);
-      end = new Date(y, m + 2, 0);
+      start = new Date(y, m, 1);
+      end = new Date(y, m + 1, 0);
       break;
     case 'week': {
       const dayOfWeek = selectedDate.getDay();

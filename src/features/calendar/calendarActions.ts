@@ -9,36 +9,43 @@ import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
 import type { DateRange } from './calendarHelpers';
 
-export const getCalendarResults = async (
+export type CalendarPage = {
+  items: Moetemappe[];
+  next: string | null;
+};
+
+export const fetchCalendarPage = async (
   enhetSlug: string,
   dateRange: DateRange,
-): Promise<Moetemappe[]> => {
+  cursor?: string,
+): Promise<CalendarPage> => {
   const api = await cachedApiClient();
 
-  const query: SearchParameters = {
-    entity: ['Moetemappe'],
-    expand: ['utvalgObjekt.parent'],
-    moetedatoFrom: dateRange.from,
-    moetedatoTo: dateRange.to,
-    sortBy: 'moetedato',
-    sortOrder: 'asc',
-    limit: 100,
-  };
-  if (enhetSlug) {
-    query.administrativEnhet = [enhetSlug];
-  }
-
   try {
-    const firstPage = (await api.search.search(
-      query,
-    )) as PaginatedList<Moetemappe>;
-    const results: Moetemappe[] = [];
-    for await (const item of api.iterate(firstPage)) {
-      results.push(item);
+    let page: PaginatedList<Moetemappe>;
+
+    if (cursor) {
+      const result = await api.fetchNextPage<Moetemappe>(cursor);
+      page = result ?? { items: [] };
+    } else {
+      const query: SearchParameters = {
+        entity: ['Moetemappe'],
+        expand: ['utvalgObjekt.parent'],
+        moetedatoFrom: dateRange.from,
+        moetedatoTo: dateRange.to,
+        sortBy: 'moetedato',
+        sortOrder: 'asc',
+        limit: 100,
+      };
+      if (enhetSlug) {
+        query.administrativEnhet = [enhetSlug];
+      }
+      page = (await api.search.search(query)) as PaginatedList<Moetemappe>;
     }
-    return results;
+
+    return { items: page.items ?? [], next: page.next ?? null };
   } catch (error) {
-    logger.error('Failed to fetch calendar results', { error, query });
-    return [];
+    logger.error('Failed to fetch calendar page', { error, dateRange, cursor });
+    return { items: [], next: null };
   }
 };

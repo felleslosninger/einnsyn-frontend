@@ -13,8 +13,10 @@ import { useNavigation } from '~/components/NavigationProvider/NavigationProvide
 import CalendarBody from './CalendarBody';
 import styles from './CalendarContainer.module.scss';
 import CalendarHeader from './CalendarHeader';
+import { fetchCalendarPage } from './calendarActions';
 import {
   type CalendarView,
+  getDateRange,
   getSelectedCalendarDate,
   getSelectedCalendarView,
   getSelectedWeekendToggle,
@@ -26,35 +28,23 @@ import {
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`;
 
-// Months covered by one server fetch: prev + current + next. Mirrors
-// getDateRange's month-view range.
-const monthKeysAround = (d: Date): string[] => [
-  monthKey(new Date(d.getFullYear(), d.getMonth() - 1, 1)),
-  monthKey(d),
-  monthKey(new Date(d.getFullYear(), d.getMonth() + 1, 1)),
-];
+function mergeAndSort(prev: Moetemappe[], next: Moetemappe[]): Moetemappe[] {
+  const map = new Map(prev.map((r) => [r.id, r]));
+  for (const r of next) {
+    if (r.id) map.set(r.id, r);
+  }
+  return Array.from(map.values()).sort((a, b) => {
+    const at = a.moetedato ? new Date(a.moetedato).getTime() : 0;
+    const bt = b.moetedato ? new Date(b.moetedato).getTime() : 0;
+    return at - bt;
+  });
+}
 
-type Props = {
-  calendarResults: Moetemappe[];
-  initialLoading?: boolean;
-};
+export default function CalendarContainer() {
+  const { optimisticPathname, optimisticSearchParams, replace } =
+    useNavigation();
 
-export default function CalendarContainer({
-  calendarResults,
-  initialLoading = false,
-}: Props) {
-  const {
-    loadingSearchParamsString,
-    searchParamsString,
-    loading,
-    optimisticPathname,
-    optimisticSearchParams,
-    replace,
-  } = useNavigation();
-
-  const isLoading =
-    initialLoading ||
-    (loading && loadingSearchParamsString !== searchParamsString);
+  const enhet = optimisticSearchParams.get('enhet') ?? '';
 
   const selectedView = useMemo(
     () => getSelectedCalendarView(optimisticSearchParams),
@@ -97,8 +87,7 @@ export default function CalendarContainer({
     [setSearchParam],
   );
 
-  // URL params that affect which meetings come back — everything except the
-  // date axis (scrolling) and UI-only params.
+  // Everything except date/view/weekend — a change here means cached data is stale.
   const filterKey = useMemo(() => {
     const params = new URLSearchParams(optimisticSearchParams.toString());
     params.delete(SELECTED_DATE_KEY);
@@ -107,57 +96,86 @@ export default function CalendarContainer({
     return params.toString();
   }, [optimisticSearchParams]);
 
-  const prevFilterKeyRef = useRef(filterKey);
-  const selectedDateRef = useRef(selectedDate);
-  selectedDateRef.current = selectedDate;
-
-  const [allResults, setAllResults] = useState<Moetemappe[]>(calendarResults);
-
-  // Months confirmed loaded for the current filter — an empty month lands
-  // here so its cells render blank instead of skeletons.
+  const [allResults, setAllResults] = useState<Moetemappe[]>([]);
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
     () => new Set(),
   );
   const loadedMonthsRef = useRef(loadedMonths);
   loadedMonthsRef.current = loadedMonths;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: filterKey is a trigger, not read in the body
+  const [isLoading, setIsLoading] = useState(false);
+
+  // fetchIdRef: incremented to invalidate any in-flight fetch.
+  // fetchedRef: keys that have been successfully fetched (don't re-fetch).
+  // fetchingRef: keys currently being fetched (prevent concurrent duplicates).
+  const fetchIdRef = useRef(0);
+  const fetchedRef = useRef<Set<string>>(new Set());
+  const fetchingRef = useRef<Set<string>>(new Set());
+
+  // When filter params change, wipe the cache and allow re-fetching everything.
+  const prevFilterKeyRef = useRef(filterKey);
   useEffect(() => {
+    if (filterKey === prevFilterKeyRef.current) return;
+    prevFilterKeyRef.current = filterKey;
+    fetchIdRef.current++;
+    fetchedRef.current = new Set();
+    fetchingRef.current = new Set();
+    setAllResults([]);
     setLoadedMonths(new Set());
+    setIsLoading(false);
   }, [filterKey]);
 
-  // Gated on !isLoading so stale in-flight results don't clear skeletons.
-  useEffect(() => {
-    if (isLoading) return;
-    const filterChanged = filterKey !== prevFilterKeyRef.current;
-    prevFilterKeyRef.current = filterKey;
-    const fetchedKeys = monthKeysAround(selectedDateRef.current);
+  // Fetch all pages for the current view, updating results after each page.
+  const fetchForView = useCallback(async () => {
+    const dateRange = getDateRange(selectedDate, selectedView);
+    const key =
+      selectedView === 'month'
+        ? monthKey(selectedDate)
+        : `${dateRange.from}:${dateRange.to}`;
 
-    if (filterChanged) {
-      setLoadedMonths(new Set(fetchedKeys));
-      setAllResults(calendarResults);
-      return;
-    }
+    if (fetchedRef.current.has(key) || fetchingRef.current.has(key)) return;
+    fetchingRef.current.add(key);
 
-    setLoadedMonths((prev) => {
-      const next = new Set(prev);
-      for (const k of fetchedKeys) next.add(k);
-      return next;
-    });
-    setAllResults((prev) => {
-      const map = new Map(prev.map((r) => [r.id, r]));
-      for (const r of calendarResults) {
-        if (r.id) map.set(r.id, r);
+    const localFetchId = ++fetchIdRef.current;
+    setIsLoading(true);
+
+    let cursor: string | undefined;
+    try {
+      do {
+        if (localFetchId !== fetchIdRef.current) {
+          fetchingRef.current.delete(key);
+          return;
+        }
+        const page = await fetchCalendarPage(enhet, dateRange, cursor);
+        if (localFetchId !== fetchIdRef.current) {
+          fetchingRef.current.delete(key);
+          return;
+        }
+        if (page.items.length > 0) {
+          setAllResults((prev) => mergeAndSort(prev, page.items));
+        }
+        cursor = page.next ?? undefined;
+      } while (cursor);
+
+      fetchedRef.current.add(key);
+      fetchingRef.current.delete(key);
+      if (selectedView === 'month') {
+        setLoadedMonths((prev) => new Set([...prev, key]));
       }
-      return Array.from(map.values()).sort((a, b) => {
-        const at = a.moetedato ? new Date(a.moetedato).getTime() : 0;
-        const bt = b.moetedato ? new Date(b.moetedato).getTime() : 0;
-        return at - bt;
-      });
-    });
-  }, [calendarResults, isLoading, filterKey]);
+      setIsLoading(false);
+    } catch {
+      fetchingRef.current.delete(key);
+      if (localFetchId === fetchIdRef.current) {
+        setIsLoading(false);
+      }
+    }
+  }, [enhet, selectedDate, selectedView]);
 
-  // Publish header heights as CSS vars for the month view's sticky day-names row.
+  useEffect(() => {
+    fetchForView();
+  }, [fetchForView]);
+
+  // Publish header heights as CSS vars for sticky positioning.
   const calendarHeaderRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     const update = () => {
@@ -188,14 +206,12 @@ export default function CalendarContainer({
     return () => ro.disconnect();
   }, []);
 
-  // Scroll-driven visible month, decoupled from selectedDate to avoid a
-  // URL-state feedback loop.
+  // Scroll-driven visible month
   const [visibleMonth, setVisibleMonth] = useState<Date>(selectedDate);
   useEffect(() => setVisibleMonth(selectedDate), [selectedDate]);
 
-  // When the user settles on a scrolled-to month, sync first-of-month to
-  // the URL so upstream data fetching picks up the new range. Skipped if
-  // already client-cached.
+  // When the user scrolls to an unloaded month, update the URL so fetchForView
+  // picks it up.
   useEffect(() => {
     const sameMonth =
       visibleMonth.getFullYear() === selectedDate.getFullYear() &&

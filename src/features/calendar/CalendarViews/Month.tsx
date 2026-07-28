@@ -477,7 +477,7 @@ export default function MonthView({
                         </div>
 
                         <div className={styles.meetingList}>
-                          {isLoading && !monthLoaded ? (
+                          {!monthLoaded ? (
                             <>
                               <MoetemappeSkeleton />
                               <MoetemappeSkeleton />
