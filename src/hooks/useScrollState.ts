@@ -31,6 +31,20 @@ type Subscriber = {
 
 const EPSILON_PX = 1;
 
+// How much a same-frame document-height change may EXCEED the scroll move and
+// still be read as scroll anchoring (content inserted above the scroll position)
+// rather than content appended below it. See handleScroll.
+//
+// The two cases aren't formally separable: `heightDelta = above + below` and
+// `rawDelta = above + user` is two equations in three unknowns, so a prepend of H
+// with the user scrolling up by `u` reads identically to an append of H with the
+// user scrolling down by `H - u`. What separates them in practice is scale — a
+// paged insert is hundreds to thousands of px, a single frame of user scroll is
+// tens. This is sized above a fling (~150px/frame) and far below a page insert.
+// The residual ambiguity is a prepend landing in the same frame as a >200px user
+// scroll (keyboard paging), which then reads at face value.
+const MAX_ANCHOR_SHIFT_SLACK_PX = 200;
+
 const getScrollRoot = () =>
   document.scrollingElement ?? document.documentElement ?? document.body;
 
@@ -51,6 +65,8 @@ const readScrollY = () => {
 const readViewportHeight = () =>
   window.visualViewport?.height ?? window.innerHeight;
 
+const readScrollHeight = () => document.documentElement.scrollHeight;
+
 const readIsAtTop = (y: number) => y <= EPSILON_PX;
 
 const readIsAtBottom = (y: number) => {
@@ -62,10 +78,44 @@ const readIsAtBottom = (y: number) => {
 let lastY = IS_BROWSER ? readScrollY() : 0;
 let isAtTop = IS_BROWSER ? readIsAtTop(lastY) : true;
 let isAtBottom = IS_BROWSER ? readIsAtBottom(lastY) : false;
+// Last sampled document height, used to discount scroll movement caused by the
+// document reflowing (content paging into a virtualized list) rather than the
+// user. See handleScroll.
+let lastScrollHeight = IS_BROWSER ? readScrollHeight() : 0;
+// When an infinite list still has content to load ABOVE the current top,
+// scrollTop 0 isn't the real top — reaching it would otherwise read as "at top"
+// and then bounce back the instant the content pages in and pushes the page
+// down. While provisional, subscribers see `isAtTop: false` so they hold their
+// scrolled state across the load. Set via setTopBoundaryProvisional.
+let topBoundaryProvisional = false;
+// The at-top value last broadcast to subscribers (raw isAtTop gated by the
+// provisional flag), tracked so a flag change only re-pushes on a real flip.
+let effectiveAtTop = isAtTop && !topBoundaryProvisional;
 
 let isQueued = false;
 let rafId: number | null = null;
 const subscribers = new Set<Subscriber>();
+
+// Recompute the gated at-top value and push it to subscribers if it flipped.
+// Called both on scroll (raw isAtTop changed) and when the provisional flag
+// toggles, so the two inputs stay reconciled from one place.
+const syncEffectiveAtTop = () => {
+  const next = isAtTop && !topBoundaryProvisional;
+  if (next === effectiveAtTop) return;
+  effectiveAtTop = next;
+  subscribers.forEach((subscriber) => {
+    subscriber.setIsAtTop(next);
+  });
+};
+
+// Mark (or clear) the document's top as provisional — an infinite list has more
+// content to load above the current top. Generic to the scroll system; the
+// caller owns the truth (e.g. a windowed list with a previous-page cursor).
+export const setTopBoundaryProvisional = (provisional: boolean) => {
+  if (topBoundaryProvisional === provisional) return;
+  topBoundaryProvisional = provisional;
+  syncEffectiveAtTop();
+};
 
 const handleScroll = () => {
   isQueued = false;
@@ -75,7 +125,42 @@ const handleScroll = () => {
   const newIsAtTop = readIsAtTop(y);
   const newIsAtBottom = readIsAtBottom(y);
 
-  const delta = y - lastY;
+  // Discount scroll movement that's really the document reflowing under the
+  // viewport, not the user. When content is inserted/removed ABOVE the scroll
+  // position, the scroll offset shifts by the same amount and the same direction
+  // to keep the visible content in place — so scrollHeight and scrollTop CO-MOVE.
+  // That co-movement is what we test for: the height change has to be no larger
+  // than the scroll move (plus slack for genuine scrolling mixed into the same
+  // frame) before we treat it as such a shift and subtract it — never past zero,
+  // so a real scroll in the same frame still reads through.
+  //
+  // A height change much LARGER than the scroll move is content added below the
+  // viewport (appending the next page), which doesn't move scrollTop at all, so
+  // the delta is left alone. Without that check a 20px user scroll landing in the
+  // same frame as a 2400px append would be zeroed out, and the direction never
+  // committed — which is exactly what happens on the search page, whose results
+  // append as you scroll down.
+  //
+  // The subtraction works only because the list disables native scroll anchoring
+  // (overflow-anchor: none), so Virtua's own shift is the sole scrollTop adjuster
+  // and it lands in the same frame as the height change rather than the browser
+  // anchoring scrollTop a frame later.
+  const scrollHeight = readScrollHeight();
+  const heightDelta = scrollHeight - lastScrollHeight;
+  lastScrollHeight = scrollHeight;
+
+  const rawDelta = y - lastY;
+  let delta = rawDelta;
+  if (
+    heightDelta !== 0 &&
+    Math.sign(heightDelta) === Math.sign(rawDelta) &&
+    Math.abs(heightDelta) <= Math.abs(rawDelta) + MAX_ANCHOR_SHIFT_SLACK_PX
+  ) {
+    delta =
+      Math.sign(rawDelta) *
+      Math.max(0, Math.abs(rawDelta) - Math.abs(heightDelta));
+  }
+
   if (delta === 0 && newIsAtTop === isAtTop && newIsAtBottom === isAtBottom) {
     lastY = y;
     return;
@@ -85,8 +170,12 @@ const handleScroll = () => {
   const direction: Exclude<LastScrollDirection, 'none'> | null =
     delta === 0 ? null : delta > 0 ? 'down' : 'up';
 
+  // Push at-top through the provisional gate (a separate broadcast, since the
+  // gated value is shared across subscribers and can also change off-scroll).
+  isAtTop = newIsAtTop;
+  syncEffectiveAtTop();
+
   subscribers.forEach((subscriber) => {
-    if (newIsAtTop !== isAtTop) subscriber.setIsAtTop(newIsAtTop);
     if (newIsAtBottom !== isAtBottom) subscriber.setIsAtBottom(newIsAtBottom);
 
     if (!direction) return;
@@ -126,7 +215,6 @@ const handleScroll = () => {
     );
   });
 
-  isAtTop = newIsAtTop;
   isAtBottom = newIsAtBottom;
   lastY = y;
 };
@@ -166,11 +254,15 @@ const addListener = (subscriber: Subscriber) => {
     lastY = readScrollY();
     isAtTop = readIsAtTop(lastY);
     isAtBottom = readIsAtBottom(lastY);
+    lastScrollHeight = readScrollHeight();
+    effectiveAtTop = isAtTop && !topBoundaryProvisional;
 
     addScrollListeners();
   }
 
-  subscriber.setIsAtTop(isAtTop);
+  // Seed with the gated at-top so a freshly mounted consumer agrees with the
+  // provisional flag instead of briefly reading raw scrollTop 0 as the top.
+  subscriber.setIsAtTop(effectiveAtTop);
   subscriber.setIsAtBottom(isAtBottom);
 };
 
@@ -201,7 +293,10 @@ export const useScrollState = ({
 }: Props = {}) => {
   const [scrollDirection, setScrollDirection] =
     useState<LastScrollDirection>('none');
-  const [isAtTopState, setIsAtTopState] = useState(isAtTop);
+  // Seed from the GATED at-top (raw at-top ∧ not provisional) — the same value
+  // addListener will push below — so the very first render already agrees with
+  // the provisional gate instead of briefly reading scrollTop 0 as the real top.
+  const [isAtTopState, setIsAtTopState] = useState(effectiveAtTop);
   const [isAtBottomState, setIsAtBottomState] = useState(isAtBottom);
 
   // We use a ref to store the subscriber so that we don't need to remove and re-add
@@ -230,13 +325,10 @@ export const useScrollState = ({
   });
 
   useEffect(() => {
-    // Snap local state to the real values at mount time
-    if (IS_BROWSER) {
-      const y = readScrollY();
-      setIsAtTopState(readIsAtTop(y));
-      setIsAtBottomState(readIsAtBottom(y));
-    }
-
+    // No separate "snap to reality" pass: addListener re-syncs the module globals
+    // from the live DOM when this is the first subscriber, then seeds this
+    // consumer from them — and it seeds at-top through the provisional gate,
+    // which a raw re-read here would bypass.
     const subscriber = subscriberRef.current;
     addListener(subscriber);
 
