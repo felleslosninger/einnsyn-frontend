@@ -22,7 +22,6 @@ function makeEnhet(
   } = {},
 ): TrimmedEnhet {
   return {
-    entity: 'Enhet',
     id,
     slug: id,
     orgnummer: id,

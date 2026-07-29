@@ -12,7 +12,6 @@ interface AncestorNode extends NamedEnhet {
 
 type TrimmedEnhetBase = Pick<
   Enhet,
-  | 'entity'
   | 'id'
   | 'slug'
   | 'orgnummer'

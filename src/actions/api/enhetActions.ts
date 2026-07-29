@@ -26,7 +26,6 @@ const fetchTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
     const trimmedEnhetList: TrimmedEnhet[] = [];
     for await (const enhet of api.iterate(enhetList)) {
       trimmedEnhetList.push({
-        entity: enhet.entity,
         id: enhet.id,
         slug: enhet.slug,
         navn: enhet.navn,
