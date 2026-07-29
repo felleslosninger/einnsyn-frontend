@@ -1,5 +1,5 @@
-@use "../../../styles/mediaQueries" as mq;
 @use "../../../styles/effects" as fx;
+@use "../../../styles/mediaQueries" as mq;
 
 // Duration of the smooth height ease between the closed and open sizes.
 $heightDuration: 320ms;
@@ -19,88 +19,7 @@ $fadeDuration: 160ms;
   --jp-badge-size: 2rem;
   --jp-badge-pad: var(--ds-size-2);
 
-  margin: calc(var(--ein-horizontal-spacing) * 2) 0;
-}
-
-// Static toolbar above the list's scroll region, so it stays visible while the
-// list scrolls.
-.listHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-4);
-  background: var(--ds-color-neutral-background-default);
-
-  @include mq.small {
-    flex-wrap: wrap;
-  }
-}
-
-.titleGroup {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ds-size-4);
-  position: relative;
-  padding-bottom: var(--ds-size-4);
-  margin-bottom: calc((var(--ds-size-2) + var(--ds-border-width-default)) * -1);
-}
-
-.title {
-  margin: 0;
-  font-size: var(--ds-font-size-4, 0.95rem);
-}
-
-.count {
-  color: var(--ds-color-neutral-text-subtle, inherit);
-  font-size: var(--ds-font-size-3, 0.875rem);
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-2);
-  margin-left: auto;
-  min-width: 0;
-  flex: 1;
-  max-width: 28rem;
-  justify-content: flex-end;
-
-  @include mq.small {
-    flex-basis: 100%;
-    max-width: none;
-    margin-left: 0;
-  }
-}
-
-.search {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-
-  input {
-    width: 100%;
-    height: 2.5rem;
-    padding: 0 var(--ds-size-3) 0 calc(var(--ds-size-3) * 2 + 1rem);
-    border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-default);
-    border-radius: var(--ds-border-radius-full, 9999px);
-    background: var(--ds-color-neutral-background-default, #fff);
-    font: inherit;
-
-    &:focus {
-      outline: 2px solid var(--ds-color-focus-default, currentColor);
-      outline-offset: 2px;
-    }
-  }
-}
-
-.searchIcon {
-  position: absolute;
-  left: var(--ds-size-3);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--ds-color-neutral-text-subtle);
-  pointer-events: none;
-  font-size: 1.1rem;
+  margin: var(--ein-half-horizontal-spacing) 0;
 }
 
 .iconButton {
@@ -153,13 +72,21 @@ $fadeDuration: 160ms;
   // block as tall as its content and the wheel drives the document scroll (which
   // also lets the site header minimize). Rows are full width; an open row grows
   // in place to reveal its inline detail (see `.bodySwap`).
+  //
+  // Opt out of the browser's native scroll anchoring for the list's content.
+  // Virtua already re-anchors window scroll itself when it pages items in above
+  // the viewport (its `shift` mode), in the same frame as the height change.
+  // Letting the browser ALSO adjust scrollTop — on its own, later frame —
+  // splits that adjustment from the height change, which is what the scroll
+  // detector reads as a phantom user scroll and uses to expand the header. With
+  // anchoring off, Virtua is the sole adjuster and the move stays attributable.
+  overflow-anchor: none;
   min-width: 0;
   list-style: none;
   margin: 0;
   padding: var(--ds-size-2) 0;
   display: flex;
   flex-direction: column;
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }
 
@@ -171,23 +98,65 @@ $fadeDuration: 160ms;
 }
 
 .itemSummary {
-  // The number cell IS the --jp-number-col track, so `.itemBody` starts at the
-  // same x on every row. `position: relative` anchors the stretched open link
-  // (closed) and the close action (open).
+  // Three tracks: the number cell IS the --jp-number-col track (so `.itemBody`
+  // starts at the same x on every row), the body, and a right-aligned actions
+  // column. The actions column is always present so the order-access button
+  // reserves its space and never reflows the body when the row opens.
   position: relative;
   display: grid;
-  grid-template-columns: var(--jp-number-col) minmax(0, 1fr);
+  grid-template-columns: var(--jp-number-col) minmax(0, 1fr) auto;
   column-gap: var(--jp-col-gap);
   align-items: start;
 }
 
-// Explicit close, top-right of an open row. Reuses `.iconButton`'s tertiary
-// icon-button look; this only adds the positioning.
-.closeAction {
-  position: absolute;
-  inset-block-start: var(--ds-size-1);
-  inset-inline-end: 0;
-  z-index: 2;
+.itemActions {
+  // Right-aligned action stack: a reserved top slot (the open-row close button's
+  // corner) above the order-access button. Stacking vertically — rather than
+  // putting the close button beside or absolutely over the row — keeps the
+  // button in an identical position whether the row is open or closed.
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ds-size-2);
+}
+
+.actionsTop {
+  // Reserves the corner for the open-row close button so the button below holds
+  // its place when the row is closed (the slot is simply empty then). Height
+  // matches `.iconButton` (the close button).
+  display: flex;
+  justify-content: flex-end;
+  min-height: 2.25rem;
+}
+
+.orderAccessButton {
+  // "Bestill innsyn" is a single label; don't let the narrow column wrap it.
+  white-space: nowrap;
+}
+
+// Phones: the `auto` actions track holds a nowrap button (~130px nb, ~150px en),
+// which at a 360px viewport leaves the title track around 100px — long words then
+// overflow it and get cut by `.bodySwap`'s `overflow: clip`. Drop the actions onto
+// their own row under the body; the wider three-track layout is untouched.
+@include mq.small {
+  .itemSummary {
+    grid-template-columns: var(--jp-number-col) minmax(0, 1fr);
+    row-gap: var(--ds-size-2);
+  }
+
+  .itemActions {
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  // Nothing to reserve here: the button no longer sits under the close-button
+  // corner, they're side by side.
+  .actionsTop {
+    min-height: 0;
+  }
 }
 
 // virtua wraps each item in its own element, so `.item:last-child` always
@@ -198,9 +167,9 @@ $fadeDuration: 160ms;
 
 .itemNumber {
   // The badge pill (a bit bigger than the inner number), so the border, radius
-  // and selected fill live here rather than on `.numberBadge`. It's a link that
-  // opens the row when closed, and a plain (filled) indicator when open.
-  // `justify-self: center` keeps it hugging its content, centered in the column.
+  // and selected fill live here rather than on `.numberBadge`. A non-interactive
+  // identifier — plain when closed, filled when open. `justify-self: center`
+  // keeps it hugging its content, centered in the --jp-number-col track.
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -239,6 +208,9 @@ $fadeDuration: 160ms;
   // with its own title) crossfade, so the title fades small ↔ large.
   display: block;
   width: fit-content;
+  // `.bodySwap` is `overflow: clip`, so a word wider than the grid track would be
+  // cut off rather than wrapped — most likely in the narrow actions-column layout.
+  overflow-wrap: anywhere;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -248,10 +220,10 @@ $fadeDuration: 160ms;
   font-size: var(--ds-font-size-4, 0.95rem);
 }
 
-// Open face: heading-sized title. Cap its width so a long title wraps before
-// reaching the close button (top-right), and add space before the detail.
+// Open face: heading-sized title. The actions column already reserves the
+// top-right space (close button + order button), so the title wraps within its
+// own grid track — no manual width cap needed. Add space before the detail.
 .detailFace .itemTitle {
-  max-width: calc(100% - 2.75rem);
   margin-block-end: var(--ds-size-2);
   font-size: var(--ds-font-size-7, 1.5rem);
 }
@@ -331,6 +303,12 @@ $fadeDuration: 160ms;
   background: var(--ds-color-accent-base-default);
   border-color: var(--ds-color-accent-base-default);
   color: var(--ds-color-accent-contrast-default, #fff);
+  // Slide down to stay aligned with the enlarged open title: the title grows
+  // --ds-font-size-4 → --ds-font-size-7 (top-anchored) between its two faces, so
+  // its first-line centre drops by half the line-height delta (line-height 1.2,
+  // hence 0.6 × (fs7 − fs4)). Shifting the badge by the same keeps the number
+  // aligned with the title at both sizes.
+  transform: translateY(calc(0.6 * (var(--ds-font-size-7, 1.5rem) - var(--ds-font-size-4, 0.95rem))));
 }
 
 
