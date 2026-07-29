@@ -1,0 +1,23 @@
+// Layout for the tab row. The container also carries the global `.header-tabs`
+// class (full-bleed margins, top padding, sizing) — see styles/headerTabs.scss.
+.tabsContainer {
+  position: relative;
+  display: flex;
+}
+
+// The tabs themselves, left-aligned.
+.tabs {
+  display: flex;
+  align-items: center;
+}
+
+// Right-aligned trailing slot (filter dropdown, sort / back-to-top, …). Takes the
+// remaining width and pushes its content to the end; the negative margin nudges
+// the control to align with the field/content edge above it.
+.actions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--ds-size-1));
+}

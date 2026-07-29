@@ -1,19 +1,18 @@
 'use client';
 
-import { EinLink } from '~/components/EinLink/EinLink';
+import { HeaderTab, HeaderTabs } from '~/components/HeaderTabs/HeaderTabs';
 import {
   useOptimisticPathname,
   useOptimisticSearchParams,
 } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
-import styles from './SearchTabs.module.scss';
 
 export default function SearchTabs({ className }: { className?: string }) {
   const searchParams = useOptimisticSearchParams();
   const pathname = useOptimisticPathname();
   const t = useTranslation();
+  const activeTab = searchParams?.get('entity') || '';
 
   const getLinkUrl = (entityName: string) => {
     const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
@@ -25,54 +24,38 @@ export default function SearchTabs({ className }: { className?: string }) {
     return `${pathname}?${searchParamsCopy.toString()}`;
   };
 
-  const getLinkClassName = (tabName: string) => {
-    const classes: string[] = [styles.searchTab, 'header-tab'];
-    const activeTab = searchParams?.get('entity') || '';
-    if (activeTab === tabName) {
-      classes.push('active');
-    }
-    return classes.join(' ');
-  };
-
   return (
-    <div
-      className={cn(styles.tabsContainer, className, 'header-tabs')}
-      data-size="sm"
-      data-color="neutral"
+    <HeaderTabs
+      className={className}
+      actions={<SearchFilterDropdown className="header-dropdown" />}
     >
-      <div className={cn(styles.searchTabs)}>
-        <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
-          {t('common.all')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Saksmappe')}
-          href={getLinkUrl('Saksmappe')}
-        >
-          {t('saksmappe.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Journalpost')}
-          href={getLinkUrl('Journalpost')}
-        >
-          {t('journalpost.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetemappe')}
-          href={getLinkUrl('Moetemappe')}
-        >
-          {t('moetemappe.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetesak')}
-          href={getLinkUrl('Moetesak')}
-        >
-          {t('moetesak.labelPlural')}
-        </EinLink>
-      </div>
-
-      <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown className="header-dropdown" />
-      </div>
-    </div>
+      <HeaderTab href={getLinkUrl('')} active={activeTab === ''}>
+        {t('common.all')}
+      </HeaderTab>
+      <HeaderTab
+        href={getLinkUrl('Saksmappe')}
+        active={activeTab === 'Saksmappe'}
+      >
+        {t('saksmappe.labelPlural')}
+      </HeaderTab>
+      <HeaderTab
+        href={getLinkUrl('Journalpost')}
+        active={activeTab === 'Journalpost'}
+      >
+        {t('journalpost.labelPlural')}
+      </HeaderTab>
+      <HeaderTab
+        href={getLinkUrl('Moetemappe')}
+        active={activeTab === 'Moetemappe'}
+      >
+        {t('moetemappe.labelPlural')}
+      </HeaderTab>
+      <HeaderTab
+        href={getLinkUrl('Moetesak')}
+        active={activeTab === 'Moetesak'}
+      >
+        {t('moetesak.labelPlural')}
+      </HeaderTab>
+    </HeaderTabs>
   );
 }

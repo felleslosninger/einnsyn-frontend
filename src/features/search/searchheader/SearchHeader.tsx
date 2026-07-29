@@ -15,7 +15,7 @@ export default function SearchHeader({ initialEnhets }: SearchHeaderProps) {
     <EnhetCacheProvider initialEnhets={initialEnhets}>
       <SearchField className={styles.searchForm} />
 
-      <SearchTabs className="header-tabs" />
+      <SearchTabs />
     </EnhetCacheProvider>
   );
 }

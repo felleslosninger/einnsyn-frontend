@@ -23,6 +23,11 @@
 .header-tab.ein-link,
 .header-tab.ein-button {
   display: inline-block;
+  // Normalize intrinsic typography so a non-link tab (e.g. the <h2> used as the
+  // active tab in the saksmappe header) renders at the same size/weight as the
+  // link tabs instead of its heading defaults.
+  font-size: inherit;
+  font-weight: inherit;
   padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-3);
   margin: 0 var(--ds-size-2);
   color: var(--ds-color-neutral-text-subtle);
