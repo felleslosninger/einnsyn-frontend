@@ -6,6 +6,22 @@
   font-size: var(--ds-font-size-3, 0.95rem);
 }
 
+// Designsystemet's own rule is `.ds-breadcrumbs > :is(ol,ul) { flex-wrap: wrap }`.
+// Without overriding it the trail wraps instead of overflowing, so scrollWidth
+// never exceeds clientWidth and the whole collapse/ellipsis/truncate machinery
+// below is dead — and a long trailing label (the case title, once the header
+// collapses) silently grows the sticky header by a line or two mid-transition.
+.breadcrumbsList {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+// The truncation target. Needs `min-width: 0` so it can shrink below its content
+// width inside the flex row; `.truncate` then does the actual ellipsing.
+.currentItem {
+  min-width: 0;
+}
+
 .ellipsis {
   opacity: 0.6;
 }
@@ -23,4 +39,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  // `.einLink` sets `white-space: normal`, which would otherwise beat the
+  // wrapper's nowrap and wrap the label instead of ellipsing it.
+  a {
+    white-space: inherit;
+  }
 }
