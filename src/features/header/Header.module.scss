@@ -25,12 +25,11 @@
   background-color: var(--ds-color-neutral-background-default);
   width: 100%;
   z-index: 10;
-
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
-
   position: sticky;
   top: 0;
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 
   &.fixed {
     position: fixed;

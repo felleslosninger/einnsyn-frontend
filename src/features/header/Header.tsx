@@ -15,6 +15,8 @@ import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
+import { useHeaderCollapse } from './useHeaderCollapse';
+import { useHeaderCollapseDistance, useHeaderTwoLevel } from './useHeaderMode';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
@@ -22,28 +24,29 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const isHome = rootPath === 'home';
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
-  // The header's height in its EXPANDED pose. The fixed spacer and the saksmappe
-  // detail pane reserve against this STABLE value (not the live collapsing
-  // height) so a minimize/expand never changes in-flow geometry — which would
-  // reflow the document, trip scroll anchoring, and feed the scroll-direction
-  // detector, oscillating the header (the compact/expanded flicker).
+  // The header's height in its EXPANDED pose. The fixed spacer reserves against
+  // this STABLE value (not the live collapsing height) so a minimize/expand never
+  // changes in-flow geometry — which would reflow the document, trip scroll
+  // anchoring, and feed the scroll-direction detector, oscillating the header
+  // (the compact/expanded flicker).
   const [expandedHeaderHeight, setExpandedHeaderHeight] = useState<
     number | null
   >(null);
-  // The header's height in its COMPACT (docked-minimized) pose. The saksmappe
-  // detail pane pins to this so it doesn't track the header's per-frame animated
-  // height while collapsing/expanding (which would re-commit a scroll direction
-  // and cancel the in-flight expand). Frozen across every expand (captured only
-  // while minimized + fixed).
-  const [compactHeaderHeight, setCompactHeaderHeight] = useState<number | null>(
-    null,
-  );
   const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
     null,
   );
   const [fixedViewportTop, setFixedViewportTop] = useState(0);
   const [fixedViewportLeft, setFixedViewportLeft] = useState(0);
   const { isAtTop, isScrollingDown } = useScrollState();
+  // The saksmappe / journalpost page opts into the scroll-linked collapse; other
+  // pages keep the collapse-on-scroll-down / expand-on-scroll-up behaviour.
+  const twoLevel = useHeaderTwoLevel();
+  // In two-level mode the header collapses at a scroll threshold (driven by a CSS
+  // var, not the binary `minimized` class): it stays expanded until the page has
+  // scrolled the collapse distance, then flips to compact in one transition.
+  // SaksmappeHeader measures and publishes that distance; this hook flips the var.
+  const collapseDistance = useHeaderCollapseDistance();
+  useHeaderCollapse({ enabled: twoLevel && !isHome, collapseDistance });
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
@@ -86,7 +89,6 @@ export default function Header({ children }: { children: React.ReactNode }) {
     if (isHome) {
       setHeaderHeight(null);
       setExpandedHeaderHeight(null);
-      setCompactHeaderHeight(null);
       return;
     }
 
@@ -106,16 +108,6 @@ export default function Header({ children }: { children: React.ReactNode }) {
       // spacer track the animation and re-create the scroll-anchoring flicker.
       if (!minimizedRef.current && !fixedRef.current) {
         setExpandedHeaderHeight((currentHeight) =>
-          currentHeight === nextHeight ? currentHeight : nextHeight,
-        );
-      }
-      // Mirror image: record the COMPACT height only while docked-minimized
-      // (scrolled + collapsed). True throughout a collapse (scroll-down,
-      // harmless — a re-commit there is a no-op), false throughout an expand
-      // (scroll-up) — so the value the detail pane pins to is frozen across the
-      // whole expand and can't feed a per-frame scroll perturbation.
-      if (minimizedRef.current && fixedRef.current) {
-        setCompactHeaderHeight((currentHeight) =>
           currentHeight === nextHeight ? currentHeight : nextHeight,
         );
       }
@@ -156,20 +148,26 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
     const updateViewportBounds = () => {
       const viewport = window.visualViewport;
-      const nextTop = Math.round(viewport?.offsetTop ?? 0);
-      const nextWidth = Math.round(
-        viewport?.width ?? document.documentElement.clientWidth,
-      );
-      const nextLeft = Math.round(viewport?.offsetLeft ?? 0);
+      const rawTop = viewport?.offsetTop ?? 0;
+      const rawWidth = viewport?.width ?? document.documentElement.clientWidth;
+      const rawLeft = viewport?.offsetLeft ?? 0;
 
+      // visualViewport metrics carry sub-pixel jitter while scrolling (offsetTop
+      // can hover around e.g. 0.5), and a plain Math.round of that flips between
+      // adjacent integers (0↔1) from frame to frame. Each flip moves the fixed
+      // header's `top`/`left` by a pixel AND re-renders the whole header subtree.
+      // Quantize with a 1px deadband instead: keep the committed value until the
+      // raw metric has moved a full pixel away from it, so jitter neither shifts
+      // the header nor re-renders (the updater returns the same value and React
+      // bails). Genuine viewport changes (mobile chrome, pinch-zoom) still commit.
       setFixedViewportTop((currentTop) =>
-        currentTop === nextTop ? currentTop : nextTop,
+        quantizeViewportMetric(rawTop, currentTop),
       );
       setFixedViewportWidth((currentWidth) =>
-        currentWidth === nextWidth ? currentWidth : nextWidth,
+        quantizeViewportMetric(rawWidth, currentWidth),
       );
       setFixedViewportLeft((currentLeft) =>
-        currentLeft === nextLeft ? currentLeft : nextLeft,
+        quantizeViewportMetric(rawLeft, currentLeft),
       );
     };
 
@@ -207,42 +205,25 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
-  const minimized = !isHome && isScrollingDown;
+  // Default mode: collapse on scroll-down, expand on scroll-up. Two-level
+  // (saksmappe) mode does NOT use this binary class — it collapses via the
+  // threshold-driven `--ein-header-collapse` var instead — so it stays `false`
+  // and the chrome row (logo + breadcrumb) keeps its full height while the
+  // SaksmappeHeader body collapses underneath it.
+  const minimized = !isHome && !twoLevel && isScrollingDown;
   // Expose the latest minimized state to the (set-up-once) height observer above.
+  // In two-level mode this is always false, so the observer records the
+  // expanded height `E` whenever the header isn't fixed (i.e. at the top, where
+  // collapse is 0) — exactly the resting expanded pose.
   minimizedRef.current = minimized;
 
   const className = cn(styles.header, `section-${rootPath}`, {
     [styles.scrolled]: minimized,
     [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
     // Global hook (not module-hashed) so feature components rendered into the
-    // header slot — e.g. SaksmappeHeader — can collapse themselves via CSS.
+    // header slot can collapse via CSS in default mode.
     'header-minimized': minimized,
   });
-
-  // Publish the stable docked (expanded) header height so feature content in the
-  // header slot — the saksmappe detail pane — can reserve its max-height against
-  // it instead of the live collapsing height. That keeps the pane's box constant
-  // across minimize toggles, so toggling doesn't reflow the document.
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    if (!isHome && expandedHeaderHeight !== null) {
-      root.style.setProperty(
-        '--ein-header-docked-h',
-        `${expandedHeaderHeight}px`,
-      );
-    } else {
-      root.style.removeProperty('--ein-header-docked-h');
-    }
-    // Stable compact height for the detail pane's sticky top (see above).
-    if (!isHome && compactHeaderHeight !== null) {
-      root.style.setProperty(
-        '--ein-header-compact-h',
-        `${compactHeaderHeight}px`,
-      );
-    } else {
-      root.style.removeProperty('--ein-header-compact-h');
-    }
-  }, [isHome, expandedHeaderHeight, compactHeaderHeight]);
 
   const transitionDeps = [rootPath];
   const transitionEvents: EinTransitionEvents<typeof transitionDeps> = useMemo(
@@ -414,6 +395,16 @@ export default function Header({ children }: { children: React.ReactNode }) {
       </div>
     </EinTransition>
   );
+}
+
+// Snap a sub-pixel visualViewport metric to a stable integer with a 1px
+// deadband: keep the currently committed value unless the raw reading has moved
+// at least a pixel from it. Stops frame-to-frame jitter around an `.5` boundary
+// from oscillating the fixed header's position and re-rendering it. See
+// `updateViewportBounds`.
+function quantizeViewportMetric(raw: number, current: number | null) {
+  if (current === null) return Math.round(raw);
+  return Math.abs(raw - current) < 1 ? current : Math.round(raw);
 }
 
 function createInvisibleClone(e: HTMLElement) {
