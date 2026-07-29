@@ -101,6 +101,7 @@ type Props = {
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
   setVisibleMonth: (date: Date) => void;
+  onMonthInView: (date: Date) => void;
   loadedMonths: Set<string>;
 };
 
@@ -110,6 +111,7 @@ export default function MonthView({
   displayWeekends,
   currentCalendarResults,
   setVisibleMonth,
+  onMonthInView,
   loadedMonths,
 }: Props) {
   const t = useTranslation();
@@ -323,7 +325,9 @@ export default function MonthView({
 
   const handleScroll = useCallback(() => {
     if (isProgrammaticScrollRef.current) return;
-    if (needsInitialScrollRef.current) return;
+    // User scroll while auto-positioning is pending: hand control to the user
+    // so the auto-scroll doesn't snap back when loading finishes.
+    needsInitialScrollRef.current = false;
 
     const scrollTop = window.scrollY;
     const scrollHeight = document.documentElement.scrollHeight;
@@ -335,7 +339,25 @@ export default function MonthView({
       prependPrevMonth();
     }
     reportVisibleMonth();
-  }, [appendNextMonth, prependPrevMonth, reportVisibleMonth]);
+
+    // Notify parent about the last month visible at the bottom of the viewport
+    // so it can prefetch data before the month reaches the heading position.
+    const bottomProbe = scrollTop + clientHeight - 1;
+    let bottomBlock: MonthBlock | null = null;
+    let bottomTop = Number.NEGATIVE_INFINITY;
+    for (const block of monthsRef.current) {
+      const el = monthRefs.current.get(blockKey(block));
+      if (!el) continue;
+      const top = el.getBoundingClientRect().top + scrollTop;
+      if (top <= bottomProbe && top > bottomTop) {
+        bottomBlock = block;
+        bottomTop = top;
+      }
+    }
+    if (bottomBlock) {
+      onMonthInView(new Date(bottomBlock.year, bottomBlock.month, 1));
+    }
+  }, [appendNextMonth, prependPrevMonth, reportVisibleMonth, onMonthInView]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });

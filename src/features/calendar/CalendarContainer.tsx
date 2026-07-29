@@ -105,10 +105,12 @@ export default function CalendarContainer() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // fetchIdRef: incremented to invalidate any in-flight fetch.
+  // fetchIdRef: incremented to invalidate any in-flight primary fetch.
+  // prefetchIdRef: incremented only on filter change to cancel background prefetches.
   // fetchedRef: keys that have been successfully fetched (don't re-fetch).
   // fetchingRef: keys currently being fetched (prevent concurrent duplicates).
   const fetchIdRef = useRef(0);
+  const prefetchIdRef = useRef(0);
   const fetchedRef = useRef<Set<string>>(new Set());
   const fetchingRef = useRef<Set<string>>(new Set());
 
@@ -118,12 +120,58 @@ export default function CalendarContainer() {
     if (filterKey === prevFilterKeyRef.current) return;
     prevFilterKeyRef.current = filterKey;
     fetchIdRef.current++;
+    prefetchIdRef.current++;
     fetchedRef.current = new Set();
     fetchingRef.current = new Set();
     setAllResults([]);
     setLoadedMonths(new Set());
     setIsLoading(false);
   }, [filterKey]);
+
+  // Silently fetch a month without touching isLoading or the URL.
+  const prefetchMonth = useCallback(
+    async (date: Date) => {
+      if (selectedView !== 'month') return;
+      const key = monthKey(date);
+      if (fetchedRef.current.has(key) || fetchingRef.current.has(key)) return;
+      const dateRange = getDateRange(date, 'month');
+      fetchingRef.current.add(key);
+      const localId = prefetchIdRef.current;
+      let cursor: string | undefined;
+      try {
+        do {
+          if (localId !== prefetchIdRef.current) {
+            fetchingRef.current.delete(key);
+            return;
+          }
+          const page = await fetchCalendarPage(enhet, dateRange, cursor);
+          if (localId !== prefetchIdRef.current) {
+            fetchingRef.current.delete(key);
+            return;
+          }
+          if (page.items.length > 0) {
+            setAllResults((prev) => mergeAndSort(prev, page.items));
+          }
+          cursor = page.next ?? undefined;
+        } while (cursor);
+        fetchedRef.current.add(key);
+        fetchingRef.current.delete(key);
+        setLoadedMonths((prev) => new Set([...prev, key]));
+      } catch {
+        fetchingRef.current.delete(key);
+      }
+    },
+    [enhet, selectedView],
+  );
+
+  const prefetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onMonthInView = useCallback(
+    (date: Date) => {
+      if (prefetchTimerRef.current) clearTimeout(prefetchTimerRef.current);
+      prefetchTimerRef.current = setTimeout(() => prefetchMonth(date), 400);
+    },
+    [prefetchMonth],
+  );
 
   // Fetch all pages for the current view, updating results after each page.
   const fetchForView = useCallback(async () => {
@@ -249,6 +297,7 @@ export default function CalendarContainer() {
           displayWeekends={displayWeekends}
           currentCalendarResults={allResults}
           setVisibleMonth={setVisibleMonth}
+          onMonthInView={onMonthInView}
           loadedMonths={loadedMonths}
         />
       </div>

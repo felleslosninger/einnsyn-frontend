@@ -14,6 +14,7 @@ type Props = {
   displayWeekends: boolean;
   currentCalendarResults: Moetemappe[];
   setVisibleMonth: (date: Date) => void;
+  onMonthInView: (date: Date) => void;
   loadedMonths: Set<string>;
 };
 
@@ -24,6 +25,7 @@ export default function CalendarBody({
   displayWeekends,
   currentCalendarResults,
   setVisibleMonth,
+  onMonthInView,
   loadedMonths,
 }: Props) {
   return (
@@ -35,6 +37,7 @@ export default function CalendarBody({
           displayWeekends={displayWeekends}
           currentCalendarResults={currentCalendarResults}
           setVisibleMonth={setVisibleMonth}
+          onMonthInView={onMonthInView}
           loadedMonths={loadedMonths}
         />
       )}
