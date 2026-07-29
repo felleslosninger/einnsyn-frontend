@@ -286,8 +286,7 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
         }
 
         if (ref) {
-          (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current =
-            node;
+          (ref as React.RefObject<HTMLTextAreaElement | null>).current = node;
         }
       },
       [ref],
@@ -368,7 +367,7 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
                   [styles.prefixedToken]: !!token.prefix,
                   [styles.includeToken]: token.sign === '+',
                   [styles.excludeToken]: token.sign === '-',
-                  [styles.quotedToken]: !!token.quoted,
+                  [styles.quotedToken]: token.quoted,
                 })}
               >
                 {token.sign && (
