@@ -124,10 +124,15 @@ export default function JournalpostContainer({
           )}
       </dl>
 
-      {!documentsPending && hasUndownloadableDocument && (
+      {/* Inline (in a journalpost list row) the surrounding row supplies a
+          persistent order-access button in its actions column, so this one would
+          duplicate it. Keep it only for the standalone (non-inline) layout. */}
+      {!inline && !documentsPending && hasUndownloadableDocument && (
         // TODO: wire up the "order access" flow.
         <div className={styles.orderAccess}>
-          <EinButton style="secondary">
+          {/* `variant`, not `style`: EinButton's `style` prop maps to CSS-module
+              classes that don't exist, so it silently renders as primary. */}
+          <EinButton variant="secondary">
             {t('journalpost.orderAccess')}
           </EinButton>
         </div>
