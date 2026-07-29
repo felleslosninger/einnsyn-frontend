@@ -107,6 +107,7 @@
     "statisticsPath": "statistikk"
   },
   "common": {
+    "goToTop": "Gå til toppen",
     "publishedAt": "Publisert",
     "updatedAt": "Oppdatert",
     "all": "Alle",

@@ -1,42 +1,52 @@
 @use "../../../styles/mediaQueries" as mq;
 @use "../../../styles/effects" as fx;
 
-.saksmappeHeader {
-  margin: var(--ein-horizontal-spacing) 0;
-  transition: margin 0.2s fx.$easeOut;
+// One smooth step between the expanded and compact poses. The collapse var flips
+// 0↔1 at the threshold (not per scroll frame), so this transition IS the whole
+// animation — body and context bar must share it to morph in lockstep.
+$collapseDuration: 280ms;
 
-  // When the site header collapses on scroll-down, tighten the bottom gap so the
-  // minimized bar is just breadcrumb + one-line title.
-  :global(.header-minimized) & {
-    margin: var(--ds-size-2) 0;
+.saksmappeHeader {
+  // No bottom margin: the list bar (the HeaderTabs row) sits flush with the
+  // header's edge, exactly like the search section's tabs — the journalpost list
+  // supplies its own top spacing. The TOP spacing is folded into .bodyInner's
+  // padding so it collapses WITH the body, leaving the collapse distance exactly
+  // the body's height (the list bar below it never collapses).
+  display: flow-root;
+}
+
+// Collapsing body clip. Its height is driven by the binary collapse var: at 0
+// (expanded) it's the full measured body height, at 1 (compact) it's zero.
+// `overflow: hidden` clips .bodyInner as the box collapses. The height is only
+// applied once measured (the px var exists) so the body renders at natural
+// height pre-measure / SSR instead of `calc(var(unset) …)` collapsing it to
+// nothing. The transition animates the one-step 0→1 (and back) flip; gated on
+// reduced-motion so it snaps instead.
+.body {
+  overflow: hidden;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: height $collapseDuration fx.$easeOut;
   }
 }
 
-.body {
-  // Single column by default (mobile/medium); two columns (main | enhet) on
-  // large. When minimized on large the enhet column shrinks to nothing, handing
-  // its width to the title column so the title reflows from two lines to one as
-  // it gains room (rather than snapping line counts). These animate: they only
-  // change the FIXED header's internal layout, so they don't reflow the document
-  // (the spacer + detail max-height are frozen).
+.measured .body {
+  height: calc(var(--ein-sm-body-h) * (1 - var(--ein-header-collapse, 0)));
+}
+
+// The unconstrained, measured content (ResizeObserver target → --ein-sm-body-h).
+// Two columns on large (main | enhet); single column otherwise. The folded
+// padding-top is the space between the breadcrumb chrome row and the body.
+.bodyInner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ein-vertical-spacing);
   align-items: start;
-  transition:
-    grid-template-columns 0.2s fx.$easeOut,
-    gap 0.2s fx.$easeOut;
-
-  :global(.header-minimized) & {
-    gap: 0;
-  }
+  padding-top: var(--ein-horizontal-spacing);
+  padding-bottom: var(--ein-half-horizontal-spacing);
 
   @include mq.large {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-
-    :global(.header-minimized) & {
-      grid-template-columns: minmax(0, 1fr) minmax(0px, 0px);
-    }
   }
 }
 
@@ -44,54 +54,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-3);
-  transition: gap 0.2s fx.$easeOut;
-
-  // Close the inter-row gaps as the kind row / meta group collapse, so the
-  // surviving one-line title isn't padded by their (zero-height) tracks.
-  :global(.header-minimized) & {
-    gap: 0;
-  }
 }
 
-// Wrapper around the meta row + follow link so a single element collapses
-// (matching the kind row and enhet card) rather than three loose siblings.
+// Wrapper around the meta row + follow link.
 .metaAndFollow {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-3);
-}
-
-// Smoothly collapses its single child to zero height. Animating
-// `grid-template-rows` from 1fr to 0fr DOES ease (unlike height: auto -> 0); the
-// child clips via overflow:hidden + min-height:0. Used for the kind row and the
-// meta/follow group (the enhet card collapses the same way — see .enhetCard).
-// Now that the fixed header's spacer and the detail pane's max-height are frozen
-// (stable), animating the header's internal height no longer reflows the
-// document, so the collapse can ease instead of snap.
-.collapseRow {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition:
-    grid-template-rows 0.2s fx.$easeOut,
-    opacity 0.2s fx.$easeOut;
-
-  >* {
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  :global(.header-minimized) & {
-    grid-template-rows: 0fr;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    // Defer visibility:hidden to the end of the collapse so the contained links
-    // leave the focus order only once hidden (not mid-animation).
-    transition:
-      grid-template-rows 0.2s fx.$easeOut,
-      opacity 0.2s fx.$easeOut,
-      visibility 0s linear 0.2s;
-  }
 }
 
 .kindRow {
@@ -124,15 +93,11 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  transition: font-size 0.2s fx.$easeOut;
-
-  // Stays visible when minimized at a smaller step. No forced single-line clamp:
-  // as the enhet column shrinks the title column grows, so the title reflows
-  // from two lines to one gradually (driven by the growing width + smaller font)
-  // instead of snapping between line counts.
-  :global(.header-minimized) & {
-    font-size: var(--ds-font-size-6);
-  }
+  // Was an <h1>; the real (permanent) heading now lives outside the collapsing
+  // body, so this element carries only the visual treatment. Values mirror the
+  // global `h1` rule in styles/fontStyles.scss so the rendering is unchanged.
+  font-size: var(--ds-font-size-8, 2rem);
+  font-weight: 600;
 }
 
 .metaRow {
@@ -176,33 +141,6 @@
   align-self: start;
   border-left: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   padding-left: var(--ein-vertical-spacing);
-  // Collapses its height like .collapseRow (grid-rows 1fr -> 0fr) while its grid
-  // COLUMN shrinks to nothing (see .body @large), so it shrinks away in both
-  // dimensions and frees the title's width.
-  display: grid;
-  grid-template-rows: 1fr;
-  transition:
-    grid-template-rows 0.2s fx.$easeOut,
-    opacity 0.2s fx.$easeOut,
-    padding 0.2s fx.$easeOut;
-
-  >* {
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  :global(.header-minimized) & {
-    grid-template-rows: 0fr;
-    opacity: 0;
-    padding-block: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition:
-      grid-template-rows 0.2s fx.$easeOut,
-      opacity 0.2s fx.$easeOut,
-      padding 0.2s fx.$easeOut,
-      visibility 0s linear 0.2s;
-  }
 }
 
 .enhetCardHeading {
@@ -242,4 +180,71 @@
 
 .enhetFieldValue {
   display: table-cell;
+}
+
+// The list bar's trailing controls (in HeaderTabs' actions slot). The bar itself
+// is the shared HeaderTabs row, so it matches the search tabs; only these two
+// controls — shown one at a time, sort while expanded / back-to-top once
+// collapsed — are local. Both carry the tab's vertical padding + line-height so
+// they sit on the SAME baseline as the tabs (the actions slot is top-aligned in
+// HeaderTabs, so matching the tab box height is what lines them up), and both use
+// the tab row's borderless hover-to-emphasis treatment rather than a filled
+// button, so they read as part of the row.
+$tab-padding: var(--ds-size-4) var(--ds-size-2) var(--ds-size-3);
+
+// Back-to-top link, shown once collapsed.
+.goToTop {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  flex-shrink: 0;
+  padding: $tab-padding;
+  line-height: var(--ds-line-height-sm);
+  font-size: inherit;
+  color: var(--ds-color-accent-text-default, var(--ds-color-neutral-text-default));
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    border-radius: var(--ds-border-radius-default);
+  }
+
+  svg {
+    font-size: 1.1em;
+  }
+}
+
+// Sort control, shown while expanded.
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: $tab-padding;
+  line-height: var(--ds-line-height-sm);
+  border: none;
+  background: transparent;
+  color: var(--ds-color-neutral-text-subtle);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    border-radius: var(--ds-border-radius-default);
+  }
+
+  svg {
+    font-size: 1.25rem;
+  }
 }

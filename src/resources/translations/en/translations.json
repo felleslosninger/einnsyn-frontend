@@ -107,6 +107,7 @@
     "statisticsPath": "statistics"
   },
   "common": {
+    "goToTop": "Go to top",
     "publishedAt": "Published",
     "updatedAt": "Updated",
     "all": "All",

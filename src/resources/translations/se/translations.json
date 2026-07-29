@@ -107,6 +107,7 @@
     "statisticsPath": "statistihkka"
   },
   "common": {
+    "goToTop": "Mana bajás",
     "publishedAt": "Almmuhuvvon",
     "updatedAt": "Beaiváduvvon",
     "all": "Buot",
