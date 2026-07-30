@@ -16,7 +16,7 @@ import {
   getName,
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
-import { skeletonString } from '~/lib/utils/skeletonUtils';
+import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
 
@@ -463,7 +463,7 @@ const SkeletonRows = ({ keyPrefix }: { keyPrefix: string }) => (
       <div key={`${keyPrefix}-${index}`} className={styles.selectorListItem}>
         <span className={styles.selectorListText}>
           <span>
-            <Skeleton>{skeletonString(10, 60)}</Skeleton>
+            <Skeleton variant="text" width={skeletonLength(index, 10, 60)} />
           </span>
         </span>
       </div>

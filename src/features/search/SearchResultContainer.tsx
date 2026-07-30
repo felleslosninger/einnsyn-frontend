@@ -81,8 +81,14 @@ export default function SearchResultContainer({
             {/* Conditionally render EinScrollTrigger only if there's a next page */}
             {currentSearchResults.next && (
               <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                <SearchResultSkeleton className={styles.searchResult} />
-                <SearchResultSkeleton className={styles.searchResult} />
+                <SearchResultSkeleton
+                  className={styles.searchResult}
+                  index={0}
+                />
+                <SearchResultSkeleton
+                  className={styles.searchResult}
+                  index={1}
+                />
               </EinScrollTrigger>
             )}
           </div>

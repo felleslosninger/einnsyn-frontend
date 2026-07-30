@@ -10,7 +10,7 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { getAncestorsAsString, getName } from '~/lib/utils/enhetUtils';
-import { skeletonString } from '~/lib/utils/skeletonUtils';
+import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
 
@@ -331,7 +331,7 @@ const SkeletonRows = () => (
       <div key={`loading-mobile-${index}`} className={styles.selectorListItem}>
         <span className={styles.selectorListText}>
           <span>
-            <Skeleton>{skeletonString(10, 60)}</Skeleton>
+            <Skeleton variant="text" width={skeletonLength(index, 10, 60)} />
           </span>
         </span>
       </div>
