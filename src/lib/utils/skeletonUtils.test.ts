@@ -14,12 +14,12 @@ describe('skeletonUtils', () => {
   });
 
   test('skeletonLength gives consecutive rows different lengths', () => {
-    // Test a sequence of 8
-    const lengths = Array.from({ length: 8 }, (_, index) =>
+    // Test a sequence of 10 (we have 10 pre-defined ratios)
+    const lengths = Array.from({ length: 10 }, (_, index) =>
       skeletonLength(index, 10, 60),
     );
 
-    assert.strictEqual(new Set(lengths).size, 8, lengths.join());
-    assert.strictEqual(skeletonLength(8, 10, 60), lengths[0]);
+    assert.strictEqual(new Set(lengths).size, 10, lengths.join());
+    assert.strictEqual(skeletonLength(11, 10, 60), lengths[0]);
   });
 });
