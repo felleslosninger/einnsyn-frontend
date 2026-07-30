@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
 import {
-  mergeTrimmedEnhetsWithAncestors,
+  expandTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
 } from './enhetUtils';
@@ -35,19 +35,19 @@ function makeEnhet(
 }
 
 describe('enhetUtils', () => {
-  test('mergeTrimmedEnhetsWithAncestors includes ancestors up to the top-level node', () => {
+  test('expandTrimmedEnhetsWithAncestors includes ancestors up to the top-level node', () => {
     const root = makeEnhet('root');
     const dummyRoot = makeEnhet('dummy-root', { parent: root.id });
     const branch = makeEnhet('branch', { parent: dummyRoot.id });
     const leaf = makeEnhet('leaf', { parent: branch.id });
 
-    const merged = mergeTrimmedEnhetsWithAncestors(
+    const expanded = expandTrimmedEnhetsWithAncestors(
       [leaf],
       [root, dummyRoot, branch, leaf],
     );
 
     assert.deepStrictEqual(
-      merged.map((enhet) => enhet.id),
+      expanded.map((enhet) => enhet.id),
       ['leaf', 'branch', 'dummy-root'],
     );
   });

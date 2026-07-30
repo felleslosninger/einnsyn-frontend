@@ -4,7 +4,7 @@ import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { unstable_cache } from 'next/cache';
 import type { LanguageCode } from '~/lib/translation/translation';
 import {
-  mergeTrimmedEnhetsWithAncestors,
+  expandTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
@@ -123,7 +123,7 @@ export const getInitialEnhetsForRequest = async ({
       limit,
     );
     const selectedEnhets = findTrimmedEnhetsByIdsOrSlugs(list, selected);
-    return mergeTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
+    return expandTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
   } catch (error) {
     logger.error('Failed to build initial enhet list for request', error);
     return [];

@@ -107,7 +107,8 @@ export function getEnhetParentFromMap(
   enhet: TrimmedEnhet,
   enhetsById: ReadonlyMap<string, TrimmedEnhet>,
 ): TrimmedEnhet | undefined {
-  const parentId = getEnhetParentId(enhet);
+  const parentId =
+    typeof enhet.parent === 'string' ? enhet.parent : enhet.parent?.id;
   if (!parentId) {
     return undefined;
   }
@@ -179,6 +180,7 @@ export function sortTrimmedEnhetsForSelector(
  * {@link getAncestors}, the top-level root is left out. Order is
  * insertion-ordered, not sorted.
  */
+export function expandTrimmedEnhetsWithAncestors(
   seeds: readonly TrimmedEnhet[],
   allEnhets: readonly TrimmedEnhet[],
 ): TrimmedEnhet[] {
