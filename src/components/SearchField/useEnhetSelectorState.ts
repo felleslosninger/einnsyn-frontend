@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
 import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
@@ -16,8 +17,11 @@ import {
   normalizeParamList,
   parseParamList,
   removeParamListValue,
-  serializeParamList,
 } from '~/lib/utils/paramList';
+import {
+  buildEnhetSelectionHref,
+  pathnameContainsEnhet,
+} from '~/lib/utils/searchHref';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import { useResolvedEnhetMap } from './useResolvedEnhetMap';
 
@@ -48,8 +52,10 @@ export function useEnhetSelectorState({
 }: UseEnhetSelectorStateOptions) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
+  const searchPathname = `/${t('routing.searchPath')}`;
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
+  const params = useParams<{ enhet?: string }>();
 
   const {
     enhetMap: rawEnhetMap,
@@ -75,17 +81,36 @@ export function useEnhetSelectorState({
   // Selection: URL-backed, with a desktop "draft" buffer that only commits on
   // Apply.
   //
-  const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
+  const optimisticSearchQueryEnhet = optimisticSearchParams?.get('enhet') ?? '';
+  const pathEnhet = params.enhet;
+  const optimisticPathEnhet = pathnameContainsEnhet(
+    optimisticPathname,
+    pathEnhet,
+  )
+    ? pathEnhet
+    : undefined;
+
+  const pathEnhetValue = useMemo(() => {
+    if (!optimisticPathEnhet) {
+      return undefined;
+    }
+
+    const enhet = enhetMap.get(optimisticPathEnhet);
+    return enhet ? getEnhetIdentifier(enhet) : optimisticPathEnhet;
+  }, [optimisticPathEnhet, enhetMap]);
 
   const urlSelectedEnhetIdentifiers = useMemo(() => {
-    const parsed = parseParamList(enhetSearchQuery);
+    const parsed = [
+      ...(pathEnhetValue ? [pathEnhetValue] : []),
+      ...parseParamList(optimisticSearchQueryEnhet),
+    ];
     return normalizeParamList(
       parsed.map((value) => {
         const enhet = enhetMap.get(value);
         return enhet ? getEnhetIdentifier(enhet) : value;
       }),
     );
-  }, [enhetMap, enhetSearchQuery]);
+  }, [enhetMap, optimisticSearchQueryEnhet, pathEnhetValue]);
 
   const isBuffered = !isMobileLayout && active;
   const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<
@@ -107,19 +132,23 @@ export function useEnhetSelectorState({
 
   const commitToUrl = useCallback(
     (next: string[]) => {
-      const newSearchParams = new URLSearchParams(
-        optimisticSearchParams.toString(),
+      navigation.replace(
+        buildEnhetSelectionHref({
+          pathname: optimisticPathname,
+          searchPathname,
+          searchParams: optimisticSearchParams,
+          pathEnhetValue,
+          selectedEnhetIdentifiers: next,
+        }),
       );
-      newSearchParams.delete('enhet');
-
-      const enhetParam = serializeParamList(next);
-      if (enhetParam.length > 0) {
-        newSearchParams.set('enhet', enhetParam);
-      }
-
-      navigation.replace(`${optimisticPathname}?${newSearchParams.toString()}`);
     },
-    [navigation, optimisticPathname, optimisticSearchParams],
+    [
+      navigation,
+      optimisticPathname,
+      optimisticSearchParams,
+      pathEnhetValue,
+      searchPathname,
+    ],
   );
 
   const setSelectedEnhetIdentifiers = useCallback(
@@ -187,8 +216,9 @@ export function useEnhetSelectorState({
   );
 
   //
-  // Add / remove / toggle / clear. All four go through `setSelectedEnhetIdentifiers`
-  // so the buffered/unbuffered behavior stays in one place.
+  // Add / remove / toggle / clear. All four go through
+  // `setSelectedEnhetIdentifiers` so the buffered/unbuffered behavior stays in
+  // one place.
   //
   const addEnhet = useCallback(
     (enhet: TrimmedEnhet, options?: { refocusInput?: boolean }) => {
