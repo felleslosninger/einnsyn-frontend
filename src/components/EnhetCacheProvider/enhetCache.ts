@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 import { getTrimmedEnhetList } from '~/actions/api/enhetActions';
-import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
 
 export type EnhetCacheSnapshot = {
@@ -45,9 +45,8 @@ function getServerSnapshot(): EnhetCacheSnapshot {
 
 function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
   map.set(enhet.id, enhet);
-  const href = getEnhetHref(enhet);
-  if (href !== enhet.id) {
-    map.set(href, enhet);
+  if (enhet.slug) {
+    map.set(enhet.slug, enhet);
   }
 }
 
