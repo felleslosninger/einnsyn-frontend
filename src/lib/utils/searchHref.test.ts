@@ -1,6 +1,63 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildEnhetSelectionHref, pathnameContainsEnhet } from './searchHref';
+import {
+  buildEnhetSelectionHref,
+  buildSearchHref,
+  pathnameContainsEnhet,
+} from './searchHref';
+
+describe('buildSearchHref', () => {
+  it('sets a param and keeps the others', () => {
+    assert.equal(
+      buildSearchHref({
+        pathname: '/search',
+        searchParams: new URLSearchParams('q=innsyn&enhet=oslo'),
+        updates: { entity: 'Saksmappe' },
+      }),
+      '/search?q=innsyn&enhet=oslo&entity=Saksmappe',
+    );
+  });
+
+  it('deletes a param given undefined or an empty string', () => {
+    assert.equal(
+      buildSearchHref({
+        pathname: '/search',
+        searchParams: new URLSearchParams('q=innsyn&entity=Saksmappe'),
+        updates: { entity: undefined },
+      }),
+      '/search?q=innsyn',
+    );
+    assert.equal(
+      buildSearchHref({
+        pathname: '/search',
+        searchParams: new URLSearchParams('q=innsyn&entity=Saksmappe'),
+        updates: { entity: '' },
+      }),
+      '/search?q=innsyn',
+    );
+  });
+
+  it('omits the ? when no params remain', () => {
+    assert.equal(
+      buildSearchHref({
+        pathname: '/search',
+        searchParams: new URLSearchParams('q=innsyn'),
+        updates: { q: '' },
+      }),
+      '/search',
+    );
+  });
+
+  it('passes the pathname through unchanged without updates', () => {
+    assert.equal(
+      buildSearchHref({
+        pathname: '/oslo',
+        searchParams: new URLSearchParams('q=innsyn'),
+      }),
+      '/oslo?q=innsyn',
+    );
+  });
+});
 
 describe('pathnameContainsEnhet', () => {
   it('recognizes the path enhet on direct and nested routes', () => {
@@ -54,6 +111,19 @@ describe('buildEnhetSelectionHref', () => {
         selectedEnhetIdentifiers: [],
       }),
       '/oza?q=innsyn',
+    );
+  });
+
+  it('drops the ? when the last enhet leaves an otherwise empty query', () => {
+    assert.equal(
+      buildEnhetSelectionHref({
+        pathname: '/oslo',
+        searchPathname: '/søk',
+        searchParams: new URLSearchParams('enhet=bergen'),
+        pathEnhetValue: 'oslo',
+        selectedEnhetIdentifiers: [],
+      }),
+      '/søk',
     );
   });
 });

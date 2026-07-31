@@ -1,6 +1,41 @@
 import { normalizeParamList, serializeParamList } from './paramList';
 
 /**
+ * A search href: the given pathname with `updates` applied to its search params.
+ *
+ * Every search navigation in the app has this shape — take the current
+ * (optimistic) params, change one key, recombine with a pathname that may
+ * itself change. An `undefined` or empty-string value deletes the param, since
+ * that is what all callers mean by "no value". The `?` is omitted when nothing
+ * remains, so clearing the last param gives `/search` rather than `/search?`.
+ *
+ * `searchParams` accepts `undefined` (treated as empty) because
+ * `useOptimisticSearchParams` is typed as possibly undefined.
+ */
+export function buildSearchHref({
+  pathname,
+  searchParams,
+  updates,
+}: {
+  pathname: string;
+  searchParams: URLSearchParams | undefined;
+  updates?: Record<string, string | undefined>;
+}): string {
+  const nextSearchParams = new URLSearchParams(searchParams?.toString());
+
+  for (const [key, value] of Object.entries(updates ?? {})) {
+    if (value) {
+      nextSearchParams.set(key, value);
+    } else {
+      nextSearchParams.delete(key);
+    }
+  }
+
+  const searchParamsString = nextSearchParams.toString();
+  return searchParamsString ? `${pathname}?${searchParamsString}` : pathname;
+}
+
+/**
  * Whether the first path segment is this enhet, i.e. we are on `/{enhet}` or
  * somewhere below it.
  *
@@ -57,19 +92,10 @@ export function buildEnhetSelectionHref({
         (identifier) => identifier !== pathEnhetValue,
       )
     : normalizedIdentifiers;
-  const nextPathname =
-    pathEnhetValue && !keepsPathEnhet ? searchPathname : pathname;
 
-  const nextSearchParams = new URLSearchParams(searchParams.toString());
-  nextSearchParams.delete('enhet');
-
-  const enhetParam = serializeParamList(queryEnhetIdentifiers);
-  if (enhetParam) {
-    nextSearchParams.set('enhet', enhetParam);
-  }
-
-  const searchParamsString = nextSearchParams.toString();
-  return searchParamsString
-    ? `${nextPathname}?${searchParamsString}`
-    : nextPathname;
+  return buildSearchHref({
+    pathname: pathEnhetValue && !keepsPathEnhet ? searchPathname : pathname,
+    searchParams,
+    updates: { enhet: serializeParamList(queryEnhetIdentifiers) },
+  });
 }

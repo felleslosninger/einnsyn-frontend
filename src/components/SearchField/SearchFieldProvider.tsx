@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { buildSearchHref } from '~/lib/utils/searchHref';
 import {
   type SearchToken,
   searchQueryToTokens,
@@ -55,19 +56,19 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      const searchParams = new URLSearchParams(
-        optimisticSearchParams.toString(),
-      );
-      if (queryToPush.length) {
-        searchParams.set('q', queryToPush);
-      } else {
-        searchParams.delete('q');
-      }
-      const newSearchParamsString = searchParams.toString();
-      // TODO: Translations for /search path
-      const pathName =
+      // TODO: Translations for /search path. Note that `routing.searchPath`
+      // cannot be used as-is: it resolves to `søk`/`oza`, and no such route
+      // exists, so the request falls through to `[enhet]` and the search gets
+      // scoped to a non-existent enhet. A real route has to land first.
+      const pathname =
         optimisticPathname === '/' ? '/search' : optimisticPathname;
-      navigation.push(`${pathName}?${newSearchParamsString}`);
+      navigation.push(
+        buildSearchHref({
+          pathname,
+          searchParams: optimisticSearchParams,
+          updates: { q: queryToPush },
+        }),
+      );
     },
     [navigation, optimisticPathname, optimisticSearchParams],
   );
