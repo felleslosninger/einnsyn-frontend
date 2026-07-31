@@ -66,9 +66,11 @@ export function pathnameContainsEnhet(
  * The href for a new enhet selection.
  *
  * An enhet can be selected in two places: the path (`/oslo`) or the `enhet`
- * search param. This keeps the path enhet in the path and everything else in
- * the param, and moves to `searchPathname` when the path enhet is deselected —
- * there is nowhere else for an unscoped search to live.
+ * search param. The path form is only used while a single enhet is selected and
+ * it is already the path enhet — the path names one enhet, so it cannot
+ * represent a wider selection. Selecting a second enhet therefore moves to
+ * `searchPathname` with the whole selection in the param, as does deselecting
+ * the path enhet.
  */
 export function buildEnhetSelectionHref({
   pathname,
@@ -86,12 +88,11 @@ export function buildEnhetSelectionHref({
   const normalizedIdentifiers = normalizeParamList(selectedEnhetIdentifiers);
   const keepsPathEnhet =
     pathEnhetValue !== undefined &&
-    normalizedIdentifiers.includes(pathEnhetValue);
-  const queryEnhetIdentifiers = keepsPathEnhet
-    ? normalizedIdentifiers.filter(
-        (identifier) => identifier !== pathEnhetValue,
-      )
-    : normalizedIdentifiers;
+    normalizedIdentifiers.length === 1 &&
+    normalizedIdentifiers[0] === pathEnhetValue;
+  // Keeping the path enhet means it is the entire selection, so the param is
+  // always empty in that case — the path already carries it.
+  const queryEnhetIdentifiers = keepsPathEnhet ? [] : normalizedIdentifiers;
 
   return buildSearchHref({
     pathname: pathEnhetValue && !keepsPathEnhet ? searchPathname : pathname,

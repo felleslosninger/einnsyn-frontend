@@ -75,16 +75,29 @@ describe('pathnameContainsEnhet', () => {
 });
 
 describe('buildEnhetSelectionHref', () => {
-  it('keeps a selected path enhet out of the query parameter', () => {
+  it('keeps the path enhet in the path when it is the only selection', () => {
     assert.equal(
       buildEnhetSelectionHref({
         pathname: '/oslo',
         searchPathname: '/søk',
         searchParams: new URLSearchParams('q=innsyn&enhet=bergen'),
         pathEnhetValue: 'oslo',
+        selectedEnhetIdentifiers: ['oslo'],
+      }),
+      '/oslo?q=innsyn',
+    );
+  });
+
+  it('moves every enhet to the query once a second one is selected', () => {
+    assert.equal(
+      buildEnhetSelectionHref({
+        pathname: '/oslo',
+        searchPathname: '/søk',
+        searchParams: new URLSearchParams('q=innsyn'),
+        pathEnhetValue: 'oslo',
         selectedEnhetIdentifiers: ['oslo', 'bergen'],
       }),
-      '/oslo?q=innsyn&enhet=bergen',
+      '/søk?q=innsyn&enhet=oslo%2Cbergen',
     );
   });
 
