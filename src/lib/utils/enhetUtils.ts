@@ -54,9 +54,8 @@ export const getName = (
  * How an enhet is identified in URLs: its readable slug, or the id when it has
  * none.
  *
- * Used as the value stored in the `enhet` search param and as the cache key an
- * enhet is looked up by, so lookups keyed on it must also accept a plain id —
- * see `enhetCache.addToMap`, which registers an enhet under both.
+ * Used for the `enhet` search param and as a cache key, so any map keyed on it
+ * has to accept a plain id as well.
  *
  * Not interchangeable with `enhet.id` at the API boundary: the cursor params
  * (`startingAfter`/`endingBefore`) silently misbehave when given a slug. Pass
@@ -69,12 +68,8 @@ export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
 /**
  * The absolute path to an enhet's page, e.g. `"/oslo-kommune"`.
  *
- * Absolute and encoded on purpose. `EinLink` puts its `href` straight into the
- * `<a>`, where the browser resolves it against the current document, while
- * `NavigationProvider` resolves it against the origin — so a bare
- * `"oslo-kommune"` sends a left-click and a middle-click to different places
- * on any page deeper than one segment. The encoding matches
- * `pathnameContainsEnhet`, which decodes the segment before comparing it.
+ * Has to stay absolute and encoded: `EinLink` passes its `href` straight to the
+ * `<a>`, where a relative value resolves against the current document.
  */
 export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
   return `/${encodeURIComponent(getEnhetIdentifier(enhet))}`;

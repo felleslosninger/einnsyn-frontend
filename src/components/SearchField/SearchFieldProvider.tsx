@@ -56,10 +56,10 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      // TODO: Translations for /search path. Note that `routing.searchPath`
-      // cannot be used as-is: it resolves to `søk`/`oza`, and no such route
-      // exists, so the request falls through to `[enhet]` and the search gets
-      // scoped to a non-existent enhet. A real route has to land first.
+      // TODO: decide whether the search path should be localized. The enhet
+      // selector uses `routing.searchPath` here, which makes the URL depend on
+      // the viewer's session language; localized spellings already resolve via
+      // the rewrites in next.config.ts.
       const pathname =
         optimisticPathname === '/' ? '/search' : optimisticPathname;
       navigation.push(

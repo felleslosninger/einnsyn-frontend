@@ -1,16 +1,14 @@
 import { normalizeParamList, serializeParamList } from './paramList';
 
 /**
- * A search href: the given pathname with `updates` applied to its search params.
+ * A search href: `pathname` with `updates` applied to its search params.
  *
- * Every search navigation in the app has this shape — take the current
- * (optimistic) params, change one key, recombine with a pathname that may
- * itself change. An `undefined` or empty-string value deletes the param, since
- * that is what all callers mean by "no value". The `?` is omitted when nothing
- * remains, so clearing the last param gives `/search` rather than `/search?`.
+ * An `undefined` or empty-string value deletes the param. The `?` is omitted
+ * when no params remain, so clearing the last one gives `/search` rather than
+ * `/search?`.
  *
- * `searchParams` accepts `undefined` (treated as empty) because
- * `useOptimisticSearchParams` is typed as possibly undefined.
+ * `searchParams` is nullable because `useOptimisticSearchParams` is typed that
+ * way; `undefined` counts as empty.
  */
 export function buildSearchHref({
   pathname,
@@ -39,8 +37,8 @@ export function buildSearchHref({
  * Whether the first path segment is this enhet, i.e. we are on `/{enhet}` or
  * somewhere below it.
  *
- * The segment is decoded before comparing, since `params.enhet` arrives decoded
- * but the pathname does not (`/m%C3%B8re-og-romsdal` vs `møre-og-romsdal`).
+ * The segment is percent-decoded before comparing, because the two sides can
+ * disagree on encoding (`/m%C3%B8re-og-romsdal` vs `møre-og-romsdal`).
  */
 export function pathnameContainsEnhet(
   pathname: string,
@@ -90,8 +88,7 @@ export function buildEnhetSelectionHref({
     pathEnhetValue !== undefined &&
     normalizedIdentifiers.length === 1 &&
     normalizedIdentifiers[0] === pathEnhetValue;
-  // Keeping the path enhet means it is the entire selection, so the param is
-  // always empty in that case — the path already carries it.
+  // Keeping the path enhet means it is the whole selection, so the param is empty.
   const queryEnhetIdentifiers = keepsPathEnhet ? [] : normalizedIdentifiers;
 
   return buildSearchHref({
