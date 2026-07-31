@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 
 type ResolvedEnhetMap = {
   /**
-   * Lookup table for selection: keys are both enhet `id` and `href`, so URL
-   * values can be resolved regardless of which form the caller stored.
+   * Lookup table for selection: keys are both the enhet `id` and its
+   * {@link getEnhetIdentifier} value, so URL values can be resolved regardless
+   * of which form the caller stored.
    */
   enhetMap: ReadonlyMap<string, TrimmedEnhet>;
   /**
@@ -27,8 +28,8 @@ export function useResolvedEnhetMap(
   rawEnhetMap: ReadonlyMap<string, TrimmedEnhet>,
 ): ResolvedEnhetMap {
   return useMemo(() => {
-    // Collapse the input (which has both id and href keys per enhet) to a
-    // unique-by-id map for the resolution walk.
+    // Collapse the input (which has both an id and an identifier key per
+    // enhet) to a unique-by-id map for the resolution walk.
     const rawEnhetById = new Map<string, TrimmedEnhet>();
     for (const enhet of rawEnhetMap.values()) {
       rawEnhetById.set(enhet.id, enhet);
@@ -67,9 +68,9 @@ export function useResolvedEnhetMap(
       if (!resolved) continue;
 
       enhetMap.set(enhet.id, resolved);
-      const href = getEnhetHref(enhet);
-      if (href !== enhet.id) {
-        enhetMap.set(href, resolved);
+      const identifier = getEnhetIdentifier(enhet);
+      if (identifier !== enhet.id) {
+        enhetMap.set(identifier, resolved);
       }
       if (enhet.parent) {
         enhetList.push(resolved);

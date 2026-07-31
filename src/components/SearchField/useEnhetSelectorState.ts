@@ -7,7 +7,7 @@ import { useNavigation } from '~/components/NavigationProvider/NavigationProvide
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
-  getEnhetHref,
+  getEnhetIdentifier,
   getName,
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
@@ -77,38 +77,42 @@ export function useEnhetSelectorState({
   //
   const enhetSearchQuery = optimisticSearchParams?.get('enhet') ?? '';
 
-  const urlSelectedEnhetIds = useMemo(() => {
+  const urlSelectedEnhetIdentifiers = useMemo(() => {
     const parsed = parseParamList(enhetSearchQuery);
     return normalizeParamList(
       parsed.map((value) => {
         const enhet = enhetMap.get(value);
-        return enhet ? getEnhetHref(enhet) : value;
+        return enhet ? getEnhetIdentifier(enhet) : value;
       }),
     );
   }, [enhetMap, enhetSearchQuery]);
 
   const isBuffered = !isMobileLayout && active;
-  const [draftSelectedIds, setDraftSelectedIds] = useState<string[]>([]);
+  const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<
+    string[]
+  >([]);
 
   // Re-seed the draft from the URL whenever the desktop modal opens. URL
   // changes mid-open are intentionally not synced — the user is editing.
   // biome-ignore lint/correctness/useExhaustiveDependencies: only re-init on transition into buffered mode.
   useEffect(() => {
     if (isBuffered) {
-      setDraftSelectedIds(urlSelectedEnhetIds);
+      setDraftSelectedIdentifiers(urlSelectedEnhetIdentifiers);
     }
   }, [isBuffered]);
 
-  const selectedEnhetIds = isBuffered ? draftSelectedIds : urlSelectedEnhetIds;
+  const selectedEnhetIdentifiers = isBuffered
+    ? draftSelectedIdentifiers
+    : urlSelectedEnhetIdentifiers;
 
   const commitToUrl = useCallback(
-    (nextIds: string[]) => {
+    (next: string[]) => {
       const newSearchParams = new URLSearchParams(
         optimisticSearchParams.toString(),
       );
       newSearchParams.delete('enhet');
 
-      const enhetParam = serializeParamList(nextIds);
+      const enhetParam = serializeParamList(next);
       if (enhetParam.length > 0) {
         newSearchParams.set('enhet', enhetParam);
       }
@@ -118,42 +122,42 @@ export function useEnhetSelectorState({
     [navigation, optimisticPathname, optimisticSearchParams],
   );
 
-  const setSelectedEnhetIds = useCallback(
-    (nextIds: string[]) => {
+  const setSelectedEnhetIdentifiers = useCallback(
+    (next: string[]) => {
       if (isBuffered) {
-        setDraftSelectedIds(nextIds);
+        setDraftSelectedIdentifiers(next);
       } else {
-        commitToUrl(nextIds);
+        commitToUrl(next);
       }
     },
     [isBuffered, commitToUrl],
   );
 
   const applySelection = useCallback(() => {
-    commitToUrl(draftSelectedIds);
+    commitToUrl(draftSelectedIdentifiers);
     close();
-  }, [commitToUrl, draftSelectedIds, close]);
+  }, [commitToUrl, draftSelectedIdentifiers, close]);
 
   //
-  // Derived: the resolved enhet objects behind the selected ids, plus the
-  // values the summary buttons display.
+  // Derived: the resolved enhet objects behind the selected identifiers, plus
+  // the values the summary buttons display.
   //
   const selectedEnheter = useMemo(() => {
     const result: TrimmedEnhet[] = [];
-    for (const id of selectedEnhetIds) {
-      const enhet = enhetMap.get(id);
+    for (const identifier of selectedEnhetIdentifiers) {
+      const enhet = enhetMap.get(identifier);
       if (enhet) result.push(enhet);
     }
     return result;
-  }, [enhetMap, selectedEnhetIds]);
+  }, [enhetMap, selectedEnhetIdentifiers]);
 
   const selectedLabels = useMemo(
     () =>
-      selectedEnhetIds.map((id) => {
-        const enhet = enhetMap.get(id);
-        return enhet ? getName(enhet, languageCode) : id;
+      selectedEnhetIdentifiers.map((identifier) => {
+        const enhet = enhetMap.get(identifier);
+        return enhet ? getName(enhet, languageCode) : identifier;
       }),
-    [enhetMap, languageCode, selectedEnhetIds],
+    [enhetMap, languageCode, selectedEnhetIdentifiers],
   );
 
   const firstSelectedLabel = selectedLabels[0] ?? '';
@@ -183,57 +187,69 @@ export function useEnhetSelectorState({
   );
 
   //
-  // Add / remove / toggle / clear. All four go through `setSelectedEnhetIds`
+  // Add / remove / toggle / clear. All four go through `setSelectedEnhetIdentifiers`
   // so the buffered/unbuffered behavior stays in one place.
   //
   const addEnhet = useCallback(
     (enhet: TrimmedEnhet, options?: { refocusInput?: boolean }) => {
-      const next = addParamListValue(selectedEnhetIds, getEnhetHref(enhet));
-      if (next !== selectedEnhetIds) {
-        setSelectedEnhetIds(next);
+      const next = addParamListValue(
+        selectedEnhetIdentifiers,
+        getEnhetIdentifier(enhet),
+      );
+      if (next !== selectedEnhetIdentifiers) {
+        setSelectedEnhetIdentifiers(next);
       }
       if (options?.refocusInput !== false) focusInput();
     },
-    [focusInput, selectedEnhetIds, setSelectedEnhetIds],
+    [focusInput, selectedEnhetIdentifiers, setSelectedEnhetIdentifiers],
   );
 
   const removeEnhet = useCallback(
     (enhet: TrimmedEnhet, options?: { refocusInput?: boolean }) => {
-      const next = removeParamListValue(selectedEnhetIds, getEnhetHref(enhet));
-      if (next !== selectedEnhetIds) {
-        setSelectedEnhetIds(next);
+      const next = removeParamListValue(
+        selectedEnhetIdentifiers,
+        getEnhetIdentifier(enhet),
+      );
+      if (next !== selectedEnhetIdentifiers) {
+        setSelectedEnhetIdentifiers(next);
       }
       if (options?.refocusInput !== false) focusInput();
     },
-    [focusInput, selectedEnhetIds, setSelectedEnhetIds],
+    [focusInput, selectedEnhetIdentifiers, setSelectedEnhetIdentifiers],
   );
 
   const toggleEnhet = useCallback(
     (enhet: TrimmedEnhet) => {
-      if (selectedEnhetIds.includes(getEnhetHref(enhet))) {
+      if (selectedEnhetIdentifiers.includes(getEnhetIdentifier(enhet))) {
         removeEnhet(enhet);
       } else {
         addEnhet(enhet);
       }
     },
-    [addEnhet, removeEnhet, selectedEnhetIds],
+    [addEnhet, removeEnhet, selectedEnhetIdentifiers],
   );
 
   const clearSelected = useCallback(() => {
-    if (selectedEnhetIds.length === 0) return;
-    setSelectedEnhetIds([]);
+    if (selectedEnhetIdentifiers.length === 0) return;
+    setSelectedEnhetIdentifiers([]);
     setFocus(null);
     focusInput();
-  }, [focusInput, selectedEnhetIds.length, setSelectedEnhetIds]);
+  }, [
+    focusInput,
+    selectedEnhetIdentifiers.length,
+    setSelectedEnhetIdentifiers,
+  ]);
 
   const removeSelectedAt = useCallback(
     (index: number) => {
-      const id = selectedEnhetIds[index];
-      if (!id) return;
-      setSelectedEnhetIds(removeParamListValue(selectedEnhetIds, id));
+      const identifier = selectedEnhetIdentifiers[index];
+      if (!identifier) return;
+      setSelectedEnhetIdentifiers(
+        removeParamListValue(selectedEnhetIdentifiers, identifier),
+      );
       focusInput();
     },
-    [focusInput, selectedEnhetIds, setSelectedEnhetIds],
+    [focusInput, selectedEnhetIdentifiers, setSelectedEnhetIdentifiers],
   );
 
   //
@@ -263,18 +279,18 @@ export function useEnhetSelectorState({
   //   lists. The desktop view uses `selectedEnheter` instead (all selected,
   //   unfiltered) for a stable manage-your-selection right column.
   const { searchMatchedSelectedNodes, availableNodes } = useMemo(() => {
-    const selectedSet = new Set(selectedEnhetIds);
+    const selectedSet = new Set(selectedEnhetIdentifiers);
     const selected: EnhetNode[] = [];
     const available: EnhetNode[] = [];
     for (const node of visibleNodes) {
-      if (selectedSet.has(getEnhetHref(node.enhet))) {
+      if (selectedSet.has(getEnhetIdentifier(node.enhet))) {
         selected.push(node);
       } else {
         available.push(node);
       }
     }
     return { searchMatchedSelectedNodes: selected, availableNodes: available };
-  }, [visibleNodes, selectedEnhetIds]);
+  }, [visibleNodes, selectedEnhetIdentifiers]);
 
   //
   // Keyboard navigation across the two lists.
@@ -402,17 +418,22 @@ export function useEnhetSelectorState({
           selectionStart === 0 &&
           selectionEnd === 0 &&
           value.length === 0 &&
-          selectedEnhetIds.length > 0
+          selectedEnhetIdentifiers.length > 0
         ) {
           event.preventDefault();
-          removeSelectedAt(selectedEnhetIds.length - 1);
+          removeSelectedAt(selectedEnhetIdentifiers.length - 1);
         }
         return;
       }
 
       onListNavKeyDown(event);
     },
-    [active, onListNavKeyDown, removeSelectedAt, selectedEnhetIds.length],
+    [
+      active,
+      onListNavKeyDown,
+      removeSelectedAt,
+      selectedEnhetIdentifiers.length,
+    ],
   );
 
   // When the user tabs into a list, snap focus to the first row in that list
@@ -464,7 +485,7 @@ export function useEnhetSelectorState({
     summaryLabel,
     additionalSelectedCount,
     selectedSummary,
-    hasSelection: selectedEnhetIds.length > 0,
+    hasSelection: selectedEnhetIdentifiers.length > 0,
 
     // Lists
     availableNodes,
