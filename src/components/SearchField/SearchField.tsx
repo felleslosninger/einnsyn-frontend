@@ -2,122 +2,178 @@
 
 import { Button } from '@digdir/designsystemet-react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
-import { Fragment, forwardRef, useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import EnhetSelector from '~/components/SearchField/EnhetSelector';
+import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
+import { StyledInput } from './StyledInput';
 
-type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type SearchFieldProps = {
   className?: string;
 };
 
-export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
-  ({ children, className, ...inputProps }, ref) => {
-    const t = useTranslation();
-    const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
+export const SearchField = ({ className }: SearchFieldProps) => {
+  const t = useTranslation();
+  const containerRef = useRef<HTMLFormElement>(null);
+  const { searchQuery, setSearchQuery, pushSearchQuery } = useSearchField();
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const isMobileLayout = useBreakpoint('SM');
+  const [activeContainer, setActiveContainer] = useState<string | undefined>(
+    undefined,
+  );
 
-    const onInput = useCallback(
-      (event: React.InputEvent<HTMLInputElement>) => {
-        inputProps.onInput?.(event);
-        setSearchQuery(event.currentTarget.value ?? '');
-      },
-      [setSearchQuery, inputProps.onInput],
-    );
+  const activateSearchQueryContainer = useCallback(() => {
+    setActiveContainer('searchQuery');
+  }, []);
 
-    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key !== 'Enter') {
-        setSearchQuery(event.currentTarget.value ?? '');
-      }
-    };
+  const activateEnhetSelectorContainer = useCallback(() => {
+    setActiveContainer('enhetSelector');
+  }, []);
 
-    const handleSearch = useCallback(() => {
-      setSearchQuery(searchQuery, true);
-    }, [setSearchQuery, searchQuery]);
+  const deactivateContainer = useCallback(() => {
+    setActiveContainer(undefined);
+  }, []);
 
-    const handleClear = useCallback(() => {
-      setSearchQuery('');
-    }, [setSearchQuery]);
+  const onSubmit = useCallback(
+    (event: React.SubmitEvent<HTMLFormElement>) => {
+      pushSearchQuery(searchQuery);
+      event.preventDefault();
+    },
+    [searchQuery, pushSearchQuery],
+  );
 
-    return (
-      <div className={cn(styles.searchFieldContainer)}>
-        <span className={cn(styles.inputContainer)}>
-          <div className={cn(styles.styledInput, className)}>
-            {searchTokens.map((token, index) => (
-              /* biome-ignore lint/suspicious/noArrayIndexKey: Tokens are reparsed from the query and do not have a stable unique id. */
-              <Fragment key={`${index}-${token.value}`}>
-                <span
-                  className={cn(styles.searchToken, {
-                    [styles.prefixedToken]: !!token.prefix,
-                    [styles.includeToken]: token.sign === '+',
-                    [styles.excludeToken]: token.sign === '-',
-                    [styles.quotedToken]: !!token.quoted,
-                  })}
-                >
-                  {token.sign && (
-                    <span className={cn(styles.tokenSign)}>{token.sign}</span>
-                  )}
-                  {token.prefix && (
-                    <span className={cn(styles.tokenPrefix)}>
-                      {token.prefix}:
-                    </span>
-                  )}
-                  <span className={cn(styles.tokenValue)}>
-                    {token.quoted && '"'}
-                    {token.value}
-                    {token.quoted && '"'}
-                  </span>
-                </span>
-                {index < searchTokens.length - 1 && '\u00A0'}
-              </Fragment>
-            ))}
-          </div>
+  const handleClear = useCallback(() => {
+    setSearchQuery('');
+  }, [setSearchQuery]);
 
-          <input
-            ref={ref}
-            type="text"
-            value={searchQuery}
-            onInput={onInput}
-            onKeyDown={onKeyDown}
-            className={cn(styles.input, className)}
-            placeholder={t('search.placeholder')}
-            {...inputProps}
-          />
-        </span>
+  const showClearButton =
+    !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
 
-        {searchQuery && (
-          <Button
-            className={cn(styles.clearButton)}
-            type="button"
-            onClick={handleClear}
-            aria-label={t('search.clear')}
-            variant="tertiary"
+  const enhetSelector = (
+    <EnhetSelector
+      active={activeContainer === 'enhetSelector'}
+      activate={activateEnhetSelectorContainer}
+      close={deactivateContainer}
+    />
+  );
+
+  return (
+    <form
+      className={cn(styles.searchFieldContainer, className)}
+      method="get"
+      onSubmit={onSubmit}
+      action={optimisticPathname}
+      ref={containerRef}
+    >
+      {/* Include current query parameters as hidden inputs */}
+      {Array.from(optimisticSearchParams?.entries() ?? []).map(
+        ([key, value]) =>
+          key !== 'q' && (
+            <input key={key} type="hidden" name={key} value={value} />
+          ),
+      )}
+
+      <div
+        className={cn(styles.pillRow, {
+          [styles.hasActiveContainer]: isMobileLayout
+            ? activeContainer === 'searchQuery'
+            : activeContainer !== undefined,
+        })}
+      >
+        <div
+          className={cn(
+            styles.searchQueryContainer,
+            styles.searchInputContainer,
+            styles.searchInputWithIcon,
+            { [styles.activeContainer]: activeContainer === 'searchQuery' },
+          )}
+          data-styled-input-width-animated="true"
+        >
+          <div
+            className={cn(styles.expandableInputContainer)}
+            data-styled-input-expandable="true"
           >
-            <XMarkIcon
-              title={t('search.clear')}
-              className={cn(styles.clearIcon)}
+            <StyledInput
+              icon={
+                !isMobileLayout && (
+                  <MagnifyingGlassIcon
+                    className={cn(styles.searchIcon)}
+                    aria-hidden="true"
+                  />
+                )
+              }
+              value={searchQuery}
+              setValue={setSearchQuery}
+              onFocus={activateSearchQueryContainer}
+              onBlur={deactivateContainer}
+              placeholder={t('search.placeholder')}
+              name="q"
             />
-          </Button>
+
+            {showClearButton && (
+              <Button
+                className={cn(styles.clearButton)}
+                type="button"
+                onClick={handleClear}
+                aria-label={t('search.clear')}
+                variant="tertiary"
+              >
+                <XMarkIcon
+                  className={cn(styles.clearIcon)}
+                  aria-hidden="true"
+                />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {!isMobileLayout && (
+          <div
+            className={cn(
+              styles.enhetSelectorContainer,
+              styles.searchInputContainer,
+              { [styles.activeContainer]: activeContainer === 'enhetSelector' },
+            )}
+            data-enhet-selector-container="true"
+            data-styled-input-width-animated="true"
+          >
+            <div className={cn(styles.expandableInputContainer)}>
+              {enhetSelector}
+            </div>
+          </div>
         )}
+
         <div
           className={cn(styles.actionButtonContainer, {
             [styles.withBorder]: !!searchQuery,
           })}
         >
-          <button
-            className={cn(styles.searchIconButton)}
+          <EinButton
+            variant="primary"
             type="submit"
-            aria-label={t('search.button')}
-            onClick={handleSearch}
+            className={cn({ [styles.iconOnlySubmit]: isMobileLayout })}
+            aria-label={isMobileLayout ? t('search.button') : undefined}
           >
-            <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
-          </button>
+            {isMobileLayout ? (
+              <MagnifyingGlassIcon
+                className={cn(styles.submitIcon)}
+                aria-hidden="true"
+              />
+            ) : (
+              t('search.button')
+            )}
+          </EinButton>
         </div>
       </div>
-    );
-  },
-);
 
-SearchField.displayName = 'SearchField';
-
-export default SearchField;
+      {isMobileLayout && (
+        <div className={styles.enhetSelectorMobileRow}>{enhetSelector}</div>
+      )}
+    </form>
+  );
+};
