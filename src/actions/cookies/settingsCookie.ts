@@ -1,6 +1,7 @@
 'use server';
 
 import type { LanguageCode } from '~/lib/translation/translation';
+import { getLanguageCode } from '~/lib/translation/translation.actions';
 import {
   type CookieSettings,
   getCookie,
@@ -38,10 +39,14 @@ export const updateSettingsAction = async (
   });
 };
 
-export const getSettings = async () => {
+export const getSettings = async (): Promise<Settings> => {
   const settingsCookieContent = await getCookie<Settings>(SETTINGS_COOKIE_NAME);
   return {
     ...defaultSettings,
     ...settingsCookieContent,
+    // A visitor who has never chosen a language gets the one their browser
+    // asks for, rather than everyone defaulting to bokmål. An explicit choice
+    // is stored in the cookie and always wins.
+    language: settingsCookieContent?.language ?? (await getLanguageCode()),
   };
 };
