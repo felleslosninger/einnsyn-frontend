@@ -1,4 +1,4 @@
-@use '../../styles/easing.scss' as e;
+@use '../../styles/effects.scss' as fx;
 
 .searchContainer {
   :global(.search-toolbar) {
@@ -12,16 +12,18 @@
   &:global(.ein-transition-init-exit-transition) {
     opacity: 1;
   }
+
   &:global(.ein-transition-exit-transition) {
     opacity: .99;
-    transition: transform .5s e.$easeOutQuart;
+    transition: transform .5s fx.$easeOut;
 
     .searchResult {
       opacity: 0;
       transform: scale(0.96);
-      transition: all 0.25s e.$easeOutQuart;
+      transition: all 0.25s fx.$easeOut;
+
       @for $i from 1 through 50 {
-       &:nth-child(#{$i}) {
+        &:nth-child(#{$i}) {
           transition-delay: #{($i - 1) * 30}ms;
         }
       }
@@ -30,19 +32,22 @@
 
   &:global(.ein-transition-init-enter-transition) {
     opacity: .99;
+
     .searchResult {
       opacity: 0;
       transform: scale(0.96);
     }
   }
+
   &:global(.ein-transition-enter-transition) {
     opacity: 1;
-    transition: transform .3s e.$easeOutQuart;
+    transition: transform .3s fx.$easeOut;
 
     .searchResult {
       opacity: 1;
       transform: scale(1);
-      transition: all 0.15s e.$easeOutQuart;
+      transition: all 0.15s fx.$easeOut;
+
       @for $i from 1 through 50 {
         &:nth-child(#{$i}) {
           transition-delay: #{($i - 1) * 15}ms;

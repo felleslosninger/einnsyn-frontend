@@ -1,19 +1,23 @@
 @use '../../styles/mediaQueries.scss' as mq;
-@use '../../styles/easing.scss' as e;
+@use '../../styles/effects.scss' as fx;
 
 .header {
-  > .containerWrapper > .containerPre,
-  > .containerWrapper > .container,
-  > .containerWrapper > .containerPost {
-    transition: padding .2s e.$easeOutQuart;
+  --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
+
+  >.containerWrapper>.containerPre,
+  >.containerWrapper>.container,
+  >.containerWrapper>.containerPost {
+    transition: padding .2s fx.$easeOut;
     padding-top: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-top: var(--ds-size-4);
     }
   }
 
-  > .containerWrapper > .containerPre {
+  >.containerWrapper>.containerPre {
     padding-bottom: var(--ein-horizontal-spacing);
+
     @include mq.small-and-medium {
       padding-bottom: var(--ds-size-4);
     }
@@ -25,34 +29,32 @@
 
   border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
-  transition: box-shadow 0.2s e.$easeOutQuart;
+  transition: box-shadow 0.2s fx.$easeOut;
 
   position: sticky;
   top: 0;
+
   &.fixed {
     position: fixed;
     box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
     border-bottom: 0px;
-    transition: all 0.2s e.$easeOutQuart;
+    transition: all 0.2s fx.$easeOut;
   }
 
   &.scrolled {
-    > .containerWrapper > .containerPre,
-    > .containerWrapper > .container,
-    > .containerWrapper > .containerPost {
+
+    >.containerWrapper>.containerPre,
+    >.containerWrapper>.container,
+    >.containerWrapper>.containerPost {
       // Slower transition
       transition-duration: .4s;
-      transition-timing-function: e.$easeInOutQuart;
+      transition-timing-function: fx.$easeInOutQuart;
       padding-top: var(--ds-size-2);
+      padding-bottom: var(--ds-size-2);
+
       @include mq.small-and-medium {
         padding-top: var(--ds-size-3);
-      }
-    }
-
-    > .containerWrapper > .containerPre {
-      padding-bottom: var(--ds-size-2);
-      @include mq.small-and-medium {
-        padding-top: var(--ds-size-2);
+        padding-bottom: var(--ds-size-3);
       }
     }
 
@@ -62,7 +64,7 @@
       padding-top: 0;
       padding-bottom: 0;
       overflow: hidden;
-      transition: all 0.2s e.$easeOutQuart;
+      transition: all 0.2s fx.$easeOut;
     }
   }
 
@@ -73,6 +75,8 @@
   &:global(.section-home) {
     height: 80vh;
     border-bottom: none;
+    position: relative;
+    top: auto;
 
     :global(.container-wrapper) {
       height: 100%;
@@ -85,6 +89,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
       form {
         width: 100%;
         max-width: 800px;
@@ -98,18 +103,30 @@
 }
 
 .logoLink {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ds-size-12);
+  margin-top: var(--header-primary-row-offset);
   padding: var(--ds-size-2) 0;
+  background-color: transparent;
+  color: inherit;
+  line-height: 0;
+  text-decoration: none;
 
   svg {
+    display: block;
     height: var(--ds-line-height-sm);
     width: auto;
   }
 
-  &:focus-visible {
+  &:global(.ein-link):focus-visible {
+    background-color: transparent;
+    box-shadow: var(--dsc-focus-boxShadow);
+    color: inherit;
     outline: var(--dsc-focus-outline);
     outline-offset: var(--ds-border-width-focus);
     border-radius: var(--ds-border-radius-default);
+    text-decoration: none;
   }
 }
 
@@ -117,5 +134,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  min-height: var(--ds-size-12);
+  margin-top: var(--header-primary-row-offset);
   gap: var(--ds-size-2);
 }

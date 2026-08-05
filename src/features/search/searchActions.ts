@@ -9,6 +9,7 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
+import { parseParamList } from '~/lib/utils/paramList';
 import {
   searchQueryToTokens,
   tokensToSearchQuery,
@@ -61,7 +62,9 @@ export const getSearchResults = async (
     enhet.push(enhetSlug);
   }
   if (searchParams.has('enhet')) {
-    enhet.push(...(searchParams.getAll('enhet') ?? ''));
+    enhet.push(
+      ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
+    );
   }
   if (enhet.length) {
     apiQuery.administrativEnhet = enhet;
@@ -130,7 +133,7 @@ export const getSearchResults = async (
       (token) => token.prefix === 'journalposttype',
     );
     if (journalposttype) {
-      const wantedTypes = journalposttype.value.split(',');
+      const wantedTypes = parseParamList(journalposttype.value);
       const queryTypes: Journalposttype = [];
       if (wantedTypes.includes('inngaaende')) {
         queryTypes.push('inngaaende_dokument');
@@ -138,7 +141,10 @@ export const getSearchResults = async (
       if (wantedTypes.includes('utgaaende')) {
         queryTypes.push('utgaaende_dokument');
       }
-      if (wantedTypes.includes('internt')) {
+      if (
+        wantedTypes.includes('organinternt') ||
+        wantedTypes.includes('internt')
+      ) {
         queryTypes.push('organinternt_dokument_for_oppfoelging');
         queryTypes.push('organinternt_dokument_uten_oppfoelging');
       }

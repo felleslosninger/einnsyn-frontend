@@ -32,17 +32,17 @@ const getCurrentWidth = () => {
 export default function useBreakpoint(breakpointName: BreakpointName) {
   const breakpoint = Breakpoints[breakpointName];
 
-  // Set the initial state based on the current window size
-  const [isMatching, setIsMatching] = useState(
-    () => isClient && checkMatch(breakpoint),
-  );
+  // Start `false` so SSR and first client render agree. The real value is
+  // applied in the effect below — callers must tolerate a one-frame flash
+  // (e.g. desktop layout briefly visible on small viewports) on mount.
+  const [isMatching, setIsMatching] = useState(false);
 
-  // Update the state when the window is resized
   useEffect(() => {
     if (!isClient) {
       return;
     }
 
+    setIsMatching(checkMatch(breakpoint));
     const resizeObserver = new ResizeObserver(() =>
       setIsMatching(checkMatch(breakpoint)),
     );
