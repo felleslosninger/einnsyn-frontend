@@ -171,6 +171,7 @@
     },
     "sorting": "Ortnit",
     "sortOptions": {
+      "score": "Relevánsa",
       "offentligTittelAsc": "Namma, bajásdoallo",
       "offentligTittelDesc": "Namma, vuollásdoallo",
       "publisertDatoAsc": "Almmuhanbeassi, bajásdoallo",

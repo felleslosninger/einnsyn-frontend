@@ -57,46 +57,37 @@ export default function SearchResultContainer({
         <div className="container-pre collapsible" />
         <div className="container">
           <SearchSortDropdown />
-          <div className={styles.resultsRow}>
-            <div className="search-results">
-              {currentSearchResults.items.length ? (
-                currentSearchResults.items.map((item) => (
-                  <SearchResult
-                    className={styles.searchResult}
-                    key={item.id}
-                    item={item}
-                  />
-                ))
-              ) : (
-                <div className="no-results">
-                  <p>{t('common.noResults')}</p>
-                </div>
-              )}
-              {currentSearchResults.next && (
-                <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                  <div className="search-result">
-                    <h2 className="ds-heading" data-size="lg">
-                      <Skeleton variant="text">
-                        A relatively long dummy title for loading skeleton
-                      </Skeleton>
-                    </h2>
-                    <div className="ds-paragraph" data-size="sm">
-                      <div>
-                        <Skeleton variant="text">
-                          - Journalpost – Published 01.01.1970
-                        </Skeleton>
-                      </div>
-                      <div>
-                        <Skeleton variant="text">eInnsyn dummy Enhet</Skeleton>
-                      </div>
-                      <div>
-                        <Skeleton variant="text">Saksmappe: 123456789</Skeleton>
-                      </div>
+          <div className="search-results">
+            {currentSearchResults.items.length ? (
+              currentSearchResults.items.map((item) => (
+                <SearchResult
+                  className={styles.searchResult}
+                  key={item.id}
+                  item={item}
+                />
+              ))
+            ) : (
+              <div className="no-results">
+                <p>{t('common.noResults')}</p>
+              </div>
+            )}
+            {currentSearchResults.next && (
+              <EinScrollTrigger onEnter={scrollTriggerHandler}>
+                <div className="search-result">
+                  <h2 className="ds-heading" data-size="lg">
+                    <Skeleton variant="text" width={60} />
+                  </h2>
+                  <div className="ds-paragraph" data-size="sm">
+                    <div>
+                      <Skeleton variant="text" width={100} />
+                    </div>
+                    <div>
+                      <Skeleton variant="text" width={50} />
                     </div>
                   </div>
-                </EinScrollTrigger>
-              )}
-            </div>
+                </div>
+              </EinScrollTrigger>
+            )}
           </div>
         </div>
         <div className="container-post">

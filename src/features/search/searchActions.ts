@@ -18,8 +18,9 @@ type Journalposttype = FilterParameters['journalposttype'];
 
 const SORT_MAP: Record<
   string,
-  { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' }
+  { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' } | null
 > = {
+  score: null,
   publisertDatoDesc: { sortBy: 'publisertDato', sortOrder: 'desc' },
   publisertDatoAsc: { sortBy: 'publisertDato', sortOrder: 'asc' },
   oppdatertDatoDesc: { sortBy: 'oppdatertDato', sortOrder: 'desc' },
@@ -165,10 +166,12 @@ export const getSearchResults = async (
     logger.debug('Search API query', apiQuery);
   }
 
-  const sortParam = searchParams.get('sort') ?? 'publisertDatoDesc';
-  const sortConfig = SORT_MAP[sortParam] ?? SORT_MAP.publisertDatoDesc;
-  apiQuery.sortBy = sortConfig.sortBy;
-  apiQuery.sortOrder = sortConfig.sortOrder;
+  const sortParam = searchParams.get('sort');
+  const sortConfig = sortParam ? SORT_MAP[sortParam] : null;
+  if (sortConfig) {
+    apiQuery.sortBy = sortConfig.sortBy;
+    apiQuery.sortOrder = sortConfig.sortOrder;
+  }
 
   try {
     apiQuery.expand = [

@@ -4,7 +4,7 @@ import { Details, Heading } from '@digdir/designsystemet-react';
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useEffect, useState } from 'react';
-import { getEnhetInfo } from '~/actions/api/enhet';
+import { getEnhet } from '~/actions/api/enhet.actions';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './SelectedEnhetPanel.module.scss';
@@ -52,7 +52,7 @@ export default function SelectedEnheterPanel({
   // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey is an intentional stable proxy for enhetIds to avoid re-running on every new array reference
   useEffect(() => {
     if (!enhetIds.length) return;
-    getEnhetInfo(enhetIds).then(setEnheter);
+    getEnhet(enhetIds).then(setEnheter);
   }, [enhetIdsKey]);
   useEffect(() => {
     const mq = window.matchMedia(SMALL_SCREEN_QUERY);

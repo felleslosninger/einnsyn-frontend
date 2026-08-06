@@ -11,6 +11,7 @@ import cn from '~/lib/utils/className';
 import styles from './SearchSortDropdown.module.scss';
 
 const SORT_OPTIONS = [
+  'score',
   'publisertDatoDesc',
   'publisertDatoAsc',
   'oppdatertDatoDesc',
@@ -23,7 +24,7 @@ const SORT_OPTIONS = [
 
 type SortOption = (typeof SORT_OPTIONS)[number];
 
-const DEFAULT_SORT: SortOption = 'publisertDatoDesc';
+const DEFAULT_SORT: SortOption = 'score';
 
 export default function SearchSortDropdown() {
   const t = useTranslation();
@@ -37,8 +38,13 @@ export default function SearchSortDropdown() {
       : DEFAULT_SORT;
   const getSortUrl = (sortKey: SortOption) => {
     const p = new URLSearchParams(searchParams ?? undefined);
-    p.set('sort', sortKey);
-    return `${pathname}?${p.toString()}`;
+    if (sortKey === 'score') {
+      p.delete('sort');
+    } else {
+      p.set('sort', sortKey);
+    }
+    const query = p.toString();
+    return query ? `${pathname}?${query}` : pathname;
   };
 
   return (

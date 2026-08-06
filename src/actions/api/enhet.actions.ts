@@ -4,7 +4,7 @@ import { EInnsynError, type Enhet } from '@digdir/einnsyn-sdk';
 import { logger } from '~/lib/utils/logger';
 import { cachedApiClient } from './getApiClient';
 
-export async function getEnhetInfo(enhetIds: string[]): Promise<Enhet[]> {
+export async function getEnhet(enhetIds: string[]): Promise<Enhet[]> {
   if (!enhetIds.length) return [];
 
   const api = await cachedApiClient();

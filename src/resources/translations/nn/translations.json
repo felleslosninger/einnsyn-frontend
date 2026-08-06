@@ -171,6 +171,7 @@
     },
     "sorting": "Sortering",
     "sortOptions": {
+      "score": "Relevans",
       "offentligTittelAsc": "Tittel, stigande",
       "offentligTittelDesc": "Tittel, synkande",
       "publisertDatoAsc": "Publiseringsdato, stigande",

@@ -17,19 +17,6 @@ function getSaksnummer(item: Journalpost): string | null {
   return null;
 }
 
-function getFirstDocumentUrl(item: Journalpost): string | null {
-  for (const dok of item.dokumentbeskrivelse ?? []) {
-    if (typeof dok === 'string') continue;
-    for (const obj of dok.dokumentobjekt ?? []) {
-      if (typeof obj === 'string') continue;
-      const params = new URLSearchParams({ id: obj.id });
-      if (obj.format) params.set('format', obj.format);
-      return `/fil?${params.toString()}`;
-    }
-  }
-  return null;
-}
-
 export default function JournalpostResult({
   className,
   item,
@@ -40,7 +27,6 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
-  const documentUrl = getFirstDocumentUrl(item);
   const recordedDate = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
@@ -76,22 +62,9 @@ export default function JournalpostResult({
           )}
         </SearchResultSubheader>
         <JournalpostCorrespondence journalpost={item} />
-        {documentUrl ? (
-          <a
-            href={documentUrl}
-            className="search-result-action"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {translate('search.openDocument')}
-          </a>
-        ) : null}
-        {/* TODO: Implement order access functionality
-        ) : (
-          <EinLink href="" className="search-result-action">
-            {translate('search.orderAccess')}
-          </EinLink>
-        )} */}
+        <a className="search-result-action">
+          {translate('search.openDocument')}
+        </a>
       </div>
     </div>
   );
