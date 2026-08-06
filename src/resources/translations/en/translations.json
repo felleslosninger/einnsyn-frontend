@@ -76,7 +76,6 @@
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
     "sortedBy": "Sorted by",
-    "selectedEnheter": "Selected organizations",
     "orderAccess": "Request access",
     "openDocument": "Open document",
     "addToCalendar": "Add to calendar",
@@ -87,6 +86,7 @@
     "enhetSelectorSubtitle": "Choose one or more organizations to narrow your search.",
     "availableEnheter": "Available",
     "selectedEnheter": "Selected",
+    "selectedEnheter+": "Selected organizations",
     "applySelection": "Apply selection",
     "selectionCount": "$1 organizations selected",
     "enhetstype": {

@@ -70,7 +70,7 @@ export default function SelectedEnheterPanel({
         <Details.Summary>
           <Heading level={4} data-size="sm" className={styles.detailsHeading}>
             <Buildings3Icon />
-            {t('search.selectedEnheter')}
+            {t('search.selectedEnheter+')}
           </Heading>
         </Details.Summary>
         <Details.Content>
@@ -86,7 +86,7 @@ export default function SelectedEnheterPanel({
     <aside className={styles.panel}>
       <Heading level={3} data-size="sm" className={styles.heading}>
         <Buildings3Icon />
-        {t('search.selectedEnheter')}
+        {t('search.selectedEnheter+')}
       </Heading>
       {enheter.map((enhet) => (
         <EnhetCard key={enhet.id} enhet={enhet} />

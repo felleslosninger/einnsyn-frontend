@@ -76,7 +76,6 @@
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
     "sortedBy": "Sortert etter",
-    "selectedEnheter": "Virksomheter du har valgt",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Åpne dokument",
     "addToCalendar": "Legg til i kalender",
@@ -87,6 +86,7 @@
     "enhetSelectorSubtitle": "Velg én eller flere virksomheter for å begrense søket.",
     "availableEnheter": "Tilgjengelige",
     "selectedEnheter": "Valgte",
+    "selectedEnheter+": "Virksomheter du har valgt",
     "applySelection": "Bruk valg",
     "selectionCount": "$1 virksomheter valgt",
     "enhetstype": {

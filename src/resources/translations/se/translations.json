@@ -75,8 +75,7 @@
     "button": "Oza",
     "placeholder": "Oza eInnsynas...",
     "clear": "Guoros ohcan",
-     "sortedBy": "Lágiduvvon maŋŋil",
-    "selectedEnheter": "Válljejuvvon doaibmabijut",
+    "sortedBy": "Lágiduvvon maŋŋil",
     "orderAccess": "Diŋgo geahčču",
     "openDocument": "Rahpat dokumeantta",
     "addToCalendar": "Lasit kaleandárii",
@@ -87,6 +86,7 @@
     "enhetSelectorSubtitle": "Vállje ovtta dahje eanet organisašuvnna ohcama ráddjet.",
     "availableEnheter": "Olamuttus",
     "selectedEnheter": "Válljejuvvon",
+    "selectedEnheter+": "Virksomheter du har valgt",
     "applySelection": "Geavat válljema",
     "selectionCount": "$1 organisašuvnna válljejuvvon",
     "enhetstype": {
