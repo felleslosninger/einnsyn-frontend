@@ -4,11 +4,18 @@ import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
-import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import {
+  useNavigation,
+  useOptimisticSearchParams,
+} from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
+import { parseParamList } from '~/lib/utils/paramList';
 import styles from './SearchResultContainer.module.scss';
+import SearchSortDropdown from './SearchSortDropdown';
+import SelectedEnhetPanel from './SelectedEnhetPanel';
+import './searchresult/searchResultStyles.scss';
 import SearchResult from './searchresult/SearchResult';
 import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
 
@@ -18,6 +25,10 @@ export default function SearchResultContainer({
   searchResults: PaginatedList<Base>;
 }) {
   const t = useTranslation();
+  const searchParams = useOptimisticSearchParams();
+  const enhetIds = (searchParams?.getAll('enhet') ?? []).flatMap((value) =>
+    parseParamList(value),
+  );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const { loadingSearchParamsString, searchParamsString, loading } =
@@ -59,6 +70,7 @@ export default function SearchResultContainer({
       >
         <div className="container-pre collapsible" />
         <div className="container">
+          <SearchSortDropdown />
           <div
             className="search-results"
             aria-busy={isLoading}
@@ -77,8 +89,6 @@ export default function SearchResultContainer({
                 <p>{t('common.noResults')}</p>
               </div>
             )}
-
-            {/* Conditionally render EinScrollTrigger only if there's a next page */}
             {currentSearchResults.next && (
               <EinScrollTrigger onEnter={scrollTriggerHandler}>
                 <SearchResultSkeleton
@@ -93,7 +103,9 @@ export default function SearchResultContainer({
             )}
           </div>
         </div>
-        <div className="container-post" />
+        <div className="container-post">
+          {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
+        </div>
       </div>
     </EinTransition>
   );

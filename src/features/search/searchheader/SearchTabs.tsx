@@ -40,34 +40,72 @@ export default function SearchTabs({ className }: { className?: string }) {
       data-size="sm"
       data-color="neutral"
     >
-      <div className={cn(styles.searchTabs)}>
-        <EinLink className={getLinkClassName('')} href={getTabHref('')}>
-          {t('common.all')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Saksmappe')}
-          href={getTabHref('Saksmappe')}
-        >
-          {t('saksmappe.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Journalpost')}
-          href={getTabHref('Journalpost')}
-        >
-          {t('journalpost.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetemappe')}
-          href={getTabHref('Moetemappe')}
-        >
-          {t('moetemappe.labelPlural')}
-        </EinLink>
-        <EinLink
-          className={getLinkClassName('Moetesak')}
-          href={getTabHref('Moetesak')}
-        >
-          {t('moetesak.labelPlural')}
-        </EinLink>
+      <div className={styles.searchTabsScroll}>
+        <div className={cn(styles.searchTabs)}>
+          <EinLink className={getLinkClassName('')} href={getTabHref('')}>
+            {t('common.all')}
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Saksmappe')}
+            href={getTabHref('Saksmappe')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--saksmappe',
+                )}
+                aria-hidden="true"
+              />
+              {t('saksmappe.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Journalpost')}
+            href={getTabHref('Journalpost')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--journalpost',
+                )}
+                aria-hidden="true"
+              />
+              {t('journalpost.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Moetemappe')}
+            href={getTabHref('Moetemappe')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--moetemappe',
+                )}
+                aria-hidden="true"
+              />
+              {t('moetemappe.labelPlural')}
+            </span>
+          </EinLink>
+          <EinLink
+            className={getLinkClassName('Moetesak')}
+            href={getTabHref('Moetesak')}
+          >
+            <span className={styles.tabInner}>
+              <span
+                className={cn(
+                  'search-result-dot',
+                  'search-result-dot--moetesak',
+                )}
+                aria-hidden="true"
+              />
+              {t('moetesak.labelPlural')}
+            </span>
+          </EinLink>
+        </div>
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
