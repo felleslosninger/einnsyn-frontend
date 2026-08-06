@@ -90,32 +90,36 @@ body {
   }
 
   @include mq.small {
-    flex-wrap: wrap;
-    padding-left: var(--ds-size-4);
-    padding-right: var(--ds-size-4);
+    // Keep the side slots on the first row and the main slot full width below.
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'pre post'
+      'main main';
+    padding-left: var(--ds-size-2);
+    padding-right: var(--ds-size-2);
 
     >.container-pre,
     >.container-post,
     >.container {
-      padding-left: 0;
-      padding-right: 0;
+      min-width: 0;
+      padding-left: var(--ds-size-2);
+      padding-right: var(--ds-size-2);
     }
 
     >.container-pre {
-      width: 50%;
-      order: 1;
+      grid-area: pre;
+      width: auto;
     }
 
     >.container-post {
-      width: 50%;
-      min-width: 0;
-      order: 2;
+      grid-area: post;
+      width: auto;
     }
 
     >.container {
+      grid-area: main;
       width: 100%;
-      min-width: 320px;
-      order: 3;
     }
   }
 

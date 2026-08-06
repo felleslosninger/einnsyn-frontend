@@ -7,6 +7,7 @@ import {
 } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { buildSearchHref } from '~/lib/utils/searchHref';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
 
@@ -15,15 +16,14 @@ export default function SearchTabs({ className }: { className?: string }) {
   const pathname = useOptimisticPathname();
   const t = useTranslation();
 
-  const getLinkUrl = (entityName: string) => {
-    const searchParamsCopy = new URLSearchParams(searchParams ?? undefined);
-    if (entityName === '') {
-      searchParamsCopy.delete('entity');
-    } else {
-      searchParamsCopy.set('entity', entityName);
-    }
-    return `${pathname}?${searchParamsCopy.toString()}`;
-  };
+  // The "all" tab is the absence of an `entity` param, which `buildSearchHref`
+  // handles as the empty string.
+  const getTabHref = (entityName: string) =>
+    buildSearchHref({
+      pathname,
+      searchParams,
+      updates: { entity: entityName },
+    });
 
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
@@ -42,12 +42,12 @@ export default function SearchTabs({ className }: { className?: string }) {
     >
       <div className={styles.searchTabsScroll}>
         <div className={cn(styles.searchTabs)}>
-          <EinLink className={getLinkClassName('')} href={getLinkUrl('')}>
+          <EinLink className={getLinkClassName('')} href={getTabHref('')}>
             {t('common.all')}
           </EinLink>
           <EinLink
             className={getLinkClassName('Saksmappe')}
-            href={getLinkUrl('Saksmappe')}
+            href={getTabHref('Saksmappe')}
           >
             <span className={styles.tabInner}>
               <span
@@ -62,7 +62,7 @@ export default function SearchTabs({ className }: { className?: string }) {
           </EinLink>
           <EinLink
             className={getLinkClassName('Journalpost')}
-            href={getLinkUrl('Journalpost')}
+            href={getTabHref('Journalpost')}
           >
             <span className={styles.tabInner}>
               <span
@@ -77,7 +77,7 @@ export default function SearchTabs({ className }: { className?: string }) {
           </EinLink>
           <EinLink
             className={getLinkClassName('Moetemappe')}
-            href={getLinkUrl('Moetemappe')}
+            href={getTabHref('Moetemappe')}
           >
             <span className={styles.tabInner}>
               <span
@@ -92,7 +92,7 @@ export default function SearchTabs({ className }: { className?: string }) {
           </EinLink>
           <EinLink
             className={getLinkClassName('Moetesak')}
-            href={getLinkUrl('Moetesak')}
+            href={getTabHref('Moetesak')}
           >
             <span className={styles.tabInner}>
               <span
