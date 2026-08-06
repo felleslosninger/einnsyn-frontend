@@ -1,4 +1,4 @@
-import Header from '~/features/header/Header';
+import { Header } from '~/features/header';
 
 export default async function HeaderLayout({
   children,

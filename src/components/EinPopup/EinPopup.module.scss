@@ -3,121 +3,103 @@
 $arrowSize: 12px;
 $arrowHalfSize: calc($arrowSize / 2);
 
+// Positioning + animation. Always applied.
 .einPopup {
   position: absolute;
   z-index: 1000;
-  filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.3));
-
 
   .einPopupContent {
     position: relative;
     z-index: 1;
-    border-radius: var(--ds-border-radius-default);
   }
 
-  .einPopupContent,
+  // Visible (settled-open, or start of exit before animation kicks in)
+  &.open {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  // Hidden: closed, start of enter (before .enter-transition),
+  // and target frame of exit
+  &.closed,
+  &.open:global(.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
+  &.open:global(.ein-transition-exit-transition) {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  &:global(.ein-transition-enter-transition),
+  &:global(.ein-transition-exit-transition) {
+    transition:
+      transform fx.$transitionDuration fx.$easeOut,
+      opacity fx.$transitionDuration linear;
+  }
+}
+
+// Default visual chrome: drop-shadow, content background and border-radius.
+// Applied unless the caller passes `unstyled`.
+.einPopupChrome {
+  filter: drop-shadow(0 0 .7rem rgba(0, 0, 0, 0.3));
+
+  .einPopupContent {
+    border-radius: var(--ds-border-radius-xl);
+    background-color: var(--ds-color-neutral-surface-default);
+  }
+}
+
+// Pointing arrow. Applied when chrome is on and `arrow` is true. Only renders
+// for cardinal positions (above/below/left/right) since edge-aligned variants
+// like belowRight wouldn't have a sensible target point.
+.einPopupArrow {
   &:before {
     background-color: var(--ds-color-neutral-surface-default);
   }
 
-  &.open,
-  &.closed.preClosed {
-    opacity: 1;
-    transform: scale(1);
-
-    &:before  {
+  &.open {
+    &:before {
       content: '';
       position: absolute;
       width: $arrowSize;
       height: $arrowSize;
-      //background-color: var(--ds-color-neutral-background-default);
       transform: translateX(-50%) translateY(-50%) rotate(45deg);
       border: inherit;
       z-index: -1;
     }
 
     &[style*="--ein-popup-position: above"]:before {
-      top: 100%; 
-      left: clamp(
-        $arrowHalfSize,
-        var(--ein-popup-arrow-left),
-        calc(100% - $arrowHalfSize)
-      );
+      top: 100%;
+      left: clamp($arrowHalfSize,
+          var(--ein-popup-arrow-left),
+          calc(100% - $arrowHalfSize));
       border-left: none;
       border-top: none;
     }
 
     &[style*="--ein-popup-position: below"]:before {
-      top: 0; 
-      left: clamp(
-        $arrowHalfSize,
-        var(--ein-popup-arrow-left),
-        calc(100% - $arrowHalfSize)
-      );
+      top: 0;
+      left: clamp($arrowHalfSize,
+          var(--ein-popup-arrow-left),
+          calc(100% - $arrowHalfSize));
       border-right: none;
       border-bottom: none;
     }
 
     &[style*="--ein-popup-position: left"]:before {
-      left: 100%; 
-      top: clamp(
-        $arrowHalfSize,
-        var(--ein-popup-arrow-top),
-        calc(100% - $arrowHalfSize)
-      );
+      left: 100%;
+      top: clamp($arrowHalfSize,
+          var(--ein-popup-arrow-top),
+          calc(100% - $arrowHalfSize));
       border-left: none;
       border-bottom: none;
     }
 
     &[style*="--ein-popup-position: right"]:before {
-      left: 0; 
-      top: clamp(
-        $arrowHalfSize,
-        var(--ein-popup-arrow-top),
-        calc(100% - $arrowHalfSize)
-      );
+      left: 0;
+      top: clamp($arrowHalfSize,
+          var(--ein-popup-arrow-top),
+          calc(100% - $arrowHalfSize));
       border-right: none;
       border-top: none;
     }
   }
-
-  &.closed,
-  &.open.preOpen {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-
-  &.toOpen {
-    transition: all fx.$transitionDuration fx.$easeOut;
-  }
-
-  &.toClosed {
-    transition: all fx.$transitionDuration fx.$easeOut;
-  }
-
-
-  // Transitions
-  // &:global(.ein-transition-init-exit-transition) {
-  //   display: block;
-  //   opacity: 1;
-  //   transform: scale(1);
-  // }
-
-  // &:global(.ein-transition-exit-transition) {
-  //   opacity: 0;
-  //   //transform: scale(0.95);
-  //   transition: all .2s ease-out;
-  // }
-
-  // &:global(.ein-transition-init-enter-transition) {
-  //   display: block;
-  //   opacity: 0;
-  //   //transform: scale(0.95);
-  // }
-  
-  // &:global(.ein-transition-enter-transition) {
-  //   opacity: 1;
-  //   transform: scale(1);
-  //   transition: all .2s ease-out;
-  // }
 }

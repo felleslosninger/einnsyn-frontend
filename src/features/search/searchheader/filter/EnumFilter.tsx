@@ -2,6 +2,7 @@ import { Checkbox, Fieldset } from '@digdir/designsystemet-react';
 import { useCallback, useState } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import cn from '~/lib/utils/className';
+import { parseParamList, serializeParamList } from '~/lib/utils/paramList';
 import styles from './EnumFilter.module.scss';
 
 type Option = {
@@ -29,7 +30,7 @@ export function EnumFilter({
   setValue?: (value: string | undefined) => void;
 }) {
   const [selectedValues, setSelectedValues] = useState(() => {
-    return new Set(initialValue ? initialValue.split(',') : []);
+    return new Set(parseParamList(initialValue));
   });
 
   const handleChange = useCallback(
@@ -41,7 +42,9 @@ export function EnumFilter({
         newSelectedValues.delete(toggledValue);
       }
       setSelectedValues(newSelectedValues);
-      const valueString = Array.from(newSelectedValues).sort().join(',');
+      const valueString = serializeParamList(Array.from(newSelectedValues), {
+        sort: true,
+      });
       setValue?.(valueString === '' ? undefined : valueString);
     },
     [selectedValues, setValue],
@@ -50,7 +53,7 @@ export function EnumFilter({
   return (
     <EinDropdown
       trigger={label}
-      showChevron
+      showChevronRight
       className={cn(styles.enumFilter, className, 'dropdown-option')}
       preferredPosition={[
         'rightTop',
