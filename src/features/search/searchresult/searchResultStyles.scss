@@ -1,15 +1,35 @@
 @use '../../../styles/mediaQueries.scss' as mq;
 
-@include mq.small {
+@include mq.small-and-medium {
 
-  // At small screens container-post flips above the main container.
-  // Hide the empty collapsible pre-column and give post the full width.
+  // On small/medium screens the enhet panel becomes a full-width dropdown
+  // above the results instead of a side panel.
   .container-wrapper>.container-pre.collapsible {
     display: none;
   }
 
   .container-wrapper>.container-post {
     width: 100%;
+    order: -1;
+  }
+}
+
+@include mq.medium {
+  // On medium the wrapper is a flex row — allow wrapping so the full-width
+  // container-post (order: -1) sits above the main container.
+  .container-wrapper {
+    flex-wrap: wrap;
+  }
+}
+
+@include mq.small {
+  // On small the wrapper is a CSS grid. Collapse to a single column with
+  // container-post on top, main content below.
+  .container-wrapper {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'post'
+      'main';
   }
 }
 

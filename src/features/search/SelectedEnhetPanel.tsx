@@ -37,7 +37,7 @@ function EnhetCard({ enhet }: { enhet: Enhet }) {
   );
 }
 
-const SMALL_SCREEN_QUERY = '(max-width: 767px)';
+const SMALL_SCREEN_QUERY = '(max-width: 1299px)';
 
 export default function SelectedEnheterPanel({
   enhetIds,
