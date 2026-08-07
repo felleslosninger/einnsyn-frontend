@@ -15,6 +15,7 @@
 }
 
 @include mq.medium {
+
   // On medium the wrapper is a flex row — allow wrapping so the full-width
   // container-post (order: -1) sits above the main container.
   .container-wrapper {
@@ -23,6 +24,7 @@
 }
 
 @include mq.small {
+
   // On small the wrapper is a CSS grid. Collapse to a single column with
   // container-post on top, main content below.
   .container-wrapper {
@@ -34,14 +36,14 @@
 }
 
 .search-results {
-  padding-top: var(--ds-size-4);
+  padding-top: var(--ds-size-6);
 }
 
 .search-result {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-bottom: var(--ds-size-13);
+  padding-bottom: var(--ds-size-10);
 
   >a {
     display: block;
@@ -55,13 +57,7 @@
 
   h2 {
     width: 100%;
-    color: var(--ds-color-text-subtle);
-
-    font-size: 1.3125rem;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 150%;
-
+    font-size: var(--ds-font-size-5);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -71,16 +67,18 @@
 .search-result-body {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-size-3);
-  padding-top: var(--ds-size-3);
+  gap: var(--ds-size-1);
+  padding-top: var(--ds-size-1);
+  font-size: var(--ds-font-size-2);
 }
 
 .search-result-dot {
   display: inline-block;
   flex: none;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 9999px;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--ds-size-1);
+  border-radius: var(--ds-border-radius-full);
 }
 
 .search-result-dot--saksmappe {
@@ -105,38 +103,13 @@
   flex-wrap: wrap;
   gap: var(--ds-size-3);
 
-  color: var(--ds-color-text-default);
-  font-family: var(--ds-font-family);
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.024px;
-
-
   .search-result-dot {
     margin-right: -5px;
   }
 
-  .search-result-type {
-    letter-spacing: 0.04em;
-  }
+  .search-result-type {}
 
-  .search-result-number {
-    letter-spacing: 1.12px;
-    text-decoration: none;
-
-    a {
-      text-decoration: none;
-      color: var(--ds-color-text-default);
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-
-
-  }
+  .search-result-number {}
 
   .search-result-meta {
     display: flex;
@@ -150,44 +123,16 @@
   display: flex;
   align-items: center;
   gap: var(--ds-size-3);
-  color: var(--ds-color-text-default);
-  font-family: var(--ds-font-family);
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 160%;
-  letter-spacing: 0.024px;
-
-  svg {
-    flex: none;
-    width: 19.5px;
-    height: 19.5px;
-    margin-right: -8px;
-  }
 }
 
 .search-result-correspondence {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ds-size-2);
-  color: var(--ds-color-text-default);
-
-  .correspondence-icon {
-    width: 19.5px;
-    height: 19.5px;
-    flex-shrink: 0;
-  }
 
   .correspondence-enhet {
     white-space: nowrap;
   }
 
-  .correspondence-to {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--ds-size-1);
-    flex-wrap: wrap;
+  .correspondence-direction {
+    font-weight: 600;
   }
 
   .correspondence-label {

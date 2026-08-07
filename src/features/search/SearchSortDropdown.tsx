@@ -48,7 +48,7 @@ export default function SearchSortDropdown() {
   };
 
   return (
-    <div className={styles.sortContainer}>
+    <div className={styles.sortContainer} data-size="sm">
       <EinDropdown
         trigger={
           <span className={styles.sortTrigger}>

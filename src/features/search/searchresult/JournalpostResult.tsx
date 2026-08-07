@@ -1,10 +1,10 @@
 import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 function getSaksnummer(item: Journalpost): string | null {
@@ -34,11 +34,9 @@ export default function JournalpostResult({
   return (
     <div className={cn(className, 'search-result', 'journalpost-result')}>
       <EinLink href="">
-        <h2 className="ds-heading" data-size="sm">
-          {item.offentligTittel}
-        </h2>
+        <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div className="ds-paragraph search-result-body">
         <SearchResultSubheader
           variant="journalpost"
           item={item}
@@ -81,6 +79,7 @@ function JournalpostCorrespondence({
   journalpost: Journalpost;
 }) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   const enhet = journalpost.administrativEnhetObjekt;
 
   if (!isEnhet(enhet)) {
@@ -94,36 +93,35 @@ function JournalpostCorrespondence({
       .map((k) => k.korrespondansepartNavnSensitiv)
       .filter((navn): navn is string => Boolean(navn));
 
-  let directionLabel = '';
-  let party: React.ReactNode = null;
-
-  if (journalpost.journalposttype === 'inngaaende_dokument') {
-    directionLabel = t('journalpost.from');
-    party = <PartyNameList names={partyNames(/^[Aa]vsender$/)} />;
-  } else if (journalpost.journalposttype === 'utgaaende_dokument') {
-    directionLabel = t('journalpost.to');
-    party = <PartyNameList names={partyNames(/^[Mm]ottaker$/)} />;
-  } else {
-    return (
-      <div className="search-result-enhet">
-        <Buildings3Icon aria-hidden="true" focusable="false" />
-        {enhet.navn}
-      </div>
-    );
-  }
+  const enhetNavn = getName(enhet, languageCode);
+  const enhetHref = getEnhetHref(enhet);
+  const from = t('journalpost.from');
+  const to = t('journalpost.to');
+  const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
+  const isOutgoing = journalpost.journalposttype === 'utgaaende_dokument';
+  const enhetNode = (
+    <EinLink href={enhetHref} className="correspondence-enhet">
+      {enhetNavn}
+    </EinLink>
+  );
 
   return (
     <div className="search-result-correspondence">
-      <Buildings3Icon
-        className="correspondence-icon"
-        aria-hidden="true"
-        focusable="false"
-      />
-      <span className="correspondence-enhet">{enhet.navn}</span>
-      <span className="correspondence-to">
-        <span className="correspondence-label">{directionLabel}:</span>
-        <span className="correspondence-party">{party}</span>
-      </span>
+      {isIncoming && (
+        <>
+          <span className="correspondence-direction">{to}: </span>
+          {enhetNode} <span className="correspondence-direction">{from}: </span>
+          <PartyNameList names={partyNames(/^[Aa]vsender$/)} />
+        </>
+      )}
+      {isOutgoing && (
+        <>
+          <span className="correspondence-direction">{from}: </span>
+          {enhetNode} <span className="correspondence-direction">{to}: </span>
+          <PartyNameList names={partyNames(/^[Mm]ottaker$/)} />
+        </>
+      )}
+      {!isIncoming && !isOutgoing && enhetNode}
     </div>
   );
 }

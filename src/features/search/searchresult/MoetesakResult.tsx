@@ -1,8 +1,10 @@
 import type { Moetesak } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetesakResult({
@@ -13,12 +15,9 @@ export default function MoetesakResult({
   item: Moetesak;
 }) {
   const translate = useTranslation();
-  const enhetNavn =
-    typeof item.utvalgObjekt === 'object' &&
-    item.utvalgObjekt &&
-    'navn' in item.utvalgObjekt
-      ? item.utvalgObjekt.navn
-      : '';
+  const languageCode = useLanguageCode();
+  const enhetNavn = getName(item.utvalgObjekt, languageCode);
+  const enhetHref = getEnhetHref(item.utvalgObjekt);
 
   return (
     <div className={cn(className, 'search-result', 'moetesak-result')}>
@@ -41,14 +40,7 @@ export default function MoetesakResult({
           )}
         </SearchResultSubheader>
         <div className="search-result-enhet">
-          <Buildings3Icon
-            aria-hidden="true"
-            focusable="false"
-            fontSize="1.5rem"
-          />
-          <span>{enhetNavn}</span>
-          <span>-</span>
-          <span>{item.utvalg}</span>
+          <EinLink href={enhetHref}>{enhetNavn}</EinLink>
         </div>
       </div>
     </div>

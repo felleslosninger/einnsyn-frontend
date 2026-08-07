@@ -1,10 +1,9 @@
 import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
-import EnhetLink from './common/EnhetLink';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
@@ -27,13 +26,11 @@ export default function SaksmappeResult({
   item: Saksmappe;
 }) {
   const translate = useTranslation();
+  const languageCode = useLanguageCode();
   const saksmappeHref = getSaksmappeHref(item);
-
   const enhet = item.administrativEnhetObjekt;
-
-  if (!isEnhet(enhet)) {
-    return null;
-  }
+  const enhetNavn = getName(enhet, languageCode);
+  const enhetHref = getEnhetHref(enhet);
 
   return (
     <div className={cn(className, 'search-result', 'saksmappe-result')}>
@@ -54,14 +51,11 @@ export default function SaksmappeResult({
             </span>
           )}
         </SearchResultSubheader>
-        <div className="search-result-enhet">
-          <Buildings3Icon
-            aria-hidden="true"
-            focusable="false"
-            fontSize="1.5rem"
-          />
-          {enhet.navn}
-        </div>
+        {isEnhet(enhet) && (
+          <div className="search-result-enhet">
+            <EinLink href={enhetHref}>{enhetNavn}</EinLink>
+          </div>
+        )}
       </div>
     </div>
   );
