@@ -1,17 +1,14 @@
-@use '../../../styles/mediaQueries.scss' as mq;
-
-
-.search-results {
+.searchResults {
   padding-top: var(--ds-size-6);
 }
 
-.search-result {
+.searchResult {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding-bottom: var(--ds-size-12);
 
-  >a {
+  > a {
     display: block;
     width: 100%;
     text-decoration: none;
@@ -30,7 +27,7 @@
   }
 }
 
-.search-result-body {
+.searchResultBody {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-1);
@@ -38,7 +35,7 @@
   font-size: var(--ds-font-size-2);
 }
 
-.search-result-dot {
+.searchResultDot {
   display: inline-block;
   flex: none;
   width: 9px;
@@ -47,37 +44,33 @@
   border-radius: var(--ds-border-radius-full);
 }
 
-.search-result-dot--saksmappe {
+.searchResultDotSaksmappe {
   background: var(--ds-color-support-color-3-base-primary);
 }
 
-.search-result-dot--journalpost {
+.searchResultDotJournalpost {
   background: var(--ds-color-support-color-4-base-primary);
 }
 
-.search-result-dot--moetemappe {
+.searchResultDotMoetemappe {
   background: var(--ds-color-brand2-base-primary);
 }
 
-.search-result-dot--moetesak {
+.searchResultDotMoetesak {
   background: var(--ds-color-support-color-5-base-primary);
 }
 
-.search-result-subheader {
+.searchResultSubheader {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--ds-size-3);
 
-  .search-result-dot {
+  .searchResultDot {
     margin-right: -5px;
   }
 
-  .search-result-type {}
-
-  .search-result-number {}
-
-  .search-result-meta {
+  .searchResultMeta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -85,32 +78,32 @@
   }
 }
 
-.search-result-enhet {
+.searchResultEnhet {
   display: flex;
   align-items: center;
   gap: var(--ds-size-3);
 }
 
-.search-result-correspondence {
+.searchResultCorrespondence {
 
-  .correspondence-party {
+  .correspondenceParty {
     white-space: nowrap;
     margin-right: var(--ds-size-2);
   }
 
-  .correspondence-direction {
+  .correspondenceDirection {
     font-weight: 600;
   }
 
-  .correspondence-label {
+  .correspondenceLabel {
     white-space: nowrap;
   }
 }
 
-.search-result-action {
+.searchResultAction {
   white-space: normal;
   cursor: pointer;
-  text-underline-offset: .27em;
+  text-underline-offset: 0.27em;
   display: inline-flex;
   align-items: center;
   gap: var(--ds-size-1);

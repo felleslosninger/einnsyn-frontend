@@ -6,6 +6,7 @@ import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export default function MoetemappeResult({
   className,
@@ -23,30 +24,29 @@ export default function MoetemappeResult({
   const enhetHref = getEnhetHref(item.utvalgObjekt);
 
   return (
-    <div className={cn(className, 'search-result', 'moetemappe-result')}>
+    <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
       <EinLink href="">
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="moetemappe"
           item={item}
           label={translate('moetemappe.label')}
         >
-          {meetingDate && (
-            <span className="search-result-meeting-date">{meetingDate}</span>
-          )}
-          {item.moetested && (
-            <span className="search-result-location">{item.moetested}</span>
-          )}
+          {meetingDate && <span>{meetingDate}</span>}
+          {item.moetested && <span>{item.moetested}</span>}
         </SearchResultSubheader>
-        <div className="search-result-enhet">
+        <div className={styles.searchResultEnhet}>
           <EinLink href={enhetHref}>{enhetNavn}</EinLink>
         </div>
         {/* TODO: implement add to calendar functionality
-        <EinLink href="" className="search-result-action">
+        <EinLink href="" className={styles.searchResultAction}>
           {translate('search.addToCalendar')}
         </EinLink> */}
       </div>

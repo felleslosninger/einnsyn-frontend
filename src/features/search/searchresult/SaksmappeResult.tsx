@@ -5,6 +5,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   const enhet = saksmappe.administrativEnhetObjekt;
@@ -33,26 +34,29 @@ export default function SaksmappeResult({
   const enhetHref = getEnhetHref(enhet);
 
   return (
-    <div className={cn(className, 'search-result', 'saksmappe-result')}>
+    <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
       <EinLink href={saksmappeHref}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="saksmappe"
           item={item}
           label={translate('saksmappe.label')}
         >
           {item.saksnummer && (
-            <span className="search-result-number">
+            <span>
               {translate('common.number')} {item.saksnummer}
             </span>
           )}
         </SearchResultSubheader>
         {isEnhet(enhet) && (
-          <div className="search-result-enhet">
+          <div className={styles.searchResultEnhet}>
             <EinLink href={enhetHref}>{enhetNavn}</EinLink>
           </div>
         )}

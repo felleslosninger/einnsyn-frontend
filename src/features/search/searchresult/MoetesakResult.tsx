@@ -1,11 +1,11 @@
 import type { Moetesak } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export default function MoetesakResult({
   className,
@@ -20,26 +20,29 @@ export default function MoetesakResult({
   const enhetHref = getEnhetHref(item.utvalgObjekt);
 
   return (
-    <div className={cn(className, 'search-result', 'moetesak-result')}>
+    <div className={cn(className, styles.searchResult, 'moetesak-result')}>
       <EinLink href="">
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="moetesak"
           item={item}
           label={translate('moetesak.label')}
         >
           {item.moetesakssekvensnummer && (
-            <span className="search-result-number">
+            <span>
               {translate('common.number')} {item.moetesakssekvensnummer}/
               {item.moetesaksaar}
             </span>
           )}
         </SearchResultSubheader>
-        <div className="search-result-enhet">
+        <div className={styles.searchResultEnhet}>
           <EinLink href={enhetHref}>{enhetNavn}</EinLink>
         </div>
       </div>

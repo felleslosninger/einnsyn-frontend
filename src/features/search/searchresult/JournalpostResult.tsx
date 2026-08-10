@@ -6,6 +6,7 @@ import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 function getSaksnummer(item: Journalpost): string | null {
   if (typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer) {
@@ -27,45 +28,43 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
-  const recordedDate = item.journaldato
+  const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
 
   return (
-    <div className={cn(className, 'search-result', 'journalpost-result')}>
+    <div className={cn(className, styles.searchResult, 'journalpost-result')}>
       <EinLink href="">
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body">
+      <div className={cn('ds-paragraph', styles.searchResultBody)}>
         <SearchResultSubheader
           variant="journalpost"
           item={item}
           label={translate('journalpost.label')}
         >
           {saksnummer && (
-            <span className="search-result-number">
+            <span>
               {translate('common.number')} {saksnummer}
             </span>
           )}
 
           {item.journalposttype && (
-            <span className="search-result-doctype">
-              {translate(`journalpost.type.${item.journalposttype}`)}
-            </span>
+            <span>{translate(`journalpost.type.${item.journalposttype}`)}</span>
           )}
-          {recordedDate && (
-            <span className="search-result-recorded-date">
-              {translate('common.recordedAt')} {recordedDate}
+          {journaldato && (
+            <span>
+              {translate('common.recordedAt')} {journaldato}
             </span>
           )}
         </SearchResultSubheader>
         <JournalpostCorrespondence journalpost={item} />
         {/* TODO: implement open document functionality
-        <a href="http://localhost:3000" className="search-result-action" target="_blank" rel="noopener noreferrer">
+        <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
           {translate('search.openDocument')}
         </a> */}
         {/* TODO: implement order access functionality
-        <EinLink href="http://localhost:3000" className="search-result-action">
+        <EinLink href="http://localhost:3000" className={styles.searchResultAction}>
           {translate('search.orderAccess')}
         </EinLink> */}
       </div>
@@ -100,24 +99,26 @@ function JournalpostCorrespondence({
   const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
   const isOutgoing = journalpost.journalposttype === 'utgaaende_dokument';
   const enhetNode = (
-    <EinLink href={enhetHref} className="correspondence-party">
+    <EinLink href={enhetHref} className={styles.correspondenceParty}>
       {enhetNavn}
     </EinLink>
   );
 
   return (
-    <div className="search-result-correspondence">
+    <div className={styles.searchResultCorrespondence}>
       {isIncoming && (
         <>
-          <span className="correspondence-direction">{to}: </span>
-          {enhetNode} <span className="correspondence-direction">{from}: </span>
+          <span className={styles.correspondenceDirection}>{to}: </span>
+          {enhetNode}{' '}
+          <span className={styles.correspondenceDirection}>{from}: </span>
           <PartyNameList names={partyNames(/^[Aa]vsender$/)} />
         </>
       )}
       {isOutgoing && (
         <>
-          <span className="correspondence-direction">{from}: </span>
-          {enhetNode} <span className="correspondence-direction">{to}: </span>
+          <span className={styles.correspondenceDirection}>{from}: </span>
+          {enhetNode}{' '}
+          <span className={styles.correspondenceDirection}>{to}: </span>
           <PartyNameList names={partyNames(/^[Mm]ottaker$/)} />
         </>
       )}
@@ -135,13 +136,10 @@ function PartyNameList({ names }: { names: string[] }) {
 
   const [first, ...rest] = names;
   return (
-    <span className="correspondence-party">
+    <span className={styles.correspondenceParty}>
       {first}
       {rest.length > 0 && (
-        <span className="search-result-party-more">
-          {' '}
-          {t('common.andMore', String(rest.length))}
-        </span>
+        <span> {t('common.andMore', String(rest.length))}</span>
       )}
     </span>
   );
