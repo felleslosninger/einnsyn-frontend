@@ -27,7 +27,7 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
-  const recordedDate = item.journaldato
+  const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
 
@@ -55,9 +55,9 @@ export default function JournalpostResult({
               {translate(`journalpost.type.${item.journalposttype}`)}
             </span>
           )}
-          {recordedDate && (
+          {journaldato && (
             <span className="search-result-recorded-date">
-              {translate('common.recordedAt')} {recordedDate}
+              {translate('common.recordedAt')} {journaldato}
             </span>
           )}
         </SearchResultSubheader>
