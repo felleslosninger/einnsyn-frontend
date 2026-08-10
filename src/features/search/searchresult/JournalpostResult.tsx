@@ -5,8 +5,8 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 function getSaksnummer(item: Journalpost): string | null {
   if (typeof item.saksmappe === 'object' && item.saksmappe?.saksnummer) {
@@ -39,7 +39,10 @@ export default function JournalpostResult({
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="journalpost"
           item={item}
@@ -52,9 +55,7 @@ export default function JournalpostResult({
           )}
 
           {item.journalposttype && (
-            <span>
-              {translate(`journalpost.type.${item.journalposttype}`)}
-            </span>
+            <span>{translate(`journalpost.type.${item.journalposttype}`)}</span>
           )}
           {journaldato && (
             <span>
@@ -141,10 +142,7 @@ function PartyNameList({ names }: { names: string[] }) {
     <>
       {first}
       {rest.length > 0 && (
-        <span>
-          {' '}
-          {t('common.andMore', String(rest.length))}
-        </span>
+        <span> {t('common.andMore', String(rest.length))}</span>
       )}
     </>
   );

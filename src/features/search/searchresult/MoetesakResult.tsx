@@ -3,8 +3,8 @@ import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export default function MoetesakResult({
   className,
@@ -28,7 +28,10 @@ export default function MoetesakResult({
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="moetesak"
           item={item}

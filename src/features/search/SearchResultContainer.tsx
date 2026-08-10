@@ -15,9 +15,9 @@ import { parseParamList } from '~/lib/utils/paramList';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
-import resultStyles from './searchresult/searchResultStyles.module.scss';
 import SearchResult from './searchresult/SearchResult';
 import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
+import resultStyles from './searchresult/searchResultStyles.module.scss';
 
 export default function SearchResultContainer({
   searchResults,

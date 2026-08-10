@@ -4,9 +4,8 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { getEnhetHref } from '~/lib/utils/enhetUtils';
-import EnhetLink from './common/EnhetLink';
-import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   const enhet = saksmappe.administrativEnhetObjekt;
@@ -43,7 +42,10 @@ export default function SaksmappeResult({
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="saksmappe"
           item={item}

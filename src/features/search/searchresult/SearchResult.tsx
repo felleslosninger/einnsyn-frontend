@@ -10,7 +10,7 @@ import MoetemappeResult from './MoetemappeResult';
 import MoetesakResult from './MoetesakResult';
 import SaksmappeResult from './SaksmappeResult';
 
-import './searchResultStyles.scss';
+import './searchResultStyles.module.scss';
 
 export default function SearchResult({
   className,

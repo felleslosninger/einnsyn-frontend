@@ -5,8 +5,8 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export default function MoetemappeResult({
   className,
@@ -35,18 +35,17 @@ export default function MoetemappeResult({
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
           variant="moetemappe"
           item={item}
           label={translate('moetemappe.label')}
         >
-          {meetingDate && (
-            <span>{meetingDate}</span>
-          )}
-          {item.moetested && (
-            <span>{item.moetested}</span>
-          )}
+          {meetingDate && <span>{meetingDate}</span>}
+          {item.moetested && <span>{item.moetested}</span>}
         </SearchResultSubheader>
         <div className={styles.searchResultEnhet}>
           <Buildings3Icon
