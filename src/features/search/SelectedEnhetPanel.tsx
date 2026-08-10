@@ -7,10 +7,12 @@ import { useEffect, useState } from 'react';
 import { getEnhet } from '~/actions/api/enhet.actions';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import styles from './SelectedEnhetPanel.module.scss';
 
 function EnhetCard({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();
+  const formattedAdresse = enhet.kontaktpunktAdresse?.replaceAll(', ', '\n');
 
   return (
     <div className={styles.enhetCard}>
@@ -30,8 +32,10 @@ function EnhetCard({ enhet }: { enhet: Enhet }) {
           {enhet.kontaktpunktEpost}
         </EinLink>
       </span>
-      {enhet.kontaktpunktAdresse && (
-        <span className={styles.enhetDetail}>{enhet.kontaktpunktAdresse}</span>
+      {formattedAdresse && (
+        <span className={cn(styles.enhetDetail, styles.address)}>
+          {formattedAdresse}
+        </span>
       )}
     </div>
   );
@@ -84,10 +88,6 @@ export default function SelectedEnheterPanel({
 
   return (
     <aside className={styles.panel}>
-      <Heading level={3} data-size="sm" className={styles.heading}>
-        <Buildings3Icon />
-        {t('search.selectedEnheter+')}
-      </Heading>
       {enheter.map((enhet) => (
         <EnhetCard key={enhet.id} enhet={enhet} />
       ))}

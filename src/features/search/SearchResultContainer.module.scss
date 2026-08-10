@@ -1,6 +1,19 @@
 @use '../../styles/effects.scss' as fx;
+@use '../../styles/mediaQueries.scss' as mq;
 
 .searchContainer {
+  .resultsLayout {
+    @include mq.large {
+      display: flex;
+      align-items: flex-start;
+
+      :global(.search-results) {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+    }
+  }
+
   :global(.search-toolbar) {
     padding-bottom: var(--ds-size-9);
   }

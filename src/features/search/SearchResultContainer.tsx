@@ -71,41 +71,42 @@ export default function SearchResultContainer({
         <div className="container-pre collapsible" />
         <div className="container">
           <SearchSortDropdown />
-          <div
-            className="search-results"
-            aria-busy={isLoading}
-            aria-live="polite"
-          >
-            {currentSearchResults.items.length ? (
-              currentSearchResults.items.map((item) => (
-                <SearchResult
-                  className={styles.searchResult}
-                  key={item.id}
-                  item={item}
-                />
-              ))
-            ) : (
-              <div className={cn(styles.searchResult, 'no-results')}>
-                <p>{t('common.noResults')}</p>
-              </div>
-            )}
-            {currentSearchResults.next && (
-              <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                <SearchResultSkeleton
-                  className={styles.searchResult}
-                  index={0}
-                />
-                <SearchResultSkeleton
-                  className={styles.searchResult}
-                  index={1}
-                />
-              </EinScrollTrigger>
-            )}
+          <div className={styles.resultsLayout}>
+            <div
+              className="search-results"
+              aria-busy={isLoading}
+              aria-live="polite"
+            >
+              {currentSearchResults.items.length ? (
+                currentSearchResults.items.map((item) => (
+                  <SearchResult
+                    className={styles.searchResult}
+                    key={item.id}
+                    item={item}
+                  />
+                ))
+              ) : (
+                <div className={cn(styles.searchResult, 'no-results')}>
+                  <p>{t('common.noResults')}</p>
+                </div>
+              )}
+              {currentSearchResults.next && (
+                <EinScrollTrigger onEnter={scrollTriggerHandler}>
+                  <SearchResultSkeleton
+                    className={styles.searchResult}
+                    index={0}
+                  />
+                  <SearchResultSkeleton
+                    className={styles.searchResult}
+                    index={1}
+                  />
+                </EinScrollTrigger>
+              )}
+            </div>
+            {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
           </div>
         </div>
-        <div className="container-post">
-          {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
-        </div>
+        <div className="container-post"></div>
       </div>
     </EinTransition>
   );
