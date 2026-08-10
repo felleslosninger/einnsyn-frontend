@@ -1,49 +1,14 @@
-@use '../../../styles/mediaQueries.scss' as mq;
-
-@include mq.small-and-medium {
-
-  // On small/medium screens the enhet panel becomes a full-width dropdown
-  // above the results instead of a side panel.
-  .container-wrapper>.container-pre.collapsible {
-    display: none;
-  }
-
-  .container-wrapper>.container-post {
-    width: 100%;
-    order: -1;
-  }
-}
-
-@include mq.medium {
-  // On medium the wrapper is a flex row — allow wrapping so the full-width
-  // container-post (order: -1) sits above the main container.
-  .container-wrapper {
-    flex-wrap: wrap;
-  }
-}
-
-@include mq.small {
-  // On small the wrapper is a CSS grid. Collapse to a single column with
-  // container-post on top, main content below.
-  .container-wrapper {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'post'
-      'main';
-  }
-}
-
-.search-results {
+.searchResults {
   padding-top: var(--ds-size-4);
 }
 
-.search-result {
+.searchResult {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding-bottom: var(--ds-size-13);
 
-  >a {
+  > a {
     display: block;
     width: 100%;
     text-decoration: none;
@@ -68,14 +33,14 @@
   }
 }
 
-.search-result-body {
+.searchResultBody {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-3);
   padding-top: var(--ds-size-3);
 }
 
-.search-result-dot {
+.searchResultDot {
   display: inline-block;
   flex: none;
   width: 0.75rem;
@@ -83,23 +48,23 @@
   border-radius: 9999px;
 }
 
-.search-result-dot--saksmappe {
+.searchResultDotSaksmappe {
   background: var(--ds-color-support-color-3-base-primary);
 }
 
-.search-result-dot--journalpost {
+.searchResultDotJournalpost {
   background: var(--ds-color-support-color-4-base-primary);
 }
 
-.search-result-dot--moetemappe {
+.searchResultDotMoetemappe {
   background: var(--ds-color-brand2-base-primary);
 }
 
-.search-result-dot--moetesak {
+.searchResultDotMoetesak {
   background: var(--ds-color-support-color-5-base-primary);
 }
 
-.search-result-subheader {
+.searchResultSubheader {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -113,16 +78,15 @@
   line-height: 1.5;
   letter-spacing: 0.024px;
 
-
-  .search-result-dot {
+  .searchResultDot {
     margin-right: -5px;
   }
 
-  .search-result-type {
+  .searchResultType {
     letter-spacing: 0.04em;
   }
 
-  .search-result-number {
+  .searchResultNumber {
     letter-spacing: 1.12px;
     text-decoration: none;
 
@@ -134,11 +98,9 @@
         text-decoration: underline;
       }
     }
-
-
   }
 
-  .search-result-meta {
+  .searchResultMeta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -146,10 +108,10 @@
   }
 }
 
-.search-result-enhet {
+.searchResultEnhet {
   display: flex;
-  align-items: center;
-  gap: var(--ds-size-3);
+  align-items: flex-end;
+  gap: var(--ds-size-1);
   color: var(--ds-color-text-default);
   font-family: var(--ds-font-family);
   font-size: 1rem;
@@ -159,46 +121,44 @@
   letter-spacing: 0.024px;
 
   svg {
-    flex: none;
     width: 19.5px;
     height: 19.5px;
-    margin-right: -8px;
   }
 }
 
-.search-result-correspondence {
+.searchResultCorrespondence {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ds-size-2);
+  gap: var(--ds-size-1);
   color: var(--ds-color-text-default);
 
-  .correspondence-icon {
+  .correspondenceIcon {
     width: 19.5px;
     height: 19.5px;
     flex-shrink: 0;
   }
 
-  .correspondence-enhet {
+  .correspondenceEnhet {
     white-space: nowrap;
   }
 
-  .correspondence-to {
+  .correspondenceTo {
     display: inline-flex;
     align-items: center;
     gap: var(--ds-size-1);
     flex-wrap: wrap;
   }
 
-  .correspondence-label {
+  .correspondenceLabel {
     white-space: nowrap;
   }
 }
 
-.search-result-action {
+.searchResultAction {
   white-space: normal;
   cursor: pointer;
-  text-underline-offset: .27em;
+  text-underline-offset: 0.27em;
   display: inline-flex;
   align-items: center;
   gap: var(--ds-size-1);
@@ -211,9 +171,4 @@
     text-decoration: underline;
     color: var(--ds-color-neutral-text-default);
   }
-}
-
-.container-wrapper>.container-post {
-  justify-content: flex-start;
-  text-align: left;
 }

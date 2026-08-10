@@ -15,7 +15,7 @@ import { parseParamList } from '~/lib/utils/paramList';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
-import './searchresult/searchResultStyles.scss';
+import resultStyles from './searchresult/searchResultStyles.module.scss';
 import SearchResult from './searchresult/SearchResult';
 import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
 
@@ -72,7 +72,7 @@ export default function SearchResultContainer({
         <div className="container">
           <SearchSortDropdown />
           <div
-            className="search-results"
+            className={resultStyles.searchResults}
             aria-busy={isLoading}
             aria-live="polite"
           >

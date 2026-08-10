@@ -5,6 +5,7 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 export default function MoetemappeResult({
@@ -28,26 +29,26 @@ export default function MoetemappeResult({
       : '';
 
   return (
-    <div className={cn(className, 'search-result', 'moetemappe-result')}>
+    <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
       <EinLink href="">
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
         <SearchResultSubheader
           variant="moetemappe"
           item={item}
           label={translate('moetemappe.label')}
         >
           {meetingDate && (
-            <span className="search-result-meeting-date">{meetingDate}</span>
+            <span>{meetingDate}</span>
           )}
           {item.moetested && (
-            <span className="search-result-location">{item.moetested}</span>
+            <span>{item.moetested}</span>
           )}
         </SearchResultSubheader>
-        <div className="search-result-enhet">
+        <div className={styles.searchResultEnhet}>
           <Buildings3Icon
             aria-hidden="true"
             focusable="false"
@@ -58,7 +59,7 @@ export default function MoetemappeResult({
           <span>{item.utvalg}</span>
         </div>
         {/* TODO: implement add to calendar functionality
-        <EinLink href="" className="search-result-action">
+        <EinLink href="" className={styles.searchResultAction}>
           {translate('search.addToCalendar')}
         </EinLink> */}
       </div>

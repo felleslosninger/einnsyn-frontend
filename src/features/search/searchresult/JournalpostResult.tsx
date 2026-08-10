@@ -5,6 +5,7 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import styles from './searchResultStyles.module.scss';
 import SearchResultSubheader from './common/SearchResultSubheader';
 
 function getSaksnummer(item: Journalpost): string | null {
@@ -32,42 +33,42 @@ export default function JournalpostResult({
     : undefined;
 
   return (
-    <div className={cn(className, 'search-result', 'journalpost-result')}>
+    <div className={cn(className, styles.searchResult, 'journalpost-result')}>
       <EinLink href="">
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>
-      <div className="ds-paragraph search-result-body" data-size="sm">
+      <div className={cn('ds-paragraph', styles.searchResultBody)} data-size="sm">
         <SearchResultSubheader
           variant="journalpost"
           item={item}
           label={translate('journalpost.label')}
         >
           {saksnummer && (
-            <span className="search-result-number">
+            <span className={styles.searchResultNumber}>
               {translate('common.number')} {saksnummer}
             </span>
           )}
 
           {item.journalposttype && (
-            <span className="search-result-doctype">
+            <span>
               {translate(`journalpost.type.${item.journalposttype}`)}
             </span>
           )}
           {journaldato && (
-            <span className="search-result-recorded-date">
+            <span>
               {translate('common.recordedAt')} {journaldato}
             </span>
           )}
         </SearchResultSubheader>
         <JournalpostCorrespondence journalpost={item} />
         {/* TODO: implement open document functionality
-        <a href="http://localhost:3000" className="search-result-action" target="_blank" rel="noopener noreferrer">
+        <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
           {translate('search.openDocument')}
         </a> */}
         {/* TODO: implement order access functionality
-        <EinLink href="http://localhost:3000" className="search-result-action">
+        <EinLink href="http://localhost:3000" className={styles.searchResultAction}>
           {translate('search.orderAccess')}
         </EinLink> */}
       </div>
@@ -105,7 +106,7 @@ function JournalpostCorrespondence({
     party = <PartyNameList names={partyNames(/^[Mm]ottaker$/)} />;
   } else {
     return (
-      <div className="search-result-enhet">
+      <div className={styles.searchResultEnhet}>
         <Buildings3Icon aria-hidden="true" focusable="false" />
         {enhet.navn}
       </div>
@@ -113,16 +114,16 @@ function JournalpostCorrespondence({
   }
 
   return (
-    <div className="search-result-correspondence">
+    <div className={styles.searchResultCorrespondence}>
       <Buildings3Icon
-        className="correspondence-icon"
+        className={styles.correspondenceIcon}
         aria-hidden="true"
         focusable="false"
       />
-      <span className="correspondence-enhet">{enhet.navn}</span>
-      <span className="correspondence-to">
-        <span className="correspondence-label">{directionLabel}:</span>
-        <span className="correspondence-party">{party}</span>
+      <span className={styles.correspondenceEnhet}>{enhet.navn}</span>
+      <span className={styles.correspondenceTo}>
+        <span className={styles.correspondenceLabel}>{directionLabel}:</span>
+        <span>{party}</span>
       </span>
     </div>
   );
@@ -140,7 +141,7 @@ function PartyNameList({ names }: { names: string[] }) {
     <>
       {first}
       {rest.length > 0 && (
-        <span className="search-result-party-more">
+        <span>
           {' '}
           {t('common.andMore', String(rest.length))}
         </span>
