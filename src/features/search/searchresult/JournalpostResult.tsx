@@ -100,7 +100,7 @@ function JournalpostCorrespondence({
   const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
   const isOutgoing = journalpost.journalposttype === 'utgaaende_dokument';
   const enhetNode = (
-    <EinLink href={enhetHref} className="correspondence-enhet">
+    <EinLink href={enhetHref} className="correspondence-party">
       {enhetNavn}
     </EinLink>
   );
@@ -135,7 +135,7 @@ function PartyNameList({ names }: { names: string[] }) {
 
   const [first, ...rest] = names;
   return (
-    <>
+    <span className="correspondence-party">
       {first}
       {rest.length > 0 && (
         <span className="search-result-party-more">
@@ -143,6 +143,6 @@ function PartyNameList({ names }: { names: string[] }) {
           {t('common.andMore', String(rest.length))}
         </span>
       )}
-    </>
+    </span>
   );
 }
