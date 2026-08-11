@@ -1,12 +1,12 @@
 .searchResults {
-  padding-top: var(--ds-size-4);
+  padding-top: var(--ds-size-6);
 }
 
 .searchResult {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-bottom: var(--ds-size-13);
+  padding-bottom: var(--ds-size-12);
 
   > a {
     display: block;
@@ -20,13 +20,7 @@
 
   h2 {
     width: 100%;
-    color: var(--ds-color-text-subtle);
-
-    font-size: 1.3125rem;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 150%;
-
+    font-size: var(--ds-font-size-5);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -36,16 +30,18 @@
 .searchResultBody {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-size-3);
-  padding-top: var(--ds-size-3);
+  gap: var(--ds-size-1);
+  padding-top: var(--ds-size-1);
+  font-size: var(--ds-font-size-2);
 }
 
 .searchResultDot {
   display: inline-block;
   flex: none;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 9999px;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--ds-size-1);
+  border-radius: var(--ds-border-radius-full);
 }
 
 .searchResultDotSaksmappe {
@@ -70,34 +66,8 @@
   flex-wrap: wrap;
   gap: var(--ds-size-3);
 
-  color: var(--ds-color-text-default);
-  font-family: var(--ds-font-family);
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.024px;
-
   .searchResultDot {
     margin-right: -5px;
-  }
-
-  .searchResultType {
-    letter-spacing: 0.04em;
-  }
-
-  .searchResultNumber {
-    letter-spacing: 1.12px;
-    text-decoration: none;
-
-    a {
-      text-decoration: none;
-      color: var(--ds-color-text-default);
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
   }
 
   .searchResultMeta {
@@ -110,44 +80,19 @@
 
 .searchResultEnhet {
   display: flex;
-  align-items: flex-end;
-  gap: var(--ds-size-1);
-  color: var(--ds-color-text-default);
-  font-family: var(--ds-font-family);
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 160%;
-  letter-spacing: 0.024px;
-
-  svg {
-    width: 19.5px;
-    height: 19.5px;
-  }
+  align-items: center;
+  gap: var(--ds-size-3);
 }
 
 .searchResultCorrespondence {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ds-size-1);
-  color: var(--ds-color-text-default);
 
-  .correspondenceIcon {
-    width: 19.5px;
-    height: 19.5px;
-    flex-shrink: 0;
-  }
-
-  .correspondenceEnhet {
+  .correspondenceParty {
     white-space: nowrap;
+    margin-right: var(--ds-size-2);
   }
 
-  .correspondenceTo {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--ds-size-1);
-    flex-wrap: wrap;
+  .correspondenceDirection {
+    font-weight: 600;
   }
 
   .correspondenceLabel {

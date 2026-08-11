@@ -8,6 +8,7 @@ import {
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { buildSearchHref } from '~/lib/utils/searchHref';
+import resultStyles from '../searchresult/searchResultStyles.module.scss';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
 
@@ -52,8 +53,8 @@ export default function SearchTabs({ className }: { className?: string }) {
             <span className={styles.tabInner}>
               <span
                 className={cn(
-                  'search-result-dot',
-                  'search-result-dot--saksmappe',
+                  resultStyles.searchResultDot,
+                  resultStyles.searchResultDotSaksmappe,
                 )}
                 aria-hidden="true"
               />
@@ -67,8 +68,8 @@ export default function SearchTabs({ className }: { className?: string }) {
             <span className={styles.tabInner}>
               <span
                 className={cn(
-                  'search-result-dot',
-                  'search-result-dot--journalpost',
+                  resultStyles.searchResultDot,
+                  resultStyles.searchResultDotJournalpost,
                 )}
                 aria-hidden="true"
               />
@@ -82,8 +83,8 @@ export default function SearchTabs({ className }: { className?: string }) {
             <span className={styles.tabInner}>
               <span
                 className={cn(
-                  'search-result-dot',
-                  'search-result-dot--moetemappe',
+                  resultStyles.searchResultDot,
+                  resultStyles.searchResultDotMoetemappe,
                 )}
                 aria-hidden="true"
               />
@@ -97,8 +98,8 @@ export default function SearchTabs({ className }: { className?: string }) {
             <span className={styles.tabInner}>
               <span
                 className={cn(
-                  'search-result-dot',
-                  'search-result-dot--moetesak',
+                  resultStyles.searchResultDot,
+                  resultStyles.searchResultDotMoetesak,
                 )}
                 aria-hidden="true"
               />

@@ -2,38 +2,18 @@
 @use '../../styles/mediaQueries.scss' as mq;
 
 .searchContainer {
-  // On small/medium screens the enhet panel becomes a full-width dropdown
-  // above the results instead of a side panel.
-  @include mq.small-and-medium {
-    > :global(.container-pre.collapsible) {
-      display: none;
+  .resultsLayout {
+    @include mq.large {
+      display: flex;
+      align-items: flex-start;
+
+      .results {
+        flex: 1 1 0;
+        min-width: 0;
+      }
     }
-
-    > :global(.container-post) {
-      width: 100%;
-      order: -1;
-    }
   }
 
-  // On medium the wrapper is a flex row — allow wrapping so the full-width
-  // container-post (order: -1) sits above the main container.
-  @include mq.medium {
-    flex-wrap: wrap;
-  }
-
-  // On small the wrapper is a CSS grid. Collapse to a single column with
-  // container-post on top, main content below.
-  @include mq.small {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'post'
-      'main';
-  }
-
-  > :global(.container-post) {
-    justify-content: flex-start;
-    text-align: left;
-  }
   :global(.search-toolbar) {
     padding-bottom: var(--ds-size-9);
   }

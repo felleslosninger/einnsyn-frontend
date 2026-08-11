@@ -1,10 +1,10 @@
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
-import { Buildings3Icon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -20,13 +20,8 @@ export default function MoetemappeResult({
   const meetingDate = item.moetedato
     ? dateFormat(item.moetedato, languageCode)
     : undefined;
-
-  const enhetNavn =
-    typeof item.utvalgObjekt === 'object' &&
-    item.utvalgObjekt &&
-    'navn' in item.utvalgObjekt
-      ? item.utvalgObjekt.navn
-      : '';
+  const enhetNavn = getName(item.utvalgObjekt, languageCode);
+  const enhetHref = getEnhetHref(item.utvalgObjekt);
 
   return (
     <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
@@ -48,14 +43,7 @@ export default function MoetemappeResult({
           {item.moetested && <span>{item.moetested}</span>}
         </SearchResultSubheader>
         <div className={styles.searchResultEnhet}>
-          <Buildings3Icon
-            aria-hidden="true"
-            focusable="false"
-            fontSize="1.5rem"
-          />
-          <span>{enhetNavn}</span>
-          <span>-</span>
-          <span>{item.utvalg}</span>
+          <EinLink href={enhetHref}>{enhetNavn}</EinLink>
         </div>
         {/* TODO: implement add to calendar functionality
         <EinLink href="" className={styles.searchResultAction}>

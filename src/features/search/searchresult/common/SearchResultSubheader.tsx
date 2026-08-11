@@ -48,7 +48,7 @@ export default function SearchResultSubheader({
         className={cn(styles.searchResultDot, dotVariantClass[variant])}
         aria-hidden="true"
       />
-      <span className={styles.searchResultType}>{capitalize(label)}</span>
+      <span>{capitalize(label)}</span>
       <span className={styles.searchResultMeta}>
         {children}
         {publishedDate && (
