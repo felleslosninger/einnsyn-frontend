@@ -1,10 +1,13 @@
 import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
+import { useParams } from 'next/navigation';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, getName } from '~/lib/utils/enhetUtils';
+import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -79,6 +82,8 @@ function JournalpostCorrespondence({
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const params = useParams<{ enhet?: string }>();
   const enhet = journalpost.administrativEnhetObjekt;
 
   if (!isEnhet(enhet)) {
@@ -93,7 +98,13 @@ function JournalpostCorrespondence({
       .filter((navn): navn is string => Boolean(navn));
 
   const enhetNavn = getName(enhet, languageCode);
-  const enhetHref = getEnhetHref(enhet);
+  const enhetHref = buildEnhetSelectionHref({
+    pathname: optimisticPathname,
+    searchPathname: `/${t('routing.searchPath')}`,
+    searchParams: optimisticSearchParams,
+    pathEnhetValue: params.enhet,
+    selectedEnhetIdentifiers: [getEnhetIdentifier(enhet)],
+  });
   const from = t('journalpost.from');
   const to = t('journalpost.to');
   const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
