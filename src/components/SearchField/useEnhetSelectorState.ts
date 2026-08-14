@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
 import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
@@ -18,7 +19,6 @@ import {
   parseParamList,
   removeParamListValue,
 } from '~/lib/utils/paramList';
-import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import {
   buildEnhetSelectionHref,
   pathnameContainsEnhet,
