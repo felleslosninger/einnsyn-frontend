@@ -18,6 +18,7 @@ import {
   parseParamList,
   removeParamListValue,
 } from '~/lib/utils/paramList';
+import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import {
   buildEnhetSelectionHref,
   pathnameContainsEnhet,
@@ -81,7 +82,7 @@ export function useEnhetSelectorState({
   // Selection: URL-backed, with a desktop "draft" buffer that only commits on
   // Apply.
   //
-  const optimisticSearchQueryEnhet = optimisticSearchParams?.get('enhet') ?? '';
+  const enhetIds = useEnhetFilterIds();
   const pathEnhet = params.enhet;
   const optimisticPathEnhet = pathnameContainsEnhet(
     optimisticPathname,
@@ -100,17 +101,13 @@ export function useEnhetSelectorState({
   }, [optimisticPathEnhet, enhetMap]);
 
   const urlSelectedEnhetIdentifiers = useMemo(() => {
-    const parsed = [
-      ...(pathEnhetValue ? [pathEnhetValue] : []),
-      ...parseParamList(optimisticSearchQueryEnhet),
-    ];
     return normalizeParamList(
-      parsed.map((value) => {
+      enhetIds.map((value) => {
         const enhet = enhetMap.get(value);
         return enhet ? getEnhetIdentifier(enhet) : value;
       }),
     );
-  }, [enhetMap, optimisticSearchQueryEnhet, pathEnhetValue]);
+  }, [enhetMap, enhetIds]);
 
   const isBuffered = !isMobileLayout && active;
   const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<

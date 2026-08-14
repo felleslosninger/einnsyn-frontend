@@ -6,6 +6,7 @@ import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useEffect, useState } from 'react';
 import { getEnhet } from '~/actions/api/enhet.actions';
 import { EinLink } from '~/components/EinLink/EinLink';
+import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './SelectedEnhetPanel.module.scss';
@@ -41,8 +42,6 @@ function EnhetCard({ enhet }: { enhet: Enhet }) {
   );
 }
 
-const SMALL_SCREEN_QUERY = '(max-width: 1299px)';
-
 export default function SelectedEnheterPanel({
   enhetIds,
 }: {
@@ -50,7 +49,7 @@ export default function SelectedEnheterPanel({
 }) {
   const t = useTranslation();
   const [enheter, setEnheter] = useState<Enhet[]>([]);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const isLargeScreen = useBreakpoint('LG');
   const enhetIdsKey = enhetIds.join('|');
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey is an intentional stable proxy for enhetIds to avoid re-running on every new array reference
@@ -58,17 +57,10 @@ export default function SelectedEnheterPanel({
     if (!enhetIds.length) return;
     getEnhet(enhetIds).then(setEnheter);
   }, [enhetIdsKey]);
-  useEffect(() => {
-    const mq = window.matchMedia(SMALL_SCREEN_QUERY);
-    setIsSmallScreen(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   if (!enheter.length) return null;
 
-  if (isSmallScreen) {
+  if (!isLargeScreen) {
     return (
       <Details className={styles.details} data-color="neutral" data-size="sm">
         <Details.Summary>

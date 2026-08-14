@@ -31,10 +31,6 @@
   line-height: var(--ds-line-height-sm);
   white-space: nowrap;
 
-  &:first-child {
-    padding-left: var(--ds-size-3);
-  }
-
   &.active {
     color: var(--ds-color-neutral-text-default);
     border-bottom: 3px solid var(--ds-color-neutral-text-default);

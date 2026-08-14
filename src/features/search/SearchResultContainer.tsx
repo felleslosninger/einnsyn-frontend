@@ -4,14 +4,11 @@ import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
-import {
-  useNavigation,
-  useOptimisticSearchParams,
-} from '~/components/NavigationProvider/NavigationProvider';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
-import { parseParamList } from '~/lib/utils/paramList';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
@@ -25,10 +22,7 @@ export default function SearchResultContainer({
   searchResults: PaginatedList<Base>;
 }) {
   const t = useTranslation();
-  const searchParams = useOptimisticSearchParams();
-  const enhetIds = (searchParams?.getAll('enhet') ?? []).flatMap((value) =>
-    parseParamList(value),
-  );
+  const enhetIds = useEnhetFilterIds();
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const { loadingSearchParamsString, searchParamsString, loading } =

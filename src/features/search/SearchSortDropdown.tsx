@@ -2,6 +2,7 @@
 
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinDropdown } from '~/components/EinDropdown';
+import { EinLink } from '~/components/EinLink/EinLink';
 import {
   useOptimisticPathname,
   useOptimisticSearchParams,
@@ -69,12 +70,12 @@ export default function SearchSortDropdown() {
               [styles.active]: key === currentSort,
             })}
           >
-            <a href={getSortUrl(key)}>
+            <EinLink href={getSortUrl(key)}>
               <span className={styles.sortOptionInner}>
                 <span className={styles.radioIndicator} aria-hidden="true" />
                 {t(`searchFilters.sortOptions.${key}`)}
               </span>
-            </a>
+            </EinLink>
           </EinButton>
         ))}
       </EinDropdown>
