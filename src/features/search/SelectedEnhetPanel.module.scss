@@ -1,0 +1,41 @@
+.panel {
+  flex-shrink: 1;
+  min-width: 250px;
+  max-width: 30%;
+  margin-left: var(--ds-size-2);
+  // border-left: 1px solid var(--ds-color-neutral-border-subtle);
+  text-align: left;
+}
+
+.enhetCard {
+  display: flex;
+  flex-direction: column;
+  padding-left: var(--ds-size-8);
+  padding-bottom: var(--ds-size-3);
+  padding-top: var(--ds-size-2);
+  margin-bottom: var(--ds-size-12);
+  border-left: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.enhetName {
+  font-size: var(--ds-font-size-4);
+  font-weight: 600;
+  padding-bottom: var(--ds-size-1);
+}
+
+.address {
+  white-space: pre-line;
+}
+
+.enhetDetail {
+  font-size: var(--ds-font-size-2);
+}
+
+.label {
+  font-weight: 600;
+}
+
+.link {
+  color: var(--ds-color-neutral-text-default);
+  overflow-wrap: anywhere;
+}
