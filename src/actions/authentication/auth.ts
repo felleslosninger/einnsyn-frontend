@@ -20,22 +20,32 @@ export async function getAuthInfo() {
     return undefined;
   }
 
+  let authInfo: ExtendedAuthInfo;
   try {
     const apiClient = await cachedApiClient();
-    const authInfo: ExtendedAuthInfo = await apiClient.authinfo.get();
-    if (authInfo.type === 'Enhet' && authInfo.id) {
-      authInfo.enhet = await apiClient.enhet.get(authInfo.id);
-    }
-    if (authInfo.type === 'Bruker' && authInfo.id) {
-      authInfo.bruker = await apiClient.bruker.get(authInfo.id);
-    }
-    return authInfo;
+    authInfo = await apiClient.authinfo.get();
   } catch (error) {
     logger.error('Failed to fetch auth info', {
       error: error instanceof Error ? error.message : String(error),
     });
     return undefined;
   }
+
+  try {
+    const apiClient = await cachedApiClient();
+    if (authInfo.type === 'Enhet' && authInfo.id) {
+      authInfo.enhet = await apiClient.enhet.get(authInfo.id);
+    }
+    if (authInfo.type === 'Bruker' && authInfo.id) {
+      authInfo.bruker = await apiClient.bruker.get(authInfo.id);
+    }
+  } catch (error) {
+    logger.warn('Failed to fetch enhet/bruker details', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  return authInfo;
 }
 
 /**

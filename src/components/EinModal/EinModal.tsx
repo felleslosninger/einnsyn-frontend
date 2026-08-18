@@ -128,7 +128,7 @@ export function EinModalHeader({
   title,
   className,
   children,
-  onClose
+  onClose,
 }: EinModalHeaderProps & { onClose?: () => void }) {
   const t = useTranslation();
   const basepath = useModalBasepath();

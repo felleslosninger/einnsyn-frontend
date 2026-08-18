@@ -1,14 +1,13 @@
 'use client';
 
+import { Chip } from '@digdir/designsystemet-react';
 import { useFormStatus } from 'react-dom';
 import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
 import { useModalBasepath } from '~/app/@modal/ModalWrapper';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
-import { Chip } from '@digdir/designsystemet-react';
 import cn from '~/lib/utils/className';
 import styles from './LoginButton.module.scss';
-import { None } from 'openid-client';
 
 export default function LoginButton() {
   const t = useTranslation();

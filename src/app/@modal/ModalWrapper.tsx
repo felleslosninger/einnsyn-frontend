@@ -26,7 +26,8 @@ export function ModalWrapper({ children }: { children: React.ReactNode }) {
     if (!modalIsOpen) {
       const isLoginRoute = pathname.includes('/login');
       if (!isLoginRoute) {
-        basepath = pathname + (searchParams ? `?${searchParams.toString()}` : '');
+        basepath =
+          pathname + (searchParams ? `?${searchParams.toString()}` : '');
       }
     }
   }, [modalIsOpen, pathname, searchParams]);
