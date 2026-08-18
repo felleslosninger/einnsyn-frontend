@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
 import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
@@ -13,16 +12,8 @@ import {
   getName,
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
-import {
-  addParamListValue,
-  normalizeParamList,
-  parseParamList,
-  removeParamListValue,
-} from '~/lib/utils/paramList';
-import {
-  buildEnhetSelectionHref,
-  pathnameContainsEnhet,
-} from '~/lib/utils/searchHref';
+import { addParamListValue, removeParamListValue } from '~/lib/utils/paramList';
+import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
 import { useResolvedEnhetMap } from './useResolvedEnhetMap';
 
@@ -56,7 +47,6 @@ export function useEnhetSelectorState({
   const searchPathname = `/${t('routing.searchPath')}`;
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
-  const params = useParams<{ enhet?: string }>();
 
   const {
     enhetMap: rawEnhetMap,
@@ -82,32 +72,10 @@ export function useEnhetSelectorState({
   // Selection: URL-backed, with a desktop "draft" buffer that only commits on
   // Apply.
   //
-  const enhetIds = useEnhetFilterIds();
-  const pathEnhet = params.enhet;
-  const optimisticPathEnhet = pathnameContainsEnhet(
-    optimisticPathname,
-    pathEnhet,
-  )
-    ? pathEnhet
-    : undefined;
-
-  const pathEnhetValue = useMemo(() => {
-    if (!optimisticPathEnhet) {
-      return undefined;
-    }
-
-    const enhet = enhetMap.get(optimisticPathEnhet);
-    return enhet ? getEnhetIdentifier(enhet) : optimisticPathEnhet;
-  }, [optimisticPathEnhet, enhetMap]);
-
-  const urlSelectedEnhetIdentifiers = useMemo(() => {
-    return normalizeParamList(
-      enhetIds.map((value) => {
-        const enhet = enhetMap.get(value);
-        return enhet ? getEnhetIdentifier(enhet) : value;
-      }),
-    );
-  }, [enhetMap, enhetIds]);
+  const {
+    pathEnhetValue,
+    selectedEnhetIdentifiers: urlSelectedEnhetIdentifiers,
+  } = useEnhetFilterIds(enhetMap);
 
   const isBuffered = !isMobileLayout && active;
   const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<
