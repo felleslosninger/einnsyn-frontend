@@ -10,7 +10,6 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   left: var(--ein-modal-viewport-left, 0);
   width: var(--ein-modal-viewport-width, 100vw);
   height: 100vh;
-  height: 100dvh;
   height: var(--ein-modal-viewport-height, 100dvh);
   z-index: 1050;
 

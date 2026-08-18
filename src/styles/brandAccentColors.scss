@@ -1,0 +1,13 @@
+// Additive eInnsyn accent tokens. The Designsystemet theme has no
+// support-color-* family and no *-base-primary step, so these are defined here
+// rather than being overrides of stock tokens. Used for the search result type
+// dots (see searchresult/searchResultStyles.module.scss).
+//
+// Scheme-independent on purpose: these are saturated brand accents used on small
+// marks, and they read acceptably against both the light and dark surfaces.
+:root {
+  --ds-color-brand2-base-primary: #8100ff;
+  --ds-color-support-color-3-base-primary: #ffb406;
+  --ds-color-support-color-4-base-primary: #009bfd;
+  --ds-color-support-color-5-base-primary: #0fd2a2;
+}

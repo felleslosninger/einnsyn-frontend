@@ -65,7 +65,9 @@
   --search-input-outline: none;
   position: relative;
   height: var(--ds-size-12);
+  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
   z-index: 1;
+  transition: min-width 0.3s fx.$easeOut;
 
   .pillRow:not(.hasActiveContainer) &:hover {
     --search-input-surface: var(--search-field-segment-hover-surface);
@@ -140,11 +142,6 @@
     --search-input-border-color: var(--ds-color-focus-outer);
     --search-input-outline: var(--dsc-focus-outline);
   }
-}
-
-.searchInputContainer {
-  min-width: calc(var(--ds-size-12) + var(--ds-size-6)); // Minimum width to fit icon
-  transition: min-width 0.3s fx.$easeOut;
 }
 
 .enhetSelectorContainer {

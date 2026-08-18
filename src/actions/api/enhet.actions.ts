@@ -1,16 +1,16 @@
 'use server';
 
-import { EInnsynError } from '@digdir/einnsyn-sdk';
+import { EInnsynError, type Enhet } from '@digdir/einnsyn-sdk';
 import { unstable_cache } from 'next/cache';
 import type { LanguageCode } from '~/lib/translation/translation';
 import {
-  mergeTrimmedEnhetsWithAncestors,
+  expandTrimmedEnhetsWithAncestors,
   sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
 import { parseParamList } from '~/lib/utils/paramList';
-import { cachedPublicApiClient } from './getApiClient';
+import { cachedApiClient, cachedPublicApiClient } from './getApiClient';
 
 const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
 const ENHET_LIST_TAG = 'enhet-list';
@@ -26,7 +26,6 @@ const fetchTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
     const trimmedEnhetList: TrimmedEnhet[] = [];
     for await (const enhet of api.iterate(enhetList)) {
       trimmedEnhetList.push({
-        entity: enhet.entity,
         id: enhet.id,
         slug: enhet.slug,
         navn: enhet.navn,
@@ -124,9 +123,24 @@ export const getInitialEnhetsForRequest = async ({
       limit,
     );
     const selectedEnhets = findTrimmedEnhetsByIdsOrSlugs(list, selected);
-    return mergeTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
+    return expandTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
   } catch (error) {
     logger.error('Failed to build initial enhet list for request', error);
     return [];
   }
 };
+
+export async function getEnhet(enhetIds: string[]): Promise<Enhet[]> {
+  if (!enhetIds.length) return [];
+
+  const api = await cachedApiClient();
+  try {
+    const result = await api.enhet.list({ ids: enhetIds });
+    return result.items ?? [];
+  } catch (error) {
+    if (error instanceof EInnsynError) {
+      logger.error('Error fetching enhet info', error);
+    }
+    return [];
+  }
+}

@@ -474,10 +474,8 @@
     display: flex;
     flex-direction: column;
     height: 95vh;
-    height: 95dvh;
     height: var(--ein-modal-sheet-max-height, 95dvh);
     max-height: 95vh;
-    max-height: 95dvh;
     max-height: var(--ein-modal-sheet-max-height, 95dvh);
     overflow: hidden;
     background: var(--ds-color-neutral-surface-default);

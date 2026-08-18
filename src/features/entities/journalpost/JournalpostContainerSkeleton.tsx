@@ -1,51 +1,43 @@
-'use client';
-
 import { Skeleton } from '@digdir/designsystemet-react';
-import { useEffect, useState } from 'react';
-import { skeletonString } from '~/lib/utils/skeletonUtils';
+import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './JournalpostContainer.module.scss';
 
+// Mirrors the `Field` rows in JournalpostContainer, so the placeholder has the
+// same shape as the content that replaces it.
+const FIELD_ROWS = [
+  'recordType',
+  'docDate',
+  'recordDate',
+  'correspondence',
+  'legalBasis',
+] as const;
+
 export default function JournalpostContainerSkeleton() {
-  const [data, setData] = useState({
-    label: '',
-    title: '',
-    fields: [] as { dt: string; dd: string }[],
-    docTitle: '',
-    docMeta: '',
-  });
-
-  useEffect(() => {
-    setData({
-      label: skeletonString(10, 16),
-      title: skeletonString(30, 70),
-      fields: Array.from({ length: 5 }, () => ({
-        dt: skeletonString(8, 14),
-        dd: skeletonString(15, 30),
-      })),
-      docTitle: skeletonString(20, 40),
-      docMeta: skeletonString(18, 28),
-    });
-  }, []);
-
   return (
     <article className={styles.content} aria-busy="true" aria-live="polite">
       <div className={styles.heading}>
         <span className={styles.label}>
-          <Skeleton variant="text">{data.label}</Skeleton>
+          <Skeleton variant="text" width={skeletonLength(0, 10, 16)} />
         </span>
         <h2 className={styles.title}>
-          <Skeleton variant="text">{data.title}</Skeleton>
+          <Skeleton variant="text" width={skeletonLength(1, 30, 70)} />
         </h2>
       </div>
 
       <dl className={styles.fields}>
-        {data.fields.map((field) => (
-          <div key={`${field.dt}-${field.dd}`} className={styles.field}>
+        {FIELD_ROWS.map((row, index) => (
+          <div key={row} className={styles.field}>
             <dt>
-              <Skeleton variant="text">{field.dt}</Skeleton>
+              <Skeleton
+                variant="text"
+                width={skeletonLength(index * 2 + 2, 8, 14)}
+              />
             </dt>
             <dd>
-              <Skeleton variant="text">{field.dd}</Skeleton>
+              <Skeleton
+                variant="text"
+                width={skeletonLength(index * 2 + 3, 15, 30)}
+              />
             </dd>
           </div>
         ))}

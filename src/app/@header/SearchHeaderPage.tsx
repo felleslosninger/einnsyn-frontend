@@ -1,7 +1,6 @@
 import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import { SearchHeader } from '~/features/search';
-import { firstString } from '~/lib/utils/stringutils';
 
 export type HeaderSearchParams = Promise<{
   [key: string]: string | string[] | undefined;
@@ -17,7 +16,7 @@ export default async function SearchHeaderPage({
   const [sp, settings] = await Promise.all([searchParams, getSettings()]);
   const initialEnhets = await getInitialEnhetsForRequest({
     pathEnhet,
-    searchParamsEnhet: firstString(sp.enhet),
+    searchParamsEnhet: typeof sp.enhet === 'string' ? sp.enhet : sp.enhet?.[0],
     languageCode: settings.language,
   });
 

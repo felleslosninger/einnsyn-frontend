@@ -1,6 +1,7 @@
 'use server';
 
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import {
   type LanguageCode,
   resolveLanguageCode,
@@ -25,10 +26,18 @@ const staticDefaults = {
   colorScheme: 'auto',
 } satisfies Omit<Settings, 'language'>;
 
-const resolveDefaultLanguage = async (): Promise<LanguageCode> => {
+/**
+ * The language the request asks for, from `Accept-Language`.
+ *
+ * Constrained to {@link supportedLanguages}: without that list
+ * `resolveLanguageCode` returns whatever the header names, and an unknown code
+ * has no translation bundle, so every lookup would fall back to printing the
+ * raw key. Falls back to bokmål when the header names nothing we have.
+ */
+const resolveDefaultLanguage = cache(async (): Promise<LanguageCode> => {
   const acceptLanguage = (await headers()).get('Accept-Language') || '';
   return resolveLanguageCode(acceptLanguage, supportedLanguages) ?? 'nb';
-};
+});
 
 /**
  * Wrapper for updating the settings cookie, specifying the cookie name and a high default maxAge.
@@ -48,12 +57,14 @@ export const updateSettingsAction = async (
 };
 
 export const getSettings = async (): Promise<Settings> => {
-  const settingsCookieContent = await getCookie<Partial<Settings>>(
-    SETTINGS_COOKIE_NAME,
-  );
+  const settingsCookieContent =
+    await getCookie<Partial<Settings>>(SETTINGS_COOKIE_NAME);
   return {
     ...staticDefaults,
     ...settingsCookieContent,
+    // A visitor who has never chosen a language gets the one their browser
+    // asks for, rather than everyone defaulting to bokmål. An explicit choice
+    // is stored in the cookie and always wins.
     language:
       settingsCookieContent?.language ?? (await resolveDefaultLanguage()),
   };

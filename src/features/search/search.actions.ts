@@ -17,6 +17,21 @@ import {
 
 type Journalposttype = FilterParameters['journalposttype'];
 
+const SORT_MAP: Record<
+  string,
+  { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' } | null
+> = {
+  score: null,
+  publisertDatoDesc: { sortBy: 'publisertDato', sortOrder: 'desc' },
+  publisertDatoAsc: { sortBy: 'publisertDato', sortOrder: 'asc' },
+  oppdatertDatoDesc: { sortBy: 'oppdatertDato', sortOrder: 'desc' },
+  oppdatertDatoAsc: { sortBy: 'oppdatertDato', sortOrder: 'asc' },
+  offentligTittelAsc: { sortBy: 'tittel', sortOrder: 'asc' },
+  offentligTittelDesc: { sortBy: 'tittel', sortOrder: 'desc' },
+  enhetAsc: { sortBy: 'administrativEnhetNavn', sortOrder: 'asc' },
+  enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
+};
+
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
     items: [],
@@ -157,9 +172,19 @@ export const getSearchResults = async (
     logger.debug('Search API query', apiQuery);
   }
 
+  const sortParam = searchParams.get('sort');
+  const sortConfig = sortParam ? SORT_MAP[sortParam] : null;
+  if (sortConfig) {
+    apiQuery.sortBy = sortConfig.sortBy;
+    apiQuery.sortOrder = sortConfig.sortOrder;
+  }
+
   try {
     apiQuery.expand = [
-      `administrativEnhetObjekt.parent.parent.parent.parent`, // Automatically fetch 4 levels
+      // Four levels, since DUMMYENHET grouping nodes are dropped from the
+      // rendered ancestor chain and would otherwise eat into the depth.
+      'administrativEnhetObjekt.parent.parent.parent.parent',
+      'utvalgObjekt.parent.parent.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',

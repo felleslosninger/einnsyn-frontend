@@ -24,11 +24,24 @@ permissions: read-all
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+  # Lets the gh calls below resolve the repo without a checkout — gh reads
+  # GH_REPO, but not GITHUB_REPOSITORY, and otherwise infers it from git
+  # remotes in the working directory.
+  GH_REPO: ${{ github.repository }}
 
+# The two deploy channels below are independent, and each pins its own
+# lifecycle. lifecycle picks the container registry on both the build side and
+# the update side (deployment -> CR_DEPLOYMENT_URL, development -> CR_DEV_URL),
+# and cosign signs into whichever registry the image was pushed to. A build and
+# its update must therefore always agree, or Kyverno rejects the deploy with
+# "no signatures found". Keeping the value constant per channel makes that
+# agreement structural rather than something two expressions have to maintain.
 jobs:
+  # --- Test channel: deployment lifecycle -> CR_DEPLOYMENT_URL ---
+
   build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    if: ${{ inputs.deployment-environment != 'dev' }}
     permissions:
       contents: write
       id-token: write
@@ -36,7 +49,7 @@ jobs:
     with:
       image-name: einnsyn-frontend-next
       application-type: docker
-      lifecycle: ${{ github.event.inputs.deployment-environment == 'dev' && 'development' || 'deployment' }}
+      lifecycle: deployment
     secrets: inherit
 
   update-image:
@@ -47,63 +60,84 @@ jobs:
       pull-requests: read
     with:
       application-name: einnsyn-frontend-next
-      deployment-environment: ${{ github.event.inputs.deployment-environment || 'test' }}
+      deployment-environment: test
       image-name: einnsyn-frontend-next
       image-version: ${{ needs.build.outputs.image-version }}
       image-digest: ${{ needs.build.outputs.image-digest }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
-      lifecycle: ${{ github.event.inputs.deployment-environment == 'dev' && 'development' || 'deployment' }}
+      lifecycle: deployment
     secrets: inherit
 
+  # --- Dev channel: development lifecycle -> CR_DEV_URL ---
+
+  # Runs on every path, including a manual dev deploy that ignores the count:
+  # build-dev needs this job, so skipping it here would cascade and skip the
+  # dev build too.
   count-dev-labels:
     runs-on: ubuntu-latest
-    needs: [ update-image ]
-    if: ${{ inputs.deployment-environment == 'test' || inputs.deployment-environment == null }}
     permissions:
       contents: read
       pull-requests: read
     outputs:
-      dev_pr_count: ${{ steps.count_prs.outputs.DEV_PR_COUNT }}
+      dev_pr_count: ${{ steps.count_prs.outputs.dev_pr_count }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - name: Count PRs with "dev" label to main
         id: count_prs
         run: |
           DEV_PR_COUNT=$(gh pr list --base main --label "dev" --json number --jq ". | length")
-          echo "DEV_PR_COUNT=$DEV_PR_COUNT" >> $GITHUB_OUTPUT
+          echo "dev_pr_count=$DEV_PR_COUNT" >> "$GITHUB_OUTPUT"
+
+  # A manual dev deploy always proceeds — it is the request to take over dev.
+  # Otherwise a PR holding the "dev" label owns the environment, and building
+  # here would push and sign an image into the dev registry that
+  # update-dev-image discards.
+  build-dev:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    needs: count-dev-labels
+    if: ${{ inputs.deployment-environment == 'dev' || needs.count-dev-labels.outputs.dev_pr_count == '0' }}
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+    with:
+      image-name: einnsyn-frontend-next
+      application-type: docker
+      lifecycle: development
+    secrets: inherit
 
   update-dev-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
-    needs: [count-dev-labels, build]
-    if: needs.count-dev-labels.outputs.dev_pr_count == 0
+    needs: build-dev
     permissions:
       contents: read
       pull-requests: read
     with:
       application-name: einnsyn-frontend-next
-      deployment-environment: "dev"
-      image-digest: ${{ needs.build.outputs.image-digest }}
+      deployment-environment: dev
       image-name: einnsyn-frontend-next
-      image-version: ${{ needs.build.outputs.image-version }}
+      image-version: ${{ needs.build-dev.outputs.image-version }}
+      image-digest: ${{ needs.build-dev.outputs.image-digest }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
+      lifecycle: development
     secrets: inherit
 
+  # Labels the PR with the environment it now occupies, which is what
+  # count-dev-labels reads on later runs. Keyed off both channels: a manual dev
+  # deploy skips the test channel entirely, and the "dev" label still has to be
+  # applied.
   update-pr-labels:
     runs-on: ubuntu-latest
-    needs: [ update-image ]
+    needs: [update-image, update-dev-image]
+    if: ${{ !cancelled() && (needs.update-image.result == 'success' || needs.update-dev-image.result == 'success') }}
     permissions:
       contents: read
       pull-requests: write
     env:
-      DEPLOYMENT_ENV: ${{ github.event.inputs.deployment-environment || 'test' }}
+      DEPLOYMENT_ENV: ${{ inputs.deployment-environment || 'test' }}
+      COMMIT_SHA: ${{ github.sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - name: Remove label from other PRs
         run: |
           OLD_PR_NUMBERS=$(gh pr list --label "$DEPLOYMENT_ENV" --json number --jq ".[] | .number" || echo "")
@@ -115,9 +149,9 @@ jobs:
 
       - name: Add label to current PR
         run: |
-          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --json number --jq '.[0].number' || echo "")
+          PR_NUMBER=$(gh pr list --search "$COMMIT_SHA" --json number --jq '.[0].number' || echo "")
           if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
             gh pr edit "$PR_NUMBER" --add-label "$DEPLOYMENT_ENV" || echo "Failed to add label to PR $PR_NUMBER"
           else
-            echo "Could not find a PR associated with commit ${{ github.sha }}."
+            echo "Could not find a PR associated with commit $COMMIT_SHA."
           fi

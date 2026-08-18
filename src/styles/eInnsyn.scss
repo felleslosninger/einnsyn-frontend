@@ -1,11 +1,15 @@
 @use 'fontStyles.scss';
 @use 'fonts.inter.scss';
+@use './brandAccentColors.scss';
 @use './mediaQueries.scss' as mq;
 @use './table.scss';
 @use './headerDropdown.scss';
 @use './headerTabs.scss';
 
 :root {
+  // Measured and kept up to date by the Header component. Sticky elements can
+  // offset by this to stay clear of the site header.
+  --ein-header-height: 0px;
   --ein-vertical-spacing: var(--ds-size-8);
   --ein-horizontal-spacing: var(--ds-size-8);
   --ein-half-vertical-spacing: calc(var(--ein-vertical-spacing) / 2);

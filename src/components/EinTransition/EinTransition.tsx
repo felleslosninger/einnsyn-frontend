@@ -210,9 +210,7 @@ export function EinTransition<T extends unknown[] = [number]>(
       }
 
       // Remove any existing snapshot from a prior transition
-      if (snapshotRef.current?.parentElement) {
-        snapshotRef.current.parentElement.removeChild(snapshotRef.current);
-      }
+      snapshotRef.current?.remove();
 
       // Insert the snapshot at the original element's position. The original
       // may already be gone (transition to null children) — that's fine, we
@@ -344,10 +342,8 @@ export function EinTransition<T extends unknown[] = [number]>(
         // Init enter transition
         else if (transitionStep === 'enterInit') {
           // Remove snapshot from DOM
-          if (snapshotRef.current?.parentElement) {
-            snapshotRef.current.parentElement.removeChild(snapshotRef.current);
-            snapshotRef.current = null;
-          }
+          snapshotRef.current?.remove();
+          snapshotRef.current = null;
 
           const newElement = childRef.current;
 
@@ -397,10 +393,8 @@ export function EinTransition<T extends unknown[] = [number]>(
           // Remove any lingering snapshot. enterInit normally does this, but
           // when transitioning to null children we skip enterInit and reach
           // `done` directly, so the snapshot would otherwise stay in the DOM.
-          if (snapshotRef.current?.parentElement) {
-            snapshotRef.current.parentElement.removeChild(snapshotRef.current);
-            snapshotRef.current = null;
-          }
+          snapshotRef.current?.remove();
+          snapshotRef.current = null;
 
           const newElement = childRef.current;
 
@@ -419,10 +413,7 @@ export function EinTransition<T extends unknown[] = [number]>(
 
         // Emergency cleanup
         setHideNew(false);
-        if (snapshotRef.current?.parentElement) {
-          snapshotRef.current.parentElement.removeChild(snapshotRef.current);
-        }
-
+        snapshotRef.current?.remove();
         snapshotRef.current = null;
         setTransitionStep('idle');
         transitionIdRef.current = null;
@@ -444,10 +435,7 @@ export function EinTransition<T extends unknown[] = [number]>(
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      const snapshot = snapshotRef.current;
-      if (snapshot?.parentElement) {
-        snapshot.parentElement.removeChild(snapshot);
-      }
+      snapshotRef.current?.remove();
       transitionIdRef.current = null;
     };
   }, []);

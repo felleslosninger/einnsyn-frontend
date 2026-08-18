@@ -7,7 +7,7 @@ import {
   useEffect,
   useMemo,
 } from 'react';
-import { getEnhetHref, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import {
   ensureFullList,
   seedEnhets,
@@ -62,9 +62,9 @@ export function useEnhetCache() {
         merged = new Map(snapshot.enhetMap);
       }
       merged.set(enhet.id, enhet);
-      const href = getEnhetHref(enhet);
-      if (href !== enhet.id) {
-        merged.set(href, enhet);
+      const identifier = getEnhetIdentifier(enhet);
+      if (identifier !== enhet.id) {
+        merged.set(identifier, enhet);
       }
     }
     return merged ?? snapshot.enhetMap;

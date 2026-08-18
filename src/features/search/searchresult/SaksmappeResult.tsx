@@ -1,24 +1,12 @@
-import type { Saksmappe } from '@digdir/einnsyn-sdk';
-import { FolderFileIcon } from '@navikt/aksel-icons';
+import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
-import EnhetLink from './common/EnhetLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
-
-export const getSaksmappeHref = (saksmappe: Saksmappe) => {
-  const enhet = saksmappe.administrativEnhetObjekt;
-
-  // Fail gracefully if enhet isn't expanded
-  if (typeof enhet === 'string') {
-    return '';
-  }
-
-  const enhetHref = getEnhetHref(enhet);
-  return `${enhetHref}/saksmappe/${saksmappe.id}`;
-};
+import styles from './searchResultStyles.module.scss';
 
 export default function SaksmappeResult({
   className,
@@ -28,35 +16,39 @@ export default function SaksmappeResult({
   item: Saksmappe;
 }) {
   const translate = useTranslation();
+  const languageCode = useLanguageCode();
   const saksmappeURL = useSaksmappeURLGenerator();
-  const saksmappeLink = saksmappeURL(item);
-  const saksmappeHref = getSaksmappeHref(item);
+  const enhet = item.administrativEnhetObjekt;
+
   return (
-    <div className={cn(className, 'search-result', 'saksmappe-result')}>
-      <EinLink
-        className={'saksmappe-link'}
-        href={saksmappeLink /*saksmappeHref*/}
-      >
-        <h2 className="ds-heading">{item.offentligTittel}</h2>
+    <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
+      <EinLink href={saksmappeURL(item)}>
+        <h2 className="ds-heading" data-size="sm">
+          {item.offentligTittel}
+        </h2>
       </EinLink>
-      <div className="ds-paragraph" data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
-          icon={
-            <FolderFileIcon
-              aria-hidden="true"
-              focusable="false"
-              fontSize="1.2rem"
-            />
-          }
+          variant="saksmappe"
           item={item}
           label={translate('saksmappe.label')}
-        />
-        <div className="saksmappe-enhet">
-          <EnhetLink
-            withAncestors={false}
-            enhet={item.administrativEnhetObjekt}
-          />
-        </div>
+        >
+          {item.saksnummer && (
+            <span>
+              {translate('common.number')} {item.saksnummer}
+            </span>
+          )}
+        </SearchResultSubheader>
+        {isEnhet(enhet) && (
+          <div className={styles.searchResultEnhet}>
+            <EinLink href={getEnhetHref(enhet)}>
+              {getName(enhet, languageCode)}
+            </EinLink>
+          </div>
+        )}
       </div>
     </div>
   );
