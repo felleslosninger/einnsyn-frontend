@@ -7,6 +7,7 @@ import type {
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
+import { parseParamList } from '~/lib/utils/paramList';
 import type { DateRange } from './calendarHelpers';
 
 export type CalendarPage = {
@@ -30,15 +31,16 @@ export const fetchCalendarPage = async (
     } else {
       const query: SearchParameters = {
         entity: ['Moetemappe'],
-        expand: ['utvalgObjekt.parent'],
+        expand: ['utvalgObjekt.parent', 'utvalgObjekt.parent.parent'],
         moetedatoFrom: dateRange.from,
         moetedatoTo: dateRange.to,
         sortBy: 'moetedato',
         sortOrder: 'asc',
         limit: 100,
       };
-      if (enhetSlug) {
-        query.administrativEnhet = [enhetSlug];
+      const enhetList = parseParamList(enhetSlug);
+      if (enhetList.length > 0) {
+        query.administrativEnhet = enhetList;
       }
       page = (await api.search.search(query)) as PaginatedList<Moetemappe>;
     }

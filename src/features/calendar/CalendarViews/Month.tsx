@@ -407,7 +407,7 @@ export default function MonthView({
               setOpen={(open) => {
                 if (!open) setPopup(null);
               }}
-              triggerRef={popupTriggerRef}
+              anchorRef={popupTriggerRef}
               animate
               className={styles.popup}
             >
