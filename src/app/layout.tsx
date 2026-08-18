@@ -1,14 +1,15 @@
 import '@digdir/designsystemet-css';
-import '@digdir/designsystemet-theme';
+import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
+import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
-import Footer from '~/features/footer/Footer';
+import { Footer } from '~/features/footer';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
@@ -55,7 +56,7 @@ export default async function Layout({
     <html lang={settings.language}>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* viewport is set via `export const viewport` above – no manual meta needed */}
       </head>
       <NavigationProvider>
         <SessionDataProvider
@@ -72,6 +73,7 @@ export default async function Layout({
                 <main className="content-flex-grow">{children}</main>
                 {/* <Footer /> */}
                 <ModalWrapper>{modal}</ModalWrapper>
+                <KeyboardFocusManager />
                 <ThemeManager />
               </div>
             </body>

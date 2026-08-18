@@ -1,25 +1,23 @@
 'use server';
 
-import { EInnsynError, type Enhet } from '@digdir/einnsyn-sdk';
-import { cache } from 'react';
+import { EInnsynError } from '@digdir/einnsyn-sdk';
+import { unstable_cache } from 'next/cache';
+import type { LanguageCode } from '~/lib/translation/translation';
+import {
+  expandTrimmedEnhetsWithAncestors,
+  sortTrimmedEnhetsForSelector,
+  type TrimmedEnhet,
+} from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
-import { cachedApiClient } from './getApiClient';
+import { parseParamList } from '~/lib/utils/paramList';
+import { cachedPublicApiClient } from './getApiClient';
 
-export type TrimmedEnhet = Pick<
-  Enhet,
-  | 'entity'
-  | 'id'
-  | 'orgnummer'
-  | 'navn'
-  | 'navnNynorsk'
-  | 'navnEngelsk'
-  | 'navnSami'
-  | 'enhetstype'
-  | 'parent'
->;
+const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
+const ENHET_LIST_TAG = 'enhet-list';
+const DEFAULT_PRELOAD_LIMIT = 10;
 
-export const getTrimmedEnhetList = async () => {
-  const api = await cachedApiClient();
+const fetchTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
+  const api = await cachedPublicApiClient();
   try {
     logger.debug('Fetching enhet list from API');
     const enhetList = await api.enhet.list({
@@ -28,8 +26,8 @@ export const getTrimmedEnhetList = async () => {
     const trimmedEnhetList: TrimmedEnhet[] = [];
     for await (const enhet of api.iterate(enhetList)) {
       trimmedEnhetList.push({
-        entity: enhet.entity,
         id: enhet.id,
+        slug: enhet.slug,
         navn: enhet.navn,
         navnNynorsk: enhet.navnNynorsk,
         navnEngelsk: enhet.navnEngelsk,
@@ -46,8 +44,88 @@ export const getTrimmedEnhetList = async () => {
     if (error instanceof EInnsynError) {
       logger.error('Error fetching enhet list', error);
     }
-    return [] as TrimmedEnhet[];
+    throw error;
   }
 };
 
-export const cachedTrimmedEnhetList = cache(getTrimmedEnhetList);
+const getCachedTrimmedEnhetList = unstable_cache(
+  fetchTrimmedEnhetList,
+  ['trimmed-enhet-list'],
+  { revalidate: ENHET_LIST_REVALIDATE_SECONDS, tags: [ENHET_LIST_TAG] },
+);
+
+export const getTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
+  return getCachedTrimmedEnhetList();
+};
+
+function findTrimmedEnhetsByIdsOrSlugs(
+  list: readonly TrimmedEnhet[],
+  idsOrSlugs: readonly string[],
+): TrimmedEnhet[] {
+  const wanted = new Set(
+    idsOrSlugs.map((value) => value.trim()).filter((value) => value.length > 0),
+  );
+  if (wanted.size === 0) {
+    return [];
+  }
+
+  return list.filter(
+    (enhet) =>
+      wanted.has(enhet.id) || (enhet.slug != null && wanted.has(enhet.slug)),
+  );
+}
+
+export const getTopTrimmedEnhetList = async (
+  limit = DEFAULT_PRELOAD_LIMIT,
+  languageCode: LanguageCode = 'nb',
+): Promise<TrimmedEnhet[]> => {
+  const list = await getCachedTrimmedEnhetList();
+  return sortTrimmedEnhetsForSelector(list, languageCode).slice(0, limit);
+};
+
+export const getTrimmedEnhetsByIdsOrSlugs = async (
+  idsOrSlugs: readonly string[],
+): Promise<TrimmedEnhet[]> => {
+  const list = await getCachedTrimmedEnhetList();
+  return findTrimmedEnhetsByIdsOrSlugs(list, idsOrSlugs);
+};
+
+export const getInitialEnhetsForRequest = async ({
+  pathEnhet,
+  searchParamsEnhet,
+  limit = DEFAULT_PRELOAD_LIMIT,
+  languageCode = 'nb',
+}: {
+  pathEnhet?: string;
+  searchParamsEnhet?: string;
+  limit?: number;
+  languageCode?: LanguageCode;
+}): Promise<TrimmedEnhet[]> => {
+  try {
+    const selected: string[] = [];
+    if (pathEnhet) {
+      selected.push(pathEnhet);
+    }
+    if (searchParamsEnhet) {
+      selected.push(...parseParamList(searchParamsEnhet));
+    }
+
+    // The collapsed selector does not need a preloaded list when nothing is
+    // selected. Let the client load it lazily on first expand instead of
+    // blocking route transitions on a full enhet fetch.
+    if (selected.length === 0) {
+      return [];
+    }
+
+    const list = await getTrimmedEnhetList();
+    const topN = sortTrimmedEnhetsForSelector(list, languageCode).slice(
+      0,
+      limit,
+    );
+    const selectedEnhets = findTrimmedEnhetsByIdsOrSlugs(list, selected);
+    return expandTrimmedEnhetsWithAncestors([...topN, ...selectedEnhets], list);
+  } catch (error) {
+    logger.error('Failed to build initial enhet list for request', error);
+    return [];
+  }
+};

@@ -1,10 +1,22 @@
+@use './mediaQueries.scss' as mq;
+
 .header-tabs {
   position: relative;
-  margin-left: calc(-1 * var(--ds-size-5));
+  margin-left: calc(-1 * var(--ds-size-2));
   margin-right: calc(-1 * var(--ds-size-5));
   padding-top: var(--ds-size-4);
   display: flex;
   align-items: flex-start;
+}
+
+@include mq.small {
+  .header-tabs {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
 }
 
 .header-tab,

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
-import { resolveLanguageCode } from './translation';
+import { resolveLanguageCode, supportedLanguages } from './translation';
 
 describe('translation', () => {
   describe('getLanguageCode', () => {
@@ -50,6 +50,28 @@ describe('translation', () => {
         acceptedLanguages,
       );
       assert.strictEqual(result, 'de');
+    });
+  });
+
+  // These pin the list `getLanguageCode` passes: an unsupported code has no
+  // translation bundle, so returning one would print raw keys in the UI.
+  describe('supportedLanguages', () => {
+    test('picks the preferred supported language', () => {
+      assert.strictEqual(
+        resolveLanguageCode('en-GB,en;q=0.9,nb;q=0.8', supportedLanguages),
+        'en',
+      );
+    });
+
+    test('never returns an unsupported language', () => {
+      assert.strictEqual(
+        resolveLanguageCode('de-DE,de;q=0.9', supportedLanguages),
+        'nb',
+      );
+    });
+
+    test('falls back to bokmål for an empty header', () => {
+      assert.strictEqual(resolveLanguageCode('', supportedLanguages), 'nb');
     });
   });
 });

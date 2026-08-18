@@ -1,23 +1,21 @@
-export function rand(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+/**
+ * Placeholder lengths as a fraction of the requested range, cycled by index so
+ * that neighbouring skeletons get visibly different widths.
+ */
+const RATIOS = [0.92, 0.38, 0.71, 0.24, 0.55, 1, 0.44, 0.83, 0.66, 0.31, 0];
 
-export function skeletonString(min: number, max: number): string;
-export function skeletonString(length: number): string;
-export function skeletonString(minOrLength: number, max?: number) {
-  const minLength = max !== undefined ? minOrLength : minOrLength;
-  const maxLength = max !== undefined ? max : minOrLength;
-  const length = rand(minLength, maxLength);
-
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    // Add a space randomly for line breaks (every 5-10 characters on average)
-    if (i > 0 && Math.random() < 0.15) {
-      result += ' ';
-    } else {
-      result += 'x';
-    }
-  }
-
-  return result;
+/**
+ * Character count for a `<Skeleton variant="text">`, within `[min, max]`.
+ *
+ * Picked from a fixed table rather than Math.random() because skeletons are
+ * rendered during SSR: a random width would differ between the server and the
+ * first client render and trip a hydration mismatch. Pass the row's index.
+ */
+export function skeletonLength(
+  index: number,
+  min: number,
+  max: number,
+): number {
+  const ratio = RATIOS[index % RATIOS.length];
+  return Math.round(min + (max - min) * ratio);
 }

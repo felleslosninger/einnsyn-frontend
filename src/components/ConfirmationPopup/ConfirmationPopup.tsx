@@ -3,6 +3,7 @@
 import { EinButton } from '~/components/EinButton/EinButton';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import styles from './ConfirmationPopup.module.scss';
 
 interface ConfirmationPopupProps {
@@ -35,16 +36,16 @@ export default function ConfirmationPopup({
       setOpen={(isOpen) => !isOpen && onClose()}
       closeOnOutsideClick={!isDeleting}
       closeOnEsc={!isDeleting}
-      className={styles['confirmation-popup']}
+      className={cn(styles.confirmationPopup, 'confirmation-popup')}
     >
-      <div className={styles['confirmation-content']}>
-        <div className={styles['confirmation-header']}>
+      <div className={cn(styles.confirmationContent, 'confirmation-content')}>
+        <div className={cn(styles.confirmationHeader, 'confirmation-header')}>
           <h3>{title}</h3>
         </div>
-        <div className={styles['confirmation-body']}>
+        <div className={cn(styles.confirmationBody, 'confirmation-body')}>
           <p>{message}</p>
         </div>
-        <div className={styles['confirmation-footer']}>
+        <div className={cn(styles.confirmationFooter, 'confirmation-footer')}>
           <EinButton
             onClick={onClose}
             variant="secondary"

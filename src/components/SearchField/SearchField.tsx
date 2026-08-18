@@ -1,122 +1,89 @@
 'use client';
 
 import { Button } from '@digdir/designsystemet-react';
-import {
-  Buildings3Icon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from '@navikt/aksel-icons';
-import { Fragment, forwardRef, useCallback, useRef, useState } from 'react';
+import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
+import { useCallback, useRef, useState } from 'react';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
-import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
+import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
+import { StyledInput } from './StyledInput';
 
-type SearchFieldProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+type SearchFieldProps = {
   className?: string;
 };
 
-export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
-  ({ children, className, onInput, onKeyDown, ...inputProps }, ref) => {
-    const t = useTranslation();
-    const { searchTokens, searchQuery, setSearchQuery } = useSearchField();
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [activeContainer, setActiveContainer] = useState<string | undefined>(
-      undefined,
-    );
-    const placeholder = t('search.placeholder');
+export const SearchField = ({ className }: SearchFieldProps) => {
+  const t = useTranslation();
+  const containerRef = useRef<HTMLFormElement>(null);
+  const { searchQuery, setSearchQuery, pushSearchQuery } = useSearchField();
+  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const isMobileLayout = useBreakpoint('SM');
+  const [activeContainer, setActiveContainer] = useState<string | undefined>(
+    undefined,
+  );
 
-    const onInputWrapper = useCallback(
-      (event: React.InputEvent<HTMLTextAreaElement>) => {
-        onInput?.(event);
-        const target = event.target as HTMLTextAreaElement;
-        setSearchQuery(target.value ?? '');
-        target.style.height = `${target.scrollHeight}px`;
-      },
-      [setSearchQuery, onInput],
-    );
+  const activateSearchQueryContainer = useCallback(() => {
+    setActiveContainer('searchQuery');
+  }, []);
 
-    const onKeyDownWrapper = useCallback(
-      (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        const target = event.target as HTMLTextAreaElement;
-        onKeyDown?.(event);
+  const activateEnhetSelectorContainer = useCallback(() => {
+    setActiveContainer('enhetSelector');
+  }, []);
 
-        // Trigger search on Enter key
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          setSearchQuery(event.currentTarget.value ?? '', true);
-          target.blur();
-        }
-        // Update search query without search on other keys
-        else {
-          setSearchQuery(event.currentTarget.value ?? '', false);
-        }
-      },
-      [onKeyDown, setSearchQuery],
-    );
+  const deactivateContainer = useCallback(() => {
+    setActiveContainer(undefined);
+  }, []);
 
-    // Expand textarea on focus.
-    const onTextareaFocus = useCallback(
-      (event: React.FocusEvent<HTMLTextAreaElement>) => {
-        const target = event.target as HTMLTextAreaElement;
-        target.style.height = `${target.scrollHeight}px`;
-      },
-      [],
-    );
+  const onSubmit = useCallback(
+    (event: React.SubmitEvent<HTMLFormElement>) => {
+      pushSearchQuery(searchQuery);
+      event.preventDefault();
+    },
+    [searchQuery, pushSearchQuery],
+  );
 
-    const onTextareaFocusBlur = useCallback(
-      (event: React.FocusEvent<HTMLTextAreaElement>) => {
-        const target = event.target as HTMLTextAreaElement;
-        target.style.height = '';
-      },
-      [],
-    );
+  const handleClear = useCallback(() => {
+    setSearchQuery('');
+  }, [setSearchQuery]);
 
-    // Set focus to containing element when focusing on input
-    const onContainerFocus = useCallback(
-      (event: React.FocusEvent<HTMLDivElement>) => {
-        // Figure out which "section" got focus
-        const target = event.target as HTMLDivElement;
-        const container = target.closest(`.${styles.searchInputContainer}`);
+  const showClearButton =
+    !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
 
-        if (container?.matches(`.${styles.searchQueryContainer}`)) {
-          setActiveContainer('searchQuery');
-        } else if (container?.matches(`.${styles.enhetSelectorContainer}`)) {
-          setActiveContainer('enhetSelector');
-        } else {
-          setActiveContainer(undefined);
-        }
-      },
-      [],
-    );
+  const enhetSelector = (
+    <EnhetSelector
+      active={activeContainer === 'enhetSelector'}
+      activate={activateEnhetSelectorContainer}
+      close={deactivateContainer}
+    />
+  );
 
-    // Remove focus on all containers when clicking outside
-    const removeFocus = useCallback(() => {
-      setActiveContainer(undefined);
-    }, []);
-    useOnOutsideClick(containerRef, removeFocus);
+  return (
+    <form
+      className={cn(styles.searchFieldContainer, className)}
+      method="get"
+      onSubmit={onSubmit}
+      action={optimisticPathname}
+      ref={containerRef}
+    >
+      {/* Include current query parameters as hidden inputs */}
+      {Array.from(optimisticSearchParams?.entries() ?? []).map(
+        ([key, value]) =>
+          key !== 'q' && (
+            <input key={key} type="hidden" name={key} value={value} />
+          ),
+      )}
 
-    const handleSearch = useCallback(() => {
-      setSearchQuery(searchQuery, true);
-    }, [setSearchQuery, searchQuery]);
-
-    const handleClear = useCallback(() => {
-      setSearchQuery('');
-    }, [setSearchQuery]);
-
-    const closeEnhetSelector = useCallback(() => {
-      setActiveContainer(undefined);
-    }, []);
-
-    return (
-      // biome-ignore lint/a11y/noStaticElementInteractions: This is not interactivity, just a handler for bubbled events.
       <div
-        className={cn(styles.searchFieldContainer)}
-        onFocus={onContainerFocus}
-        ref={containerRef}
+        className={cn(styles.pillRow, {
+          [styles.hasActiveContainer]: isMobileLayout
+            ? activeContainer === 'searchQuery'
+            : activeContainer !== undefined,
+        })}
       >
         <div
           className={cn(
@@ -125,64 +92,30 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
             styles.searchInputWithIcon,
             { [styles.activeContainer]: activeContainer === 'searchQuery' },
           )}
+          data-styled-input-width-animated="true"
         >
-          <div className={cn(styles.expandableInputContainer)}>
-            <div
-              className={cn(styles.searchIconContainer, styles.searchInputIcon)}
-            >
-              <MagnifyingGlassIcon className={cn(styles.searchIcon)} />
-            </div>
+          <div
+            className={cn(styles.expandableInputContainer)}
+            data-styled-input-expandable="true"
+          >
+            <StyledInput
+              icon={
+                !isMobileLayout && (
+                  <MagnifyingGlassIcon
+                    className={cn(styles.searchIcon)}
+                    aria-hidden="true"
+                  />
+                )
+              }
+              value={searchQuery}
+              setValue={setSearchQuery}
+              onFocus={activateSearchQueryContainer}
+              onBlur={deactivateContainer}
+              placeholder={t('search.placeholder')}
+              name="q"
+            />
 
-            <div className={cn(styles.styledInputContainer)}>
-              <div className={cn(styles.styledInput, className)}>
-                {searchTokens.map((token, index) => (
-                  <Fragment key={`${index}-${token.value}`}>
-                    <span
-                      className={cn(styles.searchToken, {
-                        [styles.prefixedToken]: !!token.prefix,
-                        [styles.includeToken]: token.sign === '+',
-                        [styles.excludeToken]: token.sign === '-',
-                        [styles.quotedToken]: !!token.quoted,
-                      })}
-                    >
-                      {token.sign && (
-                        <span className={cn(styles.tokenSign)}>
-                          {token.sign}
-                        </span>
-                      )}
-                      {token.prefix && (
-                        <span className={cn(styles.tokenPrefix)}>
-                          {token.prefix}:
-                        </span>
-                      )}
-                      <span className={cn(styles.tokenValue)}>
-                        {token.quoted && '"'}
-                        {token.value}
-                        {token.quoted && '"'}
-                      </span>
-                    </span>
-                    {index < searchTokens.length - 1 && ' '}
-                  </Fragment>
-                ))}
-              </div>
-
-              <textarea
-                ref={ref}
-                value={searchQuery}
-                onInput={onInputWrapper}
-                onKeyDown={onKeyDownWrapper}
-                onFocus={onTextareaFocus}
-                onBlur={onTextareaFocusBlur}
-                className={cn(styles.input, className)}
-                placeholder={t('search.placeholder')}
-                spellCheck="false"
-                autoCorrect="off"
-                autoCapitalize="none"
-                {...inputProps}
-              />
-            </div>
-
-            {searchQuery && (
+            {showClearButton && (
               <Button
                 className={cn(styles.clearButton)}
                 type="button"
@@ -191,46 +124,56 @@ export const SearchField = forwardRef<HTMLTextAreaElement, SearchFieldProps>(
                 variant="tertiary"
               >
                 <XMarkIcon
-                  title={t('search.clear')}
                   className={cn(styles.clearIcon)}
+                  aria-hidden="true"
                 />
               </Button>
             )}
           </div>
         </div>
 
-        <div className={styles.spacer} />
-
-        <div
-          className={cn(
-            styles.enhetSelectorContainer,
-            styles.searchInputContainer,
-            styles.searchInputWithIcon,
-            { [styles.activeContainer]: activeContainer === 'enhetSelector' },
-          )}
-        >
-          <div className={cn(styles.expandableInputContainer)}>
-            <EnhetSelector
-              expanded={activeContainer === 'enhetSelector'}
-              close={closeEnhetSelector}
-            />
+        {!isMobileLayout && (
+          <div
+            className={cn(
+              styles.enhetSelectorContainer,
+              styles.searchInputContainer,
+              { [styles.activeContainer]: activeContainer === 'enhetSelector' },
+            )}
+            data-enhet-selector-container="true"
+            data-styled-input-width-animated="true"
+          >
+            <div className={cn(styles.expandableInputContainer)}>
+              {enhetSelector}
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           className={cn(styles.actionButtonContainer, {
             [styles.withBorder]: !!searchQuery,
           })}
         >
-          <EinButton variant="primary" type="submit" onClick={handleSearch}>
-            {t('search.button')}
+          <EinButton
+            variant="primary"
+            type="submit"
+            className={cn({ [styles.iconOnlySubmit]: isMobileLayout })}
+            aria-label={isMobileLayout ? t('search.button') : undefined}
+          >
+            {isMobileLayout ? (
+              <MagnifyingGlassIcon
+                className={cn(styles.submitIcon)}
+                aria-hidden="true"
+              />
+            ) : (
+              t('search.button')
+            )}
           </EinButton>
         </div>
       </div>
-    );
-  },
-);
 
-SearchField.displayName = 'SearchField';
-
-export default SearchField;
+      {isMobileLayout && (
+        <div className={styles.enhetSelectorMobileRow}>{enhetSelector}</div>
+      )}
+    </form>
+  );
+};

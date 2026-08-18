@@ -1,15 +1,18 @@
 .footer {
   background: var(--ds-color-neutral-background-tinted);
   border-top: 1px solid var(--ds-color-neutral-border-subtle);
+
   :global(.ein-link) {
     text-decoration: none;
   }
+
   :global(.container-wrapper > .container-post) {
     align-items: center;
   }
 
   nav {
     display: flex;
+    align-items: center;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     padding: var(--ds-size-4) 0;
   }
@@ -36,6 +39,7 @@
 
 .stickyPlaceholder {
   display: none;
+
   &.sticky {
     display: block;
   }

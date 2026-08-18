@@ -135,7 +135,7 @@ export default function EinDropdown({
         closeOnOutsideClick={true}
         closeOnEsc={true}
         preferredPosition={preferredPosition}
-        triggerRef={buttonRef}
+        anchorRef={buttonRef}
       >
         <div ref={contentRef} className={styles.dropdownContent}>
           {/* <div className={cn(styles.dropdownHeader)}>{trigger}</div> */}

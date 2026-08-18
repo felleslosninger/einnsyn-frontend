@@ -79,7 +79,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
         ref={ref}
         href={href}
         onClick={handleClick}
-        className={cn(props.className, styles['ein-link'], 'ein-link')}
+        className={cn(props.className, styles.einLink, 'ein-link')}
       />
     );
   },

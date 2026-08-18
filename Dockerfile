@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 
 # Install dependencies
@@ -47,6 +47,18 @@ RUN \
     echo "Lockfile not found." && exit 1; \
   fi
 
+# The runner copies node_modules wholesale, so dev-only tooling would otherwise
+# ship to production and be scanned as runtime code — notably the Go-based tsc
+# binary from typescript 7, which drags Go stdlib CVEs into the image.
+RUN \
+  if [ -f yarn.lock ]; then \
+    corepack enable yarn && yarn install --production --frozen-lockfile --ignore-scripts; \
+  elif [ -f package-lock.json ]; then \
+    npm prune --omit=dev --ignore-scripts; \
+  elif [ -f pnpm-lock.yaml ]; then \
+    corepack enable pnpm && pnpm prune --prod; \
+  fi
+
 
 # Production image
 FROM base AS runner
@@ -57,7 +69,11 @@ ENV NODE_ENV=production
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
-RUN apk add --no-cache curl
+# Next is started directly below, so npm is dead weight at runtime. Removing it
+# also removes its bundled dependencies (tar, undici, brace-expansion, ...),
+# which are unreachable from application code but dominate the image CVE scan.
+RUN apk add --no-cache curl \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -65,6 +81,6 @@ COPY --from=builder --chown=nextjs:nodejs /app .
 
 USER nextjs
 EXPOSE 8080
-CMD ["npm", "run", "start"]
+CMD ["node_modules/.bin/next", "start"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/api/health || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1

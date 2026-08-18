@@ -124,8 +124,13 @@ export default function AddApiKeyModal({
     );
 
   return (
-    <EinModal className={styles.modal} open={open} setOpen={setOpen}>
-      <EinModalHeader title={title} onClose={handleClose} />
+    <EinModal
+      className={styles.modal}
+      open={open}
+      setOpen={setOpen}
+      onClose={handleClose}
+    >
+      <EinModalHeader title={title} />
       <EinModalBody>{body}</EinModalBody>
     </EinModal>
   );

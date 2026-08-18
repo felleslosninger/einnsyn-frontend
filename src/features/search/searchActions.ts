@@ -9,12 +9,28 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
+import { parseParamList } from '~/lib/utils/paramList';
 import {
   searchQueryToTokens,
   tokensToSearchQuery,
 } from '~/lib/utils/searchStringTokenizer';
 
 type Journalposttype = FilterParameters['journalposttype'];
+
+const SORT_MAP: Record<
+  string,
+  { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' } | null
+> = {
+  score: null,
+  publisertDatoDesc: { sortBy: 'publisertDato', sortOrder: 'desc' },
+  publisertDatoAsc: { sortBy: 'publisertDato', sortOrder: 'asc' },
+  oppdatertDatoDesc: { sortBy: 'oppdatertDato', sortOrder: 'desc' },
+  oppdatertDatoAsc: { sortBy: 'oppdatertDato', sortOrder: 'asc' },
+  offentligTittelAsc: { sortBy: 'tittel', sortOrder: 'asc' },
+  offentligTittelDesc: { sortBy: 'tittel', sortOrder: 'desc' },
+  enhetAsc: { sortBy: 'administrativEnhetNavn', sortOrder: 'asc' },
+  enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
+};
 
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
@@ -36,7 +52,9 @@ const isSearchableEntity = (
   );
 };
 
-/** Build a SearchParameters object based on an enhetSlug and URLSearchParams.
+/**
+ * Build a SearchParameters object based on an enhetSlug and URLSearchParams.
+ * Shared by the search page and the meeting calendar.
  *
  * @param enhetSlug
  * @param urlSearchParams
@@ -46,17 +64,15 @@ export const buildSearchParameters = async (
   enhetSlug: string,
   urlSearchParams: URLSearchParams | string,
 ): Promise<SearchParameters> => {
-  const searchParameters: SearchParameters = {};
-  const resolvedSearchParams =
+  const apiQuery: SearchParameters = {};
+  const searchParams =
     typeof urlSearchParams === 'string'
       ? new URLSearchParams(urlSearchParams)
       : urlSearchParams;
 
   // Combine Entity filter from path and searchParams
-  if (resolvedSearchParams.has('entity')) {
-    searchParameters.entity = resolvedSearchParams
-      .getAll('entity')
-      .filter(isSearchableEntity);
+  if (searchParams.has('entity')) {
+    apiQuery.entity = searchParams.getAll('entity').filter(isSearchableEntity);
   }
 
   // Combine Enhet filter from path and searchParams
@@ -64,29 +80,29 @@ export const buildSearchParameters = async (
   if (enhetSlug) {
     enhet.push(enhetSlug);
   }
-  if (resolvedSearchParams.has('enhet')) {
-    enhet.push(...(resolvedSearchParams.get('enhet') ?? '').split(','));
+  if (searchParams.has('enhet')) {
+    enhet.push(
+      ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
+    );
   }
   if (enhet.length) {
-    searchParameters.administrativEnhet = enhet;
+    apiQuery.administrativEnhet = enhet;
   }
 
   // Build the query object based on the searchParams
-  if (resolvedSearchParams.has('q')) {
-    const searchTokens = searchQueryToTokens(
-      resolvedSearchParams.get('q') ?? '',
-    );
+  if (searchParams.has('q')) {
+    const searchTokens = searchQueryToTokens(searchParams.get('q') ?? '');
 
     // Add regular search words (preserving quotes)
     const filteredTokens = searchTokens.filter((token) => !token.prefix);
-    searchParameters.query = tokensToSearchQuery(filteredTokens);
+    apiQuery.query = tokensToSearchQuery(filteredTokens);
 
     // Fulltext
     const fulltext = searchTokens.some(
       (token) => token.prefix === 'fulltext' && token.value === 'true',
     );
     if (fulltext) {
-      searchParameters.fulltext = true;
+      apiQuery.fulltext = true;
     }
 
     // publisertDato
@@ -96,10 +112,10 @@ export const buildSearchParameters = async (
     if (publisertDato) {
       const [from, to] = publisertDato.value.split('/');
       if (from) {
-        searchParameters.publisertDatoFrom = toISOString(from);
+        apiQuery.publisertDatoFrom = toISOString(from);
       }
       if (to) {
-        searchParameters.publisertDatoTo = toISOString(to, true);
+        apiQuery.publisertDatoTo = toISOString(to, true);
       }
     }
 
@@ -110,10 +126,10 @@ export const buildSearchParameters = async (
     if (oppdatertDato) {
       const [from, to] = oppdatertDato.value.split('/');
       if (from) {
-        searchParameters.oppdatertDatoFrom = toISOString(from);
+        apiQuery.oppdatertDatoFrom = toISOString(from);
       }
       if (to) {
-        searchParameters.oppdatertDatoTo = toISOString(to, true);
+        apiQuery.oppdatertDatoTo = toISOString(to, true);
       }
     }
 
@@ -124,10 +140,10 @@ export const buildSearchParameters = async (
     if (moetedato) {
       const [from, to] = moetedato.value.split('/');
       if (from) {
-        searchParameters.moetedatoFrom = toISOString(from);
+        apiQuery.moetedatoFrom = toISOString(from);
       }
       if (to) {
-        searchParameters.moetedatoTo = toISOString(to, true);
+        apiQuery.moetedatoTo = toISOString(to, true);
       }
     }
 
@@ -136,7 +152,7 @@ export const buildSearchParameters = async (
       (token) => token.prefix === 'journalposttype',
     );
     if (journalposttype) {
-      const wantedTypes = journalposttype.value.split(',');
+      const wantedTypes = parseParamList(journalposttype.value);
       const queryTypes: Journalposttype = [];
       if (wantedTypes.includes('inngaaende')) {
         queryTypes.push('inngaaende_dokument');
@@ -144,18 +160,21 @@ export const buildSearchParameters = async (
       if (wantedTypes.includes('utgaaende')) {
         queryTypes.push('utgaaende_dokument');
       }
-      if (wantedTypes.includes('internt')) {
+      if (
+        wantedTypes.includes('organinternt') ||
+        wantedTypes.includes('internt')
+      ) {
         queryTypes.push('organinternt_dokument_for_oppfoelging');
         queryTypes.push('organinternt_dokument_uten_oppfoelging');
       }
       if (wantedTypes.includes('saksframlegg')) {
         queryTypes.push('saksframlegg');
       }
-      searchParameters.journalposttype = queryTypes;
+      apiQuery.journalposttype = queryTypes;
     }
   }
 
-  return searchParameters;
+  return apiQuery;
 };
 
 /**
@@ -170,20 +189,28 @@ export const getSearchResults = async (
   searchParams: URLSearchParams,
 ) => {
   const api = await cachedApiClient();
+  const apiQuery = await buildSearchParameters(enhetSlug, searchParams);
+  logger.debug('Search API query', apiQuery);
 
-  const searchParameters = await buildSearchParameters(enhetSlug, searchParams);
-  logger.debug('Search API query', searchParameters);
+  const sortParam = searchParams.get('sort');
+  const sortConfig = sortParam ? SORT_MAP[sortParam] : null;
+  if (sortConfig) {
+    apiQuery.sortBy = sortConfig.sortBy;
+    apiQuery.sortOrder = sortConfig.sortOrder;
+  }
 
   try {
-    searchParameters.expand = [
+    apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent',
+      'utvalgObjekt.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',
     ];
-    const searchResults = await api.search.search(searchParameters);
+    const searchResults = await api.search.search(apiQuery);
     return searchResults;
   } catch (error) {
+    // TODO: Handle the error
     if (error instanceof EInnsynError) {
       logger.error('Error fetching search results', error);
     }
@@ -191,13 +218,6 @@ export const getSearchResults = async (
   }
 };
 
-/**
- * Convert a date string to ISO format, handling both absolute and relative date formats.
- *
- * @param date
- * @param endOfDay
- * @returns
- */
 const toISOString = (date: string, endOfDay = false): string => {
   // Detect relative dates (-1D, -2W, -3M, -4Y)
   const relativeDateMatch = date.match(/^-(\d+)([hHdDwWmMyY])$/);

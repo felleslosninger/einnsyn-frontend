@@ -56,9 +56,10 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
       onClick={onClick}
       variant="tertiary"
       data-color="neutral"
+      aria-label={t('site.loggedInAs', email)}
       className={styles['profile-button']}
     >
-      <PersonIcon title={t('site.loggedInAs', email)} fontSize="1.5rem" />
+      <PersonIcon fontSize="1.5rem" aria-hidden="true" />
     </EinButton>
   );
 }
@@ -81,12 +82,10 @@ export function EnhetMenuButton({ authInfo, onClick }: DropdownButtonProps) {
       onClick={onClick}
       variant="secondary"
       data-color="neutral"
+      aria-label={t('site.loggedInAs', orgnummer)}
       className={cn(styles['enhet-dropdown-button'], 'header-button')}
     >
-      <Buildings3Icon
-        title={t('site.loggedInAs', orgnummer)}
-        fontSize="1.5rem"
-      />
+      <Buildings3Icon fontSize="1.5rem" aria-hidden="true" />
     </EinButton>
   );
 }

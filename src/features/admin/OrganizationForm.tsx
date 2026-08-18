@@ -15,7 +15,13 @@ import {
   ValidationMessage,
 } from '@digdir/designsystemet-react';
 import type { Enhet } from '@digdir/einnsyn-sdk';
-import { useActionState, useEffect, useRef, useState } from 'react';
+import {
+  type ComponentRef,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -41,7 +47,7 @@ export default function OrganizationForm({ enhet }: { enhet?: Enhet }) {
     isEditMode ? editOrganizationAction : addOrganizationAction,
     undefined,
   );
-  const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const errorSummaryRef = useRef<ComponentRef<typeof ErrorSummary>>(null);
 
   useEffect(() => {
     if (state?.success && !isEditMode) {

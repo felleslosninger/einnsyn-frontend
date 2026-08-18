@@ -25,7 +25,7 @@ export default function CalendarHeader() {
       onSubmit={onSubmit}
       action={optimisticPathname}
     >
-      <SearchField name="q" autoComplete="off" />
+      <SearchField />
 
       {/* Include current query parameters as hidden inputs */}
       {Array.from(optimisticSearchParams?.entries() ?? []).map(

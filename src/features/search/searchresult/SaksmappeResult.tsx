@@ -1,11 +1,11 @@
-import type { Saksmappe } from '@digdir/einnsyn-sdk';
-import { FolderFileIcon } from '@navikt/aksel-icons';
+import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
-import EnhetLink from './common/EnhetLink';
+import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import styles from './searchResultStyles.module.scss';
 
 export const getSaksmappeHref = (saksmappe: Saksmappe) => {
   const enhet = saksmappe.administrativEnhetObjekt;
@@ -27,30 +27,39 @@ export default function SaksmappeResult({
   item: Saksmappe;
 }) {
   const translate = useTranslation();
+  const languageCode = useLanguageCode();
   const saksmappeHref = getSaksmappeHref(item);
+  const enhet = item.administrativEnhetObjekt;
+
   return (
-    <div className={cn(className, 'search-result', 'saksmappe-result')}>
+    <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
       <EinLink href={saksmappeHref}>
-        <h2 className="ds-heading">{item.offentligTittel}</h2>
+        <h2 className="ds-heading" data-size="sm">
+          {item.offentligTittel}
+        </h2>
       </EinLink>
-      <div className="ds-paragraph" data-size="sm">
+      <div
+        className={cn('ds-paragraph', styles.searchResultBody)}
+        data-size="sm"
+      >
         <SearchResultSubheader
-          icon={
-            <FolderFileIcon
-              aria-hidden="true"
-              focusable="false"
-              fontSize="1.2rem"
-            />
-          }
+          variant="saksmappe"
           item={item}
           label={translate('saksmappe.label')}
-        />
-        <div className="saksmappe-enhet">
-          <EnhetLink
-            withAncestors={false}
-            enhet={item.administrativEnhetObjekt}
-          />
-        </div>
+        >
+          {item.saksnummer && (
+            <span>
+              {translate('common.number')} {item.saksnummer}
+            </span>
+          )}
+        </SearchResultSubheader>
+        {isEnhet(enhet) && (
+          <div className={styles.searchResultEnhet}>
+            <EinLink href={getEnhetHref(enhet)}>
+              {getName(enhet, languageCode)}
+            </EinLink>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,13 +7,7 @@ import {
   useOptimisticPathname,
   useOptimisticSearchParams,
 } from '~/components/NavigationProvider/NavigationProvider';
-
-// Keep track of the last pathname before a modal is opened. A modal is never opened on
-// the server side, so we fall back to returning '/' in that case.
-let basepath = '/';
-export function useModalBasepath() {
-  return basepath;
-}
+import { setModalBasepath } from '~/hooks/useModalBasepath';
 
 export function ModalWrapper({ children }: { children: React.ReactNode }) {
   const pathname = useOptimisticPathname();
@@ -21,14 +15,13 @@ export function ModalWrapper({ children }: { children: React.ReactNode }) {
   const modalSegment = useSelectedLayoutSegments('modal');
   const modalIsOpen = /\(\.+\)/.test(modalSegment.join('/') ?? '');
 
-  // Update path name if we don't have an intercepted path
+  // Update path name if we don't have an intercepted path. The login route is
+  // excluded so closing the login modal doesn't navigate back to /login.
   useEffect(() => {
-    if (!modalIsOpen) {
-      const isLoginRoute = pathname.includes('/login');
-      if (!isLoginRoute) {
-        basepath =
-          pathname + (searchParams ? `?${searchParams.toString()}` : '');
-      }
+    if (!modalIsOpen && !pathname.includes('/login')) {
+      setModalBasepath(
+        pathname + (searchParams ? `?${searchParams.toString()}` : ''),
+      );
     }
   }, [modalIsOpen, pathname, searchParams]);
 
