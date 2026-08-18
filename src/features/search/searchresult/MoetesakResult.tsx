@@ -1,4 +1,4 @@
-import type { Moetesak } from '@digdir/einnsyn-sdk';
+import { isEnhet, type Moetesak } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -16,8 +16,7 @@ export default function MoetesakResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const enhetNavn = getName(item.utvalgObjekt, languageCode);
-  const enhetHref = getEnhetHref(item.utvalgObjekt);
+  const utvalg = item.utvalgObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'moetesak-result')}>
@@ -42,9 +41,13 @@ export default function MoetesakResult({
             </span>
           )}
         </SearchResultSubheader>
-        <div className={styles.searchResultEnhet}>
-          <EinLink href={enhetHref}>{enhetNavn}</EinLink>
-        </div>
+        {isEnhet(utvalg) && (
+          <div className={styles.searchResultEnhet}>
+            <EinLink href={getEnhetHref(utvalg)}>
+              {getName(utvalg, languageCode)}
+            </EinLink>
+          </div>
+        )}
       </div>
     </div>
   );

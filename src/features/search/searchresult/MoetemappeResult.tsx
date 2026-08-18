@@ -1,4 +1,4 @@
-import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { isEnhet, type Moetemappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -20,8 +20,7 @@ export default function MoetemappeResult({
   const meetingDate = item.moetedato
     ? dateFormat(item.moetedato, languageCode)
     : undefined;
-  const enhetNavn = getName(item.utvalgObjekt, languageCode);
-  const enhetHref = getEnhetHref(item.utvalgObjekt);
+  const utvalg = item.utvalgObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
@@ -42,9 +41,13 @@ export default function MoetemappeResult({
           {meetingDate && <span>{meetingDate}</span>}
           {item.moetested && <span>{item.moetested}</span>}
         </SearchResultSubheader>
-        <div className={styles.searchResultEnhet}>
-          <EinLink href={enhetHref}>{enhetNavn}</EinLink>
-        </div>
+        {isEnhet(utvalg) && (
+          <div className={styles.searchResultEnhet}>
+            <EinLink href={getEnhetHref(utvalg)}>
+              {getName(utvalg, languageCode)}
+            </EinLink>
+          </div>
+        )}
         {/* TODO: implement add to calendar functionality
         <EinLink href="" className={styles.searchResultAction}>
           {translate('search.addToCalendar')}

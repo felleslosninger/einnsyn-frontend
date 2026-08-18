@@ -35,12 +35,9 @@ export type TrimmedEnhet = TrimmedEnhetBase & {
  * optional, so a missing translation shows the bokmål name rather than nothing.
  */
 export const getName = (
-  enhet: NamedEnhet | string,
+  enhet: NamedEnhet,
   languageCode: LanguageCode,
 ): string => {
-  if (typeof enhet === 'string') {
-    return enhet; // This is most likely an ID that we can't resolve (yet)
-  }
   if (languageCode === 'nb') {
     return enhet.navn;
   }
@@ -74,10 +71,8 @@ export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
  * Has to stay absolute and encoded: `EinLink` passes its `href` straight to the
  * `<a>`, where a relative value resolves against the current document.
  */
-export const getEnhetHref = (enhet: string | Pick<Enhet, 'id' | 'slug'>) => {
-  const identifier =
-    typeof enhet === 'string' ? enhet : getEnhetIdentifier(enhet);
-  return `/${encodeURIComponent(identifier)}`;
+export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
+  return `/${encodeURIComponent(getEnhetIdentifier(enhet))}`;
 };
 
 /**

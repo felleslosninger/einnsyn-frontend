@@ -30,8 +30,6 @@ export default function SaksmappeResult({
   const languageCode = useLanguageCode();
   const saksmappeHref = getSaksmappeHref(item);
   const enhet = item.administrativEnhetObjekt;
-  const enhetNavn = getName(enhet, languageCode);
-  const enhetHref = getEnhetHref(enhet);
 
   return (
     <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
@@ -57,7 +55,9 @@ export default function SaksmappeResult({
         </SearchResultSubheader>
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={enhetHref}>{enhetNavn}</EinLink>
+            <EinLink href={getEnhetHref(enhet)}>
+              {getName(enhet, languageCode)}
+            </EinLink>
           </div>
         )}
       </div>
