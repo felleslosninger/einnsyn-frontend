@@ -42,7 +42,7 @@ function EnhetCard({ enhet }: { enhet: Enhet }) {
   );
 }
 
-export default function SelectedEnheterPanel({
+export default function SelectedEnhetPanel({
   enhetIds,
 }: {
   enhetIds: string[];
@@ -54,8 +54,21 @@ export default function SelectedEnheterPanel({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey is an intentional stable proxy for enhetIds to avoid re-running on every new array reference
   useEffect(() => {
-    if (!enhetIds.length) return;
-    getEnhet(enhetIds).then(setEnheter);
+    if (!enhetIds.length) {
+      setEnheter([]);
+      return;
+    }
+
+    let cancelled = false;
+    getEnhet(enhetIds).then((result) => {
+      if (!cancelled) {
+        setEnheter(result);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [enhetIdsKey]);
 
   if (!enheter.length) return null;

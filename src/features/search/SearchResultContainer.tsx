@@ -22,7 +22,7 @@ export default function SearchResultContainer({
   searchResults: PaginatedList<Base>;
 }) {
   const t = useTranslation();
-  const enhetIds = useEnhetFilterIds();
+  const { selectedEnhetIdentifiers: enhetIds } = useEnhetFilterIds();
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const { loadingSearchParamsString, searchParamsString, loading } =
