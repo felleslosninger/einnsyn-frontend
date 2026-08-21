@@ -229,16 +229,14 @@ export default function MonthView({
     });
   }, [months]);
 
-  // Initial scroll waits for !isLoading so it lands on final layout.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when months swap (refs read inside)
   useEffect(() => {
     if (!needsInitialScrollRef.current) return;
-    if (isLoading) return;
     const id = requestAnimationFrame(() => {
       if (scrollToDate(selectedDate)) needsInitialScrollRef.current = false;
     });
     return () => cancelAnimationFrame(id);
-  }, [months, selectedDate, scrollToDate, isLoading]);
+  }, [months, selectedDate, scrollToDate]);
 
   const reportVisibleMonth = useCallback(() => {
     const stickyOffset =

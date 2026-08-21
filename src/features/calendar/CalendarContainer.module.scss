@@ -91,9 +91,7 @@
 // Sticky day-names row in the month view.
 .dynCalendarHeader {
     position: sticky;
-    top: calc(
-        var(--page-header-height, 0px) + var(--calendar-header-height, 0px)
-    );
+    top: calc(var(--page-header-height, 0px) + var(--calendar-header-height, 0px));
     z-index: 9;
     display: grid;
     width: 100%;
@@ -153,7 +151,7 @@
 
 // Days outside the current month in the month view.
 .emptyCell {
-    background-color: var(--ds-color-brand2-surface-tinted);
+    background-color: var(--ds-color-neutral-surface-tinted);
 }
 
 .meetingList {
@@ -379,17 +377,13 @@
     // position:fixed skips EinPopup's anchor math so pure CSS controls placement.
     .popup {
         position: fixed;
-        top: calc(
-            var(--page-header-height, 0px) +
-                var(--calendar-header-height, 0px)
-        );
+        top: calc(var(--page-header-height, 0px) + var(--calendar-header-height, 0px));
         left: 0;
         right: 0;
         bottom: 0;
         width: auto;
         height: auto;
-        border-radius: var(--ds-border-radius-default)
-            var(--ds-border-radius-default) 0 0;
+        border-radius: var(--ds-border-radius-default) var(--ds-border-radius-default) 0 0;
 
         :global(.ein-popup-content) {
             display: flex;

@@ -1,5 +1,6 @@
 'use client';
 
+import { CalendarIcon } from '@navikt/aksel-icons';
 import { EinLink } from '~/components/EinLink/EinLink';
 import {
   useOptimisticPathname,
@@ -19,9 +20,12 @@ export default function SearchTabs({ className }: { className?: string }) {
 
   // The "all" tab is the absence of an `entity` param, which `buildSearchHref`
   // handles as the empty string.
+  const searchPathname = pathname.startsWith('/calendar')
+    ? '/search'
+    : pathname;
   const getTabHref = (entityName: string) =>
     buildSearchHref({
-      pathname,
+      pathname: searchPathname,
       searchParams,
       updates: { entity: entityName },
     });
@@ -29,7 +33,7 @@ export default function SearchTabs({ className }: { className?: string }) {
   const getLinkClassName = (tabName: string) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
     const activeTab = searchParams?.get('entity') || '';
-    if (activeTab === tabName) {
+    if (!pathname.startsWith('/calendar') && activeTab === tabName) {
       classes.push('active');
     }
     return classes.join(' ');
@@ -104,6 +108,20 @@ export default function SearchTabs({ className }: { className?: string }) {
                 aria-hidden="true"
               />
               {t('moetesak.labelPlural')}
+            </span>
+          </EinLink>
+
+          <span className={styles.tabDivider} aria-hidden="true" />
+
+          <EinLink
+            className={cn(styles.searchTab, 'header-tab', {
+              active: pathname.startsWith('/calendar'),
+            })}
+            href={`/calendar${searchParams?.get('enhet') ? `?enhet=${searchParams?.get('enhet')}` : ''}`}
+          >
+            <span className={styles.tabInner}>
+              {/* <CalendarIcon aria-hidden="true" className={styles.tabIcon} /> */}
+              {t('calendar.label')}
             </span>
           </EinLink>
         </div>
