@@ -1,0 +1,76 @@
+.korr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-2);
+  font-size: var(--ds-font-size-3, 0.875rem);
+}
+
+.name {
+  min-width: 0;
+}
+
+.arrow {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: 1.1rem;
+}
+
+// The counterparty (sender on incoming, recipient on outgoing). Emphasised when
+// `markOther` is set.
+.marked {
+  font-weight: 600;
+}
+
+// Wraps the toggle that opens the counterparty popup. The popup itself is
+// portalled to <body>, so this needs no positioning context.
+.more {
+  display: inline-flex;
+  margin-left: var(--ds-size-2);
+}
+
+// Inline link-styled toggle for revealing the remaining counterparties.
+.toggle {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ds-color-accent-text-default);
+  font: inherit;
+  font-weight: 400;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--ds-border-radius-default);
+    box-shadow: var(--dsc-focus-boxShadow);
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+  }
+}
+
+// The full list of counterparties shown in the popup. Capped to the space the
+// popup reports (falling back to a viewport fraction) and scrolls past it, so
+// thousands of recipients stay contained.
+.partyList {
+  margin: 0;
+  padding: var(--ds-size-3) var(--ds-size-5);
+  list-style: none;
+  // Long org names wrap instead of forcing a popup wider than the clipped list
+  // can show; the list scrolls once it outgrows the space the popup reports.
+  width: max-content;
+  max-width: min(22rem, 80vw);
+  max-height: min(50vh, var(--ein-popup-max-height, 50vh));
+  overflow-y: auto;
+  font-weight: 400;
+}
+
+.partyItem {
+  padding: var(--ds-size-2) 0;
+
+  &+& {
+    border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  }
+}

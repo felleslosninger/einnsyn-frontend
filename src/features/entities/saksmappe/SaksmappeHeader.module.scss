@@ -1,0 +1,137 @@
+@use "../../../styles/mediaQueries" as mq;
+
+.saksmappeHeader {
+  margin: calc(var(--ein-horizontal-spacing)*1.5) 0;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: var(--ein-vertical-spacing);
+  align-items: start;
+
+  @include mq.small-and-medium {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+}
+
+.kindRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  font-size: var(--ds-font-size-3, 0.875rem);
+}
+
+.kindIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-accent-surface-tinted, var(--ds-color-neutral-surface-tinted, #f6e9d3));
+  color: var(--ds-color-accent-base-default, currentColor);
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+.kindLabel {
+  color: var(--ds-color-neutral-text-subtle, inherit);
+}
+
+.title {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2) var(--ds-size-6);
+  font-size: var(--ds-font-size-3, 0.875rem);
+  margin: 0;
+  padding: 0;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ds-size-1);
+  margin: 0;
+  color: var(--ds-color-neutral-text-subtle, inherit);
+
+  dt {
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.followLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  margin-top: var(--ds-size-1);
+  font-size: var(--ds-font-size-3, 0.875rem);
+  width: fit-content;
+
+  svg {
+    font-size: 1.25em;
+  }
+}
+
+.enhetCard {
+  align-self: start;
+  border-left: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  padding-left: var(--ein-vertical-spacing);
+}
+
+.enhetCardHeading {
+  font-size: var(--ds-font-size-3);
+  color: var(--ds-color-neutral-text-subtle, inherit);
+}
+
+.enhetName {
+  display: block;
+  font-weight: 600;
+  font-size: var(--ds-font-size-5, 1.125rem);
+  color: var(--ds-color-neutral-text-default);
+  text-decoration: none;
+  border: none;
+  margin-bottom: calc(var(--ein-horizontal-spacing) / 2);
+
+  &:hover {
+    text-decoration: underline;
+    text-decoration-thickness: .125em;
+  }
+}
+
+.enhetFields {
+  display: table;
+}
+
+.enhetField {
+  display: table-row;
+  font-size: var(--ds-font-size-3, 0.875rem);
+}
+
+.enhetFieldLabel {
+  display: table-cell;
+  color: var(--ds-color-neutral-text-subtle);
+  padding-right: var(--ds-size-4);
+}
+
+.enhetFieldValue {
+  display: table-cell;
+}

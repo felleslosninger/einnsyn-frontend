@@ -1,0 +1,111 @@
+@use "../../../styles/mediaQueries" as mq;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ein-vertical-spacing);
+  padding: 0 var(--ein-vertical-spacing) var(--ein-half-horizontal-spacing);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.label {
+  font-size: var(--ds-font-size-3, 0.875rem);
+  color: var(--ds-color-neutral-text-subtle, inherit);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--ds-font-size-7, 1.5rem);
+  line-height: 1.15;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--ds-font-size-3, 0.875rem);
+  gap: var(--ds-size-1);
+  margin: 0;
+  padding: 0;
+
+  @include mq.small {
+    flex-direction: column;
+  }
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+  gap: var(--ds-size-3);
+  align-items: baseline;
+  margin: 0;
+
+  dt {
+    color: var(--ds-color-neutral-text-subtle, inherit);
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+  }
+}
+
+.typeLabel {}
+
+.orderAccess {
+  display: flex;
+}
+
+.documentSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+}
+
+.documentSectionHeading {
+  margin: 0;
+  font-size: var(--ds-font-size-3, 0.95rem);
+  font-weight: 600;
+}
+
+.documentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.documentItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ds-size-2);
+}
+
+.documentLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+
+  svg {
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+}
+
+.documentItemTitle {
+  min-width: 0;
+}
+
+.documentItemMeta {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-3, 0.875rem);
+}

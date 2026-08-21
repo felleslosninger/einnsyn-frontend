@@ -1,0 +1,26 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
+.breadcrumbs {
+  line-height: var(--ds-size-6);
+  margin-top: var(--ds-size-3);
+  font-size: var(--ds-font-size-3, 0.95rem);
+}
+
+.ellipsis {
+  opacity: 0.6;
+}
+
+/* When the final ancestor still doesn't fit, the .truncate class is added
+   to the current item's inner span. Promote the shrinking to the <li>
+   (the flex item) so text-overflow can actually clip. */
+.breadcrumbs li:last-child:has(.truncate) {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

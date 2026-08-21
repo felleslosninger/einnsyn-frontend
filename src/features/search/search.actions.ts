@@ -55,7 +55,7 @@ const isSearchableEntity = (
 /**
  * Get a PaginatedList of search results
  *
- * @param api
+ * @param enhetSlug
  * @param searchParams
  * @returns
  */
@@ -74,7 +74,7 @@ export const getSearchResults = async (
   // Combine Enhet filter from path and searchParams
   const enhet: string[] = [];
   if (enhetSlug) {
-    enhet.push(enhetSlug);
+    enhet.push(...(enhetSlug.split('-') ?? ''));
   }
   if (searchParams.has('enhet')) {
     enhet.push(
@@ -181,8 +181,10 @@ export const getSearchResults = async (
 
   try {
     apiQuery.expand = [
-      'administrativEnhetObjekt.parent.parent',
-      'utvalgObjekt.parent.parent',
+      // Four levels, since DUMMYENHET grouping nodes are dropped from the
+      // rendered ancestor chain and would otherwise eat into the depth.
+      'administrativEnhetObjekt.parent.parent.parent.parent',
+      'utvalgObjekt.parent.parent.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',

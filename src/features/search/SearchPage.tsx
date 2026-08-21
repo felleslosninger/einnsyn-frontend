@@ -1,5 +1,5 @@
 import SearchResultContainer from './SearchResultContainer';
-import { getSearchResults } from './searchActions';
+import { getSearchResults } from './search.actions';
 
 export async function SearchPage({
   params,

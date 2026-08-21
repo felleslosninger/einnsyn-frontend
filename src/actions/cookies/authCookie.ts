@@ -5,7 +5,7 @@ import {
   deleteCookieAction,
   getCookie,
   updateCookieAction,
-} from './cookieActions';
+} from './cookie.actions';
 import { getSettings } from './settingsCookie';
 
 const AUTH_COOKIE_NAME = 'auth';
