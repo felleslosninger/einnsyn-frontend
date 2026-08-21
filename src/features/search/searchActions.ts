@@ -53,18 +53,22 @@ const isSearchableEntity = (
 };
 
 /**
- * Get a PaginatedList of search results
+ * Build a SearchParameters object based on an enhetSlug and URLSearchParams.
+ * Shared by the search page and the meeting calendar.
  *
- * @param api
- * @param searchParams
+ * @param enhetSlug
+ * @param urlSearchParams
  * @returns
  */
-export const getSearchResults = async (
+export const buildSearchParameters = async (
   enhetSlug: string,
-  searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
+  urlSearchParams: URLSearchParams | string,
+): Promise<SearchParameters> => {
   const apiQuery: SearchParameters = {};
+  const searchParams =
+    typeof urlSearchParams === 'string'
+      ? new URLSearchParams(urlSearchParams)
+      : urlSearchParams;
 
   // Combine Entity filter from path and searchParams
   if (searchParams.has('entity')) {
@@ -168,9 +172,25 @@ export const getSearchResults = async (
       }
       apiQuery.journalposttype = queryTypes;
     }
-
-    logger.debug('Search API query', apiQuery);
   }
+
+  return apiQuery;
+};
+
+/**
+ * Get a PaginatedList of search results
+ *
+ * @param api
+ * @param searchParams
+ * @returns
+ */
+export const getSearchResults = async (
+  enhetSlug: string,
+  searchParams: URLSearchParams,
+) => {
+  const api = await cachedApiClient();
+  const apiQuery = await buildSearchParameters(enhetSlug, searchParams);
+  logger.debug('Search API query', apiQuery);
 
   const sortParam = searchParams.get('sort');
   const sortConfig = sortParam ? SORT_MAP[sortParam] : null;

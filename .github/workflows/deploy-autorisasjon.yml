@@ -32,9 +32,21 @@ permissions: read-all
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+# The two deploy channels below are independent, and each pins its own
+# lifecycle. lifecycle picks the container registry on both the build side and
+# the update side (deployment -> CR_DEPLOYMENT_URL, development -> CR_DEV_URL),
+# and cosign signs into whichever registry the image was pushed to. A build and
+# its update must therefore always agree, or Kyverno rejects the deploy with
+# "no signatures found". Keeping the value constant per channel makes that
+# agreement structural rather than something two expressions have to maintain.
 jobs:
+  # --- Deployment channel: deployment lifecycle -> CR_DEPLOYMENT_URL ---
+
+  # Shared by test and prod, which sit in the same registry. Skipped when a
+  # dispatch asks for dev only, so it does not build an image nothing consumes.
   build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    if: ${{ github.event_name == 'push' || inputs.test || inputs.prod }}
     permissions:
       contents: write
       id-token: write
@@ -42,13 +54,29 @@ jobs:
     with:
       image-name: einnsyn-frontend-autorisasjon
       application-type: docker
-      lifecycle: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dev == 'true' && 'development' || 'deployment' }}
+      lifecycle: deployment
+    secrets: inherit
+
+  # --- Dev channel: development lifecycle -> CR_DEV_URL ---
+
+  # A separate build, because dev lives in a different registry: the image test
+  # deploys cannot be reused here, it carries no signature that dev can verify.
+  build-dev:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+    if: ${{ inputs.dev }}
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+    with:
+      image-name: einnsyn-frontend-autorisasjon
+      application-type: docker
+      lifecycle: development
     secrets: inherit
 
   update-image-dev:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
-    needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dev == 'true' }}
+    needs: build-dev
     permissions:
       contents: read
       pull-requests: read
@@ -56,8 +84,8 @@ jobs:
       application-name: einnsyn-frontend-autorisasjon
       deployment-environment: dev
       image-name: einnsyn-frontend-autorisasjon
-      image-version: ${{ needs.build.outputs.image-version }}
-      image-digest: ${{ needs.build.outputs.image-digest }}
+      image-version: ${{ needs.build-dev.outputs.image-version }}
+      image-digest: ${{ needs.build-dev.outputs.image-digest }}
       kubernetes-repo: einnsyn-cd
       product-name: einnsyn
       lifecycle: development
@@ -66,7 +94,7 @@ jobs:
   update-image-test:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: build
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.test == 'true') }}
+    if: ${{ github.event_name == 'push' || inputs.test }}
     permissions:
       contents: read
       pull-requests: read
@@ -84,7 +112,7 @@ jobs:
   update-image-prod:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prod == 'true' }}
+    if: ${{ inputs.prod }}
     permissions:
       contents: read
       pull-requests: read

@@ -49,7 +49,6 @@ export default function LoginForm() {
     }
   }, [isPending, loginState.error, t]);
 
-  // Redirect to basepath if login is successful
   useEffect(() => {
     if (loginState.success) {
       navigation.push(basepath);
