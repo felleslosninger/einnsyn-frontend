@@ -72,34 +72,8 @@
     display: block;
   }
 
-  &:global(.section-home) {
-    height: 80vh;
-    border-bottom: none;
-    position: relative;
-    top: auto;
-
-    :global(.container-wrapper) {
-      height: 100%;
-    }
-
-    :global(.container) {
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      form {
-        width: 100%;
-        max-width: 800px;
-      }
-    }
-
-    :global(.header-tabs) {
-      display: none;
-    }
-  }
+  // No .section-home hero here: this branch renders no header search form, so
+  // the landing page uses the same compact header as every other route.
 }
 
 .logoLink {

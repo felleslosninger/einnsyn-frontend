@@ -13,9 +13,8 @@ export function AnsattportenLogin() {
   const originUrl = new URL(basepath, origin).href;
 
   return (
-    <form action={ansattportenAuthAction} data-size="sm">
+    <form action={ansattportenAuthAction}>
       <input type="hidden" name="originUrl" value={originUrl} />
-      Forvalter du en virksomhet? <br />
       <EinButton type="submit" style="link" disabled={pending}>
         Logg inn gjennom Ansattporten
       </EinButton>

@@ -1,5 +1,5 @@
 export default function OrganizationHierarchy() {
-  return <></>;
+  return null;
 }
 
 // import type { Enhet } from '@digdir/einnsyn-sdk';
