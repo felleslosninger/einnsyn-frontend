@@ -17,13 +17,6 @@
   padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
 
-  :global(.ein-button.ein-button) {
-    width: 100%;
-    justify-content: left;
-    padding: 0;
-    ;
-  }
-
   &:last-child {
     border-bottom: none;
   }

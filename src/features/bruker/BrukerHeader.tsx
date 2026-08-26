@@ -2,10 +2,9 @@
 
 import { ArrowLeftIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
-import BrukerTabs from './BrukerTabs';
 import styles from './BrukerHeader.module.scss';
+import BrukerTabs from './BrukerTabs';
 
 export default function BrukerHeader() {
   const t = useTranslation();
