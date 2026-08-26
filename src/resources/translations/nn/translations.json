@@ -224,5 +224,14 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelegheitserklæring",
     "github": "eInnsyn på Github"
+  },
+  "bruker": {
+    "title": "Mi side",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagra saker",
+    "savedMeetings": "Lagra møte",
+    "savedSearches": "Lagra søk",
+    "profile": "Profil",
+    "backToSearch": "Tilbake til søk"
   }
 }
