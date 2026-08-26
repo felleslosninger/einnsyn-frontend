@@ -41,6 +41,8 @@ export default function ProfileButton() {
 type DropdownButtonProps = {
   authInfo: ExtendedAuthInfo;
   onClick?: () => void;
+  'aria-expanded'?: boolean;
+  'aria-haspopup'?: boolean;
 };
 
 type DropdownContentProps = {
@@ -67,9 +69,59 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div>
-      <p>{t('site.loggedInAs', authInfo.email)}</p>
-      <LogoutButton />
+    <div
+      className={cn(
+        styles['bruker-dropdown-content'],
+        'header-dropdown-content',
+      )}
+    >
+      <div
+        className={cn(
+          styles['bruker-dropdown-content-section'],
+          'header-dropdown-content-section',
+        )}
+      >
+        <span data-size="sm">{t('site.loggedInAs')}</span>
+        <br />
+        <strong>{authInfo.email}</strong>
+      </div>
+
+      <div
+        className={cn(
+          styles['bruker-dropdown-content-section-links'],
+          'header-dropdown-content-section',
+        )}
+      >
+        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
+          <EinLink href="/bruker/access-requests">
+            {t('bruker.accessRequests')}
+          </EinLink>
+        </EinButton>
+        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
+          <EinLink href="/bruker/saved-cases">{t('bruker.savedCases')}</EinLink>
+        </EinButton>
+        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
+          <EinLink href="/bruker/saved-meetings">
+            {t('bruker.savedMeetings')}
+          </EinLink>
+        </EinButton>
+        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
+          <EinLink href="/bruker/saved-searches">
+            {t('bruker.savedSearches')}
+          </EinLink>
+        </EinButton>
+        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
+          <EinLink href="/bruker/profile">{t('bruker.profile')}</EinLink>
+        </EinButton>
+      </div>
+      <div
+        className={cn(
+          styles['enhet-dropdown-content-section'],
+          'header-dropdown-content-section',
+        )}
+      >
+        <LogoutButton />
+      </div>
     </div>
   );
 }
@@ -148,6 +200,8 @@ export function Dropdown({
 
   const buttonWithClickHandler = cloneElement(button, {
     onClick: toggleDropdown,
+    'aria-expanded': open,
+    'aria-haspopup': true,
   });
 
   return (

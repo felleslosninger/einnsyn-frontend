@@ -1,0 +1,23 @@
+.bruker-dropdown-content-section-links {
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  padding: var(--ein-half-vertical-spacing) var(--ds-size-1);
+
+  :global(.ein-button) {
+    justify-content: flex-start;
+    padding: var(--ein-half-vertical-spacing) var(--ein-horizontal-spacing);
+    text-align: left;
+
+    &:hover {
+      background-color: var(--ds-color-surface-hover);
+    }
+  }
+
+  :global(.ein-link) {
+    display: block;
+    text-decoration: none;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
