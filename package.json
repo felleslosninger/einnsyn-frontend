@@ -25,14 +25,14 @@
     "openid-client": "^6.8.7",
     "react": "^19.2.7",
     "react-dom": "^19.2.8",
-    "sass": "^1.102.0",
+    "sass": "^1.103.0",
     "virtua": "^0.50.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.10",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
+    "@types/react-dom": "^19.2.5",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   }

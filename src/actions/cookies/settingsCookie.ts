@@ -66,6 +66,9 @@ export const getSettings = async (): Promise<Settings> => {
     // asks for, rather than everyone defaulting to bokmål. An explicit choice
     // is stored in the cookie and always wins.
     language:
-      settingsCookieContent?.language ?? (await resolveDefaultLanguage()),
+      settingsCookieContent?.language &&
+      supportedLanguages.includes(settingsCookieContent.language)
+        ? settingsCookieContent.language
+        : await resolveDefaultLanguage(),
   };
 };
