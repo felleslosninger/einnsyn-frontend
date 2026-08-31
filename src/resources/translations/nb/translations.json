@@ -242,6 +242,26 @@
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
     "profile": "Profil",
-    "backToSearch": "Tilbake til søk"
+    "backToSearch": "Tilbake til søk",
+    "profilePage": {
+      "changeEmail": "Endre e-post",
+      "newEmail": "Ny e-post",
+      "saveChanges": "Lagre endringer",
+      "changeEmailSuccess": "E-postadressen er oppdatert",
+      "changeEmailError": "Kunne ikke oppdatere e-postadressen",
+      "emailTaken": "E-postadressen er allerede i bruk",
+      "changePassword": "Endre passord",
+      "currentPassword": "Nåværende passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "changePasswordError": "Kunne ikke oppdatere passordet",
+      "wrongPassword": "Nåværende passord er feil",
+      "passwordMismatch": "Passordene er ikke like",
+      "deactivateAccount": "Deaktiver konto",
+      "deactivateAccountDescription": "Hvis du deaktiverer kontoen din, mister du tilgangen til tjenesten og alle lagrede data.",
+      "deactivateAccountConfirm": "Er du sikker på at du vil deaktivere kontoen din? Dette kan ikke angres.",
+      "deactivateAccountError": "Kunne ikke deaktivere kontoen"
+    }
   }
 }

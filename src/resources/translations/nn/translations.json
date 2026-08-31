@@ -232,6 +232,26 @@
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
     "profile": "Profil",
-    "backToSearch": "Tilbake til søk"
+    "backToSearch": "Tilbake til søk",
+    "profilePage": {
+      "changeEmail": "Endre e-post",
+      "newEmail": "Ny e-post",
+      "saveChanges": "Lagre endringar",
+      "changeEmailSuccess": "E-postadressa er oppdatert",
+      "changeEmailError": "Kunne ikkje oppdatere e-postadressa",
+      "emailTaken": "E-postadressa er allereie i bruk",
+      "changePassword": "Endre passord",
+      "currentPassword": "Noverande passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Stadfest nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "changePasswordError": "Kunne ikkje oppdatere passordet",
+      "wrongPassword": "Noverande passord er feil",
+      "passwordMismatch": "Passorda er ikkje like",
+      "deactivateAccount": "Deaktiver konto",
+      "deactivateAccountDescription": "Viss du deaktiverer kontoen din, mistar du tilgangen til tenesta og alle lagra data.",
+      "deactivateAccountConfirm": "Er du sikker på at du vil deaktivere kontoen din? Dette kan ikkje angrast.",
+      "deactivateAccountError": "Kunne ikkje deaktivere kontoen"
+    }
   }
 }

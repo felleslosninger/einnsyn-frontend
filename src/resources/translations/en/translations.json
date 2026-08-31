@@ -247,6 +247,26 @@
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
     "profile": "Profile",
-    "backToSearch": "Back to search"
+    "backToSearch": "Back to search",
+    "profilePage": {
+      "changeEmail": "Change email",
+      "newEmail": "New email",
+      "saveChanges": "Save changes",
+      "changeEmailSuccess": "Email address updated",
+      "changeEmailError": "Could not update email address",
+      "emailTaken": "Email address is already in use",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "changePasswordSuccess": "Password updated",
+      "changePasswordError": "Could not update password",
+      "wrongPassword": "Current password is incorrect",
+      "passwordMismatch": "Passwords do not match",
+      "deactivateAccount": "Deactivate account",
+      "deactivateAccountDescription": "If you deactivate your account, you will lose access to the service and all saved data.",
+      "deactivateAccountConfirm": "Are you sure you want to deactivate your account? This cannot be undone.",
+      "deactivateAccountError": "Could not deactivate account"
+    }
   }
 }

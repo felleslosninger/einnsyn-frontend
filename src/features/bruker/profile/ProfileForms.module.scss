@@ -1,0 +1,30 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-4);
+  padding-block: var(--ds-spacing-8);
+  border-bottom: 1px solid var(--ds-color-border-default);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-4);
+  max-width: 30rem;
+}
+
+.confirmRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-spacing-4);
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--ds-spacing-3);
+  flex-wrap: wrap;
+}

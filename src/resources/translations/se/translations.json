@@ -232,6 +232,26 @@
     "savedMeetings": "Vurkon čoahkkimiid",
     "savedSearches": "Vurkon ohcanat",
     "profile": "Profila",
-    "backToSearch": "Máhccat ohcamii"
+    "backToSearch": "Máhccat ohcamii",
+    "profilePage": {
+      "changeEmail": "Rievdadit e-poasta",
+      "newEmail": "Ođas e-poasta",
+      "saveChanges": "Vurket rievdadusaid",
+      "changeEmailSuccess": "E-poastačujuhus lea ođastuvvon",
+      "changeEmailError": "Ii sáhttán ođastit e-poastačujuhusa",
+      "emailTaken": "E-poastačujuhus lea juo geavahusas",
+      "changePassword": "Rievdadit sátnevuložiid",
+      "currentPassword": "Dálá sátnevuloš",
+      "newPassword": "Ođas sátnevuloš",
+      "confirmNewPassword": "Duođaš ođas sátnevuloš",
+      "changePasswordSuccess": "Sátnevuloš lea ođastuvvon",
+      "changePasswordError": "Ii sáhttán ođastit sátnevuloša",
+      "wrongPassword": "Dálá sátnevuloš ii leat riekta",
+      "passwordMismatch": "Sátnevulošat eai leat seammaláganat",
+      "deactivateAccount": "Deaktivere konto",
+      "deactivateAccountDescription": "Jus deaktiveret kontoain, massát vuoigatvuođa siida- ja buot vurkon dieđuide.",
+      "deactivateAccountConfirm": "Leat go sihkar go deaktiveret kontoain? Dán ii sáhte rievdadit.",
+      "deactivateAccountError": "Ii sáhttán deaktiveret kontoa"
+    }
   }
 }
