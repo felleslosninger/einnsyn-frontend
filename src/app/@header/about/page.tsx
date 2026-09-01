@@ -1,3 +1,3 @@
-export default function OmHeader() {
+export default function AboutHeader() {
   return null;
 }
