@@ -181,8 +181,6 @@ export const getSearchResults = async (
 
   try {
     apiQuery.expand = [
-      // Four levels, since DUMMYENHET grouping nodes are dropped from the
-      // rendered ancestor chain and would otherwise eat into the depth.
       'administrativEnhetObjekt.parent.parent.parent.parent',
       'utvalgObjekt.parent.parent.parent.parent',
       'saksmappe',
