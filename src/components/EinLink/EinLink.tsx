@@ -15,6 +15,13 @@ export interface LinkProps
   className?: string;
   children?: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  /**
+   * Drop the built-in link styling (`einLink`/`ds-link`), keeping only the
+   * Next.js navigation behaviour. Use when the anchor is styled by a wrapping
+   * component instead — e.g. `<EinButton asChild><EinLink unstyled /></EinButton>`,
+   * where the link's underline/colour rules would otherwise fight the button.
+   */
+  unstyled?: boolean;
 }
 
 export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
@@ -26,6 +33,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
       replace = false,
       scroll,
       shallow,
+      unstyled = false,
       ...props
     },
     ref,
@@ -79,7 +87,10 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
         ref={ref}
         href={href}
         onClick={handleClick}
-        className={cn(props.className, styles.einLink, 'ein-link')}
+        className={cn(props.className, 'ein-link', {
+          [styles.einLink]: !unstyled,
+          'ds-link': !unstyled,
+        })}
       />
     );
   },

@@ -176,13 +176,8 @@
   color: var(--ds-color-accent-base-default);
   font-weight: 500;
   text-decoration: underline;
-  text-decoration-thickness: 0.0625em;
   text-underline-offset: 0.27em;
   white-space: nowrap;
-}
-
-.mobileSummaryButton:hover .mobileSummaryChange {
-  text-decoration-thickness: 0.125em;
 }
 
 // 
