@@ -1,9 +1,29 @@
 @use '../../styles/mediaQueries.scss' as mq;
+@use '../../styles/headerRow.scss' as headerRow;
 
+// Type comes from the header's second row and the vertical box from the mixin
+// the search tabs use, so the trail this replaces them with is the same size and
+// leaves the row exactly as tall. Do not set font-size, line-height or block
+// margins here.
 .breadcrumbs {
-  line-height: var(--ds-size-6);
-  margin-top: var(--ds-size-3);
-  font-size: var(--ds-font-size-3, 0.95rem);
+  margin-block: 0;
+}
+
+.breadcrumbs li {
+  @include headerRow.header-row-item;
+}
+
+// Match the tabs' link treatment: neutral rather than the accent-derived
+// `--ds-color-text-subtle` that `.ds-link` defaults to, and undecorated until
+// hover.
+.breadcrumbs a {
+  color: var(--ds-color-neutral-text-subtle);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+    text-decoration: underline;
+  }
 }
 
 .ellipsis {

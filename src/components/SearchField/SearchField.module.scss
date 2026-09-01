@@ -36,6 +36,55 @@
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
+// A field showing a remembered search rather than the one that produced the
+// current page. It reuses the existing de-emphasis: the pill rests on the same
+// tinted surface unhovered segments already sit on, with no segment lifted, and
+// the query text is dimmed. Hovering or focusing a segment lifts and un-dims it
+// exactly as on a live field — nothing here disables anything.
+.dormant {
+  --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
+  --styled-input-color: var(--ds-color-neutral-text-subtle);
+  // Lift the icon slot over the textarea so the back control is clickable;
+  // without this the textarea covers it and a click just focuses the field.
+  --styled-input-icon-z-index: 3;
+
+  .searchInputContainer:hover,
+  .searchInputContainer:focus-within {
+    --styled-input-color: var(--ds-color-neutral-text-default);
+  }
+}
+
+.backToSearchLink {
+  // `.iconContainer` in StyledInput disables pointer events for the decorative
+  // icon; the back control needs them back.
+  pointer-events: auto;
+  position: absolute;
+  // Exactly the icon container's box — deliberately not larger. StyledInput
+  // sizes its icon with `.iconContainer svg { width: 100% }`, which has the same
+  // specificity as anything this module could write for the same element, so
+  // the winner would come down to bundle order. Matching the box instead means
+  // that one rule sizes both icons and the arrow cannot end up wider than the
+  // magnifying glass it replaces.
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ds-color-neutral-text-subtle);
+  transition: color 0.2s fx.$easeOut;
+
+  // The tap target is widened here rather than on the box above, so it grows
+  // without taking the glyph with it.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--ds-size-2) * -1);
+  }
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
 .pillRow:not(.hasActiveContainer):has(.searchInputContainer:hover) {
   --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);

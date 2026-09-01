@@ -108,6 +108,8 @@
     "searchPath": "søk",
     "saksmappePath": "sak",
     "moetemappePath": "moete",
+    "aboutPath": "om",
+    "privacyPath": "personvern",
     "calendarPath": "kalender",
     "statisticsPath": "statistikk"
   },
@@ -185,6 +187,7 @@
     "collapseAttachments": "Skjul vedlegg",
     "notPublished": "Ikke publisert",
     "orderAccess": "Bestill innsyn",
+    "downloadDocument": "Last ned dokument",
     "recordType": "Type",
     "totalCount": "$1 totalt",
     "previous": "Forrige journalpost",

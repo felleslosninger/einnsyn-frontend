@@ -1,4 +1,5 @@
 @use './mediaQueries.scss' as mq;
+@use './headerRow.scss' as headerRow;
 
 .header-tabs {
   position: relative;
@@ -22,13 +23,15 @@
 .header-tab,
 .header-tab.ein-link,
 .header-tab.ein-button {
+  @include headerRow.header-row-item;
+
   display: inline-block;
-  padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-3);
+  padding-inline: var(--ds-size-4);
   margin: 0 var(--ds-size-2);
   color: var(--ds-color-neutral-text-subtle);
   text-decoration: none;
-  border-bottom: 3px solid transparent;
-  line-height: var(--ds-line-height-sm);
+  // Type is inherited from the header's second row, so a tab and the breadcrumb
+  // that replaces it share one line box. Don't set font-size or line-height.
   white-space: nowrap;
 
   &.active {

@@ -108,6 +108,8 @@
     "searchPath": "search",
     "saksmappePath": "case",
     "moetemappePath": "meeting",
+    "aboutPath": "about",
+    "privacyPath": "privacy",
     "calendarPath": "calendar",
     "statisticsPath": "statistics"
   },
@@ -185,6 +187,7 @@
     "collapseAttachments": "Hide attachments",
     "notPublished": "Not published",
     "orderAccess": "Request access",
+    "downloadDocument": "Download document",
     "recordType": "Type",
     "totalCount": "$1 total",
     "previous": "Previous record",

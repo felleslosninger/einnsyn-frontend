@@ -19,46 +19,82 @@ const segmentVariants = (segment: string) => [
 ];
 
 const distinctSegments = (
-  select: (translations: (typeof allTranslations)[number]) => string,
-) => [...new Set(allTranslations.flatMap((t) => segmentVariants(select(t))))];
+  select: (
+    translations: (typeof allTranslations)[number],
+  ) => string | undefined,
+) => [
+  ...new Set(
+    allTranslations.flatMap((t) => {
+      const segment = select(t);
+      // A section may not be translated into every language yet; those fall
+      // back to its canonical segment, which needs no rewrite.
+      return segment ? segmentVariants(segment) : [];
+    }),
+  ),
+];
 
-// `routing.searchPath` is translated (`søk`, `oza`, …) but there is only one
-// search route: `app/search`. Without a rewrite, a localized path falls through
-// to the `[enhet]` catch-all, so the search gets scoped to a non-existent enhet
-// named "søk" and returns nothing.
-const searchPathRewrites = distinctSegments((t) => t.routing.searchPath)
-  .filter((searchPath) => searchPath !== "search")
-  .map((searchPath) => ({
-    source: `/${searchPath}`,
-    destination: "/search",
-  }));
+// Translation files legitimately differ in which routing keys they carry — a
+// section may not be translated into every language yet — so they are looked up
+// by name rather than by property access, which would fail to typecheck against
+// the union of all four files.
+const routingSegment =
+  (key: string) =>
+  (
+    translations: (typeof allTranslations)[number],
+  ): string | undefined =>
+    (translations.routing as Record<string, string | undefined>)[key];
+
+// A single-segment route whose segment is translated (`søk`, `oza`, …) while
+// there is only one real route — `app/<canonical>`, named after the section in
+// src/lib/routes/sections.ts. Without a rewrite a localized path falls through
+// to the `[enhet]` catch-all, so `/søk` would scope the search to a
+// non-existent enhet named "søk" and return nothing.
+//
+// The canonical segment is excluded because it is the destination.
+const sectionRewrites = (
+  canonical: string,
+  select: (
+    translations: (typeof allTranslations)[number],
+  ) => string | undefined,
+) =>
+  distinctSegments(select)
+    .filter((segment) => segment !== canonical)
+    .map((segment) => ({
+      source: `/${segment}`,
+      destination: `/${canonical}`,
+    }));
 
 // The saksmappe/journalpost routes need the same treatment, but both of their
-// segments are translated: `routing.saksmappePath` (`sak`, `ášši`, …) and
-// `journalpost.pathName` (`record`, `journalapoasta`, …), while the only real
-// routes are `app/case/[saksmappe]` and
-// `app/case/[saksmappe]/journalpost/[journalpost]`. The two segments are
+// segments are translated: `routing.saksmappePath` (`sak`, `case`, `ášši`, …)
+// and `journalpost.pathName` (`record`, `journalapoasta`, …), while the only
+// real routes are `app/saksmappe/[saksmappe]` and
+// `app/saksmappe/[saksmappe]/journalpost/[journalpost]`. The two segments are
 // combined independently rather than per locale, so a path that mixes locales
 // still resolves instead of 404-ing.
-const casePaths = distinctSegments((t) => t.routing.saksmappePath);
+//
+// Note `case` is rewritten like any other translation now that the route folder
+// is named after the section rather than after its English spelling.
+const saksmappePaths = distinctSegments(routingSegment("saksmappePath"));
 const recordPaths = distinctSegments((t) => t.journalpost.pathName);
 
-const saksmappeRewrites = casePaths
-  .filter((casePath) => casePath !== "case")
-  .map((casePath) => ({
-    source: `/${casePath}/:saksmappe`,
-    destination: "/case/:saksmappe",
+const saksmappeRewrites = saksmappePaths
+  .filter((saksmappePath) => saksmappePath !== "saksmappe")
+  .map((saksmappePath) => ({
+    source: `/${saksmappePath}/:saksmappe`,
+    destination: "/saksmappe/:saksmappe",
   }));
 
-const journalpostRewrites = casePaths
-  .flatMap((casePath) => recordPaths.map((recordPath) => ({ casePath, recordPath })))
-  .filter(
-    ({ casePath, recordPath }) =>
-      casePath !== "case" || recordPath !== "journalpost",
+const journalpostRewrites = saksmappePaths
+  .flatMap((saksmappePath) =>
+    recordPaths.map((recordPath) => ({ saksmappePath, recordPath })),
   )
-  .map(({ casePath, recordPath }) => ({
-    source: `/${casePath}/:saksmappe/${recordPath}/:journalpost`,
-    destination: "/case/:saksmappe/journalpost/:journalpost",
+  .filter(
+    ({ saksmappePath, recordPath }) =>
+      saksmappePath !== "saksmappe" || recordPath !== "journalpost",
+  )
+  .map(({ saksmappePath, recordPath }) => ({
+    source: `/${saksmappePath}/:saksmappe/${recordPath}/:journalpost`,
+    destination: "/saksmappe/:saksmappe/journalpost/:journalpost",
   }));
 
 const nextConfig: NextConfig = {
@@ -68,7 +104,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async rewrites() {
     return [
-      ...searchPathRewrites,
+      ...sectionRewrites("search", routingSegment("searchPath")),
+      // `/om` and `/personvern` are live URLs; the route folders are now named
+      // after their sections, so these keep them resolving.
+      ...sectionRewrites("about", routingSegment("aboutPath")),
+      ...sectionRewrites("privacy", routingSegment("privacyPath")),
       ...saksmappeRewrites,
       ...journalpostRewrites,
     ];

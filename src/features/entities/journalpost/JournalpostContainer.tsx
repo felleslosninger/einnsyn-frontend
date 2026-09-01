@@ -18,10 +18,8 @@ import styles from './JournalpostContainer.module.scss';
 
 export default function JournalpostContainer({
   journalpost,
-  documentsPending = false,
 }: {
   journalpost: Journalpost | null;
-  documentsPending?: boolean;
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
@@ -37,6 +35,11 @@ export default function JournalpostContainer({
 
   const dokumentbeskrivelser = (journalpost.dokumentbeskrivelse ?? []).filter(
     (db): db is Dokumentbeskrivelse => typeof db !== 'string',
+  );
+  // Unexpanded id strings mean the detail expand hasn't resolved yet; skeleton
+  // the documents until it lands.
+  const documentsPending = (journalpost.dokumentbeskrivelse ?? []).some(
+    (db) => typeof db === 'string',
   );
   const mainDocument = dokumentbeskrivelser.find((db) =>
     db.tilknyttetRegistreringSom.endsWith('hoveddokument'),
@@ -76,11 +79,9 @@ export default function JournalpostContainer({
   const typeLabel = t(`journalpost.type.${journalpost.journalposttype}`);
 
   return (
+    // No title here: this renders inline underneath the list row, which
+    // already shows the journalpost's title as its own (link) heading.
     <article className={styles.content}>
-      <div className={styles.heading}>
-        <h2 className={styles.title}>{journalpost.offentligTittel}</h2>
-      </div>
-
       <dl className={styles.fields}>
         <Field label={t('journalpost.recordType')}>
           <span className={styles.typeLabel}>{typeLabel}</span>

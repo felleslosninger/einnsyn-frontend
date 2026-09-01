@@ -22,13 +22,16 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Expose the request pathname to server components. A layout can't read its
-  // child segments' params (e.g. the active `journalpost`), so
-  // `case/[saksmappe]/layout.tsx` reads this header to center the journalpost
-  // window on a deep link. Built from `request.headers` so the cookie updates
-  // applied above are carried along.
+  // Expose the request URL to server components. A layout can't read its child
+  // segments' params (e.g. the active `journalpost`), so
+  // `case/[saksmappe]/layout.tsx` reads `x-pathname` to center the journalpost
+  // window on a deep link. Layouts also never receive `searchParams` at all,
+  // which is why `x-search` exists: `@header/layout.tsx` owns the search field
+  // and needs the `enhet` filter to seed its enhet cache. Built from
+  // `request.headers` so the cookie updates applied above are carried along.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', request.nextUrl.pathname);
+  requestHeaders.set('x-search', request.nextUrl.search);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },

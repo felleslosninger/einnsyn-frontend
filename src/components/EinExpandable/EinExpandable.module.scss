@@ -1,0 +1,35 @@
+// The end height is measured in JS and published as `--expandable-height`,
+// so `height` animates between 0 and a concrete value. The duration comes
+// from `EXPAND_DURATION_MS` via `--expandable-duration`, so the component and
+// any scroll glide share one source. At rest no pose pins the height and the
+// content sizes itself.
+
+@use "../../styles/effects" as fx;
+
+.expandable {
+  overflow: hidden;
+
+  // Collapsed pose: the initial frame of an enter, and the target frame of an
+  // exit. The init-enter class is present alone during the prep frame and
+  // persists until `done`, so negate the enter class to match only that frame.
+  &:global(.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
+  &:global(.ein-transition-exit-transition) {
+    height: 0;
+    opacity: 0;
+  }
+
+  // Expanded pose: the enter target, and the exit start (`height` can't
+  // animate from `auto`).
+  &:global(.ein-transition-enter-transition),
+  &:global(.ein-transition-init-exit-transition):not(:global(.ein-transition-exit-transition)) {
+    height: var(--expandable-height);
+  }
+
+  // Animate during the enter and exit transitions.
+  &:global(.ein-transition-enter-transition),
+  &:global(.ein-transition-exit-transition) {
+    transition:
+      height var(--expandable-duration) fx.$easeOut,
+      opacity var(--expandable-duration) fx.$easeOut;
+  }
+}

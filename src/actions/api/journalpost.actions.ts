@@ -4,7 +4,11 @@ import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
 import { cachedApiClient } from './getApiClient';
 
-const LIST_EXPAND = ['skjerming', 'korrespondansepart'];
+const LIST_EXPAND = [
+  'skjerming',
+  'korrespondansepart',
+  'dokumentbeskrivelse.dokumentobjekt',
+];
 const DETAIL_EXPAND = [
   'administrativEnhetObjekt',
   'saksmappe',

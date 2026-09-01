@@ -1,9 +1,5 @@
-import SearchHeaderPage, { type HeaderSearchParams } from '../SearchHeaderPage';
+import SearchHeaderPage from '../SearchHeaderPage';
 
-export default async function SearchHeader({
-  searchParams,
-}: Readonly<{
-  searchParams: HeaderSearchParams;
-}>) {
-  return <SearchHeaderPage searchParams={searchParams} />;
+export default function SearchHeader() {
+  return <SearchHeaderPage />;
 }

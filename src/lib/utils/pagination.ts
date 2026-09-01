@@ -4,6 +4,7 @@ import {
   fetchPreviousPageAction,
 } from '~/actions/api/pagination.actions';
 
+// Remove duplicates from a list of items based on their `id` property.
 function dedupeById<T extends Base>(items: T[]): T[] {
   const map = new Map<string, T>();
   for (const item of items) {
@@ -12,23 +13,8 @@ function dedupeById<T extends Base>(items: T[]): T[] {
   return Array.from(map.values());
 }
 
-// Find the last index matching a predicate (Array.prototype.findLastIndex is
-// not guaranteed by the TS lib target).
-function findLastIndex<T>(items: T[], pred: (item: T) => boolean): number {
-  for (let i = items.length - 1; i >= 0; i--) {
-    if (pred(items[i])) return i;
-  }
-  return -1;
-}
-
 // Reconcile a freshly fetched server window with the list the client has
-// already accumulated (via pagination or preload). The server re-hands a window
-// on navigation / revalidation; replacing the state outright would discard
-// everything the client loaded. Both lists are contiguous slices of the same
-// sorted result set, so when they overlap we keep all loaded items and only
-// graft on what the new window adds above or below (carrying the cursor from
-// whichever side was extended). When they're disjoint — the active item is
-// outside the loaded range — we adopt the fresh window.
+// already accumulated (via pagination or preload).
 export function mergeWindow<T extends Base>(
   current: PaginatedList<T>,
   incoming: PaginatedList<T>,
@@ -40,7 +26,7 @@ export function mergeWindow<T extends Base>(
   if (firstOverlap === -1) {
     return incoming;
   }
-  const lastOverlap = findLastIndex(incoming.items, (item) =>
+  const lastOverlap = incoming.items.findLastIndex((item) =>
     currentIds.has(item.id),
   );
   const above = incoming.items.slice(0, firstOverlap);
@@ -52,34 +38,29 @@ export function mergeWindow<T extends Base>(
   };
 }
 
-// Client-side helper function for fetching next page with optional merging
+// Client-side helper for fetching next page, merging it with the current
+// page, and returning the result.
 export async function fetchNextPage<T extends Base>(
   currentPage: PaginatedList<T>,
-  keepCurrentItems = true,
 ): Promise<PaginatedList<T>> {
   if (!currentPage.next) {
     return currentPage;
   }
 
   const nextPage = await fetchNextPageAction<T>(currentPage.next);
-
   if (!nextPage) {
     return currentPage;
   }
 
-  if (!keepCurrentItems) {
-    return nextPage;
-  }
-
   return {
-    ...nextPage,
-    previous: currentPage.previous,
     items: dedupeById([...currentPage.items, ...nextPage.items]),
+    previous: currentPage.previous,
+    next: nextPage.next,
   };
 }
 
-// Client-side helper for extending a windowed list backwards by prepending the
-// previous page's items.
+// Client-side helper for fetching previous page, merging it with the current
+// page, and returning the result.
 export async function fetchPreviousPage<T extends Base>(
   currentPage: PaginatedList<T>,
 ): Promise<PaginatedList<T>> {
@@ -88,14 +69,13 @@ export async function fetchPreviousPage<T extends Base>(
   }
 
   const previousPage = await fetchPreviousPageAction<T>(currentPage.previous);
-
   if (!previousPage) {
     return currentPage;
   }
 
   return {
-    ...previousPage,
-    next: currentPage.next,
     items: dedupeById([...previousPage.items, ...currentPage.items]),
+    previous: previousPage.previous,
+    next: currentPage.next,
   };
 }

@@ -11,12 +11,14 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { showsSearchResults } from '~/lib/routes/sections';
 import { buildSearchHref } from '~/lib/utils/searchHref';
 import {
   type SearchToken,
   searchQueryToTokens,
   tokensToSearchQuery,
 } from '~/lib/utils/searchStringTokenizer';
+import { parseSearchOrigin, useSearchOrigin } from './useSearchOrigin';
 
 interface SearchFieldContextType {
   searchTokens: SearchToken[];
@@ -29,6 +31,16 @@ interface SearchFieldContextType {
   ) => void;
   setSearchQuery: (query: string, push?: boolean) => void;
   pushSearchQuery: (query: string) => void;
+  /**
+   * True when the field is showing a remembered search rather than the one that
+   * produced the current page — i.e. on a detail page. The field stays usable;
+   * this only drives the dimmed styling and the back-arrow.
+   */
+  dormant: boolean;
+  /** URL of the remembered search, or `undefined` if there was none. */
+  searchOrigin: string | undefined;
+  /** Where a submitted query goes: the current search, or the remembered one. */
+  searchTarget: { pathname: string; searchParams: URLSearchParams };
 }
 
 const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
@@ -41,13 +53,59 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     () => optimisticSearchParams.get('q') ?? '',
   );
 
+  // Stamped against the committed route, so it lands on the history entry the
+  // browser has actually moved to. The dormant/live split below uses the
+  // optimistic route instead, so the field restyles as navigation starts.
+  const searchOrigin = useSearchOrigin(
+    navigation.pathname,
+    navigation.searchParamsString,
+  );
+  const dormant = !showsSearchResults(optimisticPathname);
+  const parsedSearchOrigin = useMemo(
+    () => parseSearchOrigin(searchOrigin),
+    [searchOrigin],
+  );
+
   const searchTokens = useMemo(
     () => searchQueryToTokens(searchQuery),
     [searchQuery],
   );
+
+  // Which URL the field's contents are a view of. On a search route that is the
+  // page itself; on a detail page it is the remembered search, which is what
+  // keeps the query on screen across `search → saksmappe → journalpost` and
+  // restores it after a reload. `undefined` means there is nothing
+  // authoritative to show — a deep-linked detail page — so whatever has been
+  // typed is left alone.
+  const authoritativeQuery = useMemo(() => {
+    if (!dormant) {
+      return optimisticSearchParams.get('q') ?? '';
+    }
+    return parsedSearchOrigin?.searchParams.get('q') ?? undefined;
+  }, [dormant, optimisticSearchParams, parsedSearchOrigin]);
+
   useEffect(() => {
-    _setSearchQuery(optimisticSearchParams.get('q') ?? '');
-  }, [optimisticSearchParams]);
+    if (authoritativeQuery === undefined) return;
+    _setSearchQuery(authoritativeQuery);
+  }, [authoritativeQuery]);
+
+  // Submitting from a detail page must go back to the search, not to
+  // `/case/abc?q=…`, and it has to carry the remembered filters, enhet and sort.
+  const searchTarget = useMemo(() => {
+    if (!dormant) {
+      return {
+        // The landing page has no results of its own; searching leaves it.
+        pathname: optimisticPathname === '/' ? '/search' : optimisticPathname,
+        searchParams: optimisticSearchParams,
+      };
+    }
+    return (
+      parsedSearchOrigin ?? {
+        pathname: '/search',
+        searchParams: new URLSearchParams(),
+      }
+    );
+  }, [dormant, optimisticPathname, optimisticSearchParams, parsedSearchOrigin]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
   useEffect(() => {
@@ -60,17 +118,15 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       // selector uses `routing.searchPath` here, which makes the URL depend on
       // the viewer's session language; localized spellings already resolve via
       // the rewrites in next.config.ts.
-      const pathname =
-        optimisticPathname === '/' ? '/search' : optimisticPathname;
       navigation.push(
         buildSearchHref({
-          pathname,
-          searchParams: optimisticSearchParams,
+          pathname: searchTarget.pathname,
+          searchParams: searchTarget.searchParams,
           updates: { q: queryToPush },
         }),
       );
     },
-    [navigation, optimisticPathname, optimisticSearchParams],
+    [navigation, searchTarget],
   );
 
   const setSearchQuery = useCallback(
@@ -129,6 +185,9 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
+      dormant,
+      searchOrigin,
+      searchTarget,
     }),
     [
       searchTokens,
@@ -137,6 +196,9 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
+      dormant,
+      searchOrigin,
+      searchTarget,
     ],
   );
 

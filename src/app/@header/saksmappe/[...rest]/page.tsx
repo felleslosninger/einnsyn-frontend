@@ -1,9 +1,7 @@
+import EntityHeaderBar from '~/features/entities/common/EntityHeaderBar';
 import SaksmappeBreadcrumb from '~/features/entities/saksmappe/SaksmappeBreadcrumb';
-import BackToSearchHeader from '~/features/header/BackToSearchHeader';
 
-// Header slot for entity pages under /case/* (saksmappe and journalpost).
-// Instead of the search field, these routes show the saksmappe breadcrumb
-// trail in the header. The first path segment is the saksmappe id.
+// Header slot for entity pages under /saksmappe/* (saksmappe and journalpost).
 export default async function CaseHeader({
   params,
 }: Readonly<{
@@ -13,9 +11,8 @@ export default async function CaseHeader({
   const saksmappeId = rest[0];
 
   return (
-    <>
-      <BackToSearchHeader />
+    <EntityHeaderBar followLabelKey="saksmappe.follow">
       <SaksmappeBreadcrumb saksmappeId={saksmappeId} />
-    </>
+    </EntityHeaderBar>
   );
 }

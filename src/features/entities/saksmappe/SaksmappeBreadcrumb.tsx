@@ -24,7 +24,7 @@ export default async function SaksmappeBreadcrumb({
   const items: BreadcrumbItem[] = isEnhet(leafEnhet)
     ? [...getAncestors(leafEnhet), leafEnhet].map((enhet) => ({
         label: getName(enhet, languageCode),
-        href: `/${getEnhetHref(enhet)}`,
+        href: getEnhetHref(enhet),
       }))
     : [];
 

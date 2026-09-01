@@ -1,7 +1,12 @@
+import { isEnhet } from '@digdir/einnsyn-sdk';
+import { FolderFileIcon } from '@navikt/aksel-icons';
 import { headers } from 'next/headers';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
 import { getSaksmappe } from '~/actions/api/saksmappe.actions';
+import EnhetCard from '~/features/entities/common/EnhetCard';
+import EntityKindRow from '~/features/entities/common/EntityKindRow';
+import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
 
@@ -35,23 +40,30 @@ export default async function SaksmappeLayout({
           sortOrder: 'desc',
           id: '',
           saksmappeId: '',
-          expand: ['skjerming', 'korrespondansepart'],
+          expand: [
+            'skjerming',
+            'korrespondansepart',
+            'dokumentbeskrivelse.dokumentobjekt',
+          ],
         }),
   ]);
 
+  const administrativEnhet = saksmappeEntity.administrativEnhetObjekt;
+  const enhet = isEnhet(administrativEnhet) ? administrativEnhet : undefined;
+
   return (
-    <div className="container-wrapper">
-      <div className="container-pre collapsible" />
-      <div className="container">
-        <SaksmappeHeader saksmappe={saksmappeEntity} />
-        <JournalpostList
-          journalposts={journalposts}
-          saksmappe={saksmappeEntity}
-        >
-          {children}
-        </JournalpostList>
-      </div>
-      <div className="container-post" />
-    </div>
+    <EntityPageLayout
+      kind={
+        <EntityKindRow icon={<FolderFileIcon />} labelKey="saksmappe.label" />
+      }
+      header={<SaksmappeHeader saksmappe={saksmappeEntity} />}
+      card={
+        enhet && <EnhetCard enhet={enhet} headingKey="saksmappe.publishedBy" />
+      }
+    >
+      <JournalpostList journalposts={journalposts} saksmappe={saksmappeEntity}>
+        {children}
+      </JournalpostList>
+    </EntityPageLayout>
   );
 }

@@ -1,27 +1,11 @@
 @use "../../../styles/mediaQueries" as mq;
 
 .content {
+  // No padding of its own: the detail is inlined into the journalpost list,
+  // which indents it to the list's body column and spaces it vertically.
   display: flex;
   flex-direction: column;
   gap: var(--ein-vertical-spacing);
-  padding: 0 var(--ein-vertical-spacing) var(--ein-half-horizontal-spacing);
-}
-
-.heading {
-  display: flex;
-  flex-direction: column;
-
-}
-
-.label {
-  font-size: var(--ds-font-size-3, 0.875rem);
-  color: var(--ds-color-neutral-text-subtle, inherit);
-}
-
-.title {
-  margin: 0;
-  font-size: var(--ds-font-size-7, 1.5rem);
-  line-height: 1.15;
 }
 
 .fields {
