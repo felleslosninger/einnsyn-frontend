@@ -1,8 +1,7 @@
 'use client';
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
-import { cloneElement, useEffect, useState } from 'react';
-import { useOptimisticPathname } from '~/components/NavigationProvider/NavigationProvider';
+import { cloneElement, useState } from 'react';
 import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
@@ -201,10 +200,6 @@ export function Dropdown({
 }) {
   const [open, setOpen] = useState(false);
   const toggleDropdown = () => setOpen(!open);
-  const pathname = useOptimisticPathname();
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   const buttonWithClickHandler = cloneElement(button, {
     onClick: toggleDropdown,
@@ -212,8 +207,18 @@ export function Dropdown({
     'aria-haspopup': true,
   });
 
+  const closeOnItemClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.ein-popup') && target.closest('a, button')) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className={cn(styles.dropdown, 'header-dropdown')}>
+    <div
+      className={cn(styles.dropdown, 'header-dropdown')}
+      onClickCapture={closeOnItemClick}
+    >
       {buttonWithClickHandler}
       <EinPopup open={open} setOpen={setOpen}>
         {children}
