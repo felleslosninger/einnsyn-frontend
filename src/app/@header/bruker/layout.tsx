@@ -4,7 +4,7 @@ import BrukerHeader from '~/features/bruker/BrukerHeader';
 
 export default async function BrukerHeaderLayout() {
   const authInfo = await cachedAuthInfo();
-  if (!authInfo || authInfo.type !== 'Bruker') {
+  if (authInfo?.type !== 'Bruker') {
     notFound();
   }
 

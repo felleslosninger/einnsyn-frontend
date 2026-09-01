@@ -41,8 +41,6 @@ export default function ProfileButton() {
 type DropdownButtonProps = {
   authInfo: ExtendedAuthInfo;
   onClick?: () => void;
-  'aria-expanded'?: boolean;
-  'aria-haspopup'?: boolean;
 };
 
 type DropdownContentProps = {
@@ -93,25 +91,29 @@ export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
         )}
       >
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/access-requests">
+          <EinLink unstyled href="/bruker/access-requests">
             {t('bruker.accessRequests')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-cases">{t('bruker.savedCases')}</EinLink>
+          <EinLink unstyled href="/bruker/saved-cases">
+            {t('bruker.savedCases')}
+          </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-meetings">
+          <EinLink unstyled href="/bruker/saved-meetings">
             {t('bruker.savedMeetings')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-searches">
+          <EinLink unstyled href="/bruker/saved-searches">
             {t('bruker.savedSearches')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/profile">{t('bruker.profile')}</EinLink>
+          <EinLink unstyled href="/bruker/profile">
+            {t('bruker.profile')}
+          </EinLink>
         </EinButton>
       </div>
       <div
@@ -200,8 +202,6 @@ export function Dropdown({
 
   const buttonWithClickHandler = cloneElement(button, {
     onClick: toggleDropdown,
-    'aria-expanded': open,
-    'aria-haspopup': true,
   });
 
   return (

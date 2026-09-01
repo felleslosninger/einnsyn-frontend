@@ -7,7 +7,7 @@ export default async function BrukerLayout({
   children: React.ReactNode;
 }) {
   const authInfo = await cachedAuthInfo();
-  if (!authInfo || authInfo.type !== 'Bruker') {
+  if (authInfo?.type !== 'Bruker') {
     notFound();
   }
 
