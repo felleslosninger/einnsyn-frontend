@@ -12,7 +12,7 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { deleteApiKeyAction } from '../adminActions';
+import { deleteApiKeyAction } from '../admin.actions';
 import tableStyles from './AddApiKeyModal.module.scss';
 import styles from './ApiKeyItem.module.scss';
 

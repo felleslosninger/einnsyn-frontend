@@ -181,8 +181,8 @@ export const getSearchResults = async (
 
   try {
     apiQuery.expand = [
-      'administrativEnhetObjekt.parent.parent',
-      'utvalgObjekt.parent.parent',
+      'administrativEnhetObjekt.parent.parent.parent.parent',
+      'utvalgObjekt.parent.parent.parent.parent',
       'saksmappe',
       'dokumentbeskrivelse.dokumentobjekt',
       'korrespondansepart.administrativEnhetObjekt',
