@@ -74,7 +74,7 @@ export const getSearchResults = async (
   // Combine Enhet filter from path and searchParams
   const enhet: string[] = [];
   if (enhetSlug) {
-    enhet.push(...(enhetSlug.split('-') ?? ''));
+    enhet.push(enhetSlug);
   }
   if (searchParams.has('enhet')) {
     enhet.push(
