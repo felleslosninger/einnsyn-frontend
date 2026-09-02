@@ -49,13 +49,20 @@ type DropdownContentProps = {
   authInfo: ExtendedAuthInfo;
 };
 
-export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
+export function BrukerMenuButton({
+  authInfo,
+  onClick,
+  'aria-expanded': ariaExpanded,
+  'aria-haspopup': ariaHaspopup,
+}: DropdownButtonProps) {
   const t = useTranslation();
   const { email } = authInfo;
 
   return (
     <EinButton
       onClick={onClick}
+      aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHaspopup}
       variant="tertiary"
       data-color="neutral"
       aria-label={t('site.loggedInAs', email)}
@@ -69,18 +76,8 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div
-      className={cn(
-        styles['bruker-dropdown-content'],
-        'header-dropdown-content',
-      )}
-    >
-      <div
-        className={cn(
-          styles['bruker-dropdown-content-section'],
-          'header-dropdown-content-section',
-        )}
-      >
+    <div className="header-dropdown-content">
+      <div className="header-dropdown-content-section">
         <span data-size="sm">{t('site.loggedInAs')}</span>
         <br />
         <strong>{authInfo.email}</strong>
@@ -93,45 +90,51 @@ export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
         )}
       >
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/access-requests">
+          <EinLink unstyled href="/bruker/access-requests">
             {t('bruker.accessRequests')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-cases">{t('bruker.savedCases')}</EinLink>
+          <EinLink unstyled href="/bruker/saved-cases">
+            {t('bruker.savedCases')}
+          </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-meetings">
+          <EinLink unstyled href="/bruker/saved-meetings">
             {t('bruker.savedMeetings')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/saved-searches">
+          <EinLink unstyled href="/bruker/saved-searches">
             {t('bruker.savedSearches')}
           </EinLink>
         </EinButton>
         <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink href="/bruker/profile">{t('bruker.profile')}</EinLink>
+          <EinLink unstyled href="/bruker/profile">
+            {t('bruker.profile')}
+          </EinLink>
         </EinButton>
       </div>
-      <div
-        className={cn(
-          styles['enhet-dropdown-content-section'],
-          'header-dropdown-content-section',
-        )}
-      >
+      <div className="header-dropdown-content-section">
         <LogoutButton />
       </div>
     </div>
   );
 }
 
-export function EnhetMenuButton({ authInfo, onClick }: DropdownButtonProps) {
+export function EnhetMenuButton({
+  authInfo,
+  onClick,
+  'aria-expanded': ariaExpanded,
+  'aria-haspopup': ariaHaspopup,
+}: DropdownButtonProps) {
   const t = useTranslation();
   const orgnummer = authInfo.orgnummer;
   return (
     <EinButton
       onClick={onClick}
+      aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHaspopup}
       variant="secondary"
       data-color="neutral"
       aria-label={t('site.loggedInAs', orgnummer)}
@@ -204,8 +207,18 @@ export function Dropdown({
     'aria-haspopup': true,
   });
 
+  const closeOnItemClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.ein-popup') && target.closest('a, button')) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className={cn(styles.dropdown, 'header-dropdown')}>
+    <div
+      className={cn(styles.dropdown, 'header-dropdown')}
+      onClickCapture={closeOnItemClick}
+    >
       {buttonWithClickHandler}
       <EinPopup open={open} setOpen={setOpen}>
         {children}

@@ -404,6 +404,16 @@ export function EinTransition<T extends unknown[] = [number]>(
             await events.onClean?.(newElement, toDeps, fromDeps);
           }
 
+          // `onDone`/`onClean` await, and a dependency change during that window
+          // starts a fresh transition — `done` is not one of the steps the
+          // layout effect refuses to interrupt. That transition owns the state
+          // machine now, so resetting below would strand it: its step is
+          // overwritten with 'idle' and its id with null, after which its own
+          // `checkStale` abandons it. What is left on screen is its snapshot,
+          // still carrying the step class it got to, with the live element
+          // hidden behind it and nothing scheduled to reveal it.
+          if (checkStale()) return;
+
           // Reset state
           setTransitionStep('idle');
           transitionIdRef.current = null;
