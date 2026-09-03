@@ -1,4 +1,4 @@
-import { HeaderShell } from '~/features/header';
+import { Header } from '~/features/header';
 import {
   getRequestPathname,
   getRequestSearchParams,
@@ -18,11 +18,11 @@ export default async function HeaderLayout({
   ]);
 
   return (
-    <HeaderShell
+    <Header
       pathEnhet={getPathEnhet(pathname)}
       searchParamsEnhet={searchParams.get('enhet') ?? undefined}
     >
       {children}
-    </HeaderShell>
+    </Header>
   );
 }

@@ -1,9 +1,10 @@
-import { SaksmappeFrame } from '~/features/entities';
+import { Saksmappe } from '~/features/entities';
 import { getRequestPathname } from '~/lib/routes/requestPath';
 import { getJournalpostFromPath } from '~/lib/routes/sections';
 
-// The saksmappe frame is a layout rather than a page so that JournalpostList
-// stays a single mounted instance across the index <-> detail navigation —
+// The saksmappe page is rendered from a layout rather than a page so that
+// JournalpostList stays a single mounted instance across the index <-> detail
+// navigation —
 // that's what lets the detail pane's open/close transition run to completion
 // instead of being canceled by a remount.
 //
@@ -24,11 +25,11 @@ export default async function SaksmappeLayout({
   ]);
 
   return (
-    <SaksmappeFrame
+    <Saksmappe
       saksmappeId={saksmappe}
       activeJournalpost={getJournalpostFromPath(pathname)}
     >
       {children}
-    </SaksmappeFrame>
+    </Saksmappe>
   );
 }

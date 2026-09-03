@@ -1,1 +1,1 @@
-export { default as HeaderShell } from './HeaderShell';
+export { default as Header } from './Header';

@@ -10,14 +10,14 @@ import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
 
 /**
- * A saksmappe in the shared entity frame: its header and publisher card, with
- * the journalpost list below them and the open journalpost (`children`)
- * rendered inside the list.
+ * A saksmappe page: its header and publisher card in the shared entity
+ * layout, with the journalpost list below them and the open journalpost
+ * (`children`) rendered inside the list.
  *
  * `activeJournalpost` centers the list's first window on a deep-linked
  * journalpost; without one the window starts at the newest entry.
  */
-export default async function SaksmappeFrame({
+export default async function Saksmappe({
   saksmappeId,
   activeJournalpost,
   children,
