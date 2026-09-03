@@ -1,3 +1,3 @@
-export default function PersonvernHeader() {
+export default function PrivacyHeaderSlot() {
   return null;
 }

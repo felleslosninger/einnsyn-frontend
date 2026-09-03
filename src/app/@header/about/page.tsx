@@ -1,3 +1,3 @@
-export default function AboutHeader() {
+export default function AboutHeaderSlot() {
   return null;
 }
