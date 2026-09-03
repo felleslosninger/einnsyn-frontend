@@ -17,7 +17,7 @@
   "dependencies": {
     "@digdir/designsystemet-css": "^1.20.1",
     "@digdir/designsystemet-react": "^1.20.1",
-    "@digdir/einnsyn-sdk": "^1.4.0",
+    "@digdir/einnsyn-sdk": "^1.5.0",
     "@navikt/aksel-icons": "^8.16.1",
     "@opentelemetry/api": "^1.9.1",
     "@vercel/otel": "^2.1.3",
