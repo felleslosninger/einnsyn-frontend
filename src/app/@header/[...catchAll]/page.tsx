@@ -1,3 +1,3 @@
-export default function CatchAllHeader() {
+export default function CatchAllHeaderSlot() {
   return null;
 }

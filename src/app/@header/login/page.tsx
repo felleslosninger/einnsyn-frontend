@@ -1,3 +1,3 @@
-export default function LoginHeader() {
+export default function LoginHeaderSlot() {
   return null;
 }

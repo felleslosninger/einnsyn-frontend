@@ -4,6 +4,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
+import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
@@ -12,7 +13,6 @@ import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { Footer } from '~/features/footer';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
-import { ModalWrapper } from './@modal/ModalWrapper';
 
 export const viewport = {
   width: 'device-width',
