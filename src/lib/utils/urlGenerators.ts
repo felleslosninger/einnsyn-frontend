@@ -1,79 +1,108 @@
 import type {
   Dokumentobjekt,
-  Enhet,
   Journalpost,
   Moetemappe,
   Moetesak,
   Saksmappe,
 } from '@digdir/einnsyn-sdk';
-import { useTranslation } from '~/hooks/useTranslation';
-import type { TranslateFunction } from '~/lib/translation/translation';
+import { useCallback } from 'react';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+import {
+  getTranslateFunction,
+  type TranslateFunction,
+} from '~/lib/translation/translation';
 
-// Slug-first identifier with id fallback, for the entity itself.
-function entitySegment(entity: { slug?: string; id: string }): string {
-  return entity.slug ?? entity.id;
-}
-
-// Identifier for a parent reference, which the API returns either expanded
-// (an object — slug-first) or collapsed (just the id string).
-function parentSegment(
-  parent: { slug?: string; id: string } | string | undefined,
+/**
+ * The identifier a reference contributes to a URL.
+ *
+ * An entity contributes its slug, or its id when it has none — encoded, since
+ * slugs are derived from names and carry Norwegian and Sámi characters. A
+ * string is used verbatim: it is either a collapsed reference (a bare id, which
+ * needs no encoding) or a caller-supplied identifier, which has to stay
+ * byte-identical to the pathname it came from.
+ */
+function identifierSegment(
+  reference: { slug?: string; id: string } | string | undefined,
 ): string {
-  if (!parent) return '';
-  return typeof parent === 'string' ? parent : (parent.slug ?? parent.id);
+  if (!reference) return '';
+  if (typeof reference === 'string') return reference;
+  return encodeURIComponent(reference.slug ?? reference.id);
 }
 
+/**
+ * @param saksmappe The saksmappe, or a URL-safe identifier for it. Callers that
+ * must not change the `[saksmappe]` route param pass the identifier — see
+ * `JournalpostList`, where a slug/id swap remounts the subtree.
+ */
 export function generateSaksmappeURL(
-  saksmappe: Saksmappe,
+  saksmappe: Saksmappe | string,
   t: TranslateFunction,
 ): string {
-  return `/${t('routing.saksmappePath')}/${entitySegment(saksmappe)}`;
+  return `/${t('routing.saksmappePath')}/${identifierSegment(saksmappe)}`;
 }
 
+/** @param saksmappe The parent saksmappe. See {@link generateSaksmappeURL}. */
 export function generateJournalpostURL(
   journalpost: Journalpost,
   t: TranslateFunction,
+  saksmappe: Saksmappe | string | undefined = journalpost.saksmappe,
 ): string {
-  return `/${t('routing.saksmappePath')}/${parentSegment(journalpost.saksmappe)}/${t('journalpost.pathName')}/${entitySegment(journalpost)}`;
+  return `/${t('routing.saksmappePath')}/${identifierSegment(saksmappe)}/${t('journalpost.pathName')}/${identifierSegment(journalpost)}`;
 }
 
 export function generateMoetemappeURL(
   moetemappe: Moetemappe,
   t: TranslateFunction,
 ): string {
-  return `/${t('routing.moetemappePath')}/${entitySegment(moetemappe)}`;
+  return `/${t('routing.moetemappePath')}/${identifierSegment(moetemappe)}`;
 }
 
 export function generateMoetesakURL(
   moetesak: Moetesak,
   t: TranslateFunction,
 ): string {
-  return `/${t('routing.moetemappePath')}/${parentSegment(moetesak.moetemappe)}/${t('moetesak.pathName')}/${entitySegment(moetesak)}`;
+  return `/${t('routing.moetemappePath')}/${identifierSegment(moetesak.moetemappe)}/${t('moetesak.pathName')}/${identifierSegment(moetesak)}`;
 }
 
 // Hook wrappers for use in client components
 export function useSaksmappeURLGenerator() {
-  const t = useTranslation();
-  return (saksmappe: Saksmappe) => generateSaksmappeURL(saksmappe, t);
+  const languageCode = useLanguageCode();
+  return useCallback(
+    (saksmappe: Saksmappe | string) =>
+      generateSaksmappeURL(saksmappe, getTranslateFunction(languageCode)),
+    [languageCode],
+  );
 }
 
 export function useJournalpostURLGenerator() {
-  const t = useTranslation();
-  return (journalpost: Journalpost) => generateJournalpostURL(journalpost, t);
+  const languageCode = useLanguageCode();
+  return useCallback(
+    (journalpost: Journalpost, saksmappe?: Saksmappe | string) =>
+      generateJournalpostURL(
+        journalpost,
+        getTranslateFunction(languageCode),
+        saksmappe,
+      ),
+    [languageCode],
+  );
 }
 
 export function useMoetemappeURLGenerator() {
-  const t = useTranslation();
-  return (moetemappe: Moetemappe) => generateMoetemappeURL(moetemappe, t);
+  const languageCode = useLanguageCode();
+  return useCallback(
+    (moetemappe: Moetemappe) =>
+      generateMoetemappeURL(moetemappe, getTranslateFunction(languageCode)),
+    [languageCode],
+  );
 }
 
 export function useMoetesakURLGenerator() {
-  const t = useTranslation();
-  return (moetesak: Moetesak) => generateMoetesakURL(moetesak, t);
-}
-
-export function generateEnhetUrl(enhet: Enhet): string {
-  return `/${enhet.id}`;
+  const languageCode = useLanguageCode();
+  return useCallback(
+    (moetesak: Moetesak) =>
+      generateMoetesakURL(moetesak, getTranslateFunction(languageCode)),
+    [languageCode],
+  );
 }
 
 export function generateFileUrl(dokumentobjekt: Dokumentobjekt): string {

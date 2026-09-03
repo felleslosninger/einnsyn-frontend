@@ -8,7 +8,7 @@
   align-items: flex-start;
   padding-bottom: var(--ds-size-12);
 
-  > a {
+  >a {
     display: block;
     width: 100%;
     text-decoration: none;
@@ -16,26 +16,13 @@
     // Opt in to Designsystemet's visited-link colour. The theme ships
     // `--ds-link-color-visited` and `.ds-link` exposes `--dsc-link-color--visited`,
     // but nothing wires the two — the distinction is deliberately per-component.
-    //
-    // Only the result's own title link gets it: that is what tells you which
-    // results you have already opened. The enhet and saksmappe links in the body
-    // repeat across many results, so colouring those would be noise rather than
-    // information.
     --dsc-link-color--visited: var(--ds-link-color-visited);
 
     &:visited {
-      // `.einLink` sets `color` unconditionally, at the same specificity as
-      // designsystemet's own `.ds-link:where(:visited)` — `:where()` contributes
-      // none — so which of the two wins comes down to stylesheet order. Restate
-      // it one specificity step up, reading the same custom property so the
-      // colour still has a single source of truth.
       color: var(--dsc-link-color--visited);
     }
 
     &:hover {
-      // Keeps hover ahead of the visited colour, the order designsystemet uses.
-      // Same value `.einLink:hover` already applies, so unvisited links are
-      // unaffected.
       color: var(--ds-color-neutral-text-default);
     }
 

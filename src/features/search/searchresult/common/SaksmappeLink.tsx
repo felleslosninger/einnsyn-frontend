@@ -1,24 +1,26 @@
 import { isSaksmappe, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
-import { useTranslation } from '~/hooks/useTranslation';
+import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
 
 export default function SaksmappeLink({
   saksmappe,
 }: {
   saksmappe: Saksmappe | string | undefined;
 }) {
-  const t = useTranslation();
+  const saksmappeURL = useSaksmappeURLGenerator();
 
-  if (isSaksmappe(saksmappe)) {
-    return (
-      <EinLink
-        className="saksmappe-link"
-        data-color="neutral"
-        href={`/${t('routing.saksmappePath')}/${saksmappe.id}`}
-      >
-        {saksmappe.saksnummer}
-      </EinLink>
-    );
+  // A collapsed reference (a bare id) has no saksnummer to label the link with.
+  if (!isSaksmappe(saksmappe)) {
+    return null;
   }
-  return null;
+
+  return (
+    <EinLink
+      className="saksmappe-link"
+      data-color="neutral"
+      href={saksmappeURL(saksmappe)}
+    >
+      {saksmappe.saksnummer}
+    </EinLink>
+  );
 }

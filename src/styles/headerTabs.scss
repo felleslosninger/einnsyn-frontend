@@ -30,8 +30,6 @@
   margin: 0 var(--ds-size-2);
   color: var(--ds-color-neutral-text-subtle);
   text-decoration: none;
-  // Type is inherited from the header's second row, so a tab and the breadcrumb
-  // that replaces it share one line box. Don't set font-size or line-height.
   white-space: nowrap;
 
   &.active {

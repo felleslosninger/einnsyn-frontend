@@ -9,6 +9,7 @@ import EntityKindRow from '~/features/entities/common/EntityKindRow';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
+import { getJournalpostFromPath } from '~/lib/routes/sections';
 
 export default async function SaksmappeLayout({
   params,
@@ -29,7 +30,7 @@ export default async function SaksmappeLayout({
   // middleware). This only runs on the initial server render; the layout is
   // reused across client navigations within the saksmappe.
   const pathname = (await headers()).get('x-pathname') ?? '';
-  const activeJournalpost = pathname.match(/\/journalpost\/([^/?#]+)/)?.[1];
+  const activeJournalpost = getJournalpostFromPath(pathname);
 
   const apiClient = await cachedApiClient();
   const [saksmappeEntity, journalposts] = await Promise.all([

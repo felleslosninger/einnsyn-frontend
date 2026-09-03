@@ -28,6 +28,10 @@ import {
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { getName } from '~/lib/utils/enhetUtils';
+import {
+  useJournalpostURLGenerator,
+  useSaksmappeURLGenerator,
+} from '~/lib/utils/urlGenerators';
 import styles from './JournalpostList.module.scss';
 
 type JournalpostTypeKind =
@@ -56,6 +60,16 @@ function journalpostIdentifier(j: Journalpost): string {
   return j.slug ?? j.id;
 }
 
+// Path segments arrive percent-encoded; slugs on an entity do not.
+function decodeIdentifier(identifier: string | undefined): string | undefined {
+  if (identifier === undefined) return undefined;
+  try {
+    return decodeURIComponent(identifier);
+  } catch {
+    return identifier;
+  }
+}
+
 // Extend the loaded window when a sentinel comes within this of the viewport.
 const EXTEND_MARGIN = '800px';
 
@@ -77,12 +91,12 @@ export default function JournalpostList({
   const vlistRef = useRef<WindowVirtualizerHandle>(null);
 
   const selectedJournalpostIdentifier = useMemo(() => {
-    return getJournalpostFromPath(pathname);
+    return decodeIdentifier(getJournalpostFromPath(pathname));
   }, [pathname]);
 
   // The optimistic pathname opens the row on click, before the route resolves.
   const optimisticJournalpostIdentifier = useMemo(() => {
-    return getJournalpostFromPath(optimisticPathname);
+    return decodeIdentifier(getJournalpostFromPath(optimisticPathname));
   }, [optimisticPathname]);
 
   // The navigation target resolved from the in-memory list, so the expansion
@@ -99,15 +113,13 @@ export default function JournalpostList({
   // Every in-view link uses the saksmappe identifier from the current URL: a
   // slug/id mismatch between links would change the `[saksmappe]` route param
   // on open/close and remount the subtree, canceling the transition.
-  const saksmappePath = t('routing.saksmappePath');
-  const journalpostPath = t('journalpost.pathName');
-  const saksmappeIdentifier =
-    getSaksmappeFromPath(pathname) || saksmappe.slug || saksmappe.id;
-  const saksmappeHref = `/${saksmappePath}/${saksmappeIdentifier}`;
+  const saksmappeURL = useSaksmappeURLGenerator();
+  const journalpostURL = useJournalpostURLGenerator();
+  const saksmappeRef = getSaksmappeFromPath(pathname) || saksmappe;
+  const saksmappeHref = saksmappeURL(saksmappeRef);
   const journalpostHref = useCallback(
-    (j: Journalpost) =>
-      `/${saksmappePath}/${saksmappeIdentifier}/${journalpostPath}/${j.slug ?? j.id}`,
-    [saksmappePath, saksmappeIdentifier, journalpostPath],
+    (j: Journalpost) => journalpostURL(j, saksmappeRef),
+    [journalpostURL, saksmappeRef],
   );
   const ownerEnhetName = isEnhet(saksmappe.administrativEnhetObjekt)
     ? getName(saksmappe.administrativEnhetObjekt, languageCode)
