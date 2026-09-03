@@ -1,16 +1,16 @@
-import { isEnhet } from '@digdir/einnsyn-sdk';
-import { FolderFileIcon } from '@navikt/aksel-icons';
-import { cachedApiClient } from '~/actions/api/getApiClient';
-import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
-import { getSaksmappe } from '~/actions/api/saksmappe.actions';
-import EnhetCard from '~/features/entities/common/EnhetCard';
-import EntityKindRow from '~/features/entities/common/EntityKindRow';
-import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
-import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
-import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
+import { SaksmappeFrame } from '~/features/entities';
 import { getRequestPathname } from '~/lib/routes/requestPath';
 import { getJournalpostFromPath } from '~/lib/routes/sections';
 
+// The saksmappe frame is a layout rather than a page so that JournalpostList
+// stays a single mounted instance across the index <-> detail navigation —
+// that's what lets the detail pane's open/close transition run to completion
+// instead of being canceled by a remount.
+//
+// A layout can't read its child segment's `journalpost` param, so the active
+// journalpost is recovered from the request pathname. This only runs on the
+// initial server render; the layout is reused across client navigations within
+// the saksmappe.
 export default async function SaksmappeLayout({
   params,
   children,
@@ -18,52 +18,17 @@ export default async function SaksmappeLayout({
   params: Promise<{ saksmappe: string }>;
   children: React.ReactNode;
 }) {
-  const { saksmappe = '' } = await params;
-
-  // JournalpostList lives here (not in the page) so it stays a single mounted
-  // instance across the index <-> detail navigation — that's what lets the
-  // detail pane's open/close transition run to completion instead of being
-  // canceled by a remount.
-  //
-  // A layout can't read its child segment's `journalpost` param, so we center
-  // the list window on a deep link by reading the request pathname (exposed by
-  // middleware). This only runs on the initial server render; the layout is
-  // reused across client navigations within the saksmappe.
-  const activeJournalpost = getJournalpostFromPath(await getRequestPathname());
-
-  const apiClient = await cachedApiClient();
-  const [saksmappeEntity, journalposts] = await Promise.all([
-    getSaksmappe(saksmappe),
-    activeJournalpost
-      ? getJournalpostWindow(saksmappe, activeJournalpost)
-      : apiClient.saksmappe.listJournalpost(saksmappe, {
-          sortOrder: 'desc',
-          id: '',
-          saksmappeId: '',
-          expand: [
-            'skjerming',
-            'korrespondansepart',
-            'dokumentbeskrivelse.dokumentobjekt',
-          ],
-        }),
+  const [{ saksmappe = '' }, pathname] = await Promise.all([
+    params,
+    getRequestPathname(),
   ]);
 
-  const administrativEnhet = saksmappeEntity.administrativEnhetObjekt;
-  const enhet = isEnhet(administrativEnhet) ? administrativEnhet : undefined;
-
   return (
-    <EntityPageLayout
-      kind={
-        <EntityKindRow icon={<FolderFileIcon />} labelKey="saksmappe.label" />
-      }
-      header={<SaksmappeHeader saksmappe={saksmappeEntity} />}
-      card={
-        enhet && <EnhetCard enhet={enhet} headingKey="saksmappe.publishedBy" />
-      }
+    <SaksmappeFrame
+      saksmappeId={saksmappe}
+      activeJournalpost={getJournalpostFromPath(pathname)}
     >
-      <JournalpostList journalposts={journalposts} saksmappe={saksmappeEntity}>
-        {children}
-      </JournalpostList>
-    </EntityPageLayout>
+      {children}
+    </SaksmappeFrame>
   );
 }

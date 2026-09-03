@@ -1,5 +1,4 @@
-import { getJournalpost } from '~/actions/api/journalpost.actions';
-import JournalpostContainer from '~/features/entities/journalpost/JournalpostContainer';
+import { JournalpostDetail } from '~/features/entities';
 
 // Detail route: supplies only the detail content. The layout passes it into
 // JournalpostList (which owns the list) as children, so the list instance is
@@ -10,7 +9,6 @@ export default async function Journalpost({
   params: Promise<{ saksmappe: string; journalpost: string }>;
 }) {
   const { journalpost = '' } = await params;
-  const active = await getJournalpost(journalpost).catch(() => null);
 
-  return <JournalpostContainer journalpost={active} />;
+  return <JournalpostDetail journalpostId={journalpost} />;
 }
