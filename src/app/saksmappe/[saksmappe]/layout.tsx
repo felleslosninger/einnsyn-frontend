@@ -1,6 +1,5 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
 import { FolderFileIcon } from '@navikt/aksel-icons';
-import { headers } from 'next/headers';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
 import { getSaksmappe } from '~/actions/api/saksmappe.actions';
@@ -9,6 +8,7 @@ import EntityKindRow from '~/features/entities/common/EntityKindRow';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
+import { getRequestPathname } from '~/lib/routes/requestPath';
 import { getJournalpostFromPath } from '~/lib/routes/sections';
 
 export default async function SaksmappeLayout({
@@ -29,8 +29,7 @@ export default async function SaksmappeLayout({
   // the list window on a deep link by reading the request pathname (exposed by
   // middleware). This only runs on the initial server render; the layout is
   // reused across client navigations within the saksmappe.
-  const pathname = (await headers()).get('x-pathname') ?? '';
-  const activeJournalpost = getJournalpostFromPath(pathname);
+  const activeJournalpost = getJournalpostFromPath(await getRequestPathname());
 
   const apiClient = await cachedApiClient();
   const [saksmappeEntity, journalposts] = await Promise.all([

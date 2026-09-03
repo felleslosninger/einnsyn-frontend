@@ -1,7 +1,10 @@
-import { headers } from 'next/headers';
 import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import { Header } from '~/features/header';
+import {
+  getRequestPathname,
+  getRequestSearchParams,
+} from '~/lib/routes/requestPath';
 import { getPathEnhet } from '~/lib/routes/sections';
 
 export default async function HeaderLayout({
@@ -9,15 +12,11 @@ export default async function HeaderLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [requestHeaders, settings] = await Promise.all([
-    headers(),
+  const [pathname, searchParams, settings] = await Promise.all([
+    getRequestPathname(),
+    getRequestSearchParams(),
     getSettings(),
   ]);
-
-  const pathname = requestHeaders.get('x-pathname') ?? '';
-  const searchParams = new URLSearchParams(
-    requestHeaders.get('x-search') ?? '',
-  );
 
   const initialEnhets = await getInitialEnhetsForRequest({
     pathEnhet: getPathEnhet(pathname),
