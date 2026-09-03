@@ -1,3 +1,3 @@
-export default function NotFound() {
-  return <></>;
+export default function NotFoundHeader() {
+  return null;
 }
