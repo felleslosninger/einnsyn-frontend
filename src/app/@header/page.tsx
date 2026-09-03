@@ -1,5 +1,1 @@
-import SearchHeaderPage from './SearchHeaderPage';
-
-export default function SearchHeader() {
-  return <SearchHeaderPage />;
-}
+export { SearchHeaderRow as default } from '~/features/search';
