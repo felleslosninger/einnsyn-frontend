@@ -1,5 +1,6 @@
 import type {
   Dokumentobjekt,
+  Enhet,
   Journalpost,
   Moetemappe,
   Moetesak,
@@ -27,6 +28,16 @@ function identifierSegment(
   if (!reference) return '';
   if (typeof reference === 'string') return reference;
   return encodeURIComponent(reference.slug ?? reference.id);
+}
+
+/**
+ * The enhet's own page, which lives at the root: `/oslo-kommune`.
+ *
+ * Absolute and encoded: `EinLink` passes `href` straight to the `<a>`, where a
+ * relative value would resolve against the current document.
+ */
+export function generateEnhetURL(enhet: Pick<Enhet, 'id' | 'slug'>): string {
+  return `/${identifierSegment(enhet)}`;
 }
 
 /**
@@ -105,6 +116,6 @@ export function useMoetesakURLGenerator() {
   );
 }
 
-export function generateFileUrl(dokumentobjekt: Dokumentobjekt): string {
+export function generateFileURL(dokumentobjekt: Dokumentobjekt): string {
   return `${process.env.API_URL}/dokumentobjekt/${dokumentobjekt.id}/download`;
 }

@@ -3,8 +3,8 @@
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getEnhetHref } from '~/lib/utils/enhetUtils';
 import { capitalize } from '~/lib/utils/stringutils';
+import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 import styles from './EnhetCard.module.scss';
 
 /**
@@ -24,7 +24,7 @@ export default function EnhetCard({
   return (
     <aside className={styles.enhetCard} data-size="sm">
       <div className={styles.enhetCardHeading}>{t(headingKey)}</div>
-      <EinLink href={getEnhetHref(enhet)} className={styles.enhetName}>
+      <EinLink href={generateEnhetURL(enhet)} className={styles.enhetName}>
         {enhet.navn}
       </EinLink>
       <div className={styles.enhetFields}>

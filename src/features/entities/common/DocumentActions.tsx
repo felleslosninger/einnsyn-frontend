@@ -7,7 +7,7 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import EinDropdown from '~/components/EinDropdown/EinDropdown';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { generateFileUrl } from '~/lib/utils/urlGenerators';
+import { generateFileURL } from '~/lib/utils/urlGenerators';
 import styles from './DocumentActions.module.scss';
 
 /** A `dokumentbeskrivelse` array as the API returns it: expanded, or bare ids. */
@@ -138,7 +138,7 @@ function DownloadButton({
     >
       {/* An absolute URL on the API host, so a plain anchor rather than EinLink,
           which would hand it to the client-side navigator. */}
-      <a href={generateFileUrl(file)} aria-label={ariaLabel}>
+      <a href={generateFileURL(file)} aria-label={ariaLabel}>
         <DownloadIcon aria-hidden="true" />
         <span className={styles.actionLabel}>{label}</span>
       </a>

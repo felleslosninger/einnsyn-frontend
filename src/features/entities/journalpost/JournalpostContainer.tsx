@@ -13,7 +13,7 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { generateFileUrl } from '~/lib/utils/urlGenerators';
+import { generateFileURL } from '~/lib/utils/urlGenerators';
 import styles from './JournalpostContainer.module.scss';
 
 export default function JournalpostContainer({
@@ -184,7 +184,7 @@ function DocumentItem({ document }: { document: Dokumentbeskrivelse }) {
     <li className={styles.documentItem}>
       {primary ? (
         <EinLink
-          href={generateFileUrl(primary)}
+          href={generateFileURL(primary)}
           className={styles.documentLink}
         >
           <span>{document.tittel}</span>

@@ -3,8 +3,11 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
-import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
+import { getName } from '~/lib/utils/enhetUtils';
+import {
+  generateEnhetURL,
+  useSaksmappeURLGenerator,
+} from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -44,7 +47,7 @@ export default function SaksmappeResult({
         </SearchResultSubheader>
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={getEnhetHref(enhet)}>
+            <EinLink href={generateEnhetURL(enhet)}>
               {getName(enhet, languageCode)}
             </EinLink>
           </div>
