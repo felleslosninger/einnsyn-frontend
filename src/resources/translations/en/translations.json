@@ -239,5 +239,14 @@
     "privacy": "Privacy Policy",
     "accessibility": "Accessibility Statement",
     "github": "eInnsyn on Github"
+  },
+  "bruker": {
+    "title": "My eInnsyn",
+    "accessRequests": "Access requests",
+    "savedCases": "Saved cases",
+    "savedMeetings": "Saved meetings",
+    "savedSearches": "Saved searches",
+    "profile": "Profile",
+    "backToSearch": "Back to search"
   }
 }
