@@ -1,0 +1,16 @@
+// Carries `data-size="sm"`; see DocumentActions for why the attribute sits on a
+// wrapper rather than on each button.
+.actions {
+  display: inline-flex;
+}
+
+.action {
+  white-space: nowrap;
+}
+
+// Dropdown entries are one document each, and document titles run long. Let them
+// wrap rather than force the popup as wide as the longest title.
+.dropdown .actionLabel {
+  white-space: normal;
+  text-align: left;
+}

@@ -1,8 +1,8 @@
 @use '../../styles/mediaQueries.scss' as mq;
 @use '../../styles/effects.scss' as fx;
+@use '../../styles/headerRow.scss' as headerRow;
 
 .header {
-  --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
 
   >.containerWrapper>.containerPre,
   >.containerWrapper>.container,
@@ -27,7 +27,6 @@
   width: 100%;
   z-index: 10;
 
-  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
 
@@ -66,6 +65,12 @@
       overflow: hidden;
       transition: all 0.2s fx.$easeOut;
     }
+
+    // Release the row's reserved height too, or the header would keep it while
+    // the row inside collapses.
+    .secondRow {
+      min-height: 0;
+    }
   }
 
   .logo {
@@ -99,14 +104,106 @@
     :global(.header-tabs) {
       display: none;
     }
+
+    // No second row on the landing page, so it must not reserve height — the
+    // form is centred in the container and would be pushed off-centre.
+    .secondRow {
+      min-height: 0;
+    }
   }
+
+  // (Entity pages put their breadcrumb in the second row, where search results
+  // show their tabs. Both inherit the row's type, so nothing section-specific
+  // is needed here — the breadcrumb's own module zeroes its block margins.)
+}
+
+.searchForm {
+  margin-inline: calc(-1 * var(--ds-size-4));
+
+  @include mq.medium {
+    margin-inline: calc(-1 * var(--ds-size-2));
+  }
+
+  @include mq.small {
+    margin-inline: 0;
+  }
+}
+
+// The header's second row: search tabs, breadcrumb trail, admin tabs. This is
+// the only part that changes between routes, so it is what EinTransition
+// snapshots and swaps — the search field above it is never re-mounted.
+//
+// Type is settled here, once, and inherited by whatever the row holds — that is
+// what makes the breadcrumb match the search tabs it replaces, rather than the
+// two being coincidentally similar.
+//
+// The target is the tabs as they were: `body`'s md size with the tabs' own 1.3
+// leading. Note the size is deliberately *not* declared. `data-size` below
+// rescales the `--ds-font-size-*` tokens, so `var(--ds-body-md-font-size)`
+// resolved in here would come out smaller than the same token on `body`;
+// inheriting instead gives the real md size. `data-size` stays only because
+// descendants use the rescaled *spacing* tokens for their padding.
+//
+// Height is reserved rather than derived from the children, because mid-swap
+// the row briefly has none: EinTransition removes the outgoing row a frame
+// before revealing the incoming one. The reserved value comes from the same
+// place as the item box, so the two cannot drift apart.
+.secondRow {
+  @include headerRow.header-row-reserved-height;
+
+  line-height: var(--ds-line-height-sm);
+  transition: min-height 0.2s fx.$easeOut;
+}
+
+// The motion is entirely CSS; EinTransition only adds these classes as it walks
+// its steps (`withClassNames`).
+//
+// Every step ends with `await domTransitionend(element)`, whose fallback timer
+// is the element's *computed* transition-duration — so a step with no motion of
+// its own still waits out whatever the base rule declares (here, min-height's
+// 200ms). Left alone that costs ~400ms before the fade-out even starts, and
+// another 200ms sitting empty between the rows. Hence `transition: none` on
+// every step that should be instant; only the two that actually move declare a
+// duration.
+//
+// These rules are all single-class, so equal specificity: source order decides
+// which wins where several are applied at once. Keep them in step order.
+.secondRow:global(.ein-transition-init-transition),
+.secondRow:global(.ein-transition-init-exit-transition) {
+  transition: none;
+}
+
+// Fades out as soon as navigation starts, in parallel with loading, rather than
+// waiting for the incoming row to be ready.
+.secondRow:global(.ein-transition-exit-transition) {
+  opacity: 0;
+  transition: opacity 150ms fx.$easeOut;
+}
+
+// Held here while the new row loads — the fade above has already finished.
+.secondRow:global(.ein-transition-wait) {
+  transition: none;
+}
+
+// Initial pose for the incoming row, applied while it is still hidden. It is
+// posed, not animated — and this step is what the gap between the two rows is
+// waiting on, so it must be instant.
+.secondRow:global(.ein-transition-init-enter-transition) {
+  opacity: 0;
+  transition: none;
+}
+
+// Must stay after the init-enter rule above — both classes are present during
+// the enter step and have equal specificity, so source order decides.
+.secondRow:global(.ein-transition-enter-transition) {
+  opacity: 1;
+  transition: opacity 200ms fx.$easeOut;
 }
 
 .logoLink {
   display: inline-flex;
   align-items: center;
   min-height: var(--ds-size-12);
-  margin-top: var(--header-primary-row-offset);
   padding: var(--ds-size-2) 0;
   background-color: transparent;
   color: inherit;

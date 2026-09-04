@@ -8,10 +8,23 @@
   align-items: flex-start;
   padding-bottom: var(--ds-size-12);
 
-  > a {
+  >a {
     display: block;
     width: 100%;
     text-decoration: none;
+
+    // Opt in to Designsystemet's visited-link colour. The theme ships
+    // `--ds-link-color-visited` and `.ds-link` exposes `--dsc-link-color--visited`,
+    // but nothing wires the two — the distinction is deliberately per-component.
+    --dsc-link-color--visited: var(--ds-link-color-visited);
+
+    &:visited {
+      color: var(--dsc-link-color--visited);
+    }
+
+    &:hover {
+      color: var(--ds-color-neutral-text-default);
+    }
 
     :hover {
       text-decoration: underline;

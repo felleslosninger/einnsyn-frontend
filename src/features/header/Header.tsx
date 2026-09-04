@@ -6,20 +6,40 @@ import {
   EinTransition,
   type EinTransitionEvents,
 } from '~/components/EinTransition/EinTransition';
+import { EnhetCacheProvider } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { SearchField } from '~/components/SearchField/SearchField';
 import { useScrollState } from '~/hooks/useScrollState';
+import {
+  getSection,
+  type Section,
+  showsSearchField,
+} from '~/lib/routes/sections';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
+import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
+
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
 
-export default function Header({ children }: { children: React.ReactNode }) {
+export default function Header({
+  children,
+  initialEnhets,
+}: {
+  // The header's second row: search tabs, a breadcrumb trail, admin tabs. The
+  // search field is not part of this — it lives here so it survives navigation.
+  children: React.ReactNode;
+  initialEnhets?: readonly TrimmedEnhet[];
+}) {
   const { loading, optimisticPathname } = useNavigation();
-  const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
-  const isHome = rootPath === 'home';
+  // Canonical, so it does not depend on which language the URL is spelled in:
+  // `/case/abc` and `/sak/abc` are both the `saksmappe` section.
+  const section = getSection(optimisticPathname);
+  const isHome = section === 'home';
+  const hasSearchField = showsSearchField(optimisticPathname);
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
   const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
@@ -31,18 +51,18 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   // ref to the actual sticky header element
   const headerRef = useRef<HTMLElement>(null);
-  const previousRootPathRef = useRef(rootPath);
+  const previousSectionRef = useRef(section);
   const activeRouteTransitionRef = useRef<{
-    fromRootPath: string;
-    toRootPath: string;
+    fromSection: Section;
+    toSection: Section;
   } | null>(null);
 
-  if (previousRootPathRef.current !== rootPath) {
+  if (previousSectionRef.current !== section) {
     activeRouteTransitionRef.current = {
-      fromRootPath: previousRootPathRef.current,
-      toRootPath: rootPath,
+      fromSection: previousSectionRef.current,
+      toSection: section,
     };
-    previousRootPathRef.current = rootPath;
+    previousSectionRef.current = section;
   }
 
   if (!loading) {
@@ -54,10 +74,10 @@ export default function Header({ children }: { children: React.ReactNode }) {
     loading &&
     !(
       activeRouteTransition &&
-      ((activeRouteTransition.fromRootPath === 'home' &&
-        activeRouteTransition.toRootPath === 'search') ||
-        (activeRouteTransition.fromRootPath === 'search' &&
-          activeRouteTransition.toRootPath === 'home'))
+      ((activeRouteTransition.fromSection === 'home' &&
+        activeRouteTransition.toSection === 'search') ||
+        (activeRouteTransition.fromSection === 'search' &&
+          activeRouteTransition.toSection === 'home'))
     );
 
   // Keep the in-flow header height measured so we can switch to fixed
@@ -162,17 +182,25 @@ export default function Header({ children }: { children: React.ReactNode }) {
       }
     : undefined;
 
-  // TODO: Map rootPath from language specific URL pathname to generic pathname
-
-  const className = cn(styles.header, `section-${rootPath}`, {
+  const className = cn(styles.header, `section-${section}`, {
     [styles.scrolled]: !isHome && isScrollingDown,
     [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
   });
 
-  const transitionDeps = [rootPath];
+  // Only the home <-> inner morph runs here. Every other route change leaves
+  // the header's own layout alone — the field is persistent and the second row
+  // has its own transition below — so the dependency deliberately does not
+  // include the section, which would snapshot and replace an element that would
+  // otherwise just update in place.
+  const transitionDeps = [isHome ? 'home' : 'inner'];
+  // The second row swaps whenever the section does — search tabs, breadcrumb,
+  // admin tabs. Keying on the canonical section rather than the raw segment
+  // also means moving between two enhet pages no longer counts as a change:
+  // both show the same tabs, so there is nothing to transition.
+  const secondRowTransitionDeps = [section];
   const transitionEvents: EinTransitionEvents<typeof transitionDeps> = useMemo(
     () => ({
-      onInitTransition: async (e, [toRootPath], [fromRootPath] = []) => {
+      onInitTransition: async (e, [toLayout], [fromLayout] = []) => {
         const head = e.querySelector('header');
         if (!head) {
           return;
@@ -204,7 +232,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
         removeInvisibleClone(targetHead);
 
         // Transition landing page search form to header search form
-        if (fromHomeToSearch(fromRootPath, toRootPath)) {
+        if (fromHomeToInner(fromLayout, toLayout)) {
           lockElementToRect(head, currentHeadRect, currentHeadRect, {
             preserveHeight: true,
             preserveWidth: false,
@@ -238,7 +266,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
           form.style.maxWidth = `${targetFormRect.width}px`;
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
-        } else if (fromSearchToHome(fromRootPath, toRootPath)) {
+        } else if (fromInnerToHome(fromLayout, toLayout)) {
           const headerTabs = head.querySelector('.header-tabs');
           const currentHeaderTabsRect =
             headerTabs instanceof HTMLElement
@@ -321,7 +349,32 @@ export default function Header({ children }: { children: React.ReactNode }) {
                 <Logo />
               </EinLink>
             </div>
-            <div className={cn(styles.container, 'container')}>{children}</div>
+            <div className={cn(styles.container, 'container')}>
+              {hasSearchField && (
+                <EnhetCacheProvider initialEnhets={initialEnhets}>
+                  <SearchField className={styles.searchForm} />
+                </EnhetCacheProvider>
+              )}
+
+              {/* The second row is the only part that changes between routes,
+                  so it is what gets snapshotted and swapped. EinTransition
+                  holds the outgoing row on screen through `waitForLoad` — the
+                  breadcrumb needs a server fetch — and poses the incoming one
+                  before revealing it. `withClassNames` means the motion itself
+                  is CSS; nothing here measures anything. */}
+              <EinTransition
+                dependencies={secondRowTransitionDeps}
+                loading={loading}
+                withClassNames
+              >
+                <div
+                  className={cn(styles.secondRow, 'header-second-row')}
+                  data-size="sm"
+                >
+                  {children}
+                </div>
+              </EinTransition>
+            </div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
                 <UserMenu />
@@ -412,9 +465,13 @@ function lockElementToRect(
   element.style.left = `${left}px`;
 }
 
-function fromHomeToSearch(from: string, to: string) {
-  return from === 'home' && to === 'search';
+// The landing page is the only header with a layout of its own — a tall hero
+// with the form centred in it — so 'home' | 'inner' is the only boundary that
+// needs the measured morph. Every other section change is handled by the second
+// row's own CSS transition.
+function fromHomeToInner(from: string, to: string) {
+  return from === 'home' && to === 'inner';
 }
-function fromSearchToHome(from: string, to: string) {
-  return from === 'search' && to === 'home';
+function fromInnerToHome(from: string, to: string) {
+  return from === 'inner' && to === 'home';
 }

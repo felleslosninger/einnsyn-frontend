@@ -33,6 +33,10 @@ type NavigationContextValue = {
   optimisticPathname: string;
   optimisticSearchParams: URLSearchParams;
   optimisticSearchParamsString: string;
+  // The in-app URL the user navigated from. `undefined` until the first
+  // client-side navigation (e.g. on a deep-linked or hard-reloaded page).
+  previousPathname: string | undefined;
+  previousSearchParamsString: string | undefined;
   loading: boolean;
   // Navigation methods
   push: (href: string, options?: NavigateOptions) => void;
@@ -77,6 +81,35 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   useEffect(() => {
     routeInfoRef.current = { pathname, searchParams };
   }, [pathname, searchParams]);
+
+  // Track the previous in-app URL so components can tell where the user
+  // arrived from. `document.referrer` does not update on client-side
+  // (SPA) navigations, so this ref-backed history is the reliable signal.
+  // `undefined` until the first navigation within the app, which lets
+  // deep-linked / hard-reloaded pages distinguish "no known origin".
+  const currentUrlRef = useRef<string | undefined>(undefined);
+  const [previousPathname, setPreviousPathname] = useState<string | undefined>(
+    undefined,
+  );
+  const [previousSearchParamsString, setPreviousSearchParamsString] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    const currentUrl = searchParamsString
+      ? `${pathname}?${searchParamsString}`
+      : pathname;
+    const previousUrl = currentUrlRef.current;
+    if (previousUrl !== undefined && previousUrl !== currentUrl) {
+      const queryIndex = previousUrl.indexOf('?');
+      setPreviousPathname(
+        queryIndex === -1 ? previousUrl : previousUrl.slice(0, queryIndex),
+      );
+      setPreviousSearchParamsString(
+        queryIndex === -1 ? '' : previousUrl.slice(queryIndex + 1),
+      );
+    }
+    currentUrlRef.current = currentUrl;
+  }, [pathname, searchParamsString]);
 
   // Handle browser back/forward navigation
   useEffect(() => {
@@ -263,6 +296,8 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       optimisticSearchParams,
       optimisticSearchParamsString:
         navigationState.loadingSearchParamsString ?? searchParamsString,
+      previousPathname,
+      previousSearchParamsString,
       loading: navigationState.state === 'loading',
       push,
       replace,
@@ -281,6 +316,8 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       loadingSearchParams,
       optimisticPathname,
       optimisticSearchParams,
+      previousPathname,
+      previousSearchParamsString,
       push,
       replace,
       back,

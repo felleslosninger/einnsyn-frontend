@@ -55,7 +55,7 @@ const isSearchableEntity = (
 /**
  * Get a PaginatedList of search results
  *
- * @param api
+ * @param enhetSlug
  * @param searchParams
  * @returns
  */

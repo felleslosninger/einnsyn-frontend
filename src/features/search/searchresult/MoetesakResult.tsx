@@ -3,7 +3,11 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
+import { getName } from '~/lib/utils/enhetUtils';
+import {
+  generateEnhetURL,
+  useMoetesakURLGenerator,
+} from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -16,11 +20,12 @@ export default function MoetesakResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
+  const moetesakURL = useMoetesakURLGenerator();
   const utvalg = item.utvalgObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'moetesak-result')}>
-      <EinLink href="">
+      <EinLink href={moetesakURL(item)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
@@ -43,7 +48,7 @@ export default function MoetesakResult({
         </SearchResultSubheader>
         {isEnhet(utvalg) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={getEnhetHref(utvalg)}>
+            <EinLink href={generateEnhetURL(utvalg)}>
               {getName(utvalg, languageCode)}
             </EinLink>
           </div>

@@ -38,7 +38,6 @@ export default function SearchTabs({ className }: { className?: string }) {
   return (
     <div
       className={cn(styles.tabsContainer, className, 'header-tabs')}
-      data-size="sm"
       data-color="neutral"
     >
       <div className={styles.searchTabsScroll}>
