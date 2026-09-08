@@ -1,10 +1,6 @@
 'use server';
 
-import {
-  AuthenticationError,
-  ConflictError,
-  EInnsynError,
-} from '@digdir/einnsyn-sdk';
+import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { redirect } from 'next/navigation';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
@@ -13,7 +9,6 @@ import { deleteAuthAction } from '~/actions/cookies/authCookie';
 export type ProfileActionState = {
   success?: boolean;
   error?: string;
-  errorMessage?: string;
 };
 
 export async function updateEmailAction(
@@ -31,11 +26,10 @@ export async function updateEmailAction(
     await api.bruker.update(authInfo.id, { email });
     return { success: true };
   } catch (error) {
-    if (error instanceof ConflictError) {
-      return { error: 'emailTaken' };
-    }
     if (error instanceof EInnsynError) {
-      return { error: error.type, errorMessage: error.message };
+      // validationError here always means malformed email (only field we send)
+      if (error.type === 'validationError') return { error: 'invalidEmail' };
+      return { error: error.type };
     }
     return { error: 'unknownError' };
   }
@@ -51,6 +45,8 @@ export async function updatePasswordAction(
 
   if (!oldPassword || !newPassword) return { error: 'missingFields' };
   if (newPassword !== confirmPassword) return { error: 'passwordMismatch' };
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W]).{8,}$/.test(newPassword))
+    return { error: 'invalidPassword' };
 
   const authInfo = await cachedAuthInfo();
   if (!authInfo?.id) return { error: 'unauthorized' };
@@ -60,17 +56,21 @@ export async function updatePasswordAction(
     await api.bruker.updatePassword(authInfo.id, { oldPassword, newPassword });
     return { success: true };
   } catch (error) {
-    if (error instanceof AuthenticationError) {
-      return { error: 'wrongPassword' };
-    }
     if (error instanceof EInnsynError) {
-      return { error: error.type, errorMessage: error.message };
+      if (
+        error.type === 'authorizationError' ||
+        error.type === 'badRequest' ||
+        error.type === 'notFound'
+      )
+        return { error: 'wrongPassword' };
+      if (error.type === 'validationError') return { error: 'invalidPassword' };
+      return { error: error.type };
     }
     return { error: 'unknownError' };
   }
 }
 
-export async function deactivateAccountAction(
+export async function deleteAccountAction(
   prevState: ProfileActionState,
   _formData: FormData,
 ): Promise<ProfileActionState> {
@@ -82,9 +82,7 @@ export async function deactivateAccountAction(
     await api.bruker.delete(authInfo.id);
     await deleteAuthAction();
   } catch (error) {
-    if (error instanceof EInnsynError) {
-      return { error: error.type, errorMessage: error.message };
-    }
+    if (error instanceof EInnsynError) return { error: error.type };
     return { error: 'unknownError' };
   }
 

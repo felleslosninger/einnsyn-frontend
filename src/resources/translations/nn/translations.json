@@ -236,22 +236,36 @@
     "profilePage": {
       "changeEmail": "Endre e-post",
       "newEmail": "Ny e-post",
-      "saveChanges": "Lagre endringar",
       "changeEmailSuccess": "E-postadressa er oppdatert",
       "changeEmailError": "Kunne ikkje oppdatere e-postadressa",
-      "emailTaken": "E-postadressa er allereie i bruk",
+      "currentEmail": "Noverande e-post",
+      "saveEmailChanges": "Lagre ny e-post",
       "changePassword": "Endre passord",
       "currentPassword": "Noverande passord",
       "newPassword": "Nytt passord",
-      "confirmNewPassword": "Stadfest nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
       "changePasswordSuccess": "Passordet er oppdatert",
       "changePasswordError": "Kunne ikkje oppdatere passordet",
-      "wrongPassword": "Noverande passord er feil",
-      "passwordMismatch": "Passorda er ikkje like",
-      "deactivateAccount": "Deaktiver konto",
-      "deactivateAccountDescription": "Viss du deaktiverer kontoen din, mistar du tilgangen til tenesta og alle lagra data.",
-      "deactivateAccountConfirm": "Er du sikker på at du vil deaktivere kontoen din? Dette kan ikkje angrast.",
-      "deactivateAccountError": "Kunne ikkje deaktivere kontoen"
+      "savePasswordChanges": "Lagre nytt passord",
+      "deactivateAccount": "Slett konto",
+      "deactivateAccountDescription": "Dette slettar kontoen din permanent. Alle innsynskrav, lagra saker og lagra søk vert sletta og kan ikkje gjenopprettast.",
+      "deactivateAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikkje angrast.",
+      "deactivateAccountError": "Kunne ikkje slette kontoen",
+      "deactivateAccountSubmit": "Slett kontoen min",
+      "deactivateAccountCancel": "Behald kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressa er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 teikn og innehalde store og små bokstavar samt tal eller spesialtegn",
+        "wrongPassword": "Noverande passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikkje tilgang",
+        "badRequest": "Ugyldig førespurnad",
+        "notFound": "Brukaren vart ikkje funnen",
+        "internalServerError": "Det oppstod ein serverfeil. Prøv igjen seinare",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om ei lita stund",
+        "passwordMismatch": "Passorda er ikkje like",
+        "missingFields": "Fyll ut alle felta"
+      }
     }
   }
 }

@@ -1,19 +1,17 @@
 'use client';
 
-import { Alert } from '@digdir/designsystemet-react';
-import { useActionState, useState } from 'react';
-import { deactivateAccountAction } from '~/features/bruker/profile/actions';
+import { Alert, Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { useActionState } from 'react';
+import { deleteAccountAction } from '~/features/bruker/profile/actions';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
+const DIALOG_ID = 'deactivate-account-dialog';
+
 export default function DeactivateAccountSection() {
   const t = useTranslation();
-  const [confirming, setConfirming] = useState(false);
-  const [state, formAction, isPending] = useActionState(
-    deactivateAccountAction,
-    {},
-  );
+  const [state, formAction] = useActionState(deleteAccountAction, {});
 
   return (
     <section className={styles.section}>
@@ -23,35 +21,44 @@ export default function DeactivateAccountSection() {
       <p>{t('bruker.profilePage.deactivateAccountDescription')}</p>
       {state.error && (
         <Alert data-color="danger">
-          {state.errorMessage ?? t('bruker.profilePage.deactivateAccountError')}
+          {t(`bruker.profilePage.errors.${state.error}`) || t('bruker.profilePage.deactivateAccountError')}
         </Alert>
       )}
-      {confirming ? (
-        <div className={styles.confirmRow}>
-          <p>{t('bruker.profilePage.deactivateAccountConfirm')}</p>
+      <EinButton
+        type="button"
+        style="destructive"
+        variant="secondary"
+        data-color="danger"
+        command="show-modal"
+        commandfor={DIALOG_ID}
+      >
+        {t('bruker.profilePage.deactivateAccount')}
+      </EinButton>
+      <Dialog id={DIALOG_ID} closeButton={t('common.cancel')}>
+        <Dialog.Block>
+          <Heading data-size="md">
+            {t('bruker.profilePage.deactivateAccount')}
+          </Heading>
+        </Dialog.Block>
+        <Dialog.Block>
+          <Paragraph>{t('bruker.profilePage.deactivateAccountConfirm')}</Paragraph>
+        </Dialog.Block>
+        <Dialog.Block>
           <form action={formAction} className={styles.confirmActions}>
+            <EinButton type="submit" variant="primary" data-color="danger">
+              {t('bruker.profilePage.deactivateAccountSubmit')}
+            </EinButton>
             <EinButton
               type="button"
-              style="secondary"
-              onClick={() => setConfirming(false)}
-              disabled={isPending}
+              variant="secondary"
+              command="close"
+              commandfor={DIALOG_ID}
             >
-              {t('common.cancel')}
-            </EinButton>
-            <EinButton type="submit" style="destructive" disabled={isPending}>
-              {t('bruker.profilePage.deactivateAccount')}
+              {t('bruker.profilePage.deactivateAccountCancel')}
             </EinButton>
           </form>
-        </div>
-      ) : (
-        <EinButton
-          type="button"
-          style="destructive"
-          onClick={() => setConfirming(true)}
-        >
-          {t('bruker.profilePage.deactivateAccount')}
-        </EinButton>
-      )}
+        </Dialog.Block>
+      </Dialog>
     </section>
   );
 }

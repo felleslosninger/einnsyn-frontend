@@ -2,6 +2,7 @@ import { cachedAuthInfo } from '~/actions/authentication/auth';
 import ChangeEmailForm from './ChangeEmailForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import DeactivateAccountSection from './DeactivateAccountSection';
+import { Divider } from '@digdir/designsystemet-react';
 
 export default async function Profile() {
   const authInfo = await cachedAuthInfo();
@@ -12,7 +13,9 @@ export default async function Profile() {
       <div className="container-pre collapsible" />
       <div className="container">
         <ChangeEmailForm currentEmail={currentEmail} />
+        <Divider />
         <ChangePasswordForm />
+        <Divider />
         <DeactivateAccountSection />
       </div>
     </div>

@@ -251,22 +251,36 @@
     "profilePage": {
       "changeEmail": "Change email",
       "newEmail": "New email",
-      "saveChanges": "Save changes",
       "changeEmailSuccess": "Email address updated",
       "changeEmailError": "Could not update email address",
-      "emailTaken": "Email address is already in use",
+      "currentEmail": "Current email",
+      "saveEmailChanges": "Save new email",
       "changePassword": "Change password",
       "currentPassword": "Current password",
       "newPassword": "New password",
       "confirmNewPassword": "Confirm new password",
       "changePasswordSuccess": "Password updated",
       "changePasswordError": "Could not update password",
-      "wrongPassword": "Current password is incorrect",
-      "passwordMismatch": "Passwords do not match",
-      "deactivateAccount": "Deactivate account",
-      "deactivateAccountDescription": "If you deactivate your account, you will lose access to the service and all saved data.",
-      "deactivateAccountConfirm": "Are you sure you want to deactivate your account? This cannot be undone.",
-      "deactivateAccountError": "Could not deactivate account"
+      "savePasswordChanges": "Save new password",
+      "deactivateAccount": "Delete account",
+      "deactivateAccountDescription": "This permanently deletes your account. All access requests, saved cases, and saved searches will be deleted and cannot be recovered.",
+      "deactivateAccountConfirm": "Are you sure you want to delete your account? This cannot be undone.",
+      "deactivateAccountError": "Could not delete account",
+      "deactivateAccountSubmit": "Delete my account",
+      "deactivateAccountCancel": "Keep my account",
+      "errors": {
+        "invalidEmail": "Email address is invalid",
+        "invalidPassword": "Password must be at least 8 characters and contain uppercase and lowercase letters plus a number or special character",
+        "wrongPassword": "Current password is incorrect",
+        "authenticationError": "Your session has expired. Please log in again",
+        "authorizationError": "You do not have access",
+        "badRequest": "Invalid request",
+        "notFound": "User not found",
+        "internalServerError": "A server error occurred. Please try again later",
+        "tooManyRequests": "Too many attempts. Please try again in a moment",
+        "passwordMismatch": "Passwords do not match",
+        "missingFields": "Please fill in all fields"
+      }
     }
   }
 }
