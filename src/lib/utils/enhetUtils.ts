@@ -7,6 +7,7 @@ export type NamedEnhet = Pick<
 >;
 
 interface AncestorNode extends NamedEnhet {
+  enhetstype?: Enhet['enhetstype'];
   parent?: string | AncestorNode;
 }
 
@@ -88,7 +89,9 @@ export const getAncestors = <T extends AncestorNode>(enhet: T): T[] => {
   const ancestors: T[] = [];
   let current: string | AncestorNode | undefined = enhet.parent;
   while (typeof current === 'object' && current?.parent) {
-    ancestors.unshift(current as T);
+    if (current.enhetstype !== 'DUMMYENHET') {
+      ancestors.unshift(current as T);
+    }
     current = current.parent;
   }
   return ancestors;
