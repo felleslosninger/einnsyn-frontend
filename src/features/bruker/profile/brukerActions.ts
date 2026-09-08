@@ -12,7 +12,7 @@ export type ProfileActionState = {
 };
 
 export async function updateEmailAction(
-  prevState: ProfileActionState,
+  _prevState: ProfileActionState,
   formData: FormData,
 ): Promise<ProfileActionState> {
   const email = (formData.get('email') as string)?.trim();
@@ -27,7 +27,6 @@ export async function updateEmailAction(
     return { success: true };
   } catch (error) {
     if (error instanceof EInnsynError) {
-      // validationError here always means malformed email (only field we send)
       if (error.type === 'validationError') return { error: 'invalidEmail' };
       return { error: error.type };
     }
@@ -36,7 +35,7 @@ export async function updateEmailAction(
 }
 
 export async function updatePasswordAction(
-  prevState: ProfileActionState,
+  _prevState: ProfileActionState,
   formData: FormData,
 ): Promise<ProfileActionState> {
   const oldPassword = formData.get('oldPassword') as string;
@@ -71,7 +70,7 @@ export async function updatePasswordAction(
 }
 
 export async function deleteAccountAction(
-  prevState: ProfileActionState,
+  _prevState: ProfileActionState,
   _formData: FormData,
 ): Promise<ProfileActionState> {
   const authInfo = await cachedAuthInfo();

@@ -1,10 +1,11 @@
 'use client';
 
-import { Alert } from '@digdir/designsystemet-react';
+import { Alert, Heading } from '@digdir/designsystemet-react';
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useRef } from 'react';
-import { updateEmailAction } from '~/features/bruker/profile/actions';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
+import { updateEmailAction } from '~/features/bruker/profile/brukerActions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
@@ -16,6 +17,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   const t = useTranslation();
   const [state, formAction, isPending] = useActionState(updateEmailAction, {});
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const errorMessage = state.error
     ? t(`bruker.profilePage.errors.${state.error}`) ||
@@ -23,18 +25,20 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
     : undefined;
 
   useEffect(() => {
-    if (state.error) {
+    if (state.success) {
+      router.refresh();
+    } else if (state.error) {
       formRef.current
         ?.querySelector<HTMLInputElement>('input[name="email"]')
         ?.focus();
     }
-  }, [state]);
+  }, [state, router.refresh]);
 
   return (
     <section className={styles.section}>
-      <h2 className="ds-heading" data-size="sm">
+      <Heading level={2} className="ds-heading" data-size="sm">
         {t('bruker.profilePage.changeEmail')}
-      </h2>
+      </Heading>
       <form
         noValidate
         ref={formRef}

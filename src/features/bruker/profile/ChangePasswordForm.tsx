@@ -1,10 +1,10 @@
 'use client';
 
-import { Alert } from '@digdir/designsystemet-react';
+import { Alert, Heading } from '@digdir/designsystemet-react';
 import { useActionState, useEffect, useRef } from 'react';
-import { updatePasswordAction } from '~/features/bruker/profile/actions';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
+import { updatePasswordAction } from '~/features/bruker/profile/brukerActions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
@@ -39,10 +39,15 @@ export default function ChangePasswordForm() {
 
   return (
     <section className={styles.section}>
-      <h2 className="ds-heading" data-size="sm">
+      <Heading level={2} className="ds-heading" data-size="sm">
         {t('bruker.profilePage.changePassword')}
-      </h2>
-      <form noValidate ref={formRef} action={formAction} className={styles.form}>
+      </Heading>
+      <form
+        noValidate
+        ref={formRef}
+        action={formAction}
+        className={styles.form}
+      >
         <EinInput
           name="oldPassword"
           type="password"

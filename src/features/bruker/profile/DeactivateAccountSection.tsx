@@ -1,9 +1,14 @@
 'use client';
 
-import { Alert, Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
+import {
+  Alert,
+  Dialog,
+  Heading,
+  Paragraph,
+} from '@digdir/designsystemet-react';
 import { useActionState } from 'react';
-import { deleteAccountAction } from '~/features/bruker/profile/actions';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { deleteAccountAction } from '~/features/bruker/profile/brukerActions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
@@ -15,13 +20,16 @@ export default function DeactivateAccountSection() {
 
   return (
     <section className={styles.section}>
-      <h2 className="ds-heading" data-size="sm">
+      <Heading level={2} className="ds-heading" data-size="sm">
         {t('bruker.profilePage.deactivateAccount')}
-      </h2>
-      <p>{t('bruker.profilePage.deactivateAccountDescription')}</p>
+      </Heading>
+      <Paragraph>
+        {t('bruker.profilePage.deactivateAccountDescription')}
+      </Paragraph>
       {state.error && (
         <Alert data-color="danger">
-          {t(`bruker.profilePage.errors.${state.error}`) || t('bruker.profilePage.deactivateAccountError')}
+          {t(`bruker.profilePage.errors.${state.error}`) ||
+            t('bruker.profilePage.deactivateAccountError')}
         </Alert>
       )}
       <EinButton
@@ -41,7 +49,9 @@ export default function DeactivateAccountSection() {
           </Heading>
         </Dialog.Block>
         <Dialog.Block>
-          <Paragraph>{t('bruker.profilePage.deactivateAccountConfirm')}</Paragraph>
+          <Paragraph>
+            {t('bruker.profilePage.deactivateAccountConfirm')}
+          </Paragraph>
         </Dialog.Block>
         <Dialog.Block>
           <form action={formAction} className={styles.confirmActions}>

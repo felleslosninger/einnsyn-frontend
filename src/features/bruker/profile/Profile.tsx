@@ -1,8 +1,8 @@
+import { Divider } from '@digdir/designsystemet-react';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import ChangeEmailForm from './ChangeEmailForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import DeactivateAccountSection from './DeactivateAccountSection';
-import { Divider } from '@digdir/designsystemet-react';
 
 export default async function Profile() {
   const authInfo = await cachedAuthInfo();
