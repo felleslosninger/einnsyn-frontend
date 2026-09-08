@@ -1,0 +1,19 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-5);
+  padding-block: var(--ds-size-5);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  max-width: 30rem;
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+}

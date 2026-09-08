@@ -242,6 +242,40 @@
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
     "profile": "Profil",
-    "backToSearch": "Tilbake til søk"
+    "backToSearch": "Tilbake til søk",
+    "profilePage": {
+      "changeEmail": "Endre e-post",
+      "newEmail": "Ny e-post",
+      "changeEmailSuccess": "E-postadressen er oppdatert",
+      "changeEmailError": "Kunne ikke oppdatere e-postadressen",
+      "currentEmail": "Nåværende e-post",
+      "saveEmailChanges": "Lagre ny e-post",
+      "changePassword": "Endre passord",
+      "currentPassword": "Nåværende passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "changePasswordError": "Kunne ikke oppdatere passordet",
+      "savePasswordChanges": "Lagre nytt passord",
+      "deactivateAccount": "Slett konto",
+      "deactivateAccountDescription": "Dette sletter kontoen din permanent. Alle innsynskrav, lagrede saker og lagrede søk vil bli slettet og kan ikke gjenopprettes.",
+      "deactivateAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.",
+      "deactivateAccountError": "Kunne ikke slette kontoen",
+      "deactivateAccountSubmit": "Slett kontoen min",
+      "deactivateAccountCancel": "Behold kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressen er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 tegn og inneholde store og små bokstaver samt tall eller spesialtegn",
+        "wrongPassword": "Nåværende passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikke tilgang",
+        "badRequest": "Ugyldig forespørsel",
+        "notFound": "Brukeren ble ikke funnet",
+        "internalServerError": "Det oppstod en serverfeil. Prøv igjen senere",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om en liten stund",
+        "passwordMismatch": "Passordene er ikke like",
+        "missingFields": "Fyll ut alle feltene"
+      }
+    }
   }
 }

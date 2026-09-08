@@ -232,6 +232,40 @@
     "savedMeetings": "Vurkon čoahkkimiid",
     "savedSearches": "Vurkon ohcanat",
     "profile": "Profila",
-    "backToSearch": "Máhccat ohcamii"
+    "backToSearch": "Máhccat ohcamii",
+    "profilePage": {
+      "changeEmail": "Rievdadit e-poasta",
+      "newEmail": "Ođas e-poasta",
+      "changeEmailSuccess": "E-poastačujuhus lea ođastuvvon",
+      "changeEmailError": "Ii sáhttán ođastit e-poastačujuhusa",
+      "currentEmail": "Dálá e-poastačujuhus",
+      "saveEmailChanges": "Vurket ođas e-poastačujuhusa",
+      "changePassword": "Rievdadit sátnevuložiid",
+      "currentPassword": "Dálá sátnevuloš",
+      "newPassword": "Ođas sátnevuloš",
+      "confirmNewPassword": "Duođaš ođas sátnevuloš",
+      "changePasswordSuccess": "Sátnevuloš lea ođastuvvon",
+      "changePasswordError": "Ii sáhttán ođastit sátnevuloša",
+      "savePasswordChanges": "Vurket ođas sátnevuloša",
+      "deactivateAccount": "Slett kontoa",
+      "deactivateAccountDescription": "Dát sihkkut kontoain bissovaččat. Buot vuhtiiváldágoahtimat, vurkon ásaid ja vurkon ohcanat sihkkujuvvojit eikge sáhte máhcahuvvot.",
+      "deactivateAccountConfirm": "Leat go sihkar go sihkkut kontoain? Dán ii sáhte rievdadit.",
+      "deactivateAccountError": "Ii sáhttán sihkkut kontoa",
+      "deactivateAccountSubmit": "Sihko mu kontoa",
+      "deactivateAccountCancel": "Doalat kontoain",
+      "errors": {
+        "invalidEmail": "E-poastačujuhus ii leat valid",
+        "invalidPassword": "Sátnevuloš ferte leat unnimus 8 mearka ja sisttisdoallat stuorra ja unna bustávaid ja lohkosa dahje specialmearkka",
+        "wrongPassword": "Dálá sátnevuloš ii leat riekta",
+        "authenticationError": "Seassun lea nohkan. Mana sisselogaide",
+        "authorizationError": "Dus ii leat vuoigatvuohta",
+        "badRequest": "Ii valid bivddu",
+        "notFound": "Geavaheaddji ii gávdno",
+        "internalServerError": "Serverfeapmi dáhpáhuvai. Geahččal fas maŋŋil",
+        "tooManyRequests": "Liiga máŋga geardde geahččalan. Geahččal fas veaháš maŋŋil",
+        "passwordMismatch": "Sátnevulošat eai leat seammaláganat",
+        "missingFields": "Deavt buot gáibáduvvon siidduid"
+      }
+    }
   }
 }
