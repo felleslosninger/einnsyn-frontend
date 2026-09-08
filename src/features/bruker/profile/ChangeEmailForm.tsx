@@ -19,10 +19,12 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
-  const errorMessage = state.error
-    ? t(`bruker.profilePage.errors.${state.error}`) ||
-      t('bruker.profilePage.changeEmailError')
-    : undefined;
+  const errorMessage = (() => {
+    if (!state.error) return undefined;
+    const key = `bruker.profilePage.errors.${state.error}`;
+    const msg = t(key);
+    return msg !== key ? msg : t('bruker.profilePage.changeEmailError');
+  })();
 
   useEffect(() => {
     if (state.success) {

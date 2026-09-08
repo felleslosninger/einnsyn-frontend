@@ -19,7 +19,7 @@ export async function updateEmailAction(
   if (!email) return { error: 'missingFields' };
 
   const authInfo = await cachedAuthInfo();
-  if (!authInfo?.id) return { error: 'unauthorized' };
+  if (!authInfo?.id) return { error: 'authenticationError' };
 
   try {
     const api = await cachedApiClient();
@@ -30,7 +30,7 @@ export async function updateEmailAction(
       if (error.type === 'validationError') return { error: 'invalidEmail' };
       return { error: error.type };
     }
-    return { error: 'unknownError' };
+    return { error: 'internalServerError' };
   }
 }
 
@@ -48,7 +48,7 @@ export async function updatePasswordAction(
     return { error: 'invalidPassword' };
 
   const authInfo = await cachedAuthInfo();
-  if (!authInfo?.id) return { error: 'unauthorized' };
+  if (!authInfo?.id) return { error: 'authenticationError' };
 
   try {
     const api = await cachedApiClient();
@@ -65,7 +65,7 @@ export async function updatePasswordAction(
       if (error.type === 'validationError') return { error: 'invalidPassword' };
       return { error: error.type };
     }
-    return { error: 'unknownError' };
+    return { error: 'internalServerError' };
   }
 }
 
@@ -74,7 +74,7 @@ export async function deleteAccountAction(
   _formData: FormData,
 ): Promise<ProfileActionState> {
   const authInfo = await cachedAuthInfo();
-  if (!authInfo?.id) return { error: 'unauthorized' };
+  if (!authInfo?.id) return { error: 'authenticationError' };
 
   try {
     const api = await cachedApiClient();
@@ -82,7 +82,7 @@ export async function deleteAccountAction(
     await deleteAuthAction();
   } catch (error) {
     if (error instanceof EInnsynError) return { error: error.type };
-    return { error: 'unknownError' };
+    return { error: 'internalServerError' };
   }
 
   redirect('/');

@@ -28,8 +28,13 @@ export default function DeactivateAccountSection() {
       </Paragraph>
       {state.error && (
         <Alert data-color="danger">
-          {t(`bruker.profilePage.errors.${state.error}`) ||
-            t('bruker.profilePage.deactivateAccountError')}
+          {(() => {
+            const key = `bruker.profilePage.errors.${state.error}`;
+            const msg = t(key);
+            return msg !== key
+              ? msg
+              : t('bruker.profilePage.deactivateAccountError');
+          })()}
         </Alert>
       )}
       <EinButton
