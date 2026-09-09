@@ -7,6 +7,7 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { brukerRoutes } from '~/features/bruker/brukerRoutes';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import LoginButton from './LoginButton';
@@ -15,11 +16,15 @@ import styles from './UserMenu.module.scss';
 
 export default function ProfileButton() {
   const { authInfo } = useSessionData();
+  const t = useTranslation();
 
   // User profile
   if (authInfo?.type === 'Bruker') {
     return (
-      <Dropdown button={<BrukerMenuButton authInfo={authInfo} />}>
+      <Dropdown
+        button={<BrukerMenuButton authInfo={authInfo} />}
+        label={t('site.loggedInAs', authInfo.email)}
+      >
         <BrukerMenuContent authInfo={authInfo} />
       </Dropdown>
     );
@@ -28,7 +33,10 @@ export default function ProfileButton() {
   // Employee profile
   if (authInfo?.type === 'Enhet') {
     return (
-      <Dropdown button={<EnhetMenuButton authInfo={authInfo} />}>
+      <Dropdown
+        button={<EnhetMenuButton authInfo={authInfo} />}
+        label={t('site.loggedInAs', authInfo.orgnummer)}
+      >
         <EnhetMenuContent authInfo={authInfo} />
       </Dropdown>
     );
@@ -86,31 +94,19 @@ export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
           'header-dropdown-content-section',
         )}
       >
-        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink unstyled href="/bruker/access-requests">
-            {t('bruker.accessRequests')}
-          </EinLink>
-        </EinButton>
-        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink unstyled href="/bruker/saved-cases">
-            {t('bruker.savedCases')}
-          </EinLink>
-        </EinButton>
-        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink unstyled href="/bruker/saved-meetings">
-            {t('bruker.savedMeetings')}
-          </EinLink>
-        </EinButton>
-        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink unstyled href="/bruker/saved-searches">
-            {t('bruker.savedSearches')}
-          </EinLink>
-        </EinButton>
-        <EinButton asChild variant="tertiary" data-color="neutral" fullWidth>
-          <EinLink unstyled href="/bruker/profile">
-            {t('bruker.profile')}
-          </EinLink>
-        </EinButton>
+        {brukerRoutes.map(({ href, translationKey }) => (
+          <EinButton
+            key={href}
+            asChild
+            variant="tertiary"
+            data-color="neutral"
+            fullWidth
+          >
+            <EinLink unstyled href={href}>
+              {t(translationKey)}
+            </EinLink>
+          </EinButton>
+        ))}
       </div>
       <div className="header-dropdown-content-section">
         <LogoutButton />
@@ -155,7 +151,7 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
           'header-dropdown-content-section',
         )}
       >
-        <span data-size="sm">{t('site.loggedInAs')}</span>
+        <span data-size="sm">{t('site.loggedInAsLabel')}</span>
         <br />
         <strong>{authInfo.enhet?.navn ?? authInfo.orgnummer}</strong>
       </div>
@@ -189,9 +185,11 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
 export function Dropdown({
   button,
   children,
+  label,
 }: {
   button: React.ReactElement<DropdownButtonProps>;
   children: React.ReactNode;
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const toggleDropdown = () => setOpen(!open);
@@ -214,7 +212,13 @@ export function Dropdown({
       onClickCapture={closeOnItemClick}
     >
       {buttonWithClickHandler}
-      <EinPopup open={open} setOpen={setOpen}>
+      <EinPopup
+        open={open}
+        setOpen={setOpen}
+        autoFocus
+        restoreFocus
+        contentProps={{ role: 'group', 'aria-label': label }}
+      >
         {children}
       </EinPopup>
     </div>
