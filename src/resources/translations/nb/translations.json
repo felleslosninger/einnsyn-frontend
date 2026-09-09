@@ -234,5 +234,13 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelighetserklæring",
     "github": "eInnsyn på Github"
+  },
+  "bruker": {
+    "title": "Mitt eInnsyn",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagrede saker",
+    "savedMeetings": "Lagrede møter",
+    "savedSearches": "Lagrede søk",
+    "profile": "Profil"
   }
 }
