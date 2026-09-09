@@ -26,6 +26,19 @@
   gap: var(--ds-size-2);
 }
 
+.tabDivider {
+  align-self: stretch;
+  width: 1px;
+  background-color: var(--ds-color-neutral-border-subtle);
+  margin: var(--ds-size-2) var(--ds-size-2);
+  flex-shrink: 0;
+}
+
+.tabIcon {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
 .searchFilter {
   flex-shrink: 0;
   margin-right: calc(var(--ds-size-1)); // Visually align with search field
