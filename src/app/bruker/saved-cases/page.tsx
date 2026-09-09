@@ -1,3 +1,3 @@
 export default function SavedCasesPage() {
-  return <></>;
+  return null;
 }

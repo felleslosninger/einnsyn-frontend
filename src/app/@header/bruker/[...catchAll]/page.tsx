@@ -1,3 +1,3 @@
 export default function BrukerCatchAllHeader() {
-  return <></>;
+  return null;
 }

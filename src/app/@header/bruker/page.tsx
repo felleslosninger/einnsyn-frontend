@@ -1,3 +1,3 @@
 export default function BrukerHeader() {
-  return <></>;
+  return null;
 }
