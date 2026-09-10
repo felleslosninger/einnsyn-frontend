@@ -3,6 +3,8 @@
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { getPathEnhet } from '~/lib/routes/sections';
 import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import { normalizeParamList, parseParamList } from '~/lib/utils/paramList';
 import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
@@ -14,6 +16,10 @@ import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
  * just picked instead of snapping back mid-navigation. The `enhet` route param
  * outlives the URL when navigating away from `/{enhet}`, hence the guard.
  *
+ * On a detail page the URL carries no search state at all, so the selection is
+ * read from the remembered search instead — otherwise the field would offer to
+ * search every enhet, and then submit against the scope it never displayed.
+ *
  * `enhetMap` canonicalizes each value to its {@link getEnhetIdentifier} form,
  * so an id and its slug dedupe and the string comparisons in
  * `useEnhetSelectorState` match. Callers outside `EnhetCacheProvider` omit it.
@@ -22,14 +28,20 @@ export function useEnhetFilterIds(
   enhetMap?: ReadonlyMap<string, TrimmedEnhet>,
 ) {
   const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const { showsResults, searchTarget } = useSearchField();
   const params = useParams<{ enhet?: string }>();
 
-  const optimisticPathEnhet = pathnameContainsEnhet(
-    optimisticPathname,
-    params.enhet,
-  )
-    ? params.enhet
-    : undefined;
+  const searchParams = showsResults
+    ? optimisticSearchParams
+    : searchTarget.searchParams;
+
+  const optimisticPathEnhet = showsResults
+    ? pathnameContainsEnhet(optimisticPathname, params.enhet)
+      ? params.enhet
+      : undefined
+    : // No matched route to read `params.enhet` from, so it comes back out of
+      // the remembered URL.
+      getPathEnhet(searchTarget.pathname);
 
   const pathEnhetValue = useMemo(() => {
     if (!optimisticPathEnhet) {
@@ -43,9 +55,7 @@ export function useEnhetFilterIds(
   const selectedEnhetIdentifiers = useMemo(() => {
     const parsed = [
       ...(pathEnhetValue ? [pathEnhetValue] : []),
-      ...optimisticSearchParams
-        .getAll('enhet')
-        .flatMap((value) => parseParamList(value)),
+      ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
     ];
     return normalizeParamList(
       parsed.map((value) => {
@@ -53,7 +63,7 @@ export function useEnhetFilterIds(
         return enhet ? getEnhetIdentifier(enhet) : value;
       }),
     );
-  }, [enhetMap, optimisticSearchParams, pathEnhetValue]);
+  }, [enhetMap, searchParams, pathEnhetValue]);
 
   return { pathEnhetValue, selectedEnhetIdentifiers };
 }

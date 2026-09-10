@@ -60,20 +60,10 @@ export const getName = (
  *
  * Not interchangeable with `enhet.id` at the API boundary: the cursor params
  * (`startingAfter`/`endingBefore`) silently misbehave when given a slug. Pass
- * `enhet.id` there, never this. For a link target, use {@link getEnhetHref}.
+ * `enhet.id` there, never this. For a link target, use `generateEnhetURL`.
  */
 export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
   return enhet.slug ?? enhet.id;
-};
-
-/**
- * The absolute path to an enhet's page, e.g. `"/oslo-kommune"`.
- *
- * Has to stay absolute and encoded: `EinLink` passes its `href` straight to the
- * `<a>`, where a relative value resolves against the current document.
- */
-export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
-  return `/${encodeURIComponent(getEnhetIdentifier(enhet))}`;
 };
 
 /**
@@ -112,6 +102,15 @@ export const getAncestorsAsString = (
     .map((ancestor) => getName(ancestor, languageCode))
     .join(separator);
 };
+
+export function getEnhetParentId(
+  enhet: Pick<TrimmedEnhet, 'parent'>,
+): string | undefined {
+  if (typeof enhet.parent === 'string') {
+    return enhet.parent;
+  }
+  return enhet.parent?.id;
+}
 
 /**
  * Look the enhet's parent up in an id-keyed map.

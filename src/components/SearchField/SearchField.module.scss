@@ -36,6 +36,53 @@
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);
 }
 
+// Stands in for the query segment's contents on a page reached from a search:
+// the textarea and its icon, not the pill around them. It fills the segment so
+// the whole width of the field is the click target, and takes no padding of its
+// own — the segment's own inset already puts the arrow where the magnifying
+// glass sits, and the gap puts the label where the query text starts.
+.backToSearch {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  color: var(--ds-color-neutral-text-default);
+  text-decoration: none;
+
+  // The segment lifts and tints on hover through `.searchInputContainer`; only
+  // the arrow reacts here, mirroring the icon it replaces.
+  &:hover .backToSearchIcon {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  // The field's own ring hangs off `:focus-within`, which has no `-visible`
+  // form, hence the `html[data-focus-input="keyboard"]` dance below. A link
+  // needs no such workaround.
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-size-1);
+    border-radius: var(--ds-border-radius-sm);
+  }
+}
+
+// The box `.iconContainer` gives the field's icon, so the arrow is the same
+// size in the same place.
+.backToSearchIcon {
+  flex: 0 0 auto;
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
+  color: var(--ds-color-neutral-text-subtle);
+  transition: color 0.2s fx.$easeOut;
+}
+
+.backToSearchLabel {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .pillRow:not(.hasActiveContainer):has(.searchInputContainer:hover) {
   --search-field-inactive-surface: var(--search-field-inactive-surface-hover);
   box-shadow: 0 1rem 2.25rem -1.5rem rgb(17 24 39 / 0.22);

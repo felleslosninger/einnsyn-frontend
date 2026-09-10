@@ -48,8 +48,10 @@ export default function SearchResultSubheader({
         className={cn(styles.searchResultDot, dotVariantClass[variant])}
         aria-hidden="true"
       />
-      <span>{capitalize(label)}</span>
+      {/* Inside the meta row, not beside it: the label is the first field of
+          the same run, and the separators are drawn between its children. */}
       <span className={styles.searchResultMeta}>
+        <span>{capitalize(label)}</span>
         {children}
         {publishedDate && (
           <span>

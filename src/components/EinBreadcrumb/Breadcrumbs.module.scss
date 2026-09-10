@@ -1,0 +1,46 @@
+@use '../../styles/mediaQueries.scss' as mq;
+@use '../../styles/headerRow.scss' as headerRow;
+
+// Type comes from the header's second row and the vertical box from the mixin
+// the search tabs use, so the trail this replaces them with is the same size and
+// leaves the row exactly as tall. Do not set font-size, line-height or block
+// margins here.
+.breadcrumbs {
+  margin-block: 0;
+}
+
+.breadcrumbs li {
+  @include headerRow.header-row-item;
+}
+
+// Match the tabs' link treatment: neutral rather than the accent-derived
+// `--ds-color-text-subtle` that `.ds-link` defaults to, and undecorated until
+// hover.
+.breadcrumbs a {
+  color: var(--ds-color-neutral-text-subtle);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+    text-decoration: underline;
+  }
+}
+
+.ellipsis {
+  opacity: 0.6;
+}
+
+/* When the final ancestor still doesn't fit, the .truncate class is added
+   to the current item's inner span. Promote the shrinking to the <li>
+   (the flex item) so text-overflow can actually clip. */
+.breadcrumbs li:last-child:has(.truncate) {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
