@@ -1,0 +1,46 @@
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  font-size: var(--ds-font-size-3, 0.875rem);
+}
+
+.kindIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ein-kind-color);
+  // The kind colours carry no dark-theme override, so the glyph is literally
+  // white rather than a theme-dependent token.
+  color: #fff;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+.kindLabel {
+  color: var(--ds-color-neutral-text-subtle, inherit);
+}
+
+// One colour per entity kind. Møte and møtesak are the colours their
+// search-result dots already use, pending a decision of their own.
+.kind-saksmappe {
+  --ein-kind-color: var(--ds-color-support-color-3-base-default);
+}
+
+.kind-journalpost {
+  --ein-kind-color: var(--ds-color-support-color-4-base-primary);
+}
+
+.kind-moetemappe {
+  --ein-kind-color: var(--ds-color-brand2-base-primary);
+}
+
+.kind-moetesak {
+  --ein-kind-color: var(--ds-color-support-color-5-base-primary);
+}

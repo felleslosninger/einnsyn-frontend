@@ -1,10 +1,9 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import { FolderFileIcon } from '@navikt/aksel-icons';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
 import { getSaksmappe } from '~/actions/api/saksmappe.actions';
 import EnhetCard from '~/features/entities/common/EnhetCard';
-import EntityKindRow from '~/features/entities/common/EntityKindRow';
+import EntityKind from '~/features/entities/common/EntityKind';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
@@ -48,9 +47,7 @@ export default async function Saksmappe({
 
   return (
     <EntityPageLayout
-      kind={
-        <EntityKindRow icon={<FolderFileIcon />} labelKey="saksmappe.label" />
-      }
+      kind={<EntityKind entity={saksmappe} />}
       header={<SaksmappeHeader saksmappe={saksmappe} />}
       card={
         enhet && <EnhetCard enhet={enhet} headingKey="saksmappe.publishedBy" />
