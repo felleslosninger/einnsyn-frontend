@@ -1,3 +1,5 @@
+@use "../../../styles/metaSeparator" as meta;
+
 .searchResults {
   padding-top: var(--ds-size-6);
 }
@@ -81,13 +83,23 @@
 
   .searchResultDot {
     margin-right: -5px;
+    // Centred on the first line rather than on the whole subheader, which is
+    // several lines tall once the metadata wraps.
+    align-self: flex-start;
+    margin-top: calc((1lh - 9px) / 2);
   }
 
   .searchResultMeta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ds-size-2) var(--ds-size-5);
+    // Takes the rest of the subheader's line and wraps inside itself, so the
+    // dot keeps the label company instead of being left on a line of its own.
+    flex: 1;
+    min-width: 0;
+    row-gap: var(--ds-size-2);
+
+    @include meta.separators;
   }
 }
 
