@@ -67,6 +67,33 @@ export function getSection(pathname: string): Section {
   return SECTION_BY_PATH.get(rootSegment) ?? 'enhet';
 }
 
+// Sections that also exist as an intercepted modal route (`@modal/(.)login`).
+// Navigating to one client-side puts its URL in the address bar while leaving
+// the page beneath it mounted, so the section the URL names is not the section
+// on screen.
+const MODAL_SECTIONS: ReadonlySet<Section> = new Set(['login']);
+
+/** Whether this section can be shown as a modal over the page beneath it. */
+export function isModalSection(section: Section): boolean {
+  return MODAL_SECTIONS.has(section);
+}
+
+// How deep into the site a section sits: the results you search from, and the
+// entity pages you open from them. Everything else — the static pages, admin —
+// counts as the outer level, so arriving from one still reads as going inward.
+const ENTITY_SECTIONS: ReadonlySet<Section> = new Set([
+  'saksmappe',
+  'moetemappe',
+]);
+
+/**
+ * The section's level, for a navigation that wants to know which way it is
+ * going. Equal levels mean a sideways move, which has no direction to show.
+ */
+export function sectionDepth(section: Section): number {
+  return ENTITY_SECTIONS.has(section) ? 1 : 0;
+}
+
 /** Sections that show search results. */
 const SECTIONS_WITH_RESULTS: ReadonlySet<Section> = new Set([
   // The landing page carries the search field with an empty query.
