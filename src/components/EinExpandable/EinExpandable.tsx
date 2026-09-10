@@ -17,7 +17,9 @@ export const EXPAND_DURATION_MS = 350;
 // stylesheet's `height` transition animates to. The content overflows the
 // clipped root, so its rect reports the full height even at `height: 0`.
 function publishHeight(expandable: HTMLElement): number {
-  const content = expandable.querySelector<HTMLElement>(`.${styles.content}`);
+  // The wrapper this component renders, not a class lookup: a stylesheet
+  // rename must not silently zero the measurement.
+  const content = expandable.firstElementChild;
   const height = content?.getBoundingClientRect().height ?? 0;
   expandable.style.setProperty('--expandable-height', `${height}px`);
   return height;

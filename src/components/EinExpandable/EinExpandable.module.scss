@@ -33,3 +33,9 @@
       opacity var(--expandable-duration) fx.$easeOut;
   }
 }
+
+.content {
+  // The measured box for `--expandable-height`; `flow-root` keeps a child's
+  // top/bottom margins inside it.
+  display: flow-root;
+}
