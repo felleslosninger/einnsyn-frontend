@@ -1,28 +1,25 @@
 @use "../../../styles/mediaQueries" as mq;
+@use "../../../styles/metaSeparator" as meta;
 @use "../../../styles/effects" as fx;
 
-// Row affordances (badge fill, chevron) animate alongside the expansion, so
-// this must match `EXPAND_DURATION_MS` in EinExpandable.
+// The accent bar and the open row's surface animate alongside the expansion,
+// so this must match `EXPAND_DURATION_MS` in EinExpandable.
 $expandDuration: 350ms;
 
 .journalpostList {
   // Digit count of the widest loaded journalpostnummer, set from JS.
   --jp-number-chars: 1;
   --jp-col-gap: var(--ds-size-3);
-  // `.numberBadge` geometry.
-  --jp-badge-size: 2rem;
-  --jp-badge-pad: var(--ds-size-2);
   // Single source of truth for the journalpostnummer column width: `.itemRow`
   // and the expansion's left indent both read it, so the expanded detail
-  // starts at the exact x where `.itemBody` begins. The badge (digits +
-  // padding + border, min `--jp-badge-size`) plus the cell padding.
-  --jp-number-col: calc(
-    max(
-        var(--jp-badge-size),
-        var(--jp-number-chars) * 1ch + var(--jp-badge-pad) * 2 +
-          var(--ds-border-width-default) * 2
-      ) + var(--ds-size-2) * 2
-  );
+  // starts at the exact x where `.itemBody` begins. Digits (measured in the
+  // list's own `ch`, a little wider than the number's smaller font, which
+  // leaves room for the selected row's bolder figures) with a floor that
+  // holds the column open while the first page is still skeletons.
+  --jp-number-col: max(2ch, var(--jp-number-chars) * 1ch);
+  // `.itemTitle`'s line height, tighter than the inherited 1.5 so wrapped
+  // titles hold together. `.itemClose` centres itself on this same line.
+  --jp-title-line: 1.35;
 }
 
 .listHeader {
@@ -41,7 +38,7 @@ $expandDuration: 350ms;
   gap: var(--ds-size-4);
   position: relative;
   padding-bottom: var(--ds-size-4);
-  margin-bottom: calc((var(--ds-size-2) + var(--ds-border-width-default)) * -1);
+  margin-bottom: calc(var(--ds-size-2) * -1);
 }
 
 .title {
@@ -109,98 +106,141 @@ $expandDuration: 350ms;
 }
 
 .list {
-  // Plain document flow — no height cap, no `overflow`, nothing sticky. The
-  // window is the list's scroll container (virtua's WindowVirtualizer reads it),
-  // so an expanded journalpost is scrolled by the page like any other content.
-  //
-  // `overflow-anchor: none` opts out of browser scroll anchoring: virtua
-  // positions rows absolutely and compensates for resizes above the viewport
-  // itself, and `useScrollToExpanded` drives the scroll on expand. A second,
-  // invisible mechanism nudging the scroll would only fight them.
   overflow-anchor: none;
-  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  border: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  border-radius: var(--ds-border-radius-lg);
+  overflow: hidden;
+
+  :not(:first-child)>.item {
+    border-top: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  }
+
+  // Loaded rows arrive one per virtualizer wrapper, so the rule above separates
+  // them. The placeholders at either end share one wrapper — the scroll trigger
+  // — and are separated from each other here.
+  .item+.item {
+    border-top: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  }
+
+  // The first loaded row is the first child inside the virtualizer and so draws
+  // no rule of its own. When placeholders stand above it, the last of them
+  // closes that seam. Matches nothing when there are none: the virtualizer's
+  // own children are wrappers, not rows.
+  >:first-child>.item:last-child {
+    border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  }
 }
 
 .item {
-  // Separators hang off the TOP of each row, so the list closes itself with
-  // `.list`'s own bottom rule. A bottom-border scheme would need to spare the
-  // final row, and virtua renders a moving slice of the list — its last mounted
-  // wrapper is rarely the last journalpost, so `:last-child` would blank a
-  // separator somewhere in the middle instead.
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  position: relative;
+  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  transition: background-color $expandDuration fx.$easeOut;
+}
+
+// The selected marker, drawn on every row and revealed on the open one. Placed
+// on `.item` rather than `.itemRow` so it spans the expansion as well, and
+// inset from the border box so it lands on the list's edge like the tinted
+// surface does.
+.item::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--ds-color-accent-base-default);
+  opacity: 0;
+  transition: opacity $expandDuration fx.$easeOut;
 }
 
 .itemRow {
   // The number cell IS the `--jp-number-col` track, so `.itemBody` and the
-  // expansion below share a left edge. The toggle sits in a third, auto track
+  // expansion below share a left edge. The action sits in a third, auto track
   // at the far right.
   display: grid;
-  grid-template-columns: var(--jp-number-col) minmax(0, 1fr) auto auto;
+  grid-template-columns: var(--jp-number-col) minmax(0, 1fr) auto;
   column-gap: var(--jp-col-gap);
+  // The number and the body sit on a shared baseline (see `.itemNumber`); the
+  // start alignment is what the action track falls back to before it centres
+  // itself.
   align-items: start;
-  padding: var(--ds-size-3) 0;
+  padding: var(--ds-size-2) 0;
 }
 
-// The action sits in its own track between the body and the toggle, so it is
-// right-aligned against the toggle whatever width the body takes.
+// Its own track at the row's right edge, so the button stays put whatever
+// width the body takes. Centred against the row's full height rather than the
+// `align-items: start` the other tracks use.
 .itemAction {
   justify-self: end;
-  margin-top: var(--ds-size-1);
+  align-self: center;
+}
+
+// The close button belongs to the title, not to the row: an open row keeps
+// growing downwards, and centring on its full height strands the button beside
+// the metadata. So centre it on the title's line box instead — `1lh` is that
+// line only because the title's font-size is matched here.
+.itemClose {
+  align-self: start;
+  font-size: var(--ds-font-size-4, 0.95rem);
+  line-height: var(--jp-title-line);
+  margin-top: calc((1lh - 2.25rem) / 2);
+  // Half the icon button's own padding, so the glyph — rather than its hit
+  // area — lines up with the buttons in the rows above and below.
+  margin-right: -0.5rem;
 }
 
 .itemNumber {
-  // A bordered pill hugging its content, centred in the number column. Filling
-  // it with the accent colour is how an expanded row is marked.
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: center;
-  box-sizing: border-box;
-  min-width: var(--jp-badge-size);
-  min-height: var(--jp-badge-size);
-  padding: 0 var(--jp-badge-pad);
-  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-default);
-  border-radius: var(--ds-border-radius-full, 9999px);
+  // A quiet index rather than a badge: right-aligned tabular figures, so the
+  // units line up down the column whatever the digit count.
+  justify-self: end;
+  align-self: baseline;
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-3);
-  transition:
-    background-color $expandDuration fx.$easeOut,
-    border-color $expandDuration fx.$easeOut,
-    color $expandDuration fx.$easeOut;
-}
-
-.numberBadge {
+  font-size: var(--ds-font-size-2);
   font-variant-numeric: tabular-nums;
-  line-height: 1;
+  transition: color $expandDuration fx.$easeOut;
 }
 
 .itemBody {
+  // Baseline-aligned against `.itemNumber`: a flex container takes the
+  // baseline of its first item, which is the title's.
+  align-self: baseline;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-.itemNumber,
-.itemTitle,
-.itemMeta,
-.itemKorr {
-  //margin: var(--ds-size-1) 0;
-}
-
-.itemTitle {
+// Two classes to outrank EinLink's own `.einLink`, which underlines every
+// link: in a list of them the colour is signal enough, and the underline
+// arrives on hover — the same bargain the search results strike.
+.itemBody .itemTitle {
   font-weight: 600;
-  font-size: var(--ds-font-size-4, 0.95rem);
+  font-size: var(--ds-font-size-4);
+  line-height: var(--jp-title-line);
+  margin-bottom: var(--ds-size-1);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
+// The two secondary lines share a size; what separates them is that the
+// parties are in body text and these are subtle.
 .itemMeta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ds-size-1) var(--ds-size-2);
+  row-gap: var(--ds-size-1);
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-3, 0.875rem);
+  font-size: var(--ds-font-size-2);
+
+  @include meta.separators;
 }
 
-.metaSeparator {
-  color: var(--ds-color-neutral-border-default);
+.itemBody .itemKorr {
+  font-size: var(--ds-font-size-2);
+
+  svg {
+    font-size: 1rem;
+  }
 }
 
 .attachmentBadge {
@@ -213,47 +253,21 @@ $expandDuration: 350ms;
   font-size: 1rem;
 }
 
-.itemToggle {
-  // Redundant click target for the row's link, and the open/closed affordance.
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  margin-top: var(--ds-size-1);
-  border-radius: var(--ds-border-radius-default);
-  color: var(--ds-color-neutral-text-subtle);
-  text-decoration: none;
-
-  &:hover {
-    background: var(--ds-color-neutral-surface-hover);
-    color: var(--ds-color-neutral-text-default);
-  }
-
-  svg {
-    font-size: 1.25rem;
-    transition: transform $expandDuration fx.$easeOut;
-  }
+// Marking the expanded row: a tinted surface, the accent bar down its left
+// edge and the number in accent. The surface bleeds to the list's edges rather
+// than taking horizontal padding of its own, which would shift the row's grid
+// out of line with the rest.
+.selected {
+  background: var(--ds-color-surface-tinted);
 }
 
-// Marking the expanded row. Deliberately quiet: the list keeps its rhythm and
-// only the badge fills, bracketed by a pair of rules. `inset` box-shadow draws
-// the top rule without a border that would shift the row by a pixel.
-.selected {
-  border-top-color: var(--ds-color-neutral-border-default);
-  // The closing rule. An inset shadow rather than a border, so switching rows
-  // never changes a row's height by a pixel mid-animation.
-  box-shadow: inset 0 calc(var(--ds-border-width-default) * -1) 0 0 var(--ds-color-neutral-border-default);
+.selected::before {
+  opacity: 1;
 }
 
 .selected .itemNumber {
-  background: var(--ds-color-accent-base-default);
-  border-color: var(--ds-color-accent-base-default);
-  color: var(--ds-color-accent-contrast-default, #fff);
-}
-
-.selected .itemToggle svg {
-  transform: rotate(180deg);
+  color: var(--ds-color-accent-text-default);
+  font-weight: 600;
 }
 
 
@@ -270,8 +284,5 @@ $expandDuration: 350ms;
 }
 
 .expansionContent {
-  // The rule between the row's summary and its detail. It lives inside the
-  // clipping element so a collapsed expansion leaves no stray hairline behind.
-  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
   padding: var(--ds-size-5) 0 var(--ds-size-6);
 }

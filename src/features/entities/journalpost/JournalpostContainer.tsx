@@ -81,7 +81,7 @@ export default function JournalpostContainer({
   return (
     // No title here: this renders inline underneath the list row, which
     // already shows the journalpost's title as its own (link) heading.
-    <article className={styles.content}>
+    <article className={styles.content} data-size="sm">
       <dl className={styles.fields}>
         <Field label={t('journalpost.recordType')}>
           <span className={styles.typeLabel}>{typeLabel}</span>

@@ -1,12 +1,13 @@
 'use client';
 
+import { Skeleton } from '@digdir/designsystemet-react';
 import {
   isEnhet,
   type Journalpost,
   type PaginatedList,
   type Saksmappe,
 } from '@digdir/einnsyn-sdk';
-import { ChevronDownIcon, SortDownIcon } from '@navikt/aksel-icons';
+import { SortDownIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { WindowVirtualizer, type WindowVirtualizerHandle } from 'virtua';
 import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
@@ -28,6 +29,7 @@ import {
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { getName } from '~/lib/utils/enhetUtils';
+import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import {
   useJournalpostURLGenerator,
   useSaksmappeURLGenerator,
@@ -207,10 +209,10 @@ export default function JournalpostList({
           ends of its full height and leave item indices alone. */}
       <div className={styles.list}>
         {page.previous && (
-          <EinScrollTrigger
-            onEnter={extendBackward}
-            rootMargin={EXTEND_MARGIN}
-          />
+          <EinScrollTrigger onEnter={extendBackward} rootMargin={EXTEND_MARGIN}>
+            <JournalpostListItemSkeleton index={0} />
+            <JournalpostListItemSkeleton index={1} />
+          </EinScrollTrigger>
         )}
         <WindowVirtualizer
           ref={vlistRef}
@@ -237,11 +239,49 @@ export default function JournalpostList({
           })}
         </WindowVirtualizer>
         {page.next && (
-          <EinScrollTrigger
-            onEnter={extendForward}
-            rootMargin={EXTEND_MARGIN}
-          />
+          <EinScrollTrigger onEnter={extendForward} rootMargin={EXTEND_MARGIN}>
+            <JournalpostListItemSkeleton index={2} />
+            <JournalpostListItemSkeleton index={3} />
+          </EinScrollTrigger>
         )}
+      </div>
+    </div>
+  );
+}
+
+// The rows waiting at either end of the loaded window, in the shape of the ones
+// that will replace them: number, title, meta, correspondence. Hidden from
+// assistive tech — there is nothing here to read yet, and the rows arrive on
+// their own.
+function JournalpostListItemSkeleton({ index }: { index: number }) {
+  // Three lines per row, so each placeholder takes its own stretch of the
+  // width cycle instead of repeating the one above it.
+  const line = index * 3;
+
+  return (
+    <div className={styles.item} aria-hidden="true">
+      <div className={styles.itemRow}>
+        <span className={styles.itemNumber}>
+          <Skeleton variant="text" width={2} />
+        </span>
+        <div className={styles.itemBody}>
+          <div className={styles.itemTitle}>
+            <Skeleton variant="text" width={skeletonLength(line, 30, 60)} />
+          </div>
+          <div className={styles.itemMeta}>
+            {/* Wrapped: a text skeleton is sized by its own content, and this
+                flex parent would stretch it to the full width instead. */}
+            <span>
+              <Skeleton
+                variant="text"
+                width={skeletonLength(line + 1, 20, 40)}
+              />
+            </span>
+          </div>
+          <div className={styles.itemKorr}>
+            <Skeleton variant="text" width={skeletonLength(line + 2, 15, 30)} />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -276,9 +316,7 @@ function JournalpostListItem({
       <div className={styles.itemRow}>
         {/* Readable text, not a link: the number must reach assistive tech. */}
         <span className={styles.itemNumber}>
-          <span className={styles.numberBadge}>
-            {journalpost.journalpostnummer}
-          </span>
+          {journalpost.journalpostnummer}
         </span>
         <div className={styles.itemBody}>
           <EinLink
@@ -292,9 +330,6 @@ function JournalpostListItem({
           </EinLink>
           <div className={styles.itemMeta}>
             <span>{t(`searchFilters.journalpostTypes.${kind}`)}</span>
-            <span aria-hidden="true" className={styles.metaSeparator}>
-              —
-            </span>
             {journalpost.publisertDato && (
               <span>
                 {t('common.publishedAt')}{' '}
@@ -303,15 +338,10 @@ function JournalpostListItem({
             )}
             {journalpost.oppdatertDato &&
               journalpost.oppdatertDato !== journalpost.publisertDato && (
-                <>
-                  <span aria-hidden="true" className={styles.metaSeparator}>
-                    —
-                  </span>
-                  <span>
-                    {t('common.updatedAt')}{' '}
-                    {dateFormat(journalpost.oppdatertDato, languageCode)}
-                  </span>
-                </>
+                <span>
+                  {t('common.updatedAt')}{' '}
+                  {dateFormat(journalpost.oppdatertDato, languageCode)}
+                </span>
               )}
           </div>
           <Korrespondansepart
@@ -320,23 +350,29 @@ function JournalpostListItem({
             className={styles.itemKorr}
           />
         </div>
-        {/* In the row so it's reachable without opening the journalpost. */}
-        <DocumentActions
-          dokumentbeskrivelse={journalpost.dokumentbeskrivelse}
-          className={styles.itemAction}
-        />
-        {/* Duplicate pointer target, hidden from assistive tech: the row
-            exposes a single link whose `aria-expanded` carries the state. */}
-        <EinLink
-          href={href}
-          scroll={false}
-          className={styles.itemToggle}
-          aria-hidden="true"
-          tabIndex={-1}
-          unstyled
-        >
-          <ChevronDownIcon aria-hidden="true" />
-        </EinLink>
+        {selected ? (
+          // The expansion lists the same documents, so the action would be a
+          // second copy of what is already on screen. Same href as the title.
+          <EinLink
+            href={href}
+            scroll={false}
+            aria-label={t('common.close')}
+            className={cn(
+              styles.iconButton,
+              styles.itemAction,
+              styles.itemClose,
+            )}
+            unstyled
+          >
+            <XMarkIcon aria-hidden="true" />
+          </EinLink>
+        ) : (
+          // In the row so it's reachable without opening the journalpost.
+          <DocumentActions
+            dokumentbeskrivelse={journalpost.dokumentbeskrivelse}
+            className={styles.itemAction}
+          />
+        )}
       </div>
 
       <EinExpandable
