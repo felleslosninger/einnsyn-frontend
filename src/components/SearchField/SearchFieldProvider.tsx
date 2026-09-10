@@ -32,13 +32,17 @@ interface SearchFieldContextType {
   setSearchQuery: (query: string, push?: boolean) => void;
   pushSearchQuery: (query: string) => void;
   /**
-   * True when the field is showing a remembered search rather than the one that
-   * produced the current page — i.e. on a detail page. The field stays usable;
-   * this only drives the dimmed styling and the back-arrow.
+   * Whether the current page shows the results the field describes. False on a
+   * detail page, where the field is a view of the search that led there rather
+   * than of this URL.
    */
-  dormant: boolean;
-  /** URL of the remembered search, or `undefined` if there was none. */
-  searchOrigin: string | undefined;
+  showsResults: boolean;
+  /**
+   * The search to go back to, set only when there is one and the current page
+   * is not it. The field shows this as a link in place of its query; the field
+   * is otherwise unchanged, so a submit still runs against {@link searchTarget}.
+   */
+  backToSearchHref: string | undefined;
   /** Where a submitted query goes: the current search, or the remembered one. */
   searchTarget: { pathname: string; searchParams: URLSearchParams };
 }
@@ -54,13 +58,14 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   );
 
   // Stamped against the committed route, so it lands on the history entry the
-  // browser has actually moved to. The dormant/live split below uses the
-  // optimistic route instead, so the field restyles as navigation starts.
+  // browser has actually moved to. The split below uses the optimistic route
+  // instead, so the field swaps to the back link as navigation starts.
   const searchOrigin = useSearchOrigin(
     navigation.pathname,
     navigation.searchParamsString,
   );
-  const dormant = !showsSearchResults(optimisticPathname);
+  const showsResults = showsSearchResults(optimisticPathname);
+  const backToSearchHref = showsResults ? undefined : searchOrigin;
   const parsedSearchOrigin = useMemo(
     () => parseSearchOrigin(searchOrigin),
     [searchOrigin],
@@ -78,11 +83,11 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   // authoritative to show — a deep-linked detail page — so whatever has been
   // typed is left alone.
   const authoritativeQuery = useMemo(() => {
-    if (!dormant) {
+    if (showsResults) {
       return optimisticSearchParams.get('q') ?? '';
     }
     return parsedSearchOrigin?.searchParams.get('q') ?? undefined;
-  }, [dormant, optimisticSearchParams, parsedSearchOrigin]);
+  }, [showsResults, optimisticSearchParams, parsedSearchOrigin]);
 
   useEffect(() => {
     if (authoritativeQuery === undefined) return;
@@ -92,7 +97,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   // Submitting from a detail page must go back to the search, not to
   // `/case/abc?q=…`, and it has to carry the remembered filters, enhet and sort.
   const searchTarget = useMemo(() => {
-    if (!dormant) {
+    if (showsResults) {
       return {
         // The landing page has no results of its own; searching leaves it.
         pathname: optimisticPathname === '/' ? '/search' : optimisticPathname,
@@ -105,7 +110,12 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         searchParams: new URLSearchParams(),
       }
     );
-  }, [dormant, optimisticPathname, optimisticSearchParams, parsedSearchOrigin]);
+  }, [
+    showsResults,
+    optimisticPathname,
+    optimisticSearchParams,
+    parsedSearchOrigin,
+  ]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
   useEffect(() => {
@@ -185,8 +195,8 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
-      dormant,
-      searchOrigin,
+      showsResults,
+      backToSearchHref,
       searchTarget,
     }),
     [
@@ -196,8 +206,8 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
       setProperty,
       setSearchQuery,
       pushSearchQuery,
-      dormant,
-      searchOrigin,
+      showsResults,
+      backToSearchHref,
       searchTarget,
     ],
   );

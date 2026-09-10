@@ -15,11 +15,7 @@
   height: var(--ds-size-6);
   color: var(--ds-color-neutral-text-subtle);
   pointer-events: none;
-  // `position: absolute` makes this a stacking context, so a child cannot rise
-  // above the textarea (`.input`, z-index 2) on its own. An icon slot holding
-  // something interactive has to raise the container itself — see the back
-  // control in SearchField's `.dormant`. Decorative icons stay below.
-  z-index: var(--styled-input-icon-z-index, 1);
+  z-index: 1;
 
   svg {
     width: 100%;
@@ -31,10 +27,7 @@
 .input {
   border: none;
   background: transparent;
-  // Overridable so a de-emphasised field (see `.dormant` in SearchField) can
-  // dim the query text from the outside; this module owns the element.
-  color: var(--styled-input-color, var(--ds-color-neutral-text-default));
-  transition: color 0.2s ease-out;
+  color: var(--ds-color-neutral-text-default);
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -71,7 +64,7 @@
   width: 100%;
   height: var(--styled-input-min-height);
   color: transparent;
-  caret-color: var(--styled-input-color, var(--ds-color-neutral-text-default));
+  caret-color: var(--ds-color-neutral-text-default);
   z-index: 2;
   overflow: hidden;
   resize: none;

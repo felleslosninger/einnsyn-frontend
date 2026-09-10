@@ -17,9 +17,8 @@ import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
  * outlives the URL when navigating away from `/{enhet}`, hence the guard.
  *
  * On a detail page the URL carries no search state at all, so the selection is
- * read from the remembered search instead — otherwise the dormant field would
- * show the query it was scoped with but claim to cover every enhet, and then
- * submit against the scope it never displayed.
+ * read from the remembered search instead — otherwise the field would offer to
+ * search every enhet, and then submit against the scope it never displayed.
  *
  * `enhetMap` canonicalizes each value to its {@link getEnhetIdentifier} form,
  * so an id and its slug dedupe and the string comparisons in
@@ -29,20 +28,20 @@ export function useEnhetFilterIds(
   enhetMap?: ReadonlyMap<string, TrimmedEnhet>,
 ) {
   const { optimisticPathname, optimisticSearchParams } = useNavigation();
-  const { dormant, searchTarget } = useSearchField();
+  const { showsResults, searchTarget } = useSearchField();
   const params = useParams<{ enhet?: string }>();
 
-  const searchParams = dormant
-    ? searchTarget.searchParams
-    : optimisticSearchParams;
+  const searchParams = showsResults
+    ? optimisticSearchParams
+    : searchTarget.searchParams;
 
-  const optimisticPathEnhet = dormant
-    ? // No matched route to read `params.enhet` from, so it comes back out of
-      // the remembered URL.
-      getPathEnhet(searchTarget.pathname)
-    : pathnameContainsEnhet(optimisticPathname, params.enhet)
+  const optimisticPathEnhet = showsResults
+    ? pathnameContainsEnhet(optimisticPathname, params.enhet)
       ? params.enhet
-      : undefined;
+      : undefined
+    : // No matched route to read `params.enhet` from, so it comes back out of
+      // the remembered URL.
+      getPathEnhet(searchTarget.pathname);
 
   const pathEnhetValue = useMemo(() => {
     if (!optimisticPathEnhet) {

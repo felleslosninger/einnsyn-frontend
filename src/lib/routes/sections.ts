@@ -118,9 +118,10 @@ const SECTIONS_WITH_SEARCH_FIELD: ReadonlySet<Section> = new Set([
  *
  * Intercepted modal routes change the pathname while leaving the page beneath
  * them in place, so they read as false here. That is what we want for a
- * remembered search — `/login` must not overwrite it — but it also marks the
- * field dormant. Harmless while `@header/login` renders nothing; a modal opened
- * over a route that *does* show the header would need excluding explicitly.
+ * remembered search — `/login` must not overwrite it — but it also puts the
+ * back link in the search field. Harmless while `@header/login` renders
+ * nothing; a modal over a route that *does* show the header would need
+ * excluding explicitly.
  */
 export function showsSearchResults(pathname: string): boolean {
   return SECTIONS_WITH_RESULTS.has(getSection(pathname));

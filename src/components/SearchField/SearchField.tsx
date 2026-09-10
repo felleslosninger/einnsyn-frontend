@@ -30,8 +30,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     searchQuery,
     setSearchQuery,
     pushSearchQuery,
-    dormant,
-    searchOrigin,
+    backToSearchHref,
     searchTarget,
   } = useSearchField();
   const navigation = useNavigation();
@@ -79,40 +78,74 @@ export const SearchField = ({ className }: SearchFieldProps) => {
         ? `${previousPathname}?${previousSearchParamsString}`
         : previousPathname;
 
-      if (previousUrl === searchOrigin) {
+      if (previousUrl === backToSearchHref) {
         event.preventDefault();
         navigation.back();
       }
-      // Otherwise let EinLink push `searchOrigin` as normal.
+      // Otherwise let EinLink push the remembered search as normal.
     },
-    [navigation, previousPathname, previousSearchParamsString, searchOrigin],
+    [
+      navigation,
+      previousPathname,
+      previousSearchParamsString,
+      backToSearchHref,
+    ],
   );
 
   const showClearButton =
-    !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
+    !backToSearchHref &&
+    !!searchQuery &&
+    (!activeContainer || activeContainer === 'searchQuery');
 
-  // The magnifying glass is decorative; on a detail page its slot becomes the
-  // way back to the results. It stays visible on mobile, where the decorative
-  // icon is dropped for space, because it is the primary way back.
-  const searchQueryIcon =
-    dormant && searchOrigin ? (
-      <EinLink
-        href={searchOrigin}
-        unstyled
-        className={cn(styles.backToSearchLink)}
-        onClick={handleBackToSearch}
-        aria-label={t('search.backToResults')}
-      >
-        <ArrowLeftIcon aria-hidden="true" />
-      </EinLink>
-    ) : (
-      !isMobileLayout && (
-        <MagnifyingGlassIcon
-          className={cn(styles.searchIcon)}
-          aria-hidden="true"
-        />
-      )
-    );
+  // The magnifying glass is decorative, and dropped on mobile for space.
+  const searchQueryIcon = !isMobileLayout && (
+    <MagnifyingGlassIcon className={cn(styles.searchIcon)} aria-hidden="true" />
+  );
+
+  // On a page reached from a search the query is not this page's to show, so
+  // the field's contents are the way back to it instead. Everything around them
+  // — the pill, the enhet selector, the submit button — is unchanged, and still
+  // acts on the remembered search.
+  const searchQueryContent = backToSearchHref ? (
+    <EinLink
+      href={backToSearchHref}
+      className={cn(styles.backToSearch)}
+      onClick={handleBackToSearch}
+      unstyled
+    >
+      <ArrowLeftIcon
+        className={cn(styles.backToSearchIcon)}
+        aria-hidden="true"
+      />
+      <span className={cn(styles.backToSearchLabel)}>
+        {t('search.backToResults')}
+      </span>
+    </EinLink>
+  ) : (
+    <>
+      <StyledInput
+        icon={searchQueryIcon}
+        value={searchQuery}
+        setValue={setSearchQuery}
+        onFocus={activateSearchQueryContainer}
+        onBlur={deactivateContainer}
+        placeholder={t('search.placeholder')}
+        name="q"
+      />
+
+      {showClearButton && (
+        <Button
+          className={cn(styles.clearButton)}
+          type="button"
+          onClick={handleClear}
+          aria-label={t('search.clear')}
+          variant="tertiary"
+        >
+          <XMarkIcon className={cn(styles.clearIcon)} aria-hidden="true" />
+        </Button>
+      )}
+    </>
+  );
 
   const enhetSelector = (
     <EnhetSelector
@@ -124,9 +157,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
 
   return (
     <form
-      className={cn(styles.searchFieldContainer, className, {
-        [styles.dormant]: dormant,
-      })}
+      className={cn(styles.searchFieldContainer, className)}
       method="get"
       onSubmit={onSubmit}
       action={searchTarget.pathname}
@@ -134,10 +165,11 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     >
       {/* Include current query parameters as hidden inputs. On a detail page
           these come from the remembered search, so a no-JS submit lands back on
-          the results rather than on `/case/abc?q=…`. */}
+          the results rather than on `/case/abc?q=…`. `q` travels in the
+          textarea, except while the back link stands in for it. */}
       {Array.from(searchTarget.searchParams.entries()).map(
         ([key, value]) =>
-          key !== 'q' && (
+          (key !== 'q' || !!backToSearchHref) && (
             <input key={key} type="hidden" name={key} value={value} />
           ),
       )}
@@ -162,30 +194,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
             className={cn(styles.expandableInputContainer)}
             data-styled-input-expandable="true"
           >
-            <StyledInput
-              icon={searchQueryIcon}
-              value={searchQuery}
-              setValue={setSearchQuery}
-              onFocus={activateSearchQueryContainer}
-              onBlur={deactivateContainer}
-              placeholder={t('search.placeholder')}
-              name="q"
-            />
-
-            {showClearButton && (
-              <Button
-                className={cn(styles.clearButton)}
-                type="button"
-                onClick={handleClear}
-                aria-label={t('search.clear')}
-                variant="tertiary"
-              >
-                <XMarkIcon
-                  className={cn(styles.clearIcon)}
-                  aria-hidden="true"
-                />
-              </Button>
-            )}
+            {searchQueryContent}
           </div>
         </div>
 
