@@ -7,6 +7,7 @@ import { getSettings } from '~/actions/cookies/settingsCookie';
 import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
+import { PageTransition } from '~/components/PageTransition/PageTransition';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
@@ -70,7 +71,7 @@ export default async function Layout({
             <body data-color-scheme={settings.colorScheme}>
               <div className="einnsyn-body">
                 {header}
-                <main className="content-flex-grow">{children}</main>
+                <PageTransition>{children}</PageTransition>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
                 <KeyboardFocusManager />

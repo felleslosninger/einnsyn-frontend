@@ -1,0 +1,104 @@
+@use "../../styles/effects.scss" as fx;
+
+.viewport {
+  // The page is translated sideways during the transition; clipped here so the
+  // travel never widens the document. `overflow-y` stays visible, which `clip`
+  // — unlike `hidden` — allows, so nothing on the page loses the viewport as
+  // its scroll container.
+  overflow-x: clip;
+  // The outgoing page is positioned against this while it leaves.
+  position: relative;
+}
+
+// Both pages exist at once for the length of a transition, and which of them
+// holds the document's height decides whether the router can still restore a
+// scroll position (see `markContainer`). So the incoming page keeps its place
+// in the layout — overriding the `display: none` `EinTransition` puts on it —
+// and the outgoing one is lifted out of the flow to leave.
+.viewport[data-page-transition] .page {
+  display: block !important;
+}
+
+// The incoming page before it has been posed: in the layout, not yet on screen.
+// Once it is posed it has a step class of its own, and that pose is `opacity:
+// 0`, so there is nothing to flash.
+.viewport[data-page-transition] .page:not([class*="ein-transition-"]) {
+  visibility: hidden;
+}
+
+// The outgoing page. `init-transition` is the one step class only ever added to
+// it, and it stays on for the whole exit. Fixed to the viewport rather than the
+// document, at the `top` `pinOutgoing` measures, so that the scroll the router
+// performs while it leaves does not drag it along.
+.page:global(.ein-transition-init-transition) {
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+
+// How far the page travels. Enough to read as a direction, not as a slide.
+$travel: 2rem;
+
+// Which way each half moves. The direction is carried in custom properties
+// rather than in the step selectors below, so that every step rule stays a
+// plain pair of classes — see the ordering note there.
+.page[data-page-transition="inward"] {
+  --page-exit-x: -#{$travel};
+  --page-enter-x: #{$travel};
+}
+
+.page[data-page-transition="outward"] {
+  --page-exit-x: #{$travel};
+  --page-enter-x: -#{$travel};
+}
+
+// Someone who has asked for less motion gets the cross-fade without the travel.
+@media (prefers-reduced-motion: reduce) {
+  .page[data-page-transition] {
+    --page-exit-x: 0px;
+    --page-enter-x: 0px;
+  }
+}
+
+// `EinTransition` drives these by adding a class per step (`withClassNames`),
+// and each step ends by awaiting `transitionend` on this element — so a step
+// with no motion must say `transition: none` or it waits out whatever duration
+// is in force. The rules are equal specificity, so source order decides where
+// two apply at once: keep them in step order.
+.page:global(.ein-transition-init-transition),
+.page:global(.ein-transition-init-exit-transition) {
+  transition: none;
+}
+
+// The outgoing page leaves as soon as navigation starts, without waiting for
+// the incoming one: `waitForLoad` is the step after this.
+.page:global(.ein-transition-exit-transition) {
+  opacity: 0;
+  transform: translateX(var(--page-exit-x, 0px));
+  transition:
+    opacity 150ms fx.$easeOut,
+    transform 150ms fx.$easeOut;
+}
+
+// Held here, already gone, while the new page loads.
+.page:global(.ein-transition-wait) {
+  transition: none;
+}
+
+// The incoming page's starting pose, set while it is still hidden — posed, not
+// animated, and the gap between the two pages waits on this step.
+.page:global(.ein-transition-init-enter-transition) {
+  opacity: 0;
+  transform: translateX(var(--page-enter-x, 0px));
+  transition: none;
+}
+
+// Must stay after the init-enter rule: both classes are present during this
+// step, and this is the one that has to win.
+.page:global(.ein-transition-enter-transition) {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms fx.$easeOut,
+    transform 200ms fx.$easeOut;
+}
