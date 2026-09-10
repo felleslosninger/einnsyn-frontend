@@ -7,17 +7,12 @@ import SaksmappeBreadcrumb from '~/features/entities/saksmappe/SaksmappeBreadcru
  */
 export default function SaksmappeHeaderRow({
   saksmappeId,
-  journalpostId,
 }: {
   saksmappeId: string;
-  journalpostId?: string;
 }) {
   return (
     <EntityHeaderBar followLabelKey="saksmappe.follow">
-      <SaksmappeBreadcrumb
-        saksmappeId={saksmappeId}
-        journalpostId={journalpostId}
-      />
+      <SaksmappeBreadcrumb saksmappeId={saksmappeId} />
     </EntityHeaderBar>
   );
 }

@@ -1,5 +1,4 @@
 import { SaksmappeHeaderRow } from '~/features/entities';
-import { getJournalpostFromPath } from '~/lib/routes/sections';
 
 // Header slot for the routes under /saksmappe/* (saksmappe and journalpost).
 export default async function SaksmappeHeaderSlot({
@@ -9,12 +8,7 @@ export default async function SaksmappeHeaderSlot({
 }>) {
   const { rest } = await params;
 
-  return (
-    <SaksmappeHeaderRow
-      saksmappeId={rest[0]}
-      // Matching on the route folder's own name: `rest` only ever reaches this
-      // slot via /saksmappe/*, whichever language the incoming URL used.
-      journalpostId={getJournalpostFromPath(`/saksmappe/${rest.join('/')}`)}
-    />
-  );
+  // The trail ends at the saksmappe on the journalpost routes too, so only
+  // the first segment matters here.
+  return <SaksmappeHeaderRow saksmappeId={rest[0]} />;
 }
