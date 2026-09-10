@@ -5,6 +5,7 @@ import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
 import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
+import { EinnsynBody } from '~/components/EinnsynBody/EinnsynBody';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { PageTransition } from '~/components/PageTransition/PageTransition';
@@ -69,14 +70,14 @@ export default async function Layout({
         >
           <SearchFieldProvider>
             <body data-color-scheme={settings.colorScheme}>
-              <div className="einnsyn-body">
+              <EinnsynBody>
                 {header}
                 <PageTransition>{children}</PageTransition>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
                 <KeyboardFocusManager />
                 <ThemeManager />
-              </div>
+              </EinnsynBody>
             </body>
           </SearchFieldProvider>
         </SessionDataProvider>

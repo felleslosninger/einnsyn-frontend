@@ -24,6 +24,18 @@
   }
 
   background-color: var(--ds-color-neutral-background-default);
+  // The section wash `EinnsynBody` sets runs from the document top, which is
+  // where the header sits, so painting the same band over the opaque
+  // background continues it seamlessly while scrolled to the top — and keeps
+  // the tint on the header once it floats above the scrolled page. Sections
+  // without a wash leave the properties unset: a transparent, zero-high band.
+  background-image: linear-gradient(
+    var(--ein-top-wash, transparent),
+    transparent
+  );
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 100% var(--ein-top-wash-height, 0);
   width: 100%;
   z-index: 10;
 
@@ -34,6 +46,10 @@
   top: 0;
 
   &.fixed {
+    // Floating above the page, the header shows a later, weaker part of the
+    // band, as if the wash had scrolled away with the content beneath it. The
+    // shift is a background-position, so it eases with the transition below.
+    background-position: 0 var(--ein-top-wash-float-offset, 0);
     position: fixed;
     box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
     border-bottom: 0px;
