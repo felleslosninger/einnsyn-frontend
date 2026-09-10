@@ -1,5 +1,7 @@
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react';
 import { EXPAND_DURATION_MS } from '~/components/EinExpandable/EinExpandable';
+import { suspendScrollDirection } from '~/hooks/useScrollState';
+import { animationFrame } from '~/lib/utils/animationFrame';
 
 // Gap between the expanded item and the header/viewport edges.
 const SCROLL_GAP_PX = 16;
@@ -69,11 +71,13 @@ function smoothScrollBy(delta: number) {
   const start = performance.now();
   let applied = 0;
   let frame = 0;
+  const releaseScrollDirection = suspendScrollDirection();
   const stop = () => {
     cancelAnimationFrame(frame);
     for (const type of SCROLL_ABORT_EVENTS) {
       window.removeEventListener(type, stop);
     }
+    releaseScrollDirection();
     if (stopActiveGlide === stop) stopActiveGlide = null;
   };
   const step = (now: number) => {
@@ -109,6 +113,24 @@ function settledItemTop(root: HTMLElement | null, item: HTMLElement): number {
   return itemTop - collapsing;
 }
 
+// Run once the element has a box to measure. A list can mount inside a hidden
+// container — a page still mid-transition — where every rect is zero and a
+// scroll computed from one would be meaningless.
+function whenLaidOut(element: HTMLElement, run: () => void): () => void {
+  if (element.getBoundingClientRect().height > 0) {
+    run();
+    return () => {};
+  }
+
+  const observer = new ResizeObserver(() => {
+    if (element.getBoundingClientRect().height === 0) return;
+    observer.disconnect();
+    run();
+  });
+  observer.observe(element);
+  return () => observer.disconnect();
+}
+
 /**
  * Scrolls the expanded item in a window-scrolled list to a comfortable
  * resting place, gliding in step with `EinExpandable`'s height transition.
@@ -116,7 +138,8 @@ function settledItemTop(root: HTMLElement | null, item: HTMLElement): number {
  * The consumer marks the expanded item with `data-expanded` inside the
  * element `rootRef` is attached to, and passes `onExpand` to the item's
  * `EinExpandable`. A deep link (already expanded on first render, no enter
- * transition coming) is placed directly.
+ * transition coming) is placed on mount, through `scrollToItem` where there
+ * is one.
  */
 export function useScrollToExpanded({
   expandedKey,
@@ -141,17 +164,42 @@ export function useScrollToExpanded({
     initialPlacementPending.current = false;
     if (!expandedKey) return;
 
-    const item = rootRef.current?.querySelector<HTMLElement>(
-      '[data-expanded="true"]',
-    );
-    if (!item) {
-      scrollToItem?.(stickyHeaderInset());
-    } else if (isInitial) {
+    const root = rootRef.current;
+
+    const place = () => {
+      // A virtualizer corrects its own scroll over the following frames, so the
+      // hold outlasts the call that starts it.
+      const releaseScrollDirection = suspendScrollDirection();
+      animationFrame(2).then(releaseScrollDirection, releaseScrollDirection);
+
       const inset = stickyHeaderInset();
+      const item = root?.querySelector<HTMLElement>('[data-expanded="true"]');
+      if (!item) {
+        scrollToItem?.(inset);
+        return;
+      }
+      if (!isInitial) return;
+
       const rect = item.getBoundingClientRect();
       const placement = placeExpanded(rect.top, rect.height, inset);
-      window.scrollBy(0, rect.top - placementTop(placement, inset));
+      if (placement.mode === 'keep') return;
+      // The item is in the DOM but its offset is not final: the server renders
+      // every row, and the virtualizer then swaps the ones outside its window
+      // for estimated spacers. Scrolling by a delta measured now lands further
+      // off the further down the list the item is, so where the consumer has a
+      // measuring scroll of its own, the placement is its job.
+      if (scrollToItem) {
+        scrollToItem(inset);
+      } else {
+        window.scrollBy(0, rect.top - placementTop(placement, inset));
+      }
+    };
+
+    if (!root) {
+      place();
+      return;
     }
+    return whenLaidOut(root, place);
   }, [expandedKey, scrollToItem]);
 
   const onExpand = useCallback(
