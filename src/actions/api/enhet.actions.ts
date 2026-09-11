@@ -48,8 +48,21 @@ const fetchTrimmedEnhetList = async (): Promise<TrimmedEnhet[]> => {
   }
 };
 
+// `unstable_cache` dedupes nothing across callers: on a cold or stale entry
+// every concurrent request runs the full paginated walk, which has OOM-killed
+// the pod. Share one in-flight walk process-wide instead.
+let inflightEnhetList: Promise<TrimmedEnhet[]> | null = null;
+const fetchTrimmedEnhetListOnce = (): Promise<TrimmedEnhet[]> => {
+  if (!inflightEnhetList) {
+    inflightEnhetList = fetchTrimmedEnhetList().finally(() => {
+      inflightEnhetList = null;
+    });
+  }
+  return inflightEnhetList;
+};
+
 const getCachedTrimmedEnhetList = unstable_cache(
-  fetchTrimmedEnhetList,
+  fetchTrimmedEnhetListOnce,
   ['trimmed-enhet-list'],
   { revalidate: ENHET_LIST_REVALIDATE_SECONDS, tags: [ENHET_LIST_TAG] },
 );

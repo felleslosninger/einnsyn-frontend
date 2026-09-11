@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
   devIndicators: false,
   reactProductionProfiling: true,
+  // Single ephemeral replica on OpenShift: the pod runs as an arbitrary UID
+  // that cannot write `.next/cache`, and nothing would survive a restart anyway.
+  // Keep the data cache in memory only.
+  experimental: {
+    isrFlushToDisk: false,
+  },
   async rewrites() {
     return searchPathRewrites;
   },
