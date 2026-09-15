@@ -1,0 +1,31 @@
+@use "mediaQueries" as mq;
+
+// A separator glyph between the fields of an inline metadata row (type, dates,
+// …). Drawn on the field that follows rather than as an element of its own, so
+// it can never wrap away from what it separates, and so it never leads or
+// trails whichever of the optional fields happen to render. The `/ ""` is the
+// glyph's alt text: it is decoration, and generated content reaches the
+// accessibility tree — without it every separator is announced.
+//
+// Owns the row's column gap, which has to widen once the glyph is gone.
+// Callers set the row gap.
+@mixin separators($glyph: "·", $gap: var(--ds-size-2), $plainGap: var(--ds-size-5)) {
+  column-gap: $gap;
+
+  >*:not(:first-child)::before {
+    content: $glyph / "";
+    margin-right: $gap;
+    color: var(--ds-color-neutral-border-default);
+  }
+
+  // Narrow columns break the row one field per line, where the separators
+  // would be left as stray glyphs down the left edge. Same selector as above,
+  // since a media query adds no specificity of its own.
+  @include mq.small {
+    column-gap: $plainGap;
+
+    >*:not(:first-child)::before {
+      content: none;
+    }
+  }
+}
