@@ -231,6 +231,9 @@
     "savedCases": "Lagra saker",
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "savedSearchesPage": {
+      "description": "Her finn du søka du har lagra. Du kan abonnere på eit søk for å få varsel om nye treff."
+    }
   }
 }

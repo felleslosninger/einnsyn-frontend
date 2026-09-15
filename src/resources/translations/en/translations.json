@@ -246,6 +246,9 @@
     "savedCases": "Saved cases",
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
-    "profile": "Profile"
+    "profile": "Profile",
+    "savedSearchesPage": {
+      "description": "Here you find the searches you have saved. Subscribe to a search to be notified of new results."
+    }
   }
 }

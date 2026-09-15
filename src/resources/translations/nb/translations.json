@@ -241,6 +241,9 @@
     "savedCases": "Lagrede saker",
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "savedSearchesPage": {
+      "description": "Her finner du søkene du har lagret. Du kan abonnere på et søk for å få varsel om nye treff."
+    }
   }
 }

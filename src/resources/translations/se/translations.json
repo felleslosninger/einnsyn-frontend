@@ -231,6 +231,9 @@
     "savedCases": "Vurkon ásaid",
     "savedMeetings": "Vurkon čoahkkimiid",
     "savedSearches": "Vurkon ohcanat",
-    "profile": "Profila"
+    "profile": "Profila",
+    "savedSearchesPage": {
+      "description": "Dás gávnnat ohcamiid maid leat vurken. Sáhtát diŋgot ohcama vai oaččut dieđu ođđa bohtosiin."
+    }
   }
 }

@@ -1,0 +1,7 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  margin-top: var(--ein-horizontal-spacing);
+  margin-bottom: var(--ein-half-horizontal-spacing);
+}
