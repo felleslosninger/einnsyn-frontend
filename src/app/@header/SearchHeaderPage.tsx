@@ -14,10 +14,8 @@ export default async function SearchHeaderPage({
   searchParams: HeaderSearchParams;
 }>) {
   const [sp, settings] = await Promise.all([searchParams, getSettings()]);
-  const enhetIdentifiers = [
-    pathEnhet,
-    ...(typeof sp.enhet === 'string' ? [sp.enhet] : (sp.enhet ?? [])),
-  ].filter((e) => e !== undefined);
+  // `sp.enhet` is a bare string for one `?enhet=` and an array for several.
+  const enhetIdentifiers = [pathEnhet ?? [], sp.enhet ?? []].flat();
   const { enhets, version } = await getInitialEnhets({
     enhetIdentifiers,
     languageCode: settings.language,
