@@ -53,6 +53,18 @@ function getServerSnapshot(): EnhetCacheSnapshot {
 }
 
 function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
+  // A re-slugged enhet would otherwise keep its old alias pointing at the stale
+  // copy. The identity check leaves the alias alone when another enhet has
+  // taken it over in the meantime.
+  const previous = map.get(enhet.id);
+  if (
+    previous?.slug &&
+    previous.slug !== enhet.slug &&
+    map.get(previous.slug) === previous
+  ) {
+    map.delete(previous.slug);
+  }
+
   map.set(enhet.id, enhet);
   if (enhet.slug) {
     map.set(enhet.slug, enhet);

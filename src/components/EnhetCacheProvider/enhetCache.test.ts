@@ -120,6 +120,25 @@ describe('enhet client cache', () => {
     );
   });
 
+  test('a re-slugged enhet drops its old slug alias', async () => {
+    const store = await freshStore(async () => ({
+      enhets: [{ ...enhet('a', 'Old name'), slug: 'old-slug' }],
+      version: 'v1',
+    }));
+    await store.ensureFullList();
+
+    store.seedEnhets([{ ...enhet('a', 'New name'), slug: 'new-slug' }], 'v2');
+
+    const { enhetMap } = store.getEnhetCacheSnapshot();
+    assert.equal(enhetMap.get('new-slug')?.navn, 'New name');
+    assert.equal(enhetMap.get('a')?.navn, 'New name');
+    assert.equal(
+      enhetMap.has('old-slug'),
+      false,
+      'the old alias would resolve to the stale copy',
+    );
+  });
+
   test('a version that moves mid-fetch leaves the list invalid', async () => {
     let release: (() => void) | undefined;
     const gate = new Promise<void>((resolve) => {
