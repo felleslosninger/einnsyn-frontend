@@ -143,4 +143,31 @@ describe('enhet client cache', () => {
     );
     assert.equal(snapshot.enhetMap.get('a')?.id, 'a', 'its entries are kept');
   });
+
+  test('a seed mid-fetch does not start a second fetch', async () => {
+    let release: (() => void) | undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let started = 0;
+    const store = await freshStore(async () => {
+      started += 1;
+      await gate;
+      return { enhets: [enhet('a')], version: 'v1' };
+    });
+
+    const inflight = store.ensureFullList();
+    // The seed invalidates, but the fetch it would restart is still running.
+    store.seedEnhets([], 'v2');
+    const reentrant = store.ensureFullList();
+    assert.equal(started, 1, 'the in-flight fetch is reused');
+
+    release?.();
+    await Promise.all([inflight, reentrant]);
+
+    // Released once it settles, so the stale branch's refetch can proceed.
+    const retry = store.ensureFullList();
+    assert.equal(started, 2);
+    await retry;
+  });
 });

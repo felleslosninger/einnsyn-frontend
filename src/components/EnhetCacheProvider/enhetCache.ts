@@ -22,7 +22,7 @@ const serverSnapshot: EnhetCacheSnapshot = {
 };
 
 // The newest version any server response has carried, and a counter bumped
-// whenever it moves. The counter is what a in-flight full-list fetch compares
+// whenever it moves. The counter is what an in-flight full-list fetch compares
 // against — versions are opaque hashes, so they cannot be ordered.
 let latestVersion: string | null = null;
 let versionEpoch = 0;
@@ -76,8 +76,6 @@ export function seedEnhets(
   if (versionMoved) {
     latestVersion = version;
     versionEpoch += 1;
-    // Let a later `ensureFullList` run: the promise is not cleared on success.
-    fullListPromise = null;
     if (snapshot.loadedVersion !== null) {
       snapshot = { ...snapshot, loadedVersion: null };
       changed = true;
@@ -127,7 +125,6 @@ export function ensureFullList(): Promise<void> {
       // next `ensureFullList` fetch again.
       if (versionEpoch !== epochAtStart) {
         snapshot = { ...snapshot, enhetMap: nextMap };
-        fullListPromise = null;
       } else {
         latestVersion = version;
         snapshot = { enhetMap: nextMap, loadedVersion: version };
@@ -135,7 +132,9 @@ export function ensureFullList(): Promise<void> {
       notify();
     } catch (error) {
       logger.error('Failed to load enhet list', error);
-      // Clear the in-flight promise so a later call can retry.
+    } finally {
+      // The only release point, so the slot is non-null exactly while a fetch
+      // is in flight and a seed cannot null it out from under one.
       fullListPromise = null;
     }
   })();
