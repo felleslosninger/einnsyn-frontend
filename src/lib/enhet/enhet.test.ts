@@ -120,7 +120,7 @@ describe('toTrimmedEnhet', () => {
 describe('matchesEnhetIdentifier', () => {
   const enhet = { id: 'enh_1', slug: 'oslo-kommune' };
 
-  test('matches on slug, which the API `ids` filter cannot resolve', () => {
+  test('matches on slug', () => {
     assert.equal(
       matchesEnhetIdentifier(enhet, new Set(['oslo-kommune'])),
       true,

@@ -82,8 +82,7 @@ export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
  *
  * The inverse of {@link getEnhetIdentifier}: callers read identifiers out of
  * URLs, where the slug is preferred, but the same value may also arrive as a
- * bare id. Matching locally is the only reliable way to resolve both — the
- * API's `ids` filter does not accept slugs.
+ * bare id.
  */
 export function matchesEnhetIdentifier(
   enhet: Pick<Enhet, 'id' | 'slug'>,
