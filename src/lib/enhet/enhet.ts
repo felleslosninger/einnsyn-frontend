@@ -6,10 +6,17 @@ export type NamedEnhet = Pick<
   'navn' | 'navnNynorsk' | 'navnEngelsk' | 'navnSami'
 >;
 
-interface AncestorNode extends NamedEnhet {
+/**
+ * A node in a parent chain, parameterised by the type of its own parents.
+ *
+ * `TParent` is the node type itself at every call site (`T extends
+ * AncestorNode<T>`), which is what lets the walk hand back ancestors of the
+ * same type as the enhet it started from.
+ */
+type AncestorNode<TParent> = NamedEnhet & {
   enhetstype?: Enhet['enhetstype'];
-  parent?: string | AncestorNode;
-}
+  parent?: string | TParent;
+};
 
 type TrimmedEnhetBase = Pick<
   Enhet,
@@ -103,12 +110,12 @@ export function matchesEnhetIdentifier(
  * the API returned as bare id strings instead of expanded objects also end the
  * walk, so an unexpanded chain yields fewer (or no) ancestors.
  */
-export const getAncestors = <T extends AncestorNode>(enhet: T): T[] => {
+export const getAncestors = <T extends AncestorNode<T>>(enhet: T): T[] => {
   const ancestors: T[] = [];
-  let current: string | AncestorNode | undefined = enhet.parent;
+  let current: string | T | undefined = enhet.parent;
   while (typeof current === 'object' && current?.parent) {
     if (current.enhetstype !== 'DUMMYENHET') {
-      ancestors.unshift(current as T);
+      ancestors.unshift(current);
     }
     current = current.parent;
   }
@@ -121,8 +128,8 @@ export const getAncestors = <T extends AncestorNode>(enhet: T): T[] => {
  * Empty for an enhet directly below the root, so callers that use it as a
  * subtitle typically fall back to `undefined` on an empty string.
  */
-export const getAncestorsAsString = (
-  enhet: AncestorNode,
+export const getAncestorsAsString = <T extends AncestorNode<T>>(
+  enhet: T,
   languageCode: LanguageCode,
   separator = ' / ',
 ) => {
