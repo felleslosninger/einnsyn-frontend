@@ -77,6 +77,25 @@ export const getEnhetHref = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
 };
 
 /**
+ * Whether the enhet is addressed by any of `identifiers`, which may mix ids and
+ * slugs.
+ *
+ * The inverse of {@link getEnhetIdentifier}: callers read identifiers out of
+ * URLs, where the slug is preferred, but the same value may also arrive as a
+ * bare id. Matching locally is the only reliable way to resolve both — the
+ * API's `ids` filter does not accept slugs.
+ */
+export function matchesEnhetIdentifier(
+  enhet: Pick<Enhet, 'id' | 'slug'>,
+  identifiers: ReadonlySet<string>,
+): boolean {
+  return (
+    identifiers.has(enhet.id) ||
+    (enhet.slug != null && identifiers.has(enhet.slug))
+  );
+}
+
+/**
  * The enhet's ancestors, ordered outermost first, for breadcrumb-style paths.
  *
  * The enhet itself is not included, and neither is the top-level node: the
@@ -130,6 +149,27 @@ export function getEnhetParentFromMap(
     return undefined;
   }
   return enhetsById.get(parentId);
+}
+
+/**
+ * Project a full enhet onto the subset the client needs.
+ *
+ * The whole list is serialized to the browser when the selector expands, so
+ * this stays narrow; `parent` collapses to an id, since the tree is rebuilt
+ * from ids via {@link getEnhetParentFromMap}.
+ */
+export function toTrimmedEnhet(enhet: Enhet): TrimmedEnhet {
+  return {
+    id: enhet.id,
+    slug: enhet.slug,
+    navn: enhet.navn,
+    navnNynorsk: enhet.navnNynorsk,
+    navnEngelsk: enhet.navnEngelsk,
+    navnSami: enhet.navnSami,
+    orgnummer: enhet.orgnummer,
+    enhetstype: enhet.enhetstype,
+    parent: typeof enhet.parent === 'string' ? enhet.parent : enhet.parent?.id,
+  };
 }
 
 /**
@@ -218,4 +258,26 @@ export function expandTrimmedEnhetsWithAncestors(
   }
 
   return Array.from(merged.values());
+}
+
+/**
+ * The enhets the selector must render on first paint: the default suggestions,
+ * whatever the URL selected, and the ancestors that make the selected ones
+ * reachable in the tree.
+ */
+export function selectInitialEnhets(
+  allEnhets: readonly TrimmedEnhet[],
+  identifiers: ReadonlySet<string>,
+  limit: number,
+  languageCode: LanguageCode,
+): TrimmedEnhet[] {
+  const selected = allEnhets.filter((enhet) =>
+    matchesEnhetIdentifier(enhet, identifiers),
+  );
+  const topN = sortTrimmedEnhetsForSelector(allEnhets, languageCode).slice(
+    0,
+    limit,
+  );
+
+  return expandTrimmedEnhetsWithAncestors([...topN, ...selected], allEnhets);
 }

@@ -12,7 +12,7 @@
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --import=tsx"
+    "test": "node --test --import=tsx --conditions=react-server --experimental-test-module-mocks"
   },
   "dependencies": {
     "@digdir/designsystemet-css": "^1.21.0",
@@ -26,6 +26,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.8",
     "sass": "^1.103.1",
+    "server-only": "^0.0.1",
     "virtua": "^0.51.0"
   },
   "devDependencies": {

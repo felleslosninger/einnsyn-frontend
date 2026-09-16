@@ -11,7 +11,7 @@ import {
   getEnhetIdentifier,
   getName,
   type TrimmedEnhet,
-} from '~/lib/utils/enhetUtils';
+} from '~/lib/enhet/enhet';
 import { addParamListValue, removeParamListValue } from '~/lib/utils/paramList';
 import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';

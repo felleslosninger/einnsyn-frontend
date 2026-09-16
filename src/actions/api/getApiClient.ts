@@ -17,8 +17,8 @@ export const getApiClient = async () => {
 
 export const cachedApiClient = cache(getApiClient);
 
-// Unauthenticated client for use with `unstable_cache`. A cached request must
-// not carry per-user credentials, or the cache entry would leak auth across
+// Unauthenticated client for the process-wide enhet list cache. A shared cache
+// entry must not carry per-user credentials, or it would leak auth across
 // sessions.
 export const getPublicApiClient = async () => {
   return new EInnsynClient({

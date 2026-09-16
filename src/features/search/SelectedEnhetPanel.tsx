@@ -4,10 +4,10 @@ import { Details, Heading } from '@digdir/designsystemet-react';
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useEffect, useState } from 'react';
-import { getEnhet } from '~/actions/api/enhet.actions';
 import { EinLink } from '~/components/EinLink/EinLink';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getEnhet } from '~/lib/enhet/enhet.actions';
 import cn from '~/lib/utils/className';
 import styles from './SelectedEnhetPanel.module.scss';
 
