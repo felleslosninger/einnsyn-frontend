@@ -100,7 +100,15 @@
       "UTVALG": "Utvalg",
       "VIRKSOMHET": "Virksomhet"
     },
-    "searchingIn": "Søker i"
+    "searchingIn": "Søker i",
+    "saveSearch": "Lagre søk",
+    "saveSearchName": "Navn på søket",
+    "saveSearchSubscribe": "Varsle meg om nye treff",
+    "saveSearchSubscribeDescription": "Vi sender deg en e-post hver morgen klokken 06:00 hvis søket har nye treff.",
+    "saveSearchSuccess": "Søket er lagret",
+    "saveSearchError": "Kunne ikke lagre søket",
+    "saveSearchMissingLabel": "Gi søket et navn",
+    "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
   "routing": {
     "searchPath": "søk",

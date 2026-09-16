@@ -100,7 +100,15 @@
       "UTVALG": "Committee",
       "VIRKSOMHET": "Organization"
     },
-    "searchingIn": "Searching in"
+    "searchingIn": "Searching in",
+    "saveSearch": "Save search",
+    "saveSearchName": "Search name",
+    "saveSearchSubscribe": "Notify me about new results",
+    "saveSearchSubscribeDescription": "We send you an email every morning at 06:00 if the search has new results.",
+    "saveSearchSuccess": "Search saved",
+    "saveSearchError": "Could not save the search",
+    "saveSearchMissingLabel": "Give the search a name",
+    "saveSearchLoginPrompt": "Log in to save the search."
   },
   "routing": {
     "searchPath": "search",

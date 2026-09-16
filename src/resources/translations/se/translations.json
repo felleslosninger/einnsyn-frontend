@@ -100,7 +100,15 @@
       "UTVALG": "Lávdegoddi",
       "VIRKSOMHET": "Organisašuvdna"
     },
-    "searchingIn": "Ohcamin"
+    "searchingIn": "Ohcamin",
+    "saveSearch": "Vurke ohcama",
+    "saveSearchName": "Ohcama namma",
+    "saveSearchSubscribe": "Dieđit munnje ođđa bohtosiid birra",
+    "saveSearchSubscribeDescription": "Mii sáddet dutnje e-poastta juohke iđit dii. 06:00 jos ohcamis leat ođđa bohtosat.",
+    "saveSearchSuccess": "Ohcan lea vurkejuvvon",
+    "saveSearchError": "Ii sáhttán vurket ohcama",
+    "saveSearchMissingLabel": "Atte ohcamii nama",
+    "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
   "routing": {
     "searchPath": "oza",

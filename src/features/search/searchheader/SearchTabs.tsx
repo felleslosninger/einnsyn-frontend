@@ -10,6 +10,7 @@ import cn from '~/lib/utils/className';
 import { buildSearchHref } from '~/lib/utils/searchHref';
 import resultStyles from '../searchresult/searchResultStyles.module.scss';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
+import SaveSearchDropdown from './SaveSearchDropdown';
 import styles from './SearchTabs.module.scss';
 
 export default function SearchTabs({ className }: { className?: string }) {
@@ -110,6 +111,7 @@ export default function SearchTabs({ className }: { className?: string }) {
       </div>
 
       <div className={cn(styles.searchFilter, 'search-filter')}>
+        <SaveSearchDropdown className="header-dropdown" />
         <SearchFilterDropdown className="header-dropdown" />
       </div>
     </div>
