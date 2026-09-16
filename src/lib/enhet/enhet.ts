@@ -123,8 +123,8 @@ export const getAncestors = <T extends AncestorNode>(enhet: T): T[] => {
  */
 export const getAncestorsAsString = (
   enhet: AncestorNode,
+  languageCode: LanguageCode,
   separator = ' / ',
-  languageCode: LanguageCode = 'en',
 ) => {
   return getAncestors(enhet)
     .map((ancestor) => getName(ancestor, languageCode))

@@ -481,7 +481,7 @@ function buildDesktopRowSubtitle(
   languageCode: LanguageCode,
   t: Translate,
 ): string | undefined {
-  const ancestors = getAncestorsAsString(enhet, ' / ', languageCode);
+  const ancestors = getAncestorsAsString(enhet, languageCode);
   if (ancestors) return ancestors;
 
   const typeKey = `search.enhetstype.${enhet.enhetstype}`;

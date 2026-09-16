@@ -233,7 +233,7 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
             id={`enhet-option-selected-${node.enhet.id}`}
             label={getName(node.enhet, languageCode)}
             ancestors={
-              getAncestorsAsString(node.enhet, ' / ', languageCode) || undefined
+              getAncestorsAsString(node.enhet, languageCode) || undefined
             }
             isSelected
             onClick={() => toggleEnhet(node.enhet)}
@@ -251,7 +251,7 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
             id={`enhet-option-available-${node.enhet.id}`}
             label={getName(node.enhet, languageCode)}
             ancestors={
-              getAncestorsAsString(node.enhet, ' / ', languageCode) || undefined
+              getAncestorsAsString(node.enhet, languageCode) || undefined
             }
             isFocused={focus?.list === 'available' && focus.index === index}
             onClick={() => toggleEnhet(node.enhet)}
