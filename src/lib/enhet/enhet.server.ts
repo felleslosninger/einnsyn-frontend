@@ -67,7 +67,7 @@ function toSnapshot(enhets: CachedEnhet[]): EnhetListSnapshot {
   const trimmed = enhets
     .map(toTrimmedEnhet)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  const version = createHash('sha1')
+  const version = createHash('sha256')
     .update(JSON.stringify(trimmed))
     .digest('base64url')
     .slice(0, 16);
