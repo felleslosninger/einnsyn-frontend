@@ -182,6 +182,13 @@ describe('enhet list versioning', () => {
     assert.notEqual((await a.get()).version, (await b.get()).version);
   });
 
+  test('a reordered list produces the same version', async () => {
+    const a = createEnhetListCache(async () => [enhet('a'), enhet('b')]);
+    const b = createEnhetListCache(async () => [enhet('b'), enhet('a')]);
+
+    assert.equal((await a.get()).version, (await b.get()).version);
+  });
+
   test('a field the browser never receives does not move the version', async () => {
     const base = enhet('a');
     const a = createEnhetListCache(async () => [base]);

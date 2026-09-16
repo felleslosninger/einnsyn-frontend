@@ -60,7 +60,13 @@ export type EnhetListSnapshot = {
  * actually changed.
  */
 function toSnapshot(enhets: CachedEnhet[]): EnhetListSnapshot {
-  const trimmed = enhets.map(toTrimmedEnhet);
+  // Sorted by codepoint before hashing, so the version is a function of
+  // content alone: two pods whose walks returned different orders would
+  // otherwise disagree, and every client between them refetches per render.
+  // Not `localeCompare` — its collation varies with the process locale.
+  const trimmed = enhets
+    .map(toTrimmedEnhet)
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const version = createHash('sha1')
     .update(JSON.stringify(trimmed))
     .digest('base64url')
@@ -203,11 +209,8 @@ export async function listTrimmedEnhets(): Promise<VersionedEnhets> {
 }
 
 /**
- * Enhets by id *or* slug.
- *
- * Accepting slugs matters: callers hold `getEnhetIdentifier` values (slug when
- * there is one), and the API's `ids` filter does not resolve those. Anything
- * the list has not seen yet falls back to a single lookup.
+ * Enhets by id *or* slug, served from the cached list. Anything the list has
+ * not seen yet falls back to a single lookup.
  */
 export async function getEnhets(
   idsOrSlugs: readonly string[],
