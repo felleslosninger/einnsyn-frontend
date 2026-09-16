@@ -124,11 +124,15 @@ export function createEnhetListCache(
   let snapshot: EnhetListSnapshot | null = null;
   let nextRefreshAt = 0;
   let inflight: Promise<EnhetListSnapshot> | null = null;
+  // What a cold cache replays during its backoff window, since it has no list
+  // to serve instead. Null once anything has succeeded.
+  let coldFailure: unknown = null;
 
   const refresh = (): Promise<EnhetListSnapshot> => {
     inflight ??= fetchEnhets()
       .then((fetched) => {
         snapshot = toSnapshot(fetched);
+        coldFailure = null;
         nextRefreshAt = now() + REVALIDATE_MS;
         return snapshot;
       })
@@ -142,6 +146,7 @@ export function createEnhetListCache(
         if (snapshot) {
           return snapshot;
         }
+        coldFailure = error;
         throw error;
       })
       .finally(() => {
@@ -158,6 +163,12 @@ export function createEnhetListCache(
     /** Blocks only on a cold cache. */
     get: async (): Promise<EnhetListSnapshot> => {
       if (!snapshot) {
+        // The backoff has to cover the cold case too: with no list to fall
+        // back on, every read would otherwise start its own walk for as long
+        // as the API stays down.
+        if (coldFailure !== null && now() < nextRefreshAt) {
+          throw coldFailure;
+        }
         return refresh();
       }
       if (now() >= nextRefreshAt) {

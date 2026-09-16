@@ -137,6 +137,32 @@ describe('createEnhetListCache', () => {
     await assert.rejects(() => cache.get(), /api down/);
   });
 
+  test('a failed cold refresh backs off too, rather than walking per read', async () => {
+    let call = 0;
+    const fetchEnhets: FetchEnhets = async () => {
+      call += 1;
+      if (call <= 2) {
+        throw new Error('api down');
+      }
+      return [enhet('a')];
+    };
+    const time = clock();
+    const cache = createEnhetListCache(fetchEnhets, time.now);
+
+    await assert.rejects(() => cache.get(), /api down/);
+
+    time.advance(RETRY_AFTER_FAILURE_MS - 1);
+    await assert.rejects(() => cache.get(), /api down/);
+    assert.equal(call, 1, 'the failure is replayed, not retried');
+
+    time.advance(1);
+    await assert.rejects(() => cache.get(), /api down/);
+    assert.equal(call, 2);
+
+    time.advance(RETRY_AFTER_FAILURE_MS);
+    assert.deepEqual((await cache.get()).enhets, [enhet('a')]);
+  });
+
   test('a failed refresh backs off instead of retrying on every read', async () => {
     let call = 0;
     const fetchEnhets: FetchEnhets = async () => {
