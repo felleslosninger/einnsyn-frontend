@@ -56,6 +56,20 @@ describe('enhetUtils', () => {
     );
   });
 
+  test('a parent cycle terminates instead of recursing forever', () => {
+    const a = makeEnhet('a', { parent: 'b' });
+    const b = makeEnhet('b', { parent: 'a' });
+
+    assert.deepStrictEqual(
+      expandTrimmedEnhetsWithAncestors([a], [a, b]).map((enhet) => enhet.id),
+      ['a', 'b'],
+    );
+    assert.deepStrictEqual(
+      sortTrimmedEnhetsForSelector([a, b], 'nb').map((enhet) => enhet.id),
+      ['a', 'b'],
+    );
+  });
+
   test('sortTrimmedEnhetsForSelector uses the active language for tie-breaking', () => {
     const root = makeEnhet('root');
     const alphaInEnglish = makeEnhet('1', {

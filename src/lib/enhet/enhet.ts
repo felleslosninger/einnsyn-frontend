@@ -207,6 +207,11 @@ export function sortTrimmedEnhetsForSelector(
       return cachedDepth;
     }
 
+    // Provisional depth, so a parent cycle in the data resolves to 0 on the
+    // way back round instead of recursing until the stack blows. Overwritten
+    // with the real depth below.
+    depthCache.set(enhet.id, 0);
+
     const parent = getEnhetParentFromMap(enhet, enhetsById);
     const depth = parent ? 1 + getDepth(parent) : 0;
     depthCache.set(enhet.id, depth);
@@ -256,8 +261,10 @@ export function expandTrimmedEnhetsWithAncestors(
   for (const enhet of seeds) {
     merged.set(enhet.id, enhet);
 
+    // An already-merged ancestor has had its own chain walked, so stopping
+    // there both skips the redundant walk and terminates a parent cycle.
     let current = getEnhetParentFromMap(enhet, allEnhetsById);
-    while (current?.parent) {
+    while (current?.parent && !merged.has(current.id)) {
       merged.set(current.id, current);
       current = getEnhetParentFromMap(current, allEnhetsById);
     }
