@@ -60,7 +60,8 @@ export const getName = (
 
 /**
  * How an enhet is identified in URLs: its readable slug, or the id when it has
- * none.
+ * none. An empty slug counts as none — it would otherwise make `/` a link
+ * target and an unmatchable filter value.
  *
  * Used for the `enhet` search param and as a cache key, so any map keyed on it
  * has to accept a plain id as well.
@@ -70,7 +71,7 @@ export const getName = (
  * `enhet.id` there, never this. For a link target, use {@link getEnhetHref}.
  */
 export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
-  return enhet.slug ?? enhet.id;
+  return enhet.slug || enhet.id;
 };
 
 /**
@@ -96,8 +97,7 @@ export function matchesEnhetIdentifier(
   identifiers: ReadonlySet<string>,
 ): boolean {
   return (
-    identifiers.has(enhet.id) ||
-    (enhet.slug != null && identifiers.has(enhet.slug))
+    identifiers.has(enhet.id) || (!!enhet.slug && identifiers.has(enhet.slug))
   );
 }
 

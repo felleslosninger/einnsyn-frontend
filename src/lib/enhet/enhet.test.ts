@@ -4,6 +4,8 @@ import { describe, test } from 'node:test';
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import {
   expandTrimmedEnhetsWithAncestors,
+  getEnhetHref,
+  getEnhetIdentifier,
   matchesEnhetIdentifier,
   selectInitialEnhets,
   sortTrimmedEnhetsForSelector,
@@ -131,6 +133,18 @@ describe('toTrimmedEnhet', () => {
   });
 });
 
+describe('getEnhetIdentifier', () => {
+  test('prefers the slug, and falls back to the id without one', () => {
+    assert.equal(getEnhetIdentifier({ id: 'enh_1', slug: 'oslo' }), 'oslo');
+    assert.equal(getEnhetIdentifier({ id: 'enh_1' }), 'enh_1');
+  });
+
+  test('treats an empty slug as no slug', () => {
+    assert.equal(getEnhetIdentifier({ id: 'enh_1', slug: '' }), 'enh_1');
+    assert.equal(getEnhetHref({ id: 'enh_1', slug: '' }), '/enh_1');
+  });
+});
+
 describe('matchesEnhetIdentifier', () => {
   const enhet = { id: 'enh_1', slug: 'oslo-kommune' };
 
@@ -149,6 +163,13 @@ describe('matchesEnhetIdentifier', () => {
     assert.equal(matchesEnhetIdentifier(enhet, new Set(['bergen'])), false);
     assert.equal(
       matchesEnhetIdentifier({ id: 'enh_2' }, new Set(['oslo-kommune'])),
+      false,
+    );
+  });
+
+  test('does not match an empty slug', () => {
+    assert.equal(
+      matchesEnhetIdentifier({ id: 'enh_2', slug: '' }, new Set([''])),
       false,
     );
   });
