@@ -1,20 +1,18 @@
 import 'server-only';
 
 import { createHash } from 'node:crypto';
-import { EInnsynError, type Enhet } from '@digdir/einnsyn-sdk';
+import type { Enhet } from '@digdir/einnsyn-sdk';
 import { getPublicApiClient } from '~/actions/api/getApiClient';
-import type { LanguageCode } from '~/lib/translation/translation';
 import { logger } from '~/lib/utils/logger';
 import { normalizeParamList } from '~/lib/utils/paramList';
 import {
+  expandAncestorsInEnhetList,
   matchesEnhetIdentifier,
-  selectInitialEnhets,
   type TrimmedEnhet,
   toTrimmedEnhet,
 } from './enhet';
 
-// The API caps `limit` at 100 and the list is ~2000 enhets, so a walk is ~20
-// sequential requests.
+// The API caps `limit` at 100
 const ENHET_PAGE_LIMIT = 100;
 
 // The held list and this interval are scaffolding until the SDK revalidates
@@ -23,13 +21,13 @@ export const REVALIDATE_MS = 30 * 60 * 1000;
 export const RETRY_AFTER_FAILURE_MS = 60 * 1000;
 
 /**
- * An enhet as held in memory: every field the API returns, with relations
- * flattened to ids so one copy can never retain an expanded subtree.
+ * Every field the API returns, with relations flattened to ids so a copy held
+ * in memory can never retain an expanded subtree.
  *
  * Assignable to {@link Enhet}, so consumers that type against the SDK are
  * unaffected.
  */
-export type CachedEnhet = Omit<
+export type FlattenedEnhet = Omit<
   Enhet,
   'parent' | 'underenhet' | 'handteresAv'
 > & {
@@ -38,46 +36,42 @@ export type CachedEnhet = Omit<
   readonly handteresAv?: string;
 };
 
-export type FetchEnhets = () => Promise<CachedEnhet[]>;
-
 /**
  * The list plus a version the browser can compare against.
- *
- * `trimmed` is memoized here because every reader needs it and mapping ~2000
- * enhets per request is not free.
  */
 export type EnhetListSnapshot = {
-  enhets: CachedEnhet[];
+  enhets: FlattenedEnhet[];
   trimmed: TrimmedEnhet[];
   version: string;
 };
 
 /**
- * Derived from the trimmed content, so every pod computes the same version for
- * the same list and a field the browser never receives cannot invalidate its
- * copy. Content-hashing is the durable mechanism: SDK-side ETag caching would
- * make a refresh cheap, but leaves this layer unable to tell whether anything
- * actually changed.
+ * Convert a list of Enhets to a snapshot, trimming and sorting them and
+ * generating a version hash.
  */
-function toSnapshot(enhets: CachedEnhet[]): EnhetListSnapshot {
-  // Sorted by codepoint before hashing, so the version is a function of
-  // content alone: two pods whose walks returned different orders would
-  // otherwise disagree, and every client between them refetches per render.
-  // Not `localeCompare` — its collation varies with the process locale.
-  const trimmed = enhets
-    .map(toTrimmedEnhet)
-    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+function toSnapshot(enhets: FlattenedEnhet[]): EnhetListSnapshot {
+  // Trim
+  const trimmed = enhets.map(toTrimmedEnhet);
+
+  // Sort
+  const sorted = trimmed.sort((a, b) =>
+    a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+  );
+
+  // Generate version hash
   const version = createHash('sha256')
-    .update(JSON.stringify(trimmed))
+    .update(JSON.stringify(sorted))
     .digest('base64url')
     .slice(0, 16);
+
   return { enhets, trimmed, version };
 }
 
 const relationId = (relation: Enhet | string | undefined) =>
   typeof relation === 'string' ? relation : relation?.id;
 
-export const toCachedEnhet = (enhet: Enhet): CachedEnhet => ({
+/** Turn expanded relations into ids. */
+export const toFlattenedEnhet = (enhet: Enhet): FlattenedEnhet => ({
   ...enhet,
   parent: relationId(enhet.parent),
   handteresAv: relationId(enhet.handteresAv),
@@ -85,28 +79,6 @@ export const toCachedEnhet = (enhet: Enhet): CachedEnhet => ({
     ?.map(relationId)
     .filter((id): id is string => id !== undefined),
 });
-
-/** Full paginated walk of the enhet list. */
-export const walkEnhetList: FetchEnhets = async () => {
-  // Deliberately not `cachedPublicApiClient`: React `cache()` needs a request
-  // context, and refreshes also run at boot and behind stale reads.
-  const api = await getPublicApiClient();
-  try {
-    logger.debug('Fetching enhet list from API');
-    const firstPage = await api.enhet.list({ limit: ENHET_PAGE_LIMIT });
-    const enhets: CachedEnhet[] = [];
-    for await (const enhet of api.iterate(firstPage)) {
-      enhets.push(toCachedEnhet(enhet));
-    }
-
-    return enhets;
-  } catch (error) {
-    if (error instanceof EInnsynError) {
-      logger.error('Error fetching enhet list', error);
-    }
-    throw error;
-  }
-};
 
 /**
  * Process-local enhet list, served stale while refreshing behind it.
@@ -118,12 +90,13 @@ export const walkEnhetList: FetchEnhets = async () => {
  * A factory only so tests can drive it with a fake fetch and clock.
  */
 export function createEnhetListCache(
-  fetchEnhets: FetchEnhets = walkEnhetList,
+  fetchEnhets = getEnhets,
   now: () => number = Date.now,
 ) {
   let snapshot: EnhetListSnapshot | null = null;
   let nextRefreshAt = 0;
   let inflight: Promise<EnhetListSnapshot> | null = null;
+
   // What a cold cache replays during its backoff window, since it has no list
   // to serve instead. Null once anything has succeeded.
   let coldFailure: unknown = null;
@@ -205,53 +178,35 @@ export const peekEnhetListVersion = cache.peekVersion;
  */
 export const warmEnhetList = cache.warm;
 
-const DEFAULT_PRELOAD_LIMIT = 10;
-
-// Not `'use server'`: these read the process-local list and must not become
-// callable endpoints. `enhet.actions.ts` exposes the two the client needs.
-
 /**
- * Every enhet, narrowed to what the client needs, stamped with the version the
- * browser stores alongside it. Blocks only on a cold list.
- */
-export async function listTrimmedEnhets(): Promise<VersionedEnhets> {
-  const { trimmed, version } = await getEnhetList();
-  return { enhets: trimmed, version };
-}
-
-/**
- * Enhets by id *or* slug, served from the cached list. Anything the list has
+ * Enhets by id or slug, served from the cached list. Anything the list has
  * not seen yet falls back to a single lookup.
  */
 export async function getEnhets(
-  idsOrSlugs: readonly string[],
-): Promise<CachedEnhet[]> {
-  const wanted = new Set(normalizeParamList(idsOrSlugs));
-  if (wanted.size === 0) {
+  identifiers?: readonly string[],
+): Promise<FlattenedEnhet[]> {
+  // Don't look up an empty list, this will return all Enhets paginated.
+  if (identifiers !== undefined && identifiers.length === 0) {
     return [];
-  }
-
-  const found = (await getEnhetList()).enhets.filter((enhet) =>
-    matchesEnhetIdentifier(enhet, wanted),
-  );
-  for (const enhet of found) {
-    wanted.delete(enhet.id);
-    if (enhet.slug) {
-      wanted.delete(enhet.slug);
-    }
-  }
-  if (wanted.size === 0) {
-    return found;
   }
 
   // An enhet created since the last refresh is not in the list yet.
   try {
     const api = await getPublicApiClient();
-    const result = await api.enhet.list({ ids: [...wanted] });
-    return [...found, ...(result.items ?? []).map(toCachedEnhet)];
+    const page = await api.enhet.list({
+      ids: identifiers ? [...identifiers] : undefined,
+      limit: ENHET_PAGE_LIMIT,
+    });
+
+    const enhets: FlattenedEnhet[] = [];
+    for await (const enhet of api.iterate(page)) {
+      enhets.push(toFlattenedEnhet(enhet));
+    }
+
+    return enhets;
   } catch (error) {
     logger.error('Failed to look up enhets missing from the list', error);
-    return found;
+    return [];
   }
 }
 
@@ -260,7 +215,7 @@ export async function getEnhets(
  *
  * Only readers that decline to block on a cold list can report a null version.
  */
-export type VersionedEnhets<V extends string | null = string> = {
+export type VersionedEnhetList<V extends string | null = string> = {
   enhets: TrimmedEnhet[];
   version: V;
 };
@@ -272,25 +227,26 @@ export type VersionedEnhets<V extends string | null = string> = {
  */
 export async function getInitialEnhets({
   enhetIdentifiers,
-  limit = DEFAULT_PRELOAD_LIMIT,
-  languageCode = 'nb',
 }: {
   enhetIdentifiers: string[];
-  limit?: number;
-  languageCode?: LanguageCode;
-}): Promise<VersionedEnhets<string | null>> {
+}): Promise<VersionedEnhetList<string | null>> {
   // A collapsed selector with nothing selected needs no preload, and peeking
   // keeps it that way: a cold list must not make every route transition wait
   // on a walk just to carry a version.
-  const wanted = new Set(normalizeParamList(enhetIdentifiers));
-  if (wanted.size === 0) {
+  const selectedEnhetSet = new Set(normalizeParamList(enhetIdentifiers));
+  if (selectedEnhetSet.size === 0) {
     return { enhets: [], version: peekEnhetListVersion() };
   }
 
   try {
     const { trimmed, version } = await getEnhetList();
+    const selected = trimmed.filter((enhet) =>
+      matchesEnhetIdentifier(enhet, selectedEnhetSet),
+    );
+    const selectedWithAncestors = expandAncestorsInEnhetList(selected, trimmed);
+
     return {
-      enhets: selectInitialEnhets(trimmed, wanted, limit, languageCode),
+      enhets: selectedWithAncestors,
       version,
     };
   } catch (error) {

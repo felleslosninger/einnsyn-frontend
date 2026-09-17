@@ -26,7 +26,6 @@ const serverSnapshot: EnhetCacheSnapshot = {
 // against — versions are opaque hashes, so they cannot be ordered.
 let latestVersion: string | null = null;
 let versionEpoch = 0;
-
 let fullListPromise: Promise<void> | null = null;
 
 const subscribers = new Set<() => void>();
@@ -123,6 +122,7 @@ export function ensureFullList(): Promise<void> {
   }
 
   const epochAtStart = versionEpoch;
+  let invalidatedMidFetch = false;
   fullListPromise = (async () => {
     try {
       const { enhets, version } = await getTrimmedEnhetList();
@@ -133,9 +133,9 @@ export function ensureFullList(): Promise<void> {
 
       // A seed may have advanced the version while this was in flight. Marking
       // the list loaded would then strand the store on data the server has
-      // already moved past, so keep the entries but stay invalid and let the
-      // next `ensureFullList` fetch again.
+      // already moved past, so keep the entries but stay invalid and refetch.
       if (versionEpoch !== epochAtStart) {
+        invalidatedMidFetch = true;
         snapshot = { ...snapshot, enhetMap: nextMap };
       } else {
         latestVersion = version;
@@ -143,11 +143,18 @@ export function ensureFullList(): Promise<void> {
       }
       notify();
     } catch (error) {
+      // Surfaced as "not loaded": the store carries no error state yet, so
+      // consumers keep their loading view until a later call succeeds.
       logger.error('Failed to load enhet list', error);
     } finally {
       // The only release point, so the slot is non-null exactly while a fetch
       // is in flight and a seed cannot null it out from under one.
       fullListPromise = null;
+      // Nothing else would retry: the sole caller re-runs its effect on
+      // `fullListLoaded`, which an invalidated fetch never flips.
+      if (invalidatedMidFetch) {
+        void ensureFullList();
+      }
     }
   })();
   return fullListPromise;

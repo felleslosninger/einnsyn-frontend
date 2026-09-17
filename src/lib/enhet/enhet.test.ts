@@ -3,12 +3,11 @@ import { describe, test } from 'node:test';
 
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import {
-  expandTrimmedEnhetsWithAncestors,
+  expandAncestorsInEnhetList,
+  getAncestors,
   getEnhetHref,
   getEnhetIdentifier,
   matchesEnhetIdentifier,
-  selectInitialEnhets,
-  sortTrimmedEnhetsForSelector,
   type TrimmedEnhet,
   toTrimmedEnhet,
 } from './enhet';
@@ -18,12 +17,10 @@ function makeEnhet(
   {
     parent,
     navn = id,
-    navnEngelsk,
     enhetstype = 'ADMINISTRATIVENHET',
   }: {
     parent?: string;
     navn?: string;
-    navnEngelsk?: string;
     enhetstype?: TrimmedEnhet['enhetstype'];
   } = {},
 ): TrimmedEnhet {
@@ -33,7 +30,7 @@ function makeEnhet(
     orgnummer: id,
     navn,
     navnNynorsk: undefined,
-    navnEngelsk,
+    navnEngelsk: undefined,
     navnSami: undefined,
     enhetstype,
     parent,
@@ -41,13 +38,13 @@ function makeEnhet(
 }
 
 describe('enhetUtils', () => {
-  test('expandTrimmedEnhetsWithAncestors includes ancestors up to the top-level node', () => {
+  test('expandAncestorsInEnhetList includes ancestors up to the top-level node', () => {
     const root = makeEnhet('root');
     const dummyRoot = makeEnhet('dummy-root', { parent: root.id });
     const branch = makeEnhet('branch', { parent: dummyRoot.id });
     const leaf = makeEnhet('leaf', { parent: branch.id });
 
-    const expanded = expandTrimmedEnhetsWithAncestors(
+    const expanded = expandAncestorsInEnhetList(
       [leaf],
       [root, dummyRoot, branch, leaf],
     );
@@ -63,41 +60,8 @@ describe('enhetUtils', () => {
     const b = makeEnhet('b', { parent: 'a' });
 
     assert.deepStrictEqual(
-      expandTrimmedEnhetsWithAncestors([a], [a, b]).map((enhet) => enhet.id),
+      expandAncestorsInEnhetList([a], [a, b]).map((enhet) => enhet.id),
       ['a', 'b'],
-    );
-    assert.deepStrictEqual(
-      sortTrimmedEnhetsForSelector([a, b], 'nb').map((enhet) => enhet.id),
-      ['a', 'b'],
-    );
-  });
-
-  test('sortTrimmedEnhetsForSelector uses the active language for tie-breaking', () => {
-    const root = makeEnhet('root');
-    const alphaInEnglish = makeEnhet('1', {
-      parent: root.id,
-      navn: 'Zulu',
-      navnEngelsk: 'Alpha',
-    });
-    const zuluInEnglish = makeEnhet('2', {
-      parent: root.id,
-      navn: 'Alpha',
-      navnEngelsk: 'Zulu',
-    });
-
-    assert.deepStrictEqual(
-      sortTrimmedEnhetsForSelector(
-        [root, alphaInEnglish, zuluInEnglish],
-        'nb',
-      ).map((enhet) => enhet.id),
-      ['2', '1'],
-    );
-    assert.deepStrictEqual(
-      sortTrimmedEnhetsForSelector(
-        [root, alphaInEnglish, zuluInEnglish],
-        'en',
-      ).map((enhet) => enhet.id),
-      ['1', '2'],
     );
   });
 });
@@ -175,34 +139,68 @@ describe('matchesEnhetIdentifier', () => {
   });
 });
 
-describe('selectInitialEnhets', () => {
-  const root = makeEnhet('root');
-  const parent = makeEnhet('parent', { parent: root.id });
-  const child = makeEnhet('child', { parent: parent.id });
-  const other = makeEnhet('other', { parent: root.id });
-  const all = [root, parent, child, other];
+describe('getAncestors', () => {
+  // getAncestors walks expanded parent objects, while makeEnhet links parents
+  // by id, so the chain is stitched together here.
+  const chain = (
+    ...links: [id: string, enhetstype?: TrimmedEnhet['enhetstype']][]
+  ): TrimmedEnhet => {
+    let current: TrimmedEnhet | undefined;
+    for (const [id, enhetstype] of links) {
+      current = { ...makeEnhet(id, { enhetstype }), parent: current };
+    }
+    return current as TrimmedEnhet;
+  };
 
-  test('includes the selected enhet and the ancestors that reach it', () => {
-    const ids = selectInitialEnhets(all, new Set(['child']), 0, 'nb').map(
-      (enhet) => enhet.id,
+  test('lists ancestors outermost first, without the enhet or the root', () => {
+    const leaf = chain(['root'], ['top'], ['mid'], ['leaf']);
+
+    assert.deepStrictEqual(
+      getAncestors(leaf).map((enhet) => enhet.id),
+      ['top', 'mid'],
     );
-
-    assert.ok(ids.includes('child'), 'the selected enhet');
-    assert.ok(ids.includes('parent'), 'its ancestor, so the tree connects');
   });
 
-  test('adds top suggestions beyond the selected branch', () => {
-    const branchOnly = selectInitialEnhets(all, new Set(['child']), 0, 'nb');
-    const withSuggestions = selectInitialEnhets(
-      all,
-      new Set(['child']),
-      10,
-      'nb',
+  test('is empty for an enhet directly below the root', () => {
+    assert.deepStrictEqual(getAncestors(chain(['root'], ['top'])), []);
+    assert.deepStrictEqual(getAncestors(chain(['root'])), []);
+  });
+
+  test('skips DUMMYENHET nodes anywhere in the chain', () => {
+    const belowDummyRoot = chain(
+      ['root'],
+      ['dummy-root', 'DUMMYENHET'],
+      ['branch'],
+      ['leaf'],
+    );
+    const withDummyInTheMiddle = chain(
+      ['root'],
+      ['top'],
+      ['dummy', 'DUMMYENHET'],
+      ['leaf'],
     );
 
-    assert.ok(
-      withSuggestions.length > branchOnly.length,
-      'the limit pulls in enhets outside the selected branch',
+    assert.deepStrictEqual(
+      getAncestors(belowDummyRoot).map((enhet) => enhet.id),
+      ['branch'],
+    );
+    assert.deepStrictEqual(
+      getAncestors(withDummyInTheMiddle).map((enhet) => enhet.id),
+      ['top'],
+    );
+  });
+
+  test('stops at a parent the API returned as a bare id', () => {
+    const unexpandedLeaf = makeEnhet('leaf', { parent: 'mid' });
+    const partiallyExpanded: TrimmedEnhet = {
+      ...makeEnhet('leaf'),
+      parent: makeEnhet('mid', { parent: 'top' }),
+    };
+
+    assert.deepStrictEqual(getAncestors(unexpandedLeaf), []);
+    assert.deepStrictEqual(
+      getAncestors(partiallyExpanded).map((enhet) => enhet.id),
+      ['mid'],
     );
   });
 });

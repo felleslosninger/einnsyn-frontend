@@ -1,10 +1,10 @@
 'use server';
 
 import {
-  type CachedEnhet,
+  type FlattenedEnhet,
+  getEnhetList,
   getEnhets,
-  listTrimmedEnhets,
-  type VersionedEnhets,
+  type VersionedEnhetList,
 } from './enhet.server';
 
 // Every export here is a publicly callable endpoint, so this file holds only
@@ -12,11 +12,14 @@ import {
 // `./enhet.server` directly.
 
 /** Called by the client-side enhet cache on first expand of the selector. */
-export async function getTrimmedEnhetList(): Promise<VersionedEnhets> {
-  return listTrimmedEnhets();
+export async function getTrimmedEnhetList(): Promise<VersionedEnhetList> {
+  const { trimmed, version } = await getEnhetList();
+  return { enhets: trimmed, version };
 }
 
 /** Accepts ids or slugs; served from the server-side cache. */
-export async function getEnhet(idsOrSlugs: string[]): Promise<CachedEnhet[]> {
+export async function getEnhet(
+  idsOrSlugs: string[],
+): Promise<FlattenedEnhet[]> {
   return getEnhets(idsOrSlugs);
 }

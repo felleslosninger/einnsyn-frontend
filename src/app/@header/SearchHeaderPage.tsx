@@ -1,4 +1,3 @@
-import { getSettings } from '~/actions/cookies/settingsCookie';
 import { SearchHeader } from '~/features/search';
 import { getInitialEnhets } from '~/lib/enhet/enhet.server';
 
@@ -13,13 +12,10 @@ export default async function SearchHeaderPage({
   pathEnhet?: string;
   searchParams: HeaderSearchParams;
 }>) {
-  const [sp, settings] = await Promise.all([searchParams, getSettings()]);
+  const sp = await searchParams;
   // `sp.enhet` is a bare string for one `?enhet=` and an array for several.
   const enhetIdentifiers = [pathEnhet ?? [], sp.enhet ?? []].flat();
-  const { enhets, version } = await getInitialEnhets({
-    enhetIdentifiers,
-    languageCode: settings.language,
-  });
+  const { enhets, version } = await getInitialEnhets({ enhetIdentifiers });
 
   return <SearchHeader initialEnhets={enhets} enhetListVersion={version} />;
 }

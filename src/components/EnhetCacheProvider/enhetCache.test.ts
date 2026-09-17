@@ -42,6 +42,31 @@ async function freshStore(getList: () => Promise<ListResult>) {
   return import(`./enhetCache.ts?store=${storeSeq}`);
 }
 
+/**
+ * A list fetch that blocks every call until `release()` is called, so a test
+ * can observe the store between a fetch starting and settling.
+ */
+function gatedList(resultFor: (call: number) => ListResult) {
+  let waiting: (() => void)[] = [];
+  let calls = 0;
+  const getList = async () => {
+    calls += 1;
+    const call = calls;
+    await new Promise<void>((resolve) => {
+      waiting.push(resolve);
+    });
+    return resultFor(call);
+  };
+  const release = () => {
+    const pending = waiting;
+    waiting = [];
+    for (const resolve of pending) {
+      resolve();
+    }
+  };
+  return { getList, release, started: () => calls };
+}
+
 describe('enhet client cache', () => {
   test('a full list load records the version it loaded under', async () => {
     const store = await freshStore(async () => ({
@@ -140,20 +165,16 @@ describe('enhet client cache', () => {
   });
 
   test('a version that moves mid-fetch leaves the list invalid', async () => {
-    let release: (() => void) | undefined;
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    const store = await freshStore(async () => {
-      await gate;
-      return { enhets: [enhet('a')], version: 'v1' };
-    });
+    const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
+    const store = await freshStore(gate.getList);
 
     const inflight = store.ensureFullList();
     store.seedEnhets([], 'v2');
-    release?.();
+    gate.release();
     await inflight;
 
+    // The retry this kicks off is still gated, so the store is observed
+    // exactly as the invalidated fetch left it.
     const snapshot = store.getEnhetCacheSnapshot();
     assert.equal(
       snapshot.loadedVersion,
@@ -164,29 +185,42 @@ describe('enhet client cache', () => {
   });
 
   test('a seed mid-fetch does not start a second fetch', async () => {
-    let release: (() => void) | undefined;
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    let started = 0;
-    const store = await freshStore(async () => {
-      started += 1;
-      await gate;
-      return { enhets: [enhet('a')], version: 'v1' };
-    });
+    const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
+    const store = await freshStore(gate.getList);
 
     const inflight = store.ensureFullList();
     // The seed invalidates, but the fetch it would restart is still running.
     store.seedEnhets([], 'v2');
     const reentrant = store.ensureFullList();
-    assert.equal(started, 1, 'the in-flight fetch is reused');
+    assert.equal(gate.started(), 1, 'the in-flight fetch is reused');
 
-    release?.();
+    gate.release();
     await Promise.all([inflight, reentrant]);
+  });
 
-    // Released once it settles, so the stale branch's refetch can proceed.
-    const retry = store.ensureFullList();
-    assert.equal(started, 2);
-    await retry;
+  test('an invalidated fetch restarts itself once it settles', async () => {
+    const gate = gatedList((call) => ({
+      enhets: [enhet('a')],
+      version: call === 1 ? 'v1' : 'v2',
+    }));
+    const store = await freshStore(gate.getList);
+
+    const inflight = store.ensureFullList();
+    store.seedEnhets([], 'v2');
+    gate.release();
+    await inflight;
+
+    // Nobody calls `ensureFullList` again: the selector's effect only re-runs
+    // when `fullListLoaded` flips, which an invalidated fetch never does.
+    assert.equal(gate.started(), 2, 'the stale fetch restarts on its own');
+
+    gate.release();
+    await store.ensureFullList();
+
+    assert.equal(
+      store.getEnhetCacheSnapshot().loadedVersion,
+      'v2',
+      'the retry loads under the version the seed announced',
+    );
   });
 });

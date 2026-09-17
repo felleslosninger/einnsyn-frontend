@@ -1,24 +1,8 @@
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import type { LanguageCode } from '../translation/translation';
 
-export type NamedEnhet = Pick<
-  Enhet,
-  'navn' | 'navnNynorsk' | 'navnEngelsk' | 'navnSami'
->;
-
-/**
- * A node in a parent chain, parameterised by the type of its own parents.
- *
- * `TParent` is the node type itself at every call site (`T extends
- * AncestorNode<T>`), which is what lets the walk hand back ancestors of the
- * same type as the enhet it started from.
- */
-type AncestorNode<TParent> = NamedEnhet & {
-  enhetstype?: Enhet['enhetstype'];
-  parent?: string | TParent;
-};
-
-type TrimmedEnhetBase = Pick<
+/** An enhet's own fields, without the parent link the tree is built from. */
+export type TrimmedEnhetBase = Pick<
   Enhet,
   | 'id'
   | 'slug'
@@ -30,10 +14,8 @@ type TrimmedEnhetBase = Pick<
   | 'enhetstype'
 >;
 
-export type TrimmedEnhetParent = string | TrimmedEnhet;
-
 export type TrimmedEnhet = TrimmedEnhetBase & {
-  parent?: TrimmedEnhetParent;
+  parent?: string | TrimmedEnhet;
 };
 
 /**
@@ -43,19 +25,19 @@ export type TrimmedEnhet = TrimmedEnhetBase & {
  * optional, so a missing translation shows the bokmål name rather than nothing.
  */
 export const getName = (
-  enhet: NamedEnhet,
+  enhet: TrimmedEnhetBase,
   languageCode: LanguageCode,
 ): string => {
-  if (languageCode === 'nb') {
-    return enhet.navn;
+  switch (languageCode) {
+    case 'nb':
+      return enhet.navn;
+    case 'nn':
+      return enhet.navnNynorsk ?? enhet.navn;
+    case 'se':
+      return enhet.navnSami ?? enhet.navn;
+    case 'en':
+      return enhet.navnEngelsk ?? enhet.navn;
   }
-  if (languageCode === 'nn') {
-    return enhet.navnNynorsk ?? enhet.navn;
-  }
-  if (languageCode === 'se') {
-    return enhet.navnSami ?? enhet.navn;
-  }
-  return enhet.navnEngelsk ?? enhet.navn;
 };
 
 /**
@@ -110,9 +92,9 @@ export function matchesEnhetIdentifier(
  * the API returned as bare id strings instead of expanded objects also end the
  * walk, so an unexpanded chain yields fewer (or no) ancestors.
  */
-export const getAncestors = <T extends AncestorNode<T>>(enhet: T): T[] => {
-  const ancestors: T[] = [];
-  let current: string | T | undefined = enhet.parent;
+export const getAncestors = (enhet: TrimmedEnhet): TrimmedEnhet[] => {
+  const ancestors: TrimmedEnhet[] = [];
+  let current: string | TrimmedEnhet | undefined = enhet.parent;
   while (typeof current === 'object' && current?.parent) {
     if (current.enhetstype !== 'DUMMYENHET') {
       ancestors.unshift(current);
@@ -128,8 +110,8 @@ export const getAncestors = <T extends AncestorNode<T>>(enhet: T): T[] => {
  * Empty for an enhet directly below the root, so callers that use it as a
  * subtitle typically fall back to `undefined` on an empty string.
  */
-export const getAncestorsAsString = <T extends AncestorNode<T>>(
-  enhet: T,
+export const getAncestorsAsString = (
+  enhet: TrimmedEnhet,
   languageCode: LanguageCode,
   separator = ' / ',
 ) => {
@@ -145,10 +127,10 @@ export const getAncestorsAsString = <T extends AncestorNode<T>>(
  * the map, which is normal for partial lists — callers treat either case as
  * "the chain ends here".
  */
-export function getEnhetParentFromMap(
+export function getEnhetParentFromMap<T extends TrimmedEnhet>(
   enhet: TrimmedEnhet,
-  enhetsById: ReadonlyMap<string, TrimmedEnhet>,
-): TrimmedEnhet | undefined {
+  enhetsById: ReadonlyMap<string, T>,
+): T | undefined {
   const parentId =
     typeof enhet.parent === 'string' ? enhet.parent : enhet.parent?.id;
   if (!parentId) {
@@ -179,85 +161,23 @@ export function toTrimmedEnhet(enhet: Enhet): TrimmedEnhet {
 }
 
 /**
- * Order enhets for the enhet selector, most prominent first.
- *
- * The top-level root is dropped (enhets without a parent), since it is not
- * selectable. The rest are ordered by real enhets before `DUMMYENHET` grouping
- * nodes, then by depth so top-level organisations come before their
- * sub-units, then by name in the active language with Norwegian collation.
- * Those three rules mirror `enhetSearch.sortNodes`, which orders the same list
- * on the client once the full enhet list has loaded.
- *
- * Callers use `.slice(0, n)` on the result to get the default suggestions.
- */
-export function sortTrimmedEnhetsForSelector(
-  enhets: readonly TrimmedEnhet[],
-  languageCode: LanguageCode,
-): TrimmedEnhet[] {
-  const candidates = enhets.filter((enhet) => !!enhet.parent);
-  const enhetsById = new Map<string, TrimmedEnhet>();
-  for (const enhet of candidates) {
-    enhetsById.set(enhet.id, enhet);
-  }
-
-  const depthCache = new Map<string, number>();
-  const getDepth = (enhet: TrimmedEnhet): number => {
-    const cachedDepth = depthCache.get(enhet.id);
-    if (cachedDepth !== undefined) {
-      return cachedDepth;
-    }
-
-    // Provisional depth, so a parent cycle in the data resolves to 0 on the
-    // way back round instead of recursing until the stack blows. Overwritten
-    // with the real depth below.
-    depthCache.set(enhet.id, 0);
-
-    const parent = getEnhetParentFromMap(enhet, enhetsById);
-    const depth = parent ? 1 + getDepth(parent) : 0;
-    depthCache.set(enhet.id, depth);
-    return depth;
-  };
-
-  const scoreOf = (enhet: TrimmedEnhet) =>
-    enhet.enhetstype === 'DUMMYENHET' ? 0.5 : 1;
-
-  return [...candidates].sort((a, b) => {
-    const scoreDiff = scoreOf(b) - scoreOf(a);
-    if (scoreDiff !== 0) {
-      return scoreDiff;
-    }
-
-    const depthDiff = getDepth(a) - getDepth(b);
-    if (depthDiff !== 0) {
-      return depthDiff;
-    }
-
-    return getName(a, languageCode).localeCompare(
-      getName(b, languageCode),
-      'no',
-    );
-  });
-}
-
-/**
  * The seed enhets plus every ancestor of theirs found in `allEnhets`, deduped.
  *
  * The selector renders a tree, so a selected sub-unit is only reachable if its
  * whole parent chain is present. This adds the missing links to a partial list
- * (typically the top suggestions plus whatever the URL selected). As in
- * {@link getAncestors}, the top-level root is left out. Order is
- * insertion-ordered, not sorted.
+ * (typically whatever the URL selected). As in {@link getAncestors}, the
+ * top-level root is left out. Order is insertion-ordered, not sorted.
  */
-export function expandTrimmedEnhetsWithAncestors(
-  seeds: readonly TrimmedEnhet[],
-  allEnhets: readonly TrimmedEnhet[],
-): TrimmedEnhet[] {
-  const allEnhetsById = new Map<string, TrimmedEnhet>();
+export function expandAncestorsInEnhetList<T extends TrimmedEnhet>(
+  seeds: readonly T[],
+  allEnhets: readonly T[],
+): T[] {
+  const allEnhetsById = new Map<string, T>();
   for (const enhet of allEnhets) {
     allEnhetsById.set(enhet.id, enhet);
   }
 
-  const merged = new Map<string, TrimmedEnhet>();
+  const merged = new Map<string, T>();
   for (const enhet of seeds) {
     merged.set(enhet.id, enhet);
 
@@ -271,26 +191,4 @@ export function expandTrimmedEnhetsWithAncestors(
   }
 
   return Array.from(merged.values());
-}
-
-/**
- * The enhets the selector must render on first paint: the default suggestions,
- * whatever the URL selected, and the ancestors that make the selected ones
- * reachable in the tree.
- */
-export function selectInitialEnhets(
-  allEnhets: readonly TrimmedEnhet[],
-  identifiers: ReadonlySet<string>,
-  limit: number,
-  languageCode: LanguageCode,
-): TrimmedEnhet[] {
-  const selected = allEnhets.filter((enhet) =>
-    matchesEnhetIdentifier(enhet, identifiers),
-  );
-  const topN = sortTrimmedEnhetsForSelector(allEnhets, languageCode).slice(
-    0,
-    limit,
-  );
-
-  return expandTrimmedEnhetsWithAncestors([...topN, ...selected], allEnhets);
 }

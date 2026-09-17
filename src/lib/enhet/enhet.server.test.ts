@@ -2,14 +2,14 @@ import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
 import {
-  type CachedEnhet,
   createEnhetListCache,
   type FetchEnhets,
+  type FlattenedEnhet,
   RETRY_AFTER_FAILURE_MS,
   REVALIDATE_MS,
 } from './enhet.server';
 
-function enhet(id: string): CachedEnhet {
+function enhet(id: string): FlattenedEnhet {
   return {
     id,
     entity: 'Enhet',
@@ -25,7 +25,7 @@ function enhet(id: string): CachedEnhet {
 }
 
 /** A fetch resolving with the nth list, or the last one once they run out. */
-function stubFetch(results: CachedEnhet[][]) {
+function stubFetch(results: FlattenedEnhet[][]) {
   const calls = { length: 0 };
   const fetchEnhets: FetchEnhets = async () => {
     calls.length += 1;
