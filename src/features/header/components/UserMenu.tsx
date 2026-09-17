@@ -7,6 +7,7 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { brukerRoutes } from '~/features/bruker/brukerRoutes';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import LoginButton from './LoginButton';
@@ -15,11 +16,15 @@ import styles from './UserMenu.module.scss';
 
 export default function ProfileButton() {
   const { authInfo } = useSessionData();
+  const t = useTranslation();
 
   // User profile
   if (authInfo?.type === 'Bruker') {
     return (
-      <Dropdown button={<BrukerMenuButton authInfo={authInfo} />}>
+      <Dropdown
+        button={<BrukerMenuButton authInfo={authInfo} />}
+        label={t('site.loggedInAs', authInfo.email)}
+      >
         <BrukerMenuContent authInfo={authInfo} />
       </Dropdown>
     );
@@ -28,7 +33,10 @@ export default function ProfileButton() {
   // Employee profile
   if (authInfo?.type === 'Enhet') {
     return (
-      <Dropdown button={<EnhetMenuButton authInfo={authInfo} />}>
+      <Dropdown
+        button={<EnhetMenuButton authInfo={authInfo} />}
+        label={t('site.loggedInAs', authInfo.orgnummer)}
+      >
         <EnhetMenuContent authInfo={authInfo} />
       </Dropdown>
     );
@@ -41,19 +49,25 @@ export default function ProfileButton() {
 type DropdownButtonProps = {
   authInfo: ExtendedAuthInfo;
   onClick?: () => void;
+  'aria-expanded'?: boolean;
 };
 
 type DropdownContentProps = {
   authInfo: ExtendedAuthInfo;
 };
 
-export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
+export function BrukerMenuButton({
+  authInfo,
+  onClick,
+  'aria-expanded': ariaExpanded,
+}: DropdownButtonProps) {
   const t = useTranslation();
   const { email } = authInfo;
 
   return (
     <EinButton
       onClick={onClick}
+      aria-expanded={ariaExpanded}
       variant="tertiary"
       data-color="neutral"
       aria-label={t('site.loggedInAs', email)}
@@ -67,19 +81,51 @@ export function BrukerMenuButton({ authInfo, onClick }: DropdownButtonProps) {
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
   return (
-    <div>
-      <p>{t('site.loggedInAs', authInfo.email)}</p>
-      <LogoutButton />
+    <div className="header-dropdown-content">
+      <div className="header-dropdown-content-section">
+        <span data-size="sm">{t('site.loggedInAs')}</span>
+        <br />
+        <strong>{authInfo.email}</strong>
+      </div>
+
+      <div
+        className={cn(
+          styles['bruker-dropdown-content-section-links'],
+          'header-dropdown-content-section',
+        )}
+      >
+        {brukerRoutes.map(({ href, translationKey }) => (
+          <EinButton
+            key={href}
+            asChild
+            variant="tertiary"
+            data-color="neutral"
+            fullWidth
+          >
+            <EinLink unstyled href={href}>
+              {t(translationKey)}
+            </EinLink>
+          </EinButton>
+        ))}
+      </div>
+      <div className="header-dropdown-content-section">
+        <LogoutButton />
+      </div>
     </div>
   );
 }
 
-export function EnhetMenuButton({ authInfo, onClick }: DropdownButtonProps) {
+export function EnhetMenuButton({
+  authInfo,
+  onClick,
+  'aria-expanded': ariaExpanded,
+}: DropdownButtonProps) {
   const t = useTranslation();
   const orgnummer = authInfo.orgnummer;
   return (
     <EinButton
       onClick={onClick}
+      aria-expanded={ariaExpanded}
       variant="secondary"
       data-color="neutral"
       aria-label={t('site.loggedInAs', orgnummer)}
@@ -105,7 +151,7 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
           'header-dropdown-content-section',
         )}
       >
-        <span data-size="sm">{t('site.loggedInAs')}</span>
+        <span data-size="sm">{t('site.loggedInAsLabel')}</span>
         <br />
         <strong>{authInfo.enhet?.navn ?? authInfo.orgnummer}</strong>
       </div>
@@ -139,21 +185,40 @@ export function EnhetMenuContent({ authInfo }: DropdownContentProps) {
 export function Dropdown({
   button,
   children,
+  label,
 }: {
   button: React.ReactElement<DropdownButtonProps>;
   children: React.ReactNode;
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const toggleDropdown = () => setOpen(!open);
 
   const buttonWithClickHandler = cloneElement(button, {
     onClick: toggleDropdown,
+    'aria-expanded': open,
   });
 
+  const closeOnItemClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.ein-popup') && target.closest('a, button')) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className={cn(styles.dropdown, 'header-dropdown')}>
+    <div
+      className={cn(styles.dropdown, 'header-dropdown')}
+      onClickCapture={closeOnItemClick}
+    >
       {buttonWithClickHandler}
-      <EinPopup open={open} setOpen={setOpen}>
+      <EinPopup
+        open={open}
+        setOpen={setOpen}
+        autoFocus
+        restoreFocus
+        contentProps={{ role: 'group', 'aria-label': label }}
+      >
         {children}
       </EinPopup>
     </div>
