@@ -24,7 +24,7 @@
     "next": "^16.3.5",
     "openid-client": "^6.8.8",
     "react": "^19.3.0",
-    "react-dom": "^19.2.8",
+    "react-dom": "^19.3.0",
     "sass": "^1.104.1",
     "virtua": "^0.51.3"
   },
@@ -32,7 +32,7 @@
     "@biomejs/biome": "^2.5.13",
     "@types/node": "^26.5.1",
     "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.2.7",
+    "@types/react-dom": "^19.3.0",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
