@@ -3,7 +3,6 @@ import { describe, test } from 'node:test';
 
 import {
   createEnhetListCache,
-  type FetchEnhets,
   type FlattenedEnhet,
   RETRY_AFTER_FAILURE_MS,
   REVALIDATE_MS,
@@ -27,7 +26,7 @@ function enhet(id: string): FlattenedEnhet {
 /** A fetch resolving with the nth list, or the last one once they run out. */
 function stubFetch(results: FlattenedEnhet[][]) {
   const calls = { length: 0 };
-  const fetchEnhets: FetchEnhets = async () => {
+  const fetchEnhets = async () => {
     calls.length += 1;
     const result = results[Math.min(calls.length - 1, results.length - 1)];
     if (result === undefined) {
@@ -59,7 +58,7 @@ describe('createEnhetListCache', () => {
 
   test('concurrent cold reads share a single refresh', async () => {
     let started = 0;
-    const fetchEnhets: FetchEnhets = async () => {
+    const fetchEnhets = async () => {
       started += 1;
       await new Promise((resolve) => setTimeout(resolve, 5));
       return [enhet('a')];
@@ -110,7 +109,7 @@ describe('createEnhetListCache', () => {
 
   test('a failed background refresh keeps serving the last good list', async () => {
     let call = 0;
-    const fetchEnhets: FetchEnhets = async () => {
+    const fetchEnhets = async () => {
       call += 1;
       if (call === 1) {
         return [enhet('a')];
@@ -129,7 +128,7 @@ describe('createEnhetListCache', () => {
   });
 
   test('a failed cold refresh rejects, since there is nothing to serve', async () => {
-    const fetchEnhets: FetchEnhets = async () => {
+    const fetchEnhets = async () => {
       throw new Error('api down');
     };
     const cache = createEnhetListCache(fetchEnhets, clock().now);
@@ -139,7 +138,7 @@ describe('createEnhetListCache', () => {
 
   test('a failed cold refresh backs off too, rather than walking per read', async () => {
     let call = 0;
-    const fetchEnhets: FetchEnhets = async () => {
+    const fetchEnhets = async () => {
       call += 1;
       if (call <= 2) {
         throw new Error('api down');
@@ -165,7 +164,7 @@ describe('createEnhetListCache', () => {
 
   test('a failed refresh backs off instead of retrying on every read', async () => {
     let call = 0;
-    const fetchEnhets: FetchEnhets = async () => {
+    const fetchEnhets = async () => {
       call += 1;
       if (call === 1) {
         return [enhet('a')];
