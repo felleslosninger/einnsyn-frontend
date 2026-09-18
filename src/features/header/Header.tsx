@@ -20,6 +20,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
   const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
   const isHome = rootPath === 'home';
+  const isCalendar = rootPath === 'calendar';
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
   const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
@@ -165,7 +166,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   // TODO: Map rootPath from language specific URL pathname to generic pathname
 
   const className = cn(styles.header, `section-${rootPath}`, {
-    [styles.scrolled]: !isHome && isScrollingDown,
+    [styles.scrolled]: !isHome && !isCalendar && isScrollingDown,
     [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
   });
 
