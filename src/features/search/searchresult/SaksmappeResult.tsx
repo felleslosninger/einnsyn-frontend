@@ -3,21 +3,13 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { getEnhetHref, getName } from '~/lib/utils/enhetUtils';
+import { getName } from '~/lib/utils/enhetUtils';
+import {
+  generateEnhetURL,
+  useSaksmappeURLGenerator,
+} from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
-
-export const getSaksmappeHref = (saksmappe: Saksmappe) => {
-  const enhet = saksmappe.administrativEnhetObjekt;
-
-  // Fail gracefully if enhet isn't expanded
-  if (typeof enhet === 'string') {
-    return '';
-  }
-
-  const enhetHref = getEnhetHref(enhet);
-  return `${enhetHref}/saksmappe/${saksmappe.id}`;
-};
 
 export default function SaksmappeResult({
   className,
@@ -28,12 +20,12 @@ export default function SaksmappeResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const saksmappeHref = getSaksmappeHref(item);
+  const saksmappeURL = useSaksmappeURLGenerator();
   const enhet = item.administrativEnhetObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
-      <EinLink href={saksmappeHref}>
+      <EinLink href={saksmappeURL(item)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
@@ -55,7 +47,7 @@ export default function SaksmappeResult({
         </SearchResultSubheader>
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={getEnhetHref(enhet)}>
+            <EinLink href={generateEnhetURL(enhet)}>
               {getName(enhet, languageCode)}
             </EinLink>
           </div>

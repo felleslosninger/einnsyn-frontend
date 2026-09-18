@@ -4,15 +4,17 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { getAuth } from '~/actions/cookies/authCookie';
 import { getSettings } from '~/actions/cookies/settingsCookie';
+import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
+import { EinnsynBody } from '~/components/EinnsynBody/EinnsynBody';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
+import { PageTransition } from '~/components/PageTransition/PageTransition';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { Footer } from '~/features/footer';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
-import { ModalWrapper } from './@modal/ModalWrapper';
 
 export const viewport = {
   width: 'device-width',
@@ -68,14 +70,14 @@ export default async function Layout({
         >
           <SearchFieldProvider>
             <body data-color-scheme={settings.colorScheme}>
-              <div className="einnsyn-body">
+              <EinnsynBody>
                 {header}
-                <main className="content-flex-grow">{children}</main>
+                <PageTransition>{children}</PageTransition>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
                 <KeyboardFocusManager />
                 <ThemeManager />
-              </div>
+              </EinnsynBody>
             </body>
           </SearchFieldProvider>
         </SessionDataProvider>
