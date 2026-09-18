@@ -7,7 +7,7 @@ import {
   useEffect,
   useMemo,
 } from 'react';
-import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 import {
   ensureFullList,
   seedEnhets,
@@ -22,19 +22,24 @@ const EnhetCacheContext = createContext<ContextValue>({ initialEnhets: [] });
 
 type Props = {
   initialEnhets?: readonly TrimmedEnhet[];
+  enhetListVersion?: string | null;
   children: ReactNode;
 };
 
-export function EnhetCacheProvider({ initialEnhets = [], children }: Props) {
+export function EnhetCacheProvider({
+  initialEnhets = [],
+  enhetListVersion,
+  children,
+}: Props) {
   const value = useMemo(() => ({ initialEnhets }), [initialEnhets]);
 
-  // Sync initialEnhets into the module store on the client so the cache persists
-  // across provider remounts (e.g. navigation between @header pages).
+  // Sync into the module store on the client so the cache persists across
+  // provider remounts (e.g. navigation between @header pages). Runs even with
+  // no enhets: a render that selects none still carries the version that tells
+  // the store whether its full list is stale.
   useEffect(() => {
-    if (initialEnhets.length > 0) {
-      seedEnhets(initialEnhets);
-    }
-  }, [initialEnhets]);
+    seedEnhets(initialEnhets, enhetListVersion);
+  }, [initialEnhets, enhetListVersion]);
 
   return (
     <EnhetCacheContext.Provider value={value}>
@@ -72,7 +77,9 @@ export function useEnhetCache() {
 
   return {
     enhetMap,
-    fullListLoaded: snapshot.fullListLoaded,
+    // Derived, so consumers keep asking the same question: a version change
+    // flips this back to false and their lazy-load effect refetches.
+    fullListLoaded: snapshot.loadedVersion !== null,
     ensureFullList,
   };
 }

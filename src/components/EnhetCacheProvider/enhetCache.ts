@@ -1,24 +1,32 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { getTrimmedEnhetList } from '~/actions/api/enhet.actions';
-import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import type { TrimmedEnhet } from '~/lib/enhet/enhet';
+import { getTrimmedEnhetList } from '~/lib/enhet/enhet.actions';
 import { logger } from '~/lib/utils/logger';
 
 export type EnhetCacheSnapshot = {
   enhetMap: ReadonlyMap<string, TrimmedEnhet>;
-  fullListLoaded: boolean;
+  /** The version the full list was loaded under, or null if it is not loaded. */
+  loadedVersion: string | null;
 };
 
 let snapshot: EnhetCacheSnapshot = {
   enhetMap: new Map<string, TrimmedEnhet>(),
-  fullListLoaded: false,
+  loadedVersion: null,
 };
 
 const serverSnapshot: EnhetCacheSnapshot = {
   enhetMap: new Map<string, TrimmedEnhet>(),
-  fullListLoaded: false,
+  loadedVersion: null,
 };
+
+// The newest version any server response has carried, and a counter bumped
+// whenever it moves. The counter is what an in-flight full-list fetch compares
+// against — versions are opaque hashes, so they cannot be ordered.
+let latestVersion: string | null = null;
+let versionEpoch = 0;
+let fullListPromise: Promise<void> | null = null;
 
 const subscribers = new Set<() => void>();
 
@@ -35,7 +43,7 @@ function subscribe(cb: () => void) {
   };
 }
 
-function getSnapshot(): EnhetCacheSnapshot {
+export function getEnhetCacheSnapshot(): EnhetCacheSnapshot {
   return snapshot;
 }
 
@@ -44,64 +52,118 @@ function getServerSnapshot(): EnhetCacheSnapshot {
 }
 
 function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
+  // A re-slugged enhet would otherwise keep its old alias pointing at the stale
+  // copy. The identity check leaves the alias alone when another enhet has
+  // taken it over in the meantime.
+  const previous = map.get(enhet.id);
+  if (
+    previous?.slug &&
+    previous.slug !== enhet.slug &&
+    map.get(previous.slug) === previous
+  ) {
+    map.delete(previous.slug);
+  }
+
   map.set(enhet.id, enhet);
   if (enhet.slug) {
     map.set(enhet.slug, enhet);
   }
 }
 
-export function seedEnhets(enhets: readonly TrimmedEnhet[]) {
-  if (enhets.length === 0) {
-    return;
+/**
+ * Merge server-rendered enhets into the store, and drop the full list when the
+ * server reports a version we did not load under.
+ *
+ * The cached entries are kept across that invalidation: stale names render
+ * better than blank ones while the refetch runs.
+ */
+export function seedEnhets(
+  enhets: readonly TrimmedEnhet[],
+  version?: string | null,
+) {
+  let changed = false;
+
+  const versionMoved = !!version && version !== latestVersion;
+  if (versionMoved) {
+    latestVersion = version;
+    versionEpoch += 1;
+    if (snapshot.loadedVersion !== null) {
+      snapshot = { ...snapshot, loadedVersion: null };
+      changed = true;
+    }
   }
 
-  let changed = false;
   let nextMap: Map<string, TrimmedEnhet> | null = null;
   for (const enhet of enhets) {
-    if (snapshot.enhetMap.has(enhet.id)) {
+    // A moved version means our copy of this enhet may be the stale one, so
+    // seeded entries overwrite rather than skip.
+    if (!versionMoved && snapshot.enhetMap.has(enhet.id)) {
       continue;
     }
-    if (!nextMap) {
-      nextMap = new Map(snapshot.enhetMap);
-    }
+    nextMap ??= new Map(snapshot.enhetMap);
     addToMap(nextMap, enhet);
     changed = true;
   }
-  if (!changed || !nextMap) {
-    return;
+  if (nextMap) {
+    snapshot = { ...snapshot, enhetMap: nextMap };
   }
 
-  snapshot = { ...snapshot, enhetMap: nextMap };
-  notify();
+  if (changed) {
+    notify();
+  }
 }
 
-let fullListPromise: Promise<void> | null = null;
-
 export function ensureFullList(): Promise<void> {
-  if (snapshot.fullListLoaded) {
+  if (snapshot.loadedVersion !== null) {
     return Promise.resolve();
   }
   if (fullListPromise) {
     return fullListPromise;
   }
+
+  const epochAtStart = versionEpoch;
+  let invalidatedMidFetch = false;
   fullListPromise = (async () => {
     try {
-      const list = await getTrimmedEnhetList();
+      const { enhets, version } = await getTrimmedEnhetList();
       const nextMap = new Map(snapshot.enhetMap);
-      for (const enhet of list) {
+      for (const enhet of enhets) {
         addToMap(nextMap, enhet);
       }
-      snapshot = { enhetMap: nextMap, fullListLoaded: true };
+
+      // A seed may have advanced the version while this was in flight. Marking
+      // the list loaded would then strand the store on data the server has
+      // already moved past, so keep the entries but stay invalid and refetch.
+      if (versionEpoch !== epochAtStart) {
+        invalidatedMidFetch = true;
+        snapshot = { ...snapshot, enhetMap: nextMap };
+      } else {
+        latestVersion = version;
+        snapshot = { enhetMap: nextMap, loadedVersion: version };
+      }
       notify();
     } catch (error) {
+      // Surfaced as "not loaded": the store carries no error state yet, so
+      // consumers keep their loading view until a later call succeeds.
       logger.error('Failed to load enhet list', error);
-      // Clear the in-flight promise so a later call can retry.
+    } finally {
+      // The only release point, so the slot is non-null exactly while a fetch
+      // is in flight and a seed cannot null it out from under one.
       fullListPromise = null;
+      // Nothing else would retry: the sole caller re-runs its effect on
+      // `fullListLoaded`, which an invalidated fetch never flips.
+      if (invalidatedMidFetch) {
+        void ensureFullList();
+      }
     }
   })();
   return fullListPromise;
 }
 
 export function useEnhetCacheSnapshot(): EnhetCacheSnapshot {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useSyncExternalStore(
+    subscribe,
+    getEnhetCacheSnapshot,
+    getServerSnapshot,
+  );
 }

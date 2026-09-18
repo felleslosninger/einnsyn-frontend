@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 import { normalizeParamList, parseParamList } from '~/lib/utils/paramList';
 import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
 
