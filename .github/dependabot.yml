@@ -16,7 +16,11 @@ updates:
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 3
-    # A dependency joins the first group it matches, so "misc" must stay last.
+    commit-message:
+      prefix: "deps"
+      prefix-development: "chore(deps-dev)"
+    # Groups apply to version updates only; security updates stay one PR each.
+    # @types/react* must stay above dev-tooling: first matching group wins.
     groups:
       react:
         patterns:
@@ -24,20 +28,11 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-      next:
-        patterns:
-          - "next"
       designsystemet:
         patterns:
-          - "@digdir/*"
+          - "@digdir/designsystemet-*"
       dev-tooling:
         dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
-      misc:
-        patterns:
-          - "*"
         update-types:
           - "minor"
           - "patch"
