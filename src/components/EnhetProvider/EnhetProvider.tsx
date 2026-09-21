@@ -11,14 +11,15 @@ import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 import {
   ensureFullList,
   seedEnhets,
-  useEnhetCacheSnapshot,
-} from './enhetCache';
+  useEnhetStoreSnapshot,
+} from './enhetStore';
 
 type ContextValue = {
   initialEnhets: readonly TrimmedEnhet[];
 };
 
-const EnhetCacheContext = createContext<ContextValue>({ initialEnhets: [] });
+// Only the SSR enhets; the live map lives in `./enhetStore`.
+const EnhetContext = createContext<ContextValue>({ initialEnhets: [] });
 
 type Props = {
   initialEnhets?: readonly TrimmedEnhet[];
@@ -26,29 +27,27 @@ type Props = {
   children: ReactNode;
 };
 
-export function EnhetCacheProvider({
+export function EnhetProvider({
   initialEnhets = [],
   enhetListVersion,
   children,
 }: Props) {
   const value = useMemo(() => ({ initialEnhets }), [initialEnhets]);
 
-  // Sync into the module store on the client so the cache persists across
+  // Sync into the module store on the client so it persists across
   // provider remounts (e.g. navigation between @header pages).
   useEffect(() => {
     seedEnhets(initialEnhets, enhetListVersion);
   }, [initialEnhets, enhetListVersion]);
 
   return (
-    <EnhetCacheContext.Provider value={value}>
-      {children}
-    </EnhetCacheContext.Provider>
+    <EnhetContext.Provider value={value}>{children}</EnhetContext.Provider>
   );
 }
 
-export function useEnhetCache() {
-  const { initialEnhets } = useContext(EnhetCacheContext);
-  const snapshot = useEnhetCacheSnapshot();
+export function useEnhets() {
+  const { initialEnhets } = useContext(EnhetContext);
+  const snapshot = useEnhetStoreSnapshot();
 
   // SSR and first client render need the server-provided initial enhets visible
   // to consumers — the module store is empty at that point.

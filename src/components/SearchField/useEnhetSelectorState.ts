@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
-import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
+import { useEnhets } from '~/components/EnhetProvider/EnhetProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
@@ -48,11 +48,7 @@ export function useEnhetSelectorState({
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
 
-  const {
-    enhetMap: rawEnhetMap,
-    fullListLoaded,
-    ensureFullList,
-  } = useEnhetCache();
+  const { enhetMap: rawEnhetMap, fullListLoaded, ensureFullList } = useEnhets();
   const { enhetMap, enhetList } = useResolvedEnhetMap(rawEnhetMap);
 
   //

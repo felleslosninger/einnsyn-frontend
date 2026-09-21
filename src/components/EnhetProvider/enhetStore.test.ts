@@ -39,7 +39,7 @@ mock.module(actionsUrl, {
 async function freshStore(getList: () => Promise<ListResult>) {
   currentGetList = getList;
   storeSeq += 1;
-  return import(`./enhetCache.ts?store=${storeSeq}`);
+  return import(`./enhetStore.ts?store=${storeSeq}`);
 }
 
 /**
@@ -67,7 +67,7 @@ function gatedList(resultFor: (call: number) => ListResult) {
   return { getList, release, started: () => calls };
 }
 
-describe('enhet client cache', () => {
+describe('enhet client store', () => {
   test('a full list load records the version it loaded under', async () => {
     const store = await freshStore(async () => ({
       enhets: [enhet('a')],
@@ -76,7 +76,7 @@ describe('enhet client cache', () => {
 
     await store.ensureFullList();
 
-    const snapshot = store.getEnhetCacheSnapshot();
+    const snapshot = store.getEnhetStoreSnapshot();
     assert.equal(snapshot.loadedVersion, 'v1');
     assert.equal(snapshot.enhetMap.get('a')?.id, 'a');
   });
@@ -90,7 +90,7 @@ describe('enhet client cache', () => {
 
     store.seedEnhets([], 'v2');
 
-    const snapshot = store.getEnhetCacheSnapshot();
+    const snapshot = store.getEnhetStoreSnapshot();
     assert.equal(snapshot.loadedVersion, null, 'no longer complete');
     assert.equal(
       snapshot.enhetMap.get('a')?.id,
@@ -108,7 +108,7 @@ describe('enhet client cache', () => {
 
     store.seedEnhets([enhet('a')], 'v1');
 
-    assert.equal(store.getEnhetCacheSnapshot().loadedVersion, 'v1');
+    assert.equal(store.getEnhetStoreSnapshot().loadedVersion, 'v1');
   });
 
   test('the next ensureFullList refetches after an invalidation', async () => {
@@ -130,7 +130,7 @@ describe('enhet client cache', () => {
     assert.equal(calls, 2, 'the resolved in-flight promise must not be reused');
   });
 
-  test('a moved version lets a seed overwrite a cached enhet', async () => {
+  test('a moved version lets a seed overwrite a stored enhet', async () => {
     const store = await freshStore(async () => ({
       enhets: [enhet('a', 'Old name')],
       version: 'v1',
@@ -140,7 +140,7 @@ describe('enhet client cache', () => {
     store.seedEnhets([enhet('a', 'New name')], 'v2');
 
     assert.equal(
-      store.getEnhetCacheSnapshot().enhetMap.get('a')?.navn,
+      store.getEnhetStoreSnapshot().enhetMap.get('a')?.navn,
       'New name',
     );
   });
@@ -154,7 +154,7 @@ describe('enhet client cache', () => {
 
     store.seedEnhets([{ ...enhet('a', 'New name'), slug: 'new-slug' }], 'v2');
 
-    const { enhetMap } = store.getEnhetCacheSnapshot();
+    const { enhetMap } = store.getEnhetStoreSnapshot();
     assert.equal(enhetMap.get('new-slug')?.navn, 'New name');
     assert.equal(enhetMap.get('a')?.navn, 'New name');
     assert.equal(
@@ -175,7 +175,7 @@ describe('enhet client cache', () => {
 
     // The retry this kicks off is still gated, so the store is observed
     // exactly as the invalidated fetch left it.
-    const snapshot = store.getEnhetCacheSnapshot();
+    const snapshot = store.getEnhetStoreSnapshot();
     assert.equal(
       snapshot.loadedVersion,
       null,
@@ -218,7 +218,7 @@ describe('enhet client cache', () => {
     await store.ensureFullList();
 
     assert.equal(
-      store.getEnhetCacheSnapshot().loadedVersion,
+      store.getEnhetStoreSnapshot().loadedVersion,
       'v2',
       'the retry loads under the version the seed announced',
     );

@@ -5,17 +5,17 @@ import type { TrimmedEnhet } from '~/lib/enhet/enhet';
 import { getTrimmedEnhetList } from '~/lib/enhet/enhet.actions';
 import { logger } from '~/lib/utils/logger';
 
-export type EnhetCacheSnapshot = {
+export type EnhetStoreSnapshot = {
   enhetMap: ReadonlyMap<string, TrimmedEnhet>;
   loadedVersion: string | null;
 };
 
-let snapshot: EnhetCacheSnapshot = {
+let snapshot: EnhetStoreSnapshot = {
   enhetMap: new Map<string, TrimmedEnhet>(),
   loadedVersion: null,
 };
 
-const serverSnapshot: EnhetCacheSnapshot = {
+const serverSnapshot: EnhetStoreSnapshot = {
   enhetMap: new Map<string, TrimmedEnhet>(),
   loadedVersion: null,
 };
@@ -42,11 +42,11 @@ function subscribe(cb: () => void) {
   };
 }
 
-export function getEnhetCacheSnapshot(): EnhetCacheSnapshot {
+export function getEnhetStoreSnapshot(): EnhetStoreSnapshot {
   return snapshot;
 }
 
-function getServerSnapshot(): EnhetCacheSnapshot {
+function getServerSnapshot(): EnhetStoreSnapshot {
   return serverSnapshot;
 }
 
@@ -73,7 +73,7 @@ function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
  * Merge server-rendered enhets into the store, and drop the full list when the
  * server reports a version we did not load under.
  *
- * The cached entries are kept across that invalidation: stale names render
+ * The entries are kept across that invalidation: stale names render
  * better than blank ones while the refetch runs.
  */
 export function seedEnhets(
@@ -159,10 +159,10 @@ export function ensureFullList(): Promise<void> {
   return fullListPromise;
 }
 
-export function useEnhetCacheSnapshot(): EnhetCacheSnapshot {
+export function useEnhetStoreSnapshot(): EnhetStoreSnapshot {
   return useSyncExternalStore(
     subscribe,
-    getEnhetCacheSnapshot,
+    getEnhetStoreSnapshot,
     getServerSnapshot,
   );
 }

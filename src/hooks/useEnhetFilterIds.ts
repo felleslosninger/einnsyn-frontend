@@ -16,7 +16,7 @@ import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
  *
  * `enhetMap` canonicalizes each value to its {@link getEnhetIdentifier} form,
  * so an id and its slug dedupe and the string comparisons in
- * `useEnhetSelectorState` match. Callers outside `EnhetCacheProvider` omit it.
+ * `useEnhetSelectorState` match. Callers outside `EnhetProvider` omit it.
  */
 export function useEnhetFilterIds(
   enhetMap?: ReadonlyMap<string, TrimmedEnhet>,
