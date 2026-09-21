@@ -3,15 +3,15 @@
 import { headers } from 'next/headers';
 import { cache } from 'react';
 import {
+  type CookieSettings,
+  getCookie,
+  updateCookie,
+} from '~/lib/cookies/cookies.server';
+import {
   type LanguageCode,
   resolveLanguageCode,
   supportedLanguages,
 } from '~/lib/translation/translation';
-import {
-  type CookieSettings,
-  getCookie,
-  updateCookieAction,
-} from './cookie.actions';
 
 const SETTINGS_COOKIE_NAME = 'settings';
 
@@ -49,7 +49,7 @@ export const updateSettingsAction = async (
   settingsContent: Partial<Settings>,
   cookieSettings: Partial<CookieSettings> = {},
 ) => {
-  return updateCookieAction(SETTINGS_COOKIE_NAME, settingsContent, {
+  return updateCookie(SETTINGS_COOKIE_NAME, settingsContent, {
     httpOnly: false,
     maxAge: 60 * 60 * 24 * 365, // 365 days
     ...cookieSettings,

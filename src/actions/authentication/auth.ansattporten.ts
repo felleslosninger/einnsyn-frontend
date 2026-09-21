@@ -2,6 +2,12 @@
 
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
+import {
+  type CookieSettings,
+  deleteCookie,
+  getCookie,
+  updateCookie,
+} from '~/lib/cookies/cookies.server';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import { logger } from '~/lib/utils/logger';
 import {
@@ -9,12 +15,6 @@ import {
   getAuth,
   updateAuthAction,
 } from '../cookies/authCookie';
-import {
-  type CookieSettings,
-  deleteCookieAction,
-  getCookie,
-  updateCookieAction,
-} from '../cookies/cookie.actions';
 
 const ANSATTPORTEN_URL = process.env.ANSATTPORTEN_URL;
 const ANSATTPORTEN_CLIENT_ID = process.env.ANSATTPORTEN_CLIENT_ID;
@@ -216,7 +216,7 @@ export const handleCallback = async (request: Request) => {
  * @returns
  */
 const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {
-  return await updateCookieAction<AnsattportenCookieContent>(
+  return await updateCookie<AnsattportenCookieContent>(
     ANSATTPORTEN_COOKIE_NAME,
     content,
     {
@@ -239,7 +239,7 @@ const getAnsattportenCookie = async () => {
  * @returns
  */
 const deleteAnsattportenCookie = async () => {
-  return await deleteCookieAction(ANSATTPORTEN_COOKIE_NAME);
+  return await deleteCookie(ANSATTPORTEN_COOKIE_NAME);
 };
 
 /**

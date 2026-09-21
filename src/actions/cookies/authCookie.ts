@@ -2,10 +2,10 @@
 
 import {
   type CookieSettings,
-  deleteCookieAction,
+  deleteCookie,
   getCookie,
-  updateCookieAction,
-} from './cookie.actions';
+  updateCookie,
+} from '~/lib/cookies/cookies.server';
 import { getSettings } from './settingsCookie';
 
 const AUTH_COOKIE_NAME = 'auth';
@@ -44,7 +44,7 @@ export const updateAuthAction = async (
       : 60 * 30); // 30 minutes (default)
 
   // Update the auth-timestamp cookie
-  updateCookieAction(
+  updateCookie(
     AUTH_TIMESTAMP_COOKIE_NAME,
     {
       timestamp: authContent.authTimestamp,
@@ -56,7 +56,7 @@ export const updateAuthAction = async (
   );
 
   // Update auth cookie
-  return updateCookieAction(AUTH_COOKIE_NAME, authContent, {
+  return updateCookie(AUTH_COOKIE_NAME, authContent, {
     maxAge,
     ...cookieSettings,
     httpOnly: true, // This should not be accessible from the frontend
@@ -72,6 +72,6 @@ export const getAuth = async () => {
 };
 
 export const deleteAuthAction = async () => {
-  await deleteCookieAction(AUTH_COOKIE_NAME);
-  await deleteCookieAction(AUTH_TIMESTAMP_COOKIE_NAME);
+  await deleteCookie(AUTH_COOKIE_NAME);
+  await deleteCookie(AUTH_TIMESTAMP_COOKIE_NAME);
 };
