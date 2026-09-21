@@ -7,7 +7,6 @@ import { logger } from '~/lib/utils/logger';
 
 export type EnhetCacheSnapshot = {
   enhetMap: ReadonlyMap<string, TrimmedEnhet>;
-  /** The version the full list was loaded under, or null if it is not loaded. */
   loadedVersion: string | null;
 };
 

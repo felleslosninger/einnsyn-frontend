@@ -34,9 +34,7 @@ export function EnhetCacheProvider({
   const value = useMemo(() => ({ initialEnhets }), [initialEnhets]);
 
   // Sync into the module store on the client so the cache persists across
-  // provider remounts (e.g. navigation between @header pages). Runs even with
-  // no enhets: a render that selects none still carries the version that tells
-  // the store whether its full list is stale.
+  // provider remounts (e.g. navigation between @header pages).
   useEffect(() => {
     seedEnhets(initialEnhets, enhetListVersion);
   }, [initialEnhets, enhetListVersion]);
@@ -77,8 +75,6 @@ export function useEnhetCache() {
 
   return {
     enhetMap,
-    // Derived, so consumers keep asking the same question: a version change
-    // flips this back to false and their lazy-load effect refetches.
     fullListLoaded: snapshot.loadedVersion !== null,
     ensureFullList,
   };
