@@ -6,7 +6,7 @@ import {
   getCookie,
   updateCookie,
 } from '~/lib/cookies/cookies.server';
-import { getSettings } from './settingsCookie';
+import { getSettings } from '~/lib/settings/settings.server';
 
 const AUTH_COOKIE_NAME = 'auth';
 export type Auth = {

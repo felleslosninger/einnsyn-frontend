@@ -1,8 +1,8 @@
 'use server';
 
+import { updateSettings } from '~/lib/settings/settings.server';
 import { validateUsername } from '~/lib/utils/validators';
 import { updateAuthAction } from '../cookies/authCookie';
-import { updateSettingsAction } from '../cookies/settingsCookie';
 
 const API_URL = process.env.API_URL;
 
@@ -78,7 +78,7 @@ export const eInnsynLoginAction = async (
 
     // Successful login
     if (isApiTokenResponse(responseData)) {
-      await updateSettingsAction({
+      await updateSettings({
         stayLoggedIn,
       });
       await updateAuthAction({

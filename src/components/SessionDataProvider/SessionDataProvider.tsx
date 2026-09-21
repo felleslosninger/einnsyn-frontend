@@ -11,12 +11,10 @@ import {
   useOptimistic,
 } from 'react';
 import type { AuthTimestamp } from '~/actions/cookies/authCookie';
-import {
-  type Settings,
-  updateSettingsAction,
-} from '~/actions/cookies/settingsCookie';
 import { useCookie } from '~/hooks/useCookie';
 import useIsChanged from '~/hooks/useIsChanged';
+import type { Settings } from '~/lib/settings/settings';
+import { updateSettingsAction } from '~/lib/settings/settings.actions';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 
 export type SessionData = {
