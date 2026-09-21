@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
@@ -10,11 +10,7 @@ import {
 } from '~/lib/cookies/cookies.server';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import { logger } from '~/lib/utils/logger';
-import {
-  deleteAuthAction,
-  getAuth,
-  updateAuthAction,
-} from '../cookies/authCookie';
+import { deleteAuth, getAuth, updateAuth } from './authCookie.server';
 
 const ANSATTPORTEN_URL = process.env.ANSATTPORTEN_URL;
 const ANSATTPORTEN_CLIENT_ID = process.env.ANSATTPORTEN_CLIENT_ID;
@@ -91,18 +87,8 @@ async function getCallbackUri() {
   return new URL('/auth/ansattporten/callback', await getOrigin()).href;
 }
 
-/**
- * A Server Action to initiate the Ansattporten login process.
- *
- * @param formData
- */
-export async function ansattportenAuthAction(
-  formData: FormData,
-): Promise<void> {
-  const originUrl = formData.get('originUrl') as string;
-  if (!originUrl) {
-    throw new Error('Missing originUrl in form data');
-  }
+/** Send the visitor to Ansattporten to authenticate. Does not return. */
+export async function startAnsattportenLogin(originUrl: string): Promise<void> {
   const authorizationUrl = await buildAuthorizationUrl(originUrl);
   redirect(authorizationUrl.href);
 }
@@ -210,11 +196,6 @@ export const handleCallback = async (request: Request) => {
   return originUrl;
 };
 
-/**
- *
- * @param content
- * @returns
- */
 const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {
   return await updateCookie<AnsattportenCookieContent>(
     ANSATTPORTEN_COOKIE_NAME,
@@ -225,19 +206,10 @@ const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {
   );
 };
 
-/**
- * Get the Ansattporten cookie.
- *
- * @returns
- */
 const getAnsattportenCookie = async () => {
   return await getCookie<AnsattportenCookieContent>(ANSATTPORTEN_COOKIE_NAME);
 };
 
-/**
- *
- * @returns
- */
 const deleteAnsattportenCookie = async () => {
   return await deleteCookie(ANSATTPORTEN_COOKIE_NAME);
 };
@@ -254,14 +226,14 @@ export async function attemptTokenRefresh(refreshToken: string): Promise<void> {
     logger.error('Failed to refresh token', {
       error: error instanceof Error ? error.message : String(error),
     });
-    await deleteAuthAction();
+    await deleteAuth();
   }
 }
 
 /**
  * Redirect the user to the Ansattporten logout URL.
  */
-export async function ansattportenEndSessionAction(): Promise<void> {
+export async function ansattportenEndSession(): Promise<void> {
   const endSessionUrl = await buildEndSessionUrl();
   if (endSessionUrl !== undefined) {
     redirect(endSessionUrl.href);
@@ -283,7 +255,7 @@ export const buildEndSessionUrl = async () => {
     post_logout_redirect_uri: origin,
   });
 
-  await deleteAuthAction();
+  await deleteAuth();
   await deleteAnsattportenCookie();
 
   return endSessionUrl;
@@ -308,7 +280,7 @@ async function updateAuthWithTokens(
   }
 
   // Update auth cookie with the new tokens
-  await updateAuthAction(
+  await updateAuth(
     {
       authTimestamp: timestamp ?? (await getAuth()).authTimestamp,
       authProvider: 'ansattporten',

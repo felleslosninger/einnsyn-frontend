@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import {
   type CookieSettings,
@@ -7,32 +7,16 @@ import {
   updateCookie,
 } from '~/lib/cookies/cookies.server';
 import { getSettings } from '~/lib/settings/settings.server';
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_TIMESTAMP_COOKIE_NAME,
+  type Auth,
+} from './auth';
 
-const AUTH_COOKIE_NAME = 'auth';
-export type Auth = {
-  authProvider: 'eInnsyn' | 'ansattporten';
-  authTimestamp: number;
-  apiKey?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  expiresAt?: number;
-};
 const defaultContent: Partial<Auth> = {};
 
-// Keep a auth-timestamp cookie as well, that is *not* httpOnly. This is used by the frontend to
-// determine if the login status has changed.
-const AUTH_TIMESTAMP_COOKIE_NAME = 'auth-timestamp';
-export type AuthTimestamp = {
-  timestamp: number;
-};
-
-/**
- * Wrapper for updating the auth cookie, specifying the cookie name and a low default maxAge.
- *
- * @param authContent
- * @returns
- */
-export const updateAuthAction = async (
+/** Writes both the httpOnly auth cookie and the timestamp the client watches. */
+export const updateAuth = async (
   authContent: Auth,
   cookieSettings: Partial<CookieSettings> = {},
 ) => {
@@ -43,7 +27,6 @@ export const updateAuthAction = async (
       ? 60 * 60 * 24 * 365 // One year if "stay logged in" is set
       : 60 * 30); // 30 minutes (default)
 
-  // Update the auth-timestamp cookie
   updateCookie(
     AUTH_TIMESTAMP_COOKIE_NAME,
     {
@@ -55,7 +38,6 @@ export const updateAuthAction = async (
     },
   );
 
-  // Update auth cookie
   return updateCookie(AUTH_COOKIE_NAME, authContent, {
     maxAge,
     ...cookieSettings,
@@ -71,7 +53,7 @@ export const getAuth = async () => {
   } as Auth;
 };
 
-export const deleteAuthAction = async () => {
+export const deleteAuth = async () => {
   await deleteCookie(AUTH_COOKIE_NAME);
   await deleteCookie(AUTH_TIMESTAMP_COOKIE_NAME);
 };

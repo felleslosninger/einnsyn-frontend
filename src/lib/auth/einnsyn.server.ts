@@ -1,8 +1,9 @@
-'use server';
+import 'server-only';
 
 import { updateSettings } from '~/lib/settings/settings.server';
 import { validateUsername } from '~/lib/utils/validators';
-import { updateAuthAction } from '../cookies/authCookie';
+import type { LoginState } from './auth';
+import { updateAuth } from './authCookie.server';
 
 const API_URL = process.env.API_URL;
 
@@ -17,16 +18,6 @@ type ApiErrorResponse = {
   message: string;
 };
 
-type LoginState = {
-  success?: boolean;
-  valid?: {
-    username: boolean;
-    password: boolean;
-  };
-  error?: string;
-  message?: string;
-};
-
 const isApiErrorResponse = (
   response: ApiErrorResponse | ApiTokenResponse,
 ): response is ApiErrorResponse => {
@@ -39,7 +30,7 @@ const isApiTokenResponse = (
   return (response as ApiTokenResponse).token !== undefined;
 };
 
-export const eInnsynLoginAction = async (
+export const eInnsynLogin = async (
   prevState: LoginState,
   formData: FormData,
 ): Promise<LoginState> => {
@@ -81,7 +72,7 @@ export const eInnsynLoginAction = async (
       await updateSettings({
         stayLoggedIn,
       });
-      await updateAuthAction({
+      await updateAuth({
         authProvider: 'eInnsyn',
         authTimestamp: Date.now(),
         accessToken: responseData.token,

@@ -5,7 +5,7 @@ export default function OrganizationHierarchy() {
 // import type { Enhet } from '@digdir/einnsyn-sdk';
 // import { notFound } from 'next/navigation';
 // import { cachedApiClient } from '~/actions/api/getApiClient';
-// import { cachedAuthInfo } from '~/actions/authentication/auth';
+// import { cachedAuthInfo } from '~/lib/auth/auth.server';
 // import OrganizationHirerarchy from './OrganizationHirerarchy';
 
 // export default async function ApiKeysPage({
