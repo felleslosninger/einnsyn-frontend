@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { cache } from 'react';
-import { cachedApiClient } from '~/actions/api/getApiClient';
+import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './ansattporten.server';
 import type { ExtendedAuthInfo } from './auth';

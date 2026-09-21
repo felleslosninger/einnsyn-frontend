@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import EInnsynClient from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
@@ -17,9 +17,8 @@ export const getApiClient = async () => {
 
 export const cachedApiClient = cache(getApiClient);
 
-// Unauthenticated client for use with `unstable_cache`. A cached request must
-// not carry per-user credentials, or the cache entry would leak auth across
-// sessions.
+// For process-wide caches: a shared cache entry must not carry per-user
+// credentials, or it would leak auth across sessions.
 export const getPublicApiClient = async () => {
   return new EInnsynClient({
     appInfo: 'eInnsyn frontend',
