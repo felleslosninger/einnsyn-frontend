@@ -1,5 +1,6 @@
 'use server';
 
+import { logger } from '~/lib/utils/logger';
 import {
   type FlattenedEnhet,
   getEnhetList,
@@ -17,9 +18,14 @@ export async function getTrimmedEnhetList(): Promise<VersionedEnhetList> {
   return { enhets: trimmed, version };
 }
 
-/** Accepts ids or slugs; served from the server-side cache. */
+/** Accepts ids or slugs. */
 export async function getEnhet(
   idsOrSlugs: string[],
 ): Promise<FlattenedEnhet[]> {
-  return getEnhets(idsOrSlugs);
+  try {
+    return await getEnhets(idsOrSlugs);
+  } catch (error) {
+    logger.error('Failed to look up enhets', error);
+    return [];
+  }
 }

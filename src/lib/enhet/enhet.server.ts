@@ -179,8 +179,11 @@ export const peekEnhetListVersion = cache.peekVersion;
 export const warmEnhetList = cache.warm;
 
 /**
- * Enhets by id or slug, served from the cached list. Anything the list has
- * not seen yet falls back to a single lookup.
+ * Enhets by id or slug, straight from the API; every enhet when given none,
+ * which is the walk the cache refreshes with.
+ *
+ * Rejects rather than returning `[]`, or a failed refresh would be
+ * indistinguishable from an empty list and get held as one.
  */
 export async function getEnhets(
   identifiers?: readonly string[],
@@ -190,24 +193,18 @@ export async function getEnhets(
     return [];
   }
 
-  // An enhet created since the last refresh is not in the list yet.
-  try {
-    const api = await getPublicApiClient();
-    const page = await api.enhet.list({
-      ids: identifiers ? [...identifiers] : undefined,
-      limit: ENHET_PAGE_LIMIT,
-    });
+  const api = await getPublicApiClient();
+  const page = await api.enhet.list({
+    ids: identifiers ? [...identifiers] : undefined,
+    limit: ENHET_PAGE_LIMIT,
+  });
 
-    const enhets: FlattenedEnhet[] = [];
-    for await (const enhet of api.iterate(page)) {
-      enhets.push(toFlattenedEnhet(enhet));
-    }
-
-    return enhets;
-  } catch (error) {
-    logger.error('Failed to look up enhets missing from the list', error);
-    return [];
+  const enhets: FlattenedEnhet[] = [];
+  for await (const enhet of api.iterate(page)) {
+    enhets.push(toFlattenedEnhet(enhet));
   }
+
+  return enhets;
 }
 
 /**
