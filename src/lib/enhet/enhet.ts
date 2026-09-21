@@ -37,6 +37,8 @@ export const getName = (
       return enhet.navnSami ?? enhet.navn;
     case 'en':
       return enhet.navnEngelsk ?? enhet.navn;
+    default:
+      return enhet.navn;
   }
 };
 
