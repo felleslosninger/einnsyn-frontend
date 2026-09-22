@@ -125,15 +125,21 @@ export function ensureFullList(): Promise<void> {
   fullListPromise = (async () => {
     try {
       const { enhets, version } = await getTrimmedEnhetList();
-      const nextMap = new Map(snapshot.enhetMap);
-      for (const enhet of enhets) {
-        addToMap(nextMap, enhet);
-      }
 
       // A seed may have advanced the version while this was in flight. Marking
       // the list loaded would then strand the store on data the server has
       // already moved past, so keep the entries but stay invalid and refetch.
-      if (versionEpoch !== epochAtStart) {
+      const invalidated = versionEpoch !== epochAtStart;
+      // Rebuild, or enhets the API has dropped keep their id and slug keys.
+      const nextMap = invalidated
+        ? new Map(snapshot.enhetMap)
+        : new Map<string, TrimmedEnhet>();
+
+      for (const enhet of enhets) {
+        addToMap(nextMap, enhet);
+      }
+
+      if (invalidated) {
         invalidatedMidFetch = true;
         snapshot = { ...snapshot, enhetMap: nextMap };
       } else {

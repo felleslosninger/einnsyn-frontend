@@ -164,6 +164,40 @@ describe('enhet client store', () => {
     );
   });
 
+  test('a refreshed list drops enhets the API no longer returns', async () => {
+    const removed = { ...enhet('b'), slug: 'b-slug' };
+    let list: ListResult = { enhets: [enhet('a'), removed], version: 'v1' };
+    const store = await freshStore(async () => list);
+    await store.ensureFullList();
+
+    list = { enhets: [enhet('a')], version: 'v2' };
+    store.seedEnhets([], 'v2');
+    await store.ensureFullList();
+
+    const { enhetMap, loadedVersion } = store.getEnhetStoreSnapshot();
+    assert.equal(loadedVersion, 'v2');
+    assert.equal(enhetMap.get('a')?.id, 'a');
+    assert.equal(enhetMap.has('b'), false, 'the removed enhet is gone');
+    assert.equal(enhetMap.has('b-slug'), false, 'and so is its alias');
+  });
+
+  test('an invalidated fetch keeps entries its list omits', async () => {
+    const gate = gatedList(() => ({ enhets: [], version: 'v1' }));
+    const store = await freshStore(gate.getList);
+    store.seedEnhets([enhet('a')], 'v1');
+
+    const inflight = store.ensureFullList();
+    store.seedEnhets([], 'v2');
+    gate.release();
+    await inflight;
+
+    assert.equal(
+      store.getEnhetStoreSnapshot().enhetMap.get('a')?.id,
+      'a',
+      'a stale list must not blank out what is on screen',
+    );
+  });
+
   test('a version that moves mid-fetch leaves the list invalid', async () => {
     const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
     const store = await freshStore(gate.getList);
