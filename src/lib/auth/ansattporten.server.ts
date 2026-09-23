@@ -42,8 +42,8 @@ type AnsattportenCookieContent = {
   codeVerifier: string;
   // The OIDC nonce
   nonce: string;
-  // The URL the user was on before starting authentication
-  originUrl: string;
+  // Path on this site the user was on before starting authentication
+  returnPath: string;
   // The OIDC state parameter
   state: string;
 };
@@ -87,9 +87,32 @@ async function getCallbackUri() {
   return new URL('/auth/ansattporten/callback', await getOrigin()).href;
 }
 
+// Nothing absolute resolves against this base, so an input that carries its own
+// origin - or none, like `javascript:` - is rejected instead of being redirected to.
+const RETURN_PATH_BASE = 'https://return-path.invalid';
+
+/**
+ * Reduce a caller-supplied return path to a path on this site. It arrives from a
+ * form field and ends up in a redirect after login, so it is never trusted as-is.
+ */
+function toSafeReturnPath(returnPath: string): string {
+  try {
+    const url = new URL(returnPath, RETURN_PATH_BASE);
+    return url.origin === RETURN_PATH_BASE
+      ? url.pathname + url.search + url.hash
+      : '/';
+  } catch {
+    return '/';
+  }
+}
+
 /** Send the visitor to Ansattporten to authenticate. Does not return. */
-export async function startAnsattportenLogin(originUrl: string): Promise<void> {
-  const authorizationUrl = await buildAuthorizationUrl(originUrl);
+export async function startAnsattportenLogin(
+  returnPath: string,
+): Promise<void> {
+  const authorizationUrl = await buildAuthorizationUrl(
+    toSafeReturnPath(returnPath),
+  );
   redirect(authorizationUrl.href);
 }
 
@@ -98,7 +121,7 @@ export async function startAnsattportenLogin(originUrl: string): Promise<void> {
  *
  * @returns The authorization URL
  */
-const buildAuthorizationUrl = async (originUrl: string) => {
+const buildAuthorizationUrl = async (returnPath: string) => {
   const oidcConfig = await getOidcConfig();
   const codeVerifier = oidc.randomPKCECodeVerifier();
   const codeChallenge = await oidc.calculatePKCECodeChallenge(codeVerifier);
@@ -109,7 +132,7 @@ const buildAuthorizationUrl = async (originUrl: string) => {
   await updateAnsattportenCookie({
     codeVerifier,
     nonce,
-    originUrl,
+    returnPath,
     state,
   });
 
@@ -136,16 +159,13 @@ const buildAuthorizationUrl = async (originUrl: string) => {
  */
 export const handleCallback = async (request: Request) => {
   // Get codeVerifier and state from the session
-  const { codeVerifier, nonce, originUrl, state } =
+  const { codeVerifier, nonce, returnPath, state } =
     (await getAnsattportenCookie()) ?? {};
   if (!codeVerifier) {
     throw new Error('Missing codeVerifier in cookie');
   }
   if (!nonce) {
     throw new Error('Missing nonce in cookie');
-  }
-  if (!originUrl) {
-    throw new Error('Missing originUrl in cookie');
   }
   if (!state) {
     throw new Error('Missing state in cookie');
@@ -193,7 +213,7 @@ export const handleCallback = async (request: Request) => {
     await deleteAnsattportenCookie();
   }
 
-  return originUrl;
+  return returnPath ?? '/';
 };
 
 const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {

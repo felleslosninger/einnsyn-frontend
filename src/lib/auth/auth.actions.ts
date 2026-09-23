@@ -13,11 +13,10 @@ import { eInnsynLogin } from './einnsyn.server';
 export async function ansattportenAuthAction(
   formData: FormData,
 ): Promise<void> {
-  const originUrl = formData.get('originUrl') as string;
-  if (!originUrl) {
-    throw new Error('Missing originUrl in form data');
-  }
-  await startAnsattportenLogin(originUrl);
+  const returnPath = formData.get('returnPath');
+  await startAnsattportenLogin(
+    typeof returnPath === 'string' ? returnPath : '/',
+  );
 }
 
 /** `useActionState` on the eInnsyn login form. */
