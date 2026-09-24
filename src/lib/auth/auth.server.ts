@@ -1,16 +1,11 @@
-'use server';
+import 'server-only';
 
-import type { AuthInfo, Bruker, Enhet } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
+import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
-import { cachedApiClient } from '../api/getApiClient';
-import { deleteAuthAction, getAuth } from '../cookies/authCookie';
-import * as ansattporten from './auth.ansattporten';
-
-export type ExtendedAuthInfo = AuthInfo & {
-  enhet?: Enhet;
-  bruker?: Bruker;
-};
+import * as ansattporten from './ansattporten.server';
+import type { ExtendedAuthInfo } from './auth';
+import { deleteAuth, getAuth } from './authCookie.server';
 
 export const cachedAuthInfo = cache(getAuthInfo);
 export async function getAuthInfo() {
@@ -63,7 +58,7 @@ export const maybeRefreshToken = async (): Promise<void> => {
     logger.warn(
       'Access token expired/invalid, but no refresh token available. Clearing auth session.',
     );
-    await deleteAuthAction();
+    await deleteAuth();
     return;
   }
 
@@ -83,12 +78,12 @@ export const maybeRefreshToken = async (): Promise<void> => {
   }
 };
 
-export async function logout(): Promise<void> {
+export async function endSession(): Promise<void> {
   const authSession = await getAuth();
 
   if (authSession.authProvider === 'ansattporten') {
-    await ansattporten.ansattportenEndSessionAction();
+    await ansattporten.ansattportenEndSession();
   } else if (authSession.authProvider === 'eInnsyn') {
-    await deleteAuthAction();
+    await deleteAuth();
   }
 }

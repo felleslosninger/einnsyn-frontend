@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { cookies } from 'next/headers';
 
@@ -10,11 +10,6 @@ const defaultCookieSettings = {
 };
 export type CookieSettings = typeof defaultCookieSettings;
 
-/**
- *
- * @param cookieName
- * @returns
- */
 export async function getCookie<T>(cookieName: string): Promise<T | null> {
   const cookieStore = await cookies();
   const cookie = cookieStore.get(cookieName);
@@ -27,14 +22,8 @@ export async function getCookie<T>(cookieName: string): Promise<T | null> {
   }
 }
 
-/**
- *
- * @param cookieName
- * @param newContent
- * @param cookieSettings
- * @returns
- */
-export async function updateCookieAction<T>(
+/** Merges into the current content, rather than replacing it. */
+export async function updateCookie<T>(
   cookieName: string,
   newContent: Partial<T>,
   cookieSettings: Partial<CookieSettings> = {},
@@ -55,11 +44,7 @@ export async function updateCookieAction<T>(
   return content;
 }
 
-/**
- *
- * @param cookieName
- */
-export async function deleteCookieAction(cookieName: string): Promise<void> {
+export async function deleteCookie(cookieName: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(cookieName);
 }

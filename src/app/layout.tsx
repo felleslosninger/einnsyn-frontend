@@ -1,15 +1,15 @@
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { cachedAuthInfo } from '~/actions/authentication/auth';
-import { getAuth } from '~/actions/cookies/authCookie';
-import { getSettings } from '~/actions/cookies/settingsCookie';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { Footer } from '~/features/footer';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
+import { getAuth } from '~/lib/auth/authCookie.server';
+import { getSettings } from '~/lib/settings/settings.server';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 import { ModalWrapper } from './@modal/ModalWrapper';
