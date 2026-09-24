@@ -25,12 +25,6 @@
     text-decoration-thickness: .125em;
   }
 
-  &:focus-visible {
-    background-color: var(--ds-color-neutral-text-default);
-    color: var(--ds-color-neutral-background-default);
-    outline: none;
-  }
-
   &:global(.active) {
     color: var(--ds-color-neutral-text-default);
     font-weight: 600;

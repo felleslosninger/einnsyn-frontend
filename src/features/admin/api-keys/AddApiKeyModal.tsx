@@ -13,7 +13,7 @@ import EinModal, {
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useTranslation } from '~/hooks/useTranslation';
-import { addApiKeyAction } from '../adminActions';
+import { addApiKeyAction } from '../admin.actions';
 import styles from './AddApiKeyModal.module.scss';
 
 interface AddApiKeyModalProps {

@@ -22,12 +22,10 @@
     min-height: unset;
     height: auto;
     appearance: none;
-    text-decoration-thickness: .0625em;
     text-underline-offset: .27em;
 
     &:hover {
       color: var(--ds-color-neutral-text-default);
-      text-decoration-thickness: .125em;
     }
 
     &:focus-visible {

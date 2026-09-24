@@ -99,6 +99,6 @@ export async function logout(): Promise<void> {
   if (authSession.authProvider === 'ansattporten') {
     await ansattporten.ansattportenEndSessionAction();
   } else if (authSession.authProvider === 'eInnsyn') {
-    // TODO: Implement eInnsyn logout
+    await deleteAuthAction();
   }
 }

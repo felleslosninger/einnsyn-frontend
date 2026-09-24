@@ -6,7 +6,7 @@
  * will switch immediately.
  */
 
-import type { ReactNode, RefObject } from 'react';
+import type { HTMLAttributes, ReactNode, RefObject } from 'react';
 import {
   useCallback,
   useEffect,
@@ -50,6 +50,19 @@ export type EinPopupProps = {
   // effect when chrome is enabled (i.e. `unstyled` is false) and the chosen
   // position is one of the cardinal sides (above/below/left/right).
   arrow?: boolean;
+  // Move focus into the popup's content container when it opens. Use for
+  // dialog/menu-style popups so keyboard and screen-reader users land inside;
+  // leave off for tooltips and popups whose trigger should keep focus. Pair
+  // with `contentProps` to give the focused container a role + accessible name.
+  autoFocus?: boolean;
+  // Return focus to the trigger (the anchor, or whatever was focused on open)
+  // when the popup closes — unless focus has since moved to another control.
+  // Off by default so existing callers are unaffected.
+  restoreFocus?: boolean;
+  // Spread onto the content container — e.g. `role`, `aria-label`, `id`. The
+  // container is what `autoFocus` focuses, so this is where dialog/menu
+  // semantics belong.
+  contentProps?: HTMLAttributes<HTMLDivElement>;
 };
 
 export default function EinPopup(props: EinPopupProps) {
@@ -69,9 +82,13 @@ export default function EinPopup(props: EinPopupProps) {
     preferredPosition = ['below', 'above', 'right', 'left'],
     unstyled = false,
     arrow = true,
+    autoFocus = false,
+    restoreFocus = false,
+    contentProps,
     setOpen = () => undefined,
   } = props;
   const anchorRef = useRef<Element | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   /**
    * Set the position of the popup relative to the anchor element.
@@ -127,18 +144,21 @@ export default function EinPopup(props: EinPopupProps) {
       return;
     }
 
-    // Get the closest positioned ancestor of the popup, since we need to subtract
-    // its position from the popup position to get the correct absolute position.
+    // calculatePopupPosition returns page (document) coordinates. Convert them
+    // into the popup's containing block:
+    //  - With a positioned ancestor, subtract the ancestor's page-relative
+    //    top/left (its viewport rect plus the window scroll).
+    //  - With none (e.g. portalled to <body>), the containing block is the
+    //    initial containing block, whose origin is the document origin — so the
+    //    page coordinates are already correct and must NOT be scroll-adjusted.
+    //    (Subtracting the scroll here is what pushed portalled popups up by
+    //    exactly the scroll distance.)
     const positionedAncestor = getClosestPositionedAncestor(popupElement);
     if (positionedAncestor) {
       const ancestorRect = positionedAncestor.getBoundingClientRect();
-      position.top -= ancestorRect.top;
-      position.left -= ancestorRect.left;
+      position.top -= ancestorRect.top + window.scrollY;
+      position.left -= ancestorRect.left + window.scrollX;
     }
-
-    // Add scroll offsets to the position
-    position.top -= window.scrollY;
-    position.left -= window.scrollX;
 
     // Set the final position of the popup popup
     popupElement.style.setProperty('top', `${position.top}px`);
@@ -174,10 +194,30 @@ export default function EinPopup(props: EinPopupProps) {
         anchorRef.current.classList.add('active');
       }
     } else if (!open && anchorRef.current instanceof HTMLElement) {
-      anchorRef.current.classList.remove('active');
+      const trigger = anchorRef.current;
+      trigger.classList.remove('active');
       anchorRef.current = null;
+      // Return focus to the trigger on close, but only if focus is still inside
+      // the popup (animating out) or fell to <body> (the content unmounted) —
+      // i.e. the close wasn't the user moving focus to another control.
+      if (restoreFocus) {
+        const active = document.activeElement;
+        const focusLeftInPopup = contentRef.current?.contains(active) ?? false;
+        if (active === document.body || focusLeftInPopup) {
+          trigger.focus({ preventScroll: true });
+        }
+      }
     }
-  }, [open, anchorRefProp]);
+  }, [open, anchorRefProp, restoreFocus]);
+
+  // Move focus into the content container when opening, if requested. Runs
+  // after the anchor is recorded (above) so `restoreFocus` still targets the
+  // trigger rather than the popup itself.
+  useEffect(() => {
+    if (open && autoFocus) {
+      contentRef.current?.focus({ preventScroll: true });
+    }
+  }, [open, autoFocus]);
 
   // Update popup position on resize
   useEffect(() => {
@@ -275,6 +315,12 @@ export default function EinPopup(props: EinPopupProps) {
   // Trap focus when open
   useFocusTrap(popupRef, trapFocus);
 
+  const {
+    className: contentClassName,
+    tabIndex: contentTabIndex,
+    ...restContentProps
+  } = contentProps ?? {};
+
   const content = open ? (
     <div
       className={cn(
@@ -288,7 +334,18 @@ export default function EinPopup(props: EinPopupProps) {
       )}
       ref={popupRef}
     >
-      <div className={cn(styles.einPopupContent, 'ein-popup-content')}>
+      <div
+        {...restContentProps}
+        ref={contentRef}
+        // Focusable (but not tab-stop) so `autoFocus` can land here; callers can
+        // override via contentProps.tabIndex.
+        tabIndex={contentTabIndex ?? (autoFocus ? -1 : undefined)}
+        className={cn(
+          styles.einPopupContent,
+          'ein-popup-content',
+          contentClassName,
+        )}
+      >
         {children}
       </div>
     </div>
