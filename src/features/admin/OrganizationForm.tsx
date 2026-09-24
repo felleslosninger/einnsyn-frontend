@@ -25,7 +25,7 @@ import {
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { addOrganizationAction, editOrganizationAction } from './adminActions';
+import { addOrganizationAction, editOrganizationAction } from './admin.actions';
 import { ENHETSTYPE_VALUES, ToppnodeURI } from './enhetValues';
 import styles from './OrganizationForm.module.scss';
 

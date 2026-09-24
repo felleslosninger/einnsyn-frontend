@@ -10,7 +10,7 @@ import {
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { useActionState, useRef } from 'react';
 import { useTranslation } from '~/hooks/useTranslation';
-import { deleteOrganizationAction } from './adminActions';
+import { deleteOrganizationAction } from './admin.actions';
 
 export default function DeleteOrganizationForm({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();

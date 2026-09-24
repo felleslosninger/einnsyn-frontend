@@ -3,7 +3,7 @@
 import type { Moetemappe, PaginatedList } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { logger } from '~/lib/utils/logger';
-import { buildSearchParameters } from '../search/searchActions';
+import { buildSearchParameters } from '../search/search.actions';
 import type { DateRange } from './calendarHelpers';
 
 /**
