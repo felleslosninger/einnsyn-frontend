@@ -1,0 +1,75 @@
+@use "../../../styles/mediaQueries" as mq;
+
+// An entity page is one grid rather than a stack of blocks, so the side card
+// sits in a column beside the header *and* the page content below it, instead of
+// inside the header with the content running full width underneath it.
+//
+// The entity-kind row ("Sak", "Møte", plus its icon) is a full-width row of its
+// own above both columns, so the card's top edge lines up with the title rather
+// than with the kind row. Vertical rhythm is per-area margins rather than a
+// single `row-gap`, because the gap under the kind row is far tighter than the
+// one above the content.
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'kind'
+    'header'
+    'card'
+    'content';
+  column-gap: var(--ein-vertical-spacing);
+  margin: calc(var(--ein-horizontal-spacing) * 1.5) 0;
+}
+
+// Two columns only from `large` up. Below that the card drops under the header
+// and stays between it and the content rather than falling to the page foot.
+.withCard {
+  @include mq.large {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    grid-template-areas:
+      'kind    kind'
+      'header  card'
+      'content card';
+  }
+}
+
+// The same gap the header's flex column used to put between the kind row and
+// the title, kept identical now that a grid row separates the two.
+.kindArea {
+  grid-area: kind;
+  margin-bottom: var(--ds-size-3);
+}
+
+.headerArea {
+  grid-area: header;
+}
+
+// The card area spans the header and content rows so the column stays reserved
+// down the page and the content never flows under it, but `start` keeps the card
+// itself — and so its left border — at its own content height.
+.cardArea {
+  grid-area: card;
+  align-self: start;
+}
+
+// Stacked, the card needs the breathing room from the header that the column
+// gap gives it when the two sit side by side.
+@include mq.small-and-medium {
+  .cardArea {
+    margin-top: calc(var(--ein-horizontal-spacing) * 2);
+  }
+}
+
+.contentArea {
+  grid-area: content;
+  margin-top: calc(var(--ein-horizontal-spacing) * 2);
+}
+
+// The header and whatever fills the content area carry their own outer margins
+// for standalone use. As separate grid items those no longer collapse into one
+// another and would stack, so the per-area margins above own the rhythm instead.
+.headerArea > *,
+.contentArea > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}

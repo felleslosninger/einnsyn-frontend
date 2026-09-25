@@ -1,0 +1,42 @@
+@use '../../../styles/headerRow.scss' as headerRow;
+
+// `.header-tabs` pulls its right edge out by `--ds-size-5` to offset the tabs'
+// own inline margins. A left-aligned breadcrumb never reaches that edge, but a
+// right-aligned action does, so pull it back level with the container.
+// Element+class outranks the global `.header-tabs` rule regardless of file order.
+div.bar {
+  margin-right: 0;
+}
+
+// The trail absorbs the free space and is the only thing that shrinks: the
+// breadcrumb collapses ancestors and then truncates on its own, so the follow
+// action keeps its place at the right edge instead of being pushed out.
+.trail {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.followLink {
+  // The same vertical box as the breadcrumb's items and the search tabs, so
+  // adding a third kind of item leaves the row exactly as tall.
+  @include headerRow.header-row-item;
+
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  margin-left: var(--ds-size-4);
+  // Match the tabs' and breadcrumb links' treatment rather than `.ds-link`.
+  color: var(--ds-color-neutral-text-subtle);
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--ds-color-neutral-text-default);
+    text-decoration: underline;
+  }
+
+  svg {
+    font-size: 1.25em;
+  }
+}

@@ -1,0 +1,56 @@
+@use "../../styles/effects.scss" as fx;
+
+// Registered so that it can be transitioned at all: an unregistered custom
+// property jumps from one value to the next. Inherited, because the sticky
+// header reads the same one and has to fade in step (see StickyHeader).
+@property --ein-top-wash {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+// A warm wash across the top of a section. It starts at the document top and
+// runs down behind the sticky header, which paints the same band over its own
+// opaque background — so at scroll top the two halves meet seamlessly, and once
+// the header floats it keeps the tint as its own surface.
+//
+// The band is painted on every section and the colour is what a section
+// changes, so that arriving at one fades the wash in rather than switching it
+// on under the incoming page. Sections that set no colour keep the initial
+// `transparent` and so paint nothing.
+//
+// `background-size` is what keeps this a band: sized to the element instead,
+// the gradient stretches over the whole page height and reads as a flat tint.
+.body {
+  --ein-top-wash-height: 350px;
+  // How far into the band the floating header sits — the tint it keeps once
+  // it is no longer the top of the page.
+  --ein-top-wash-float-offset: -150px;
+
+  background: linear-gradient(var(--ein-top-wash), transparent) top / 100%
+    var(--ein-top-wash-height) no-repeat;
+  transition: --ein-top-wash 300ms fx.$easeOut;
+}
+
+.section-saksmappe {
+  --ein-top-wash: var(--ds-color-support-color-3-surface-tinted);
+}
+
+// The tint is a light-mode token, and at full strength it washes out the text
+// over a dark background, so dark mode keeps the warmth as a hint. `auto`
+// follows the same media query as the color overrides.
+$dark-wash: color-mix(
+  in srgb,
+  var(--ds-color-support-color-3-surface-tinted) 8%,
+  transparent
+);
+
+:global([data-color-scheme='dark']) .section-saksmappe {
+  --ein-top-wash: #{$dark-wash};
+}
+
+@media (prefers-color-scheme: dark) {
+  :global([data-color-scheme='auto']) .section-saksmappe {
+    --ein-top-wash: #{$dark-wash};
+  }
+}
