@@ -1,9 +1,11 @@
 .loginButton.loginButton {
   margin-left: var(--ds-size-2);
   border: 1px solid transparent;
+  padding: var(--ds-size-4);
 
   span {
     background: transparent;
     border: none;
+    color: var(--dsc-chip-color);
   }
 }

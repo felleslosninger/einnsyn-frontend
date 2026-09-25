@@ -15,9 +15,10 @@ export function ModalWrapper({ children }: { children: React.ReactNode }) {
   const modalSegment = useSelectedLayoutSegments('modal');
   const modalIsOpen = /\(\.+\)/.test(modalSegment.join('/') ?? '');
 
-  // Update path name if we don't have an intercepted path
+  // Update path name if we don't have an intercepted path. The login route is
+  // excluded so closing the login modal doesn't navigate back to /login.
   useEffect(() => {
-    if (!modalIsOpen) {
+    if (!modalIsOpen && !pathname.includes('/login')) {
       setModalBasepath(
         pathname + (searchParams ? `?${searchParams.toString()}` : ''),
       );

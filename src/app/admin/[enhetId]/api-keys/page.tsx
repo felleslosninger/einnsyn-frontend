@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import { logger } from '~/lib/utils/logger';
@@ -11,7 +11,7 @@ export default async function ApiKeysPage({
 }) {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
-    notFound();
+    redirect('/login');
   }
 
   const { enhetId } = await params;

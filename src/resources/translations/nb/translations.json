@@ -20,13 +20,15 @@
     "colorScheme": "Fargevalg",
     "colorSchemeLight": "Lys",
     "colorSchemeDark": "Mørk",
-    "colorSchemeSystem": "Systemstandard"
+    "colorSchemeSystem": "Systemstandard",
+    "landingPage": "Gå til forsiden"
   },
   "admin": {
     "apiKey": {
       "label": "API-nøkkel",
       "labelPlural": "API-nøkler",
       "intro": "API-nøkler kan benyttes for å autorisere eksterne applikasjoner til å programmatisk aksessere, opprette og oppdatere innhold på vegne av din organisasjon. Hver nøkkel er unik for organisasjonen og gir en sikker måte å integrere med eksterne tjenester og automatisere arbeidsflyter for innholdsstyring.",
+      "login": "Logg inn for å administrere API-nøkler",
       "addApiKey": "Opprett API-nøkkel",
       "deleteApiKey": "Slett API-nøkkel",
       "keyName": "Navn på nøkkel",
@@ -47,13 +49,48 @@
       "label": "Organisasjon",
       "labelPlural": "Organisasjoner",
       "name": "Navn",
+      "nameNynorsk": "Navn (nynorsk)",
+      "nameEngelsk": "Navn (engelsk)",
+      "nameSami": "Navn (sami)",
       "description": "Beskrivelse",
-      "logo": "Logo",
-      "logoTooltip": "Logoen vil bli vist i toppteksten til applikasjonen.",
+      "notRegistered": "Denne organisasjonen er ikke registrert i eInnsyn.",
       "addOrganization": "Opprett organisasjon",
+      "editOrganization": "Rediger organisasjon",
       "deleteOrganization": "Slett organisasjon",
       "deleteConfirmationTitle": "Slett organisasjon",
-      "deleteConfirmationMessage": "Er du sikker på at du vil slette organisasjonen '$1'?"
+      "deleteConfirmationMessage": "Er du sikker på at du vil slette organisasjonen '$1' fra eInnsyn?",
+      "noRegret": "Denne handlingen kan ikke angres.",
+      "contactPoint": "Kontaktpunkt",
+      "contactEmail": "Kontakt-epost",
+      "phone": "Telefon",
+      "address": "Adresse",
+      "innsynskravEmail": "Innsynskrav-epost",
+      "aboutOrganization": "Om organisasjonen",
+      "type": "Type",
+      "selectType": "Velg en organisasjonstype…",
+      "orgnummer": "Organisasjonsnummer",
+      "settings": "Innstillinger",
+      "handteresAv": "Håndteres av",
+      "orderXmlVersion": "Versjon av order.xml",
+      "avsluttetDato": "Avsluttet dato",
+      "createdSuccess": "Organisasjon opprettet!",
+      "createError": "Oppretting av organisasjon feilet",
+      "updatedSuccess": "Organisasjon oppdatert!",
+      "updateError": "Oppdatering av organisasjon feilet",
+      "deletedSuccess": "Organisasjon slettet!",
+      "deleteError": "Sletting av organisasjon feilet",
+      "enhetstype": {
+        "ADMINISTRATIVENHET": "Administrativ enhet",
+        "AVDELING": "Avdeling",
+        "BYDEL": "Bydel",
+        "DUMMYENHET": "Dummyenhet",
+        "FYLKE": "Fylke",
+        "KOMMUNE": "Kommune",
+        "ORGAN": "Organ",
+        "SEKSJON": "Seksjon",
+        "UTVALG": "Utvalg",
+        "VIRKSOMHET": "Virksomhet"
+      }
     },
     "statusMessage": {
       "label": "Driftsmelding",
@@ -135,6 +172,10 @@
     "copyToClipboard": "Kopier til utklippstavle",
     "copiedToClipboard": "Kopiert til utklippstavle",
     "apply": "Bruk",
+    "submit": "Send inn",
+    "save": "Lagre endringer",
+    "saving": "Lagrer...",
+    "loading": "Laster...",
     "clear": "Nullstill",
     "filter": "Filter",
     "fromDate": "Fra dato",
@@ -142,7 +183,9 @@
     "ascending": "Stigende",
     "descending": "Synkende",
     "yes": "Ja",
-    "no": "Nei"
+    "no": "Nei",
+    "required": "Må fylles ut",
+    "optional": "Valgfritt"
   },
   "saksmappe": {
     "label": "Sak",
@@ -174,6 +217,49 @@
   "moetesak": {
     "label": "Møtesak",
     "labelPlural": "Møtesaker"
+  },
+  "meetingcalendar": {
+    "label": "Møtekalender",
+    "labelPlural": "Møtekalendere",
+    "viewOptions": {
+      "dynamic": "Dynamisk",
+      "month": "Måned",
+      "week": "Uke",
+      "day": "Dag",
+      "today": "I dag",
+      "displayWeekends": "Vis helger",
+      "hideWeekends": "Skjul helger",
+      "expandAll": "Utvid alle",
+      "collapseAll": "Skjul alle",
+      "showMore": "Vis mer"
+    },
+    "days": {
+      "sunday": "Søndag",
+      "monday": "Mandag",
+      "tuesday": "Tirsdag",
+      "wednesday": "Onsdag",
+      "thursday": "Torsdag",
+      "friday": "Fredag",
+      "saturday": "Lørdag"
+    },
+    "months": {
+      "0": "Januar",
+      "1": "Februar",
+      "2": "Mars",
+      "3": "April",
+      "4": "Mai",
+      "5": "Juni",
+      "6": "Juli",
+      "7": "August",
+      "8": "September",
+      "9": "Oktober",
+      "10": "November",
+      "11": "Desember"
+    }
+  },
+  "statistics": {
+    "label": "Statistikk",
+    "labelPlural": "Statistikker"
   },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",

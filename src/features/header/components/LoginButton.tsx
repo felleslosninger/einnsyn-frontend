@@ -1,16 +1,32 @@
+'use client';
+
 import { Chip } from '@digdir/designsystemet-react';
-import { EinLink } from '~/components/EinLink/EinLink';
+import { useFormStatus } from 'react-dom';
+import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './LoginButton.module.scss';
 
 export default function LoginButton() {
   const t = useTranslation();
+  const basepath = useModalBasepath();
+  const { origin } = useSessionData();
+  const { pending } = useFormStatus();
+  const originUrl = new URL(basepath, origin).href;
+
   return (
-    <EinLink href="/login" className={cn(styles.loginButton, 'header-button')}>
-      <Chip.Button data-color="brand2" asChild>
+    <form action={ansattportenAuthAction}>
+      <input type="hidden" name="originUrl" value={originUrl} />
+      <Chip.Button
+        type="submit"
+        disabled={pending}
+        data-color="brand2"
+        className={cn(styles.loginButton, 'header-button')}
+      >
         <span>{t('site.login')}</span>
       </Chip.Button>
-    </EinLink>
+    </form>
   );
 }

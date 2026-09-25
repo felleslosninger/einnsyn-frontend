@@ -1,0 +1,39 @@
+'use client';
+
+import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
+import { EinButton } from '~/components/EinButton/EinButton';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useModalBasepath } from '~/hooks/useModalBasepath';
+import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
+import styles from './ApiKeys.module.scss';
+
+export default function ApiKeyLogin() {
+  const t = useTranslation();
+  const basepath = useModalBasepath();
+  const { origin } = useSessionData();
+  const originUrl = new URL(basepath, origin).href;
+
+  return (
+    <div className="container-wrapper main-content">
+      <div className="container-pre collapsible" />
+      <div className="container">
+        <h1 className="ds-heading" data-size="lg">
+          {t('admin.apiKey.labelPlural')}
+        </h1>
+
+        <div className={styles.header}>
+          <div className={cn(styles.intro, 'text-container')}>
+            {t('admin.apiKey.intro')}
+          </div>
+        </div>
+
+        <form action={ansattportenAuthAction}>
+          <input type="hidden" name="originUrl" value={originUrl} />
+          <EinButton type="submit">{t('admin.apiKey.login')}</EinButton>
+        </form>
+      </div>
+      <div className="container-post" />
+    </div>
+  );
+}

@@ -321,7 +321,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
                 <Logo />
               </EinLink>
             </div>
-            <div className={cn(styles.container, 'container')}>{children}</div>
+            <div className={cn(styles.container, 'container')}></div>
             <div className={cn(styles.containerPost, 'container-post')}>
               <div className={styles.headerDropdownList}>
                 <UserMenu />

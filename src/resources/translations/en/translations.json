@@ -20,13 +20,15 @@
     "colorScheme": "Color scheme",
     "colorSchemeLight": "Light",
     "colorSchemeDark": "Dark",
-    "colorSchemeSystem": "System default"
+    "colorSchemeSystem": "System default",
+    "landingPage": "Go to landing page"
   },
   "admin": {
     "apiKey": {
       "label": "API key",
       "labelPlural": "API keys",
       "intro": "API keys can be used to authorize external applications to programmatically access, create, and update content on behalf of your organization. Each key is unique to your organization and provides a secure way to integrate with external services and automate content management workflows.",
+      "login": "Log in to manage API keys",
       "addApiKey": "Create API key",
       "deleteApiKey": "Delete API key",
       "keyName": "Key name",
@@ -47,13 +49,48 @@
       "label": "Organization",
       "labelPlural": "Organizations",
       "name": "Name",
+      "nameNynorsk": "Name (Nynorsk)",
+      "nameEngelsk": "Name (English)",
+      "nameSami": "Name (Sami)",
       "description": "Description",
-      "logo": "Logo",
-      "logoTooltip": "The logo will be displayed in the header of the application.",
+      "notRegistered": "This organization is not registered in eInnsyn.",
       "addOrganization": "Create organization",
+      "editOrganization": "Edit organization",
       "deleteOrganization": "Delete organization",
       "deleteConfirmationTitle": "Delete organization",
-      "deleteConfirmationMessage": "Are you sure you want to delete the organization '$1'?"
+      "deleteConfirmationMessage": "Are you sure you want to delete the organization '$1'?",
+      "noRegret": "This action cannot be undone.",
+      "contactPoint": "Contact point",
+      "contactEmail": "Contact email",
+      "phone": "Phone",
+      "address": "Address",
+      "innsynskravEmail": "Access request email",
+      "aboutOrganization": "About the organization",
+      "type": "Type",
+      "selectType": "Select an organization type…",
+      "orgnummer": "Organization number",
+      "settings": "Settings",
+      "handteresAv": "Managed by",
+      "orderXmlVersion": "Order XML version",
+      "avsluttetDato": "Closing date",
+      "createdSuccess": "Organization created!",
+      "createError": "Failed to create organization",
+      "updatedSuccess": "Organization updated!",
+      "updateError": "Failed to update organization",
+      "deletedSuccess": "Organization deleted!",
+      "deleteError": "Failed to delete organization",
+      "enhetstype": {
+        "ADMINISTRATIVENHET": "Administrative unit",
+        "AVDELING": "Department",
+        "BYDEL": "District",
+        "DUMMYENHET": "Dummy unit",
+        "FYLKE": "County",
+        "KOMMUNE": "Municipality",
+        "ORGAN": "Body",
+        "SEKSJON": "Section",
+        "UTVALG": "Committee",
+        "VIRKSOMHET": "Enterprise"
+      }
     },
     "statusMessage": {
       "label": "Status message",
@@ -135,6 +172,10 @@
     "copyToClipboard": "Copy to clipboard",
     "copiedToClipboard": "Copied to clipboard",
     "apply": "Apply",
+    "submit": "Submit",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "loading": "Loading...",
     "clear": "Clear",
     "filter": "Filter",
     "fromDate": "From date",
@@ -142,7 +183,9 @@
     "ascending": "Ascending",
     "descending": "Descending",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "required": "Required",
+    "optional": "Optional"
   },
   "saksmappe": {
     "label": "Case",
@@ -174,6 +217,45 @@
   "moetesak": {
     "label": "Meeting case",
     "labelPlural": "Meeting cases"
+  },
+    "meetingcalendar": {
+    "label": "Meeting calendar",
+    "labelPlural": "Meeting calendars",
+    "viewOptions": {
+      "dynamic": "Dynamic",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "today": "Today",
+      "displayWeekends": "Display weekends",
+      "hideWeekends": "Hide weekends",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "showMore": "Show more"
+    },
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "months": {
+      "0": "January",
+      "1": "February",
+      "2": "March",
+      "3": "April",
+      "4": "May",
+      "5": "June",
+      "6": "July",
+      "7": "August",
+      "8": "September",
+      "9": "October",
+      "10": "November",
+      "11": "December"
+    }
   },
   "searchFilters": {
     "publisertDato": "Publication date",
