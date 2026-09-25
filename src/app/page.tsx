@@ -1,7 +1,7 @@
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
 import ApiKeyLogin from '~/features/admin/api-keys/ApiKeyLogin';
-import OrganizationDoesNotExist from '~/features/admin/OrganizationDoesNotExist';
+import ApiKeysUnavailable from '~/features/admin/api-keys/ApiKeysUnavailable';
 import { logger } from '~/lib/utils/logger';
 import ApiKeys from '../features/admin/api-keys/ApiKeys';
 
@@ -9,6 +9,9 @@ export default async function Root() {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
     return <ApiKeyLogin />;
+  }
+  if (authInfo.enhet?.verified === false) {
+    return <ApiKeysUnavailable reason="pendingVerification" />;
   }
 
   const apiClient = await cachedApiClient();
@@ -22,7 +25,7 @@ export default async function Root() {
   });
 
   if (!apiKeys) {
-    return <OrganizationDoesNotExist />;
+    return <ApiKeysUnavailable reason="notRegistered" />;
   }
 
   return <ApiKeys apiKeys={apiKeys} />;

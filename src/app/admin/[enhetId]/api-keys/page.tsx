@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { cachedApiClient } from '~/actions/api/getApiClient';
 import { cachedAuthInfo } from '~/actions/authentication/auth';
+import ApiKeysUnavailable from '~/features/admin/api-keys/ApiKeysUnavailable';
 import { logger } from '~/lib/utils/logger';
 import ApiKeys from '../../../../features/admin/api-keys/ApiKeys';
 
@@ -12,6 +13,9 @@ export default async function ApiKeysPage({
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
     redirect('/login');
+  }
+  if (authInfo.enhet?.verified === false) {
+    return <ApiKeysUnavailable reason="pendingVerification" />;
   }
 
   const { enhetId } = await params;

@@ -33,8 +33,11 @@ export async function getAuthInfo() {
 
   try {
     const apiClient = await cachedApiClient();
-    if (authInfo.type === 'Enhet' && authInfo.id) {
-      authInfo.enhet = await apiClient.enhet.get(authInfo.id);
+    if (authInfo.type === 'Enhet') {
+      const identifier = authInfo.id || authInfo.orgnummer;
+      if (identifier) {
+        authInfo.enhet = await apiClient.enhet.get(identifier);
+      }
     }
     if (authInfo.type === 'Bruker' && authInfo.id) {
       authInfo.bruker = await apiClient.bruker.get(authInfo.id);
