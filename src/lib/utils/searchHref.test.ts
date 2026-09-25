@@ -4,6 +4,7 @@ import {
   buildEnhetSelectionHref,
   buildSearchHref,
   pathnameContainsEnhet,
+  readEnhetIdentifiers,
 } from './searchHref';
 
 describe('buildSearchHref', () => {
@@ -138,5 +139,33 @@ describe('buildEnhetSelectionHref', () => {
       }),
       '/søk',
     );
+  });
+});
+
+describe('readEnhetIdentifiers', () => {
+  it('splits the comma-separated value buildEnhetSelectionHref writes', () => {
+    assert.deepEqual(readEnhetIdentifiers({ enhetParam: 'oslo,bergen' }), [
+      'oslo',
+      'bergen',
+    ]);
+  });
+
+  it('reads a repeated param, which arrives as an array', () => {
+    assert.deepEqual(
+      readEnhetIdentifiers({ enhetParam: ['oslo', 'bergen,trondheim'] }),
+      ['oslo', 'bergen', 'trondheim'],
+    );
+  });
+
+  it('puts the path enhet first and dedupes it against the param', () => {
+    assert.deepEqual(
+      readEnhetIdentifiers({ pathEnhet: 'oslo', enhetParam: 'bergen,oslo' }),
+      ['oslo', 'bergen'],
+    );
+  });
+
+  it('is empty without a path enhet or a param', () => {
+    assert.deepEqual(readEnhetIdentifiers({}), []);
+    assert.deepEqual(readEnhetIdentifiers({ enhetParam: '' }), []);
   });
 });

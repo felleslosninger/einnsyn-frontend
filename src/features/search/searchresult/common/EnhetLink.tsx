@@ -2,8 +2,8 @@ import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { getAncestors, getEnhetHref, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
-import { getAncestors, getEnhetHref, getName } from '~/lib/utils/enhetUtils';
 
 export default function EnhetLink({
   enhet,

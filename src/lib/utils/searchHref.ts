@@ -1,4 +1,8 @@
-import { normalizeParamList, serializeParamList } from './paramList';
+import {
+  normalizeParamList,
+  parseParamList,
+  serializeParamList,
+} from './paramList';
 
 /**
  * A search href: `pathname` with `updates` applied to its search params.
@@ -96,4 +100,26 @@ export function buildEnhetSelectionHref({
     searchParams,
     updates: { enhet: serializeParamList(queryEnhetIdentifiers) },
   });
+}
+
+/**
+ * The enhet selection encoded in a URL, read back out of the path segment and
+ * the `enhet` search param {@link buildEnhetSelectionHref} writes.
+ *
+ * A selection of several enhets is one comma-separated param value, so the
+ * param has to be split; the path segment names a single enhet and is taken
+ * as-is. Server components receive the param as a bare string for one
+ * `?enhet=` and an array for several.
+ */
+export function readEnhetIdentifiers({
+  pathEnhet,
+  enhetParam,
+}: {
+  pathEnhet?: string;
+  enhetParam?: string | string[];
+}): string[] {
+  return normalizeParamList([
+    ...(pathEnhet ? [pathEnhet] : []),
+    ...[enhetParam ?? []].flat().flatMap((value) => parseParamList(value)),
+  ]);
 }
