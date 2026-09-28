@@ -98,6 +98,12 @@ export default function OrganizationForm({ enhet }: { enhet?: Enhet }) {
 
   const hasErrors = Object.keys(errors).length > 0;
 
+  // Parents here are all toppnodes, and a DUMMYENHET right under one is a top
+  // node that only admins may create. An existing DUMMYENHET stays selectable.
+  const enhetstypeOptions = ENHETSTYPE_VALUES.filter(
+    (type) => type !== 'DUMMYENHET' || type === enhet?.enhetstype,
+  );
+
   return (
     <div className="container-wrapper main-content">
       <div className="container-pre collapsible" />
@@ -298,7 +304,7 @@ export default function OrganizationForm({ enhet }: { enhet?: Enhet }) {
                 <Select.Option value="" disabled>
                   {t('admin.organization.selectType')}
                 </Select.Option>
-                {ENHETSTYPE_VALUES.map((type) => (
+                {enhetstypeOptions.map((type) => (
                   <Select.Option key={type} value={type}>
                     {t(`admin.organization.enhetstype.${type}`)}
                   </Select.Option>
