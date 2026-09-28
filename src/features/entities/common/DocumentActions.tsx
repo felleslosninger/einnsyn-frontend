@@ -7,7 +7,7 @@ import { EinButton } from '~/components/EinButton/EinButton';
 import EinDropdown from '~/components/EinDropdown/EinDropdown';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { generateFileURL } from '~/lib/utils/urlGenerators';
+import { useFileURLGenerator } from '~/lib/utils/urlGenerators';
 import styles from './DocumentActions.module.scss';
 
 /** A `dokumentbeskrivelse` array as the API returns it: expanded, or bare ids. */
@@ -129,6 +129,7 @@ function DownloadButton({
   ariaLabel?: string;
   fullWidth?: boolean;
 }) {
+  const generateFileURL = useFileURLGenerator();
   return (
     <EinButton
       asChild

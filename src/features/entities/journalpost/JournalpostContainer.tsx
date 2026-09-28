@@ -9,11 +9,11 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { ExternalLinkIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { generateFileURL } from '~/lib/utils/urlGenerators';
+import { useFileURLGenerator } from '~/lib/utils/urlGenerators';
 import styles from './JournalpostContainer.module.scss';
 
 export default function JournalpostContainer({
@@ -175,6 +175,7 @@ function Field({
 }
 
 function DocumentItem({ document }: { document: Dokumentbeskrivelse }) {
+  const generateFileURL = useFileURLGenerator();
   const dokumentobjekter = (document.dokumentobjekt ?? []).filter(
     (dob) => typeof dob !== 'string',
   );
@@ -183,13 +184,14 @@ function DocumentItem({ document }: { document: Dokumentbeskrivelse }) {
   return (
     <li className={styles.documentItem}>
       {primary ? (
-        <EinLink
+        // Cross-origin download, so a plain anchor rather than EinLink.
+        <a
           href={generateFileURL(primary)}
-          className={styles.documentLink}
+          className={cn('ds-link', styles.documentLink)}
         >
           <span>{document.tittel}</span>
           <ExternalLinkIcon aria-hidden="true" />
-        </EinLink>
+        </a>
       ) : (
         <span className={styles.documentItemTitle}>{document.tittel}</span>
       )}

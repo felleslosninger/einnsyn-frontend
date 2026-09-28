@@ -7,6 +7,7 @@ import type {
   Saksmappe,
 } from '@digdir/einnsyn-sdk';
 import { useCallback } from 'react';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import {
   getTranslateFunction,
@@ -75,6 +76,18 @@ export function generateMoetesakURL(
   return `/${t('routing.moetemappePath')}/${identifierSegment(moetesak.moetemappe)}/${t('moetesak.pathName')}/${identifierSegment(moetesak)}`;
 }
 
+/**
+ * The file behind a dokumentobjekt, served by the API. Cross-origin, so render
+ * it as a plain `<a>`: `EinLink` hands it to `useNavigation`, which keeps only
+ * the path and would send it to this app's origin.
+ */
+export function generateFileURL(
+  dokumentobjekt: Dokumentobjekt,
+  apiUrl: string,
+): string {
+  return `${apiUrl}/dokumentobjekt/${dokumentobjekt.id}/download`;
+}
+
 // Hook wrappers for use in client components
 export function useSaksmappeURLGenerator() {
   const languageCode = useLanguageCode();
@@ -116,6 +129,10 @@ export function useMoetesakURLGenerator() {
   );
 }
 
-export function generateFileURL(dokumentobjekt: Dokumentobjekt): string {
-  return `${process.env.API_URL}/dokumentobjekt/${dokumentobjekt.id}/download`;
+export function useFileURLGenerator() {
+  const { apiUrl } = useSessionData();
+  return useCallback(
+    (dokumentobjekt: Dokumentobjekt) => generateFileURL(dokumentobjekt, apiUrl),
+    [apiUrl],
+  );
 }

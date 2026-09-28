@@ -66,6 +66,7 @@ export default async function Layout({
             settings,
             authInfo,
             origin,
+            apiUrl: process.env.API_URL,
           }}
         >
           <SearchFieldProvider>
