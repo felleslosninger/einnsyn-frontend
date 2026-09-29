@@ -1,25 +1,18 @@
-'use server';
+import 'server-only';
 
 import { headers } from 'next/headers';
 import { cache } from 'react';
+import {
+  type CookieSettings,
+  getCookie,
+  updateCookie,
+} from '~/lib/cookies/cookies.server';
 import {
   type LanguageCode,
   resolveLanguageCode,
   supportedLanguages,
 } from '~/lib/translation/translation';
-import {
-  type CookieSettings,
-  getCookie,
-  updateCookieAction,
-} from './cookie.actions';
-
-const SETTINGS_COOKIE_NAME = 'settings';
-
-export type Settings = {
-  language: LanguageCode;
-  stayLoggedIn: boolean;
-  colorScheme: 'auto' | 'light' | 'dark';
-};
+import { SETTINGS_COOKIE_NAME, type Settings } from './settings';
 
 const staticDefaults = {
   stayLoggedIn: false,
@@ -39,17 +32,12 @@ const resolveDefaultLanguage = cache(async (): Promise<LanguageCode> => {
   return resolveLanguageCode(acceptLanguage, supportedLanguages) ?? 'nb';
 });
 
-/**
- * Wrapper for updating the settings cookie, specifying the cookie name and a high default maxAge.
- *
- * @param authContent
- * @returns
- */
-export const updateSettingsAction = async (
+/** Merges into the stored settings, rather than replacing them. */
+export const updateSettings = async (
   settingsContent: Partial<Settings>,
   cookieSettings: Partial<CookieSettings> = {},
 ) => {
-  return updateCookieAction(SETTINGS_COOKIE_NAME, settingsContent, {
+  return updateCookie(SETTINGS_COOKIE_NAME, settingsContent, {
     httpOnly: false,
     maxAge: 60 * 60 * 24 * 365, // 365 days
     ...cookieSettings,
