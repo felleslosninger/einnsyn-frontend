@@ -1,11 +1,11 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
-import { getSaksmappe } from '~/actions/api/saksmappe.actions';
 import EnhetCard from '~/features/entities/common/EnhetCard';
 import EntityKind from '~/features/entities/common/EntityKind';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
+import { getJournalpostWindow } from '~/features/entities/journalpost/journalpost.server';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
+import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
 import { cachedApiClient } from '~/lib/api/api.server';
 
 /**

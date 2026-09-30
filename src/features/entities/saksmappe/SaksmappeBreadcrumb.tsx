@@ -1,8 +1,8 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import { getSaksmappe } from '~/actions/api/saksmappe.actions';
 import EinBreadcrumb, {
   type BreadcrumbItem,
 } from '~/components/EinBreadcrumb/Breadcrumbs';
+import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
 import { getLanguageCode } from '~/lib/translation/translation.actions';
 import { getAncestors, getName } from '~/lib/utils/enhetUtils';

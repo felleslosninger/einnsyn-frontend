@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';

@@ -1,5 +1,5 @@
-import { getJournalpost } from '~/actions/api/journalpost.actions';
 import JournalpostContainer from '~/features/entities/journalpost/JournalpostContainer';
+import { getJournalpost } from '~/features/entities/journalpost/journalpost.server';
 
 /**
  * A single journalpost, as shown in a saksmappe's detail pane. One that fails
