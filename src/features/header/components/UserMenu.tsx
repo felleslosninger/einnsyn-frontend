@@ -2,12 +2,12 @@
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import { cloneElement, useState } from 'react';
-import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useTranslation } from '~/hooks/useTranslation';
+import type { ExtendedAuthInfo } from '~/lib/auth/auth';
 import cn from '~/lib/utils/className';
 import LoginButton from './LoginButton';
 import LogoutButton from './LogoutButton';

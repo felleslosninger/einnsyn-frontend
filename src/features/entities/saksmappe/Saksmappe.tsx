@@ -1,5 +1,4 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import { cachedApiClient } from '~/actions/api/getApiClient';
 import { getJournalpostWindow } from '~/actions/api/journalpost.actions';
 import { getSaksmappe } from '~/actions/api/saksmappe.actions';
 import EnhetCard from '~/features/entities/common/EnhetCard';
@@ -7,6 +6,7 @@ import EntityKind from '~/features/entities/common/EntityKind';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
+import { cachedApiClient } from '~/lib/api/api.server';
 
 /**
  * A saksmappe page: its header and publisher card in the shared entity

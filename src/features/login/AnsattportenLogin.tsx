@@ -1,10 +1,10 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { ansattportenAuthAction } from '~/actions/authentication/auth.ansattporten';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useModalBasepath } from '~/hooks/useModalBasepath';
+import { ansattportenAuthAction } from '~/lib/auth/auth.actions';
 
 export function AnsattportenLogin() {
   const basepath = useModalBasepath();

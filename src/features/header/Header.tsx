@@ -1,6 +1,6 @@
 import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
-import { getSettings } from '~/actions/cookies/settingsCookie';
 import StickyHeader from '~/features/header/StickyHeader';
+import { getSettings } from '~/lib/settings/settings.server';
 
 /**
  * The header, with the enhet cache its search field needs already seeded.

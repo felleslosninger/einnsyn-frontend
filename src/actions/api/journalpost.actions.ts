@@ -2,7 +2,7 @@
 
 import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
-import { cachedApiClient } from './getApiClient';
+import { cachedApiClient } from '~/lib/api/api.server';
 
 const LIST_EXPAND = [
   'skjerming',
