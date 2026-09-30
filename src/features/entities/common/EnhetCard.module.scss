@@ -1,0 +1,43 @@
+.enhetCard {
+  border-left: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  padding-left: var(--ein-vertical-spacing);
+}
+
+.enhetCardHeading {
+  font-size: var(--ds-font-size-3);
+  color: var(--ds-color-neutral-text-subtle, inherit);
+}
+
+.enhetName {
+  display: block;
+  font-weight: 600;
+  font-size: var(--ds-font-size-5, 1.125rem);
+  color: var(--ds-color-neutral-text-default);
+  text-decoration: none;
+  border: none;
+  margin-bottom: calc(var(--ein-horizontal-spacing) / 2);
+
+  &:hover {
+    text-decoration: underline;
+    text-decoration-thickness: .125em;
+  }
+}
+
+.enhetFields {
+  display: table;
+}
+
+.enhetField {
+  display: table-row;
+  font-size: var(--ds-font-size-3, 0.875rem);
+}
+
+.enhetFieldLabel {
+  display: table-cell;
+  color: var(--ds-color-neutral-text-subtle);
+  padding-right: var(--ds-size-4);
+}
+
+.enhetFieldValue {
+  display: table-cell;
+}

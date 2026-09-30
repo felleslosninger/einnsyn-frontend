@@ -1,4 +1,4 @@
-import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
+import { isEnhet, isSaksmappe, type Journalpost } from '@digdir/einnsyn-sdk';
 import { useParams } from 'next/navigation';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
@@ -8,6 +8,8 @@ import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { getEnhetIdentifier, getName } from '~/lib/utils/enhetUtils';
 import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
+import { useJournalpostURLGenerator } from '~/lib/utils/urlGenerators';
+import SaksmappeLink from './common/SaksmappeLink';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -30,6 +32,7 @@ export default function JournalpostResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
+  const journalpostURL = useJournalpostURLGenerator();
   const saksnummer = getSaksnummer(item);
   const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
@@ -37,7 +40,7 @@ export default function JournalpostResult({
 
   return (
     <div className={cn(className, styles.searchResult, 'journalpost-result')}>
-      <EinLink href="">
+      <EinLink href={journalpostURL(item)}>
         <h2 className="ds-heading">{item.offentligTittel}</h2>
       </EinLink>
       <div className={cn('ds-paragraph', styles.searchResultBody)}>
@@ -48,7 +51,12 @@ export default function JournalpostResult({
         >
           {saksnummer && (
             <span>
-              {translate('common.number')} {saksnummer}
+              {translate('common.number')}{' '}
+              {isSaksmappe(item.saksmappe) ? (
+                <SaksmappeLink saksmappe={item.saksmappe} />
+              ) : (
+                saksnummer
+              )}
             </span>
           )}
 
