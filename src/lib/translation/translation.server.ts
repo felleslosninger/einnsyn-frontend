@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getSettings } from '~/lib/settings/settings.server';
-import { getTranslateFunction, type LanguageCode } from './translation';
+import type { LanguageCode } from './translation';
 
 /**
  * The language to render in: the visitor's stored choice, or the one their
@@ -11,9 +11,4 @@ import { getTranslateFunction, type LanguageCode } from './translation';
 export const getLanguageCode = async (): Promise<LanguageCode> => {
   const { language } = await getSettings();
   return language;
-};
-
-export const getTranslator = async () => {
-  const languageCode = await getLanguageCode();
-  return getTranslateFunction(languageCode);
 };
