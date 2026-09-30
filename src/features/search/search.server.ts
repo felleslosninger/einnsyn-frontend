@@ -32,7 +32,7 @@ const SORT_MAP: Record<
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
-export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
+async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
     items: [],
   };
