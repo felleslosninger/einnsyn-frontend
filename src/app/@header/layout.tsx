@@ -6,7 +6,7 @@ import {
 import { getPathEnhet } from '~/lib/routes/sections';
 
 // A layout receives neither params nor searchParams, so the enhet the request
-// is scoped to is recovered from the request URL instead.
+// is scoped to is recovered from the request URL.
 export default async function HeaderLayout({
   children,
 }: {
