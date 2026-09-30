@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction, type LanguageCode } from './translation';
