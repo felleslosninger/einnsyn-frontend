@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import {
   type Base,
@@ -32,7 +32,7 @@ const SORT_MAP: Record<
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
-export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
+async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
     items: [],
   };
@@ -55,7 +55,7 @@ const isSearchableEntity = (
 /**
  * Get a PaginatedList of search results
  *
- * @param api
+ * @param enhetSlug
  * @param searchParams
  * @returns
  */
