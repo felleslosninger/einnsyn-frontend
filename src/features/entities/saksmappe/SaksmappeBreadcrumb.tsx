@@ -3,8 +3,8 @@ import EinBreadcrumb, {
   type BreadcrumbItem,
 } from '~/components/EinBreadcrumb/Breadcrumbs';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
+import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
-import { getLanguageCode } from '~/lib/translation/translation.actions';
 import { getAncestors, getName } from '~/lib/utils/enhetUtils';
 import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 
@@ -20,9 +20,9 @@ export default async function SaksmappeBreadcrumb({
 }: {
   saksmappeId: string;
 }) {
-  const [saksmappeEntity, languageCode] = await Promise.all([
+  const [saksmappeEntity, { language: languageCode }] = await Promise.all([
     getSaksmappe(saksmappeId),
-    getLanguageCode(),
+    getSettings(),
   ]);
   const t = getTranslateFunction(languageCode);
 
