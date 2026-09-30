@@ -105,6 +105,9 @@
   "routing": {
     "searchPath": "search",
     "saksmappePath": "case",
+    "moetemappePath": "meeting",
+    "aboutPath": "about",
+    "privacyPath": "privacy",
     "calendarPath": "calendar",
     "statisticsPath": "statistics"
   },
@@ -152,7 +155,7 @@
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
-    "pathName": "journalpost",
+    "pathName": "record",
     "from": "From",
     "to": "To",
     "type": {

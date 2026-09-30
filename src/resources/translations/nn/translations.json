@@ -105,6 +105,9 @@
   "routing": {
     "searchPath": "søk",
     "saksmappePath": "sak",
+    "moetemappePath": "moete",
+    "aboutPath": "om",
+    "privacyPath": "personvern",
     "calendarPath": "kalender",
     "statisticsPath": "statistikk"
   },
