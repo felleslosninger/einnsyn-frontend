@@ -10,6 +10,7 @@ import { useSessionData } from '~/components/SessionDataProvider/SessionDataProv
 import { brukerRoutes } from '~/features/bruker/brukerRoutes';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
+import { isStandardClick } from '~/lib/utils/isStandardClick';
 import LoginButton from './LoginButton';
 import LogoutButton from './LogoutButton';
 import styles from './UserMenu.module.scss';
@@ -201,7 +202,11 @@ export function Dropdown({
 
   const closeOnItemClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest('.ein-popup') && target.closest('a, button')) {
+    if (
+      isStandardClick(e) &&
+      target.closest('.ein-popup') &&
+      target.closest('a[href]')
+    ) {
       setOpen(false);
     }
   };
