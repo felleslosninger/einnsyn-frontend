@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Heading } from '@digdir/designsystemet-react';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { updatePasswordAction } from '~/features/bruker/profile/brukerActions';
@@ -22,6 +22,9 @@ export default function ChangePasswordForm() {
     {},
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const errorMessage = (() => {
     if (!state.error) return undefined;
@@ -31,7 +34,11 @@ export default function ChangePasswordForm() {
   })();
 
   useEffect(() => {
-    if (state.error) {
+    if (state.success) {
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } else if (state.error) {
       const fieldName = ERROR_FIELD_MAP[state.error] ?? 'oldPassword';
       formRef.current
         ?.querySelector<HTMLInputElement>(`input[name="${fieldName}"]`)
@@ -58,6 +65,8 @@ export default function ChangePasswordForm() {
           data-color="neutral"
           required
           fullWidth
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
         />
         <EinInput
           name="newPassword"
@@ -67,6 +76,8 @@ export default function ChangePasswordForm() {
           data-color="neutral"
           required
           fullWidth
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
         />
         <EinInput
           name="confirmPassword"
@@ -76,6 +87,8 @@ export default function ChangePasswordForm() {
           data-color="neutral"
           required
           fullWidth
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
         />
         {state.success && (
           <Alert data-color="success">

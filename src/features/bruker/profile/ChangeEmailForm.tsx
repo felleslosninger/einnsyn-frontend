@@ -2,7 +2,7 @@
 
 import { Alert, Heading } from '@digdir/designsystemet-react';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { updateEmailAction } from '~/features/bruker/profile/brukerActions';
@@ -18,6 +18,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   const [state, formAction, isPending] = useActionState(updateEmailAction, {});
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+  const [emailValue, setEmailValue] = useState('');
 
   const errorMessage = (() => {
     if (!state.error) return undefined;
@@ -28,6 +29,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
 
   useEffect(() => {
     if (state.success) {
+      setEmailValue('');
       router.refresh();
     } else if (state.error) {
       formRef.current
@@ -56,6 +58,8 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
           data-color="neutral"
           required
           fullWidth
+          value={emailValue}
+          onChange={(e) => setEmailValue(e.target.value)}
         />
         {state.success && (
           <Alert data-color="success">
