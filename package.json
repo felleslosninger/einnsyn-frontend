@@ -29,8 +29,8 @@
     "virtua": "^0.52.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.14",
-    "@types/node": "^26.6.3",
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "tsx": "^4.23.15",
