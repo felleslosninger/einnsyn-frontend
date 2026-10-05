@@ -44,7 +44,7 @@ export function useEnhetSelectorState({
 }: UseEnhetSelectorStateOptions) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-  const searchPathname = `/${t('routing.searchPath')}`;
+  const searchPathname = `/${t('routing.search')}`;
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
 

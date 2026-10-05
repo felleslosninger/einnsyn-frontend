@@ -103,13 +103,14 @@
     "searchingIn": "Søkjer i"
   },
   "routing": {
-    "searchPath": "søk",
-    "saksmappePath": "sak",
-    "moetemappePath": "moete",
-    "aboutPath": "om",
-    "privacyPath": "personvern",
-    "calendarPath": "kalender",
-    "statisticsPath": "statistikk"
+    "search": "søk",
+    "saksmappe": "sak",
+    "journalpost": "journalpost",
+    "moetemappe": "moete",
+    "about": "om",
+    "privacy": "personvern",
+    "calendar": "kalender",
+    "statistics": "statistikk"
   },
   "common": {
     "publishedAt": "Publisert",
@@ -155,7 +156,6 @@
   "journalpost": {
     "label": "Journalpost",
     "labelPlural": "Journalpostar",
-    "pathName": "journalpost",
     "from": "Frå",
     "to": "Til",
     "type": {

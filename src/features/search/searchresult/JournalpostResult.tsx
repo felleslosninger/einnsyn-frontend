@@ -100,7 +100,7 @@ function JournalpostCorrespondence({
   const enhetNavn = getName(enhet, languageCode);
   const enhetHref = buildEnhetSelectionHref({
     pathname: optimisticPathname,
-    searchPathname: `/${t('routing.searchPath')}`,
+    searchPathname: `/${t('routing.search')}`,
     searchParams: optimisticSearchParams,
     pathEnhetValue: params.enhet,
     selectedEnhetIdentifiers: [getEnhetIdentifier(enhet)],

@@ -78,7 +78,7 @@ describe('sectionPaths', () => {
   });
 
   it('falls back to the canonical name where a translation is missing', () => {
-    // `routing.aboutPath` has no se entry, and neither has a routing key at
+    // `routing.about` has no se entry, and neither has a routing key at
     // all — an untranslated section resolves by its route-folder name only.
     assert.deepEqual(sectionPaths('about').toSorted(), ['about', 'om']);
     assert.deepEqual(sectionPaths('admin'), ['admin']);

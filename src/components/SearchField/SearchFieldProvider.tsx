@@ -57,7 +57,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
       // TODO: decide whether the search path should be localized. The enhet
-      // selector uses `routing.searchPath` here, which makes the URL depend on
+      // selector uses `routing.search` here, which makes the URL depend on
       // the viewer's session language; localized spellings already resolve via
       // the rewrites in next.config.ts.
       const pathname =

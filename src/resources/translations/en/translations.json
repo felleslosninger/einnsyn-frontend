@@ -103,13 +103,14 @@
     "searchingIn": "Searching in"
   },
   "routing": {
-    "searchPath": "search",
-    "saksmappePath": "case",
-    "moetemappePath": "meeting",
-    "aboutPath": "about",
-    "privacyPath": "privacy",
-    "calendarPath": "calendar",
-    "statisticsPath": "statistics"
+    "search": "search",
+    "saksmappe": "case",
+    "journalpost": "record",
+    "moetemappe": "meeting",
+    "about": "about",
+    "privacy": "privacy",
+    "calendar": "calendar",
+    "statistics": "statistics"
   },
   "common": {
     "publishedAt": "Published",
@@ -155,7 +156,6 @@
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
-    "pathName": "record",
     "from": "From",
     "to": "To",
     "type": {

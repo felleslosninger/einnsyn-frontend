@@ -30,7 +30,7 @@ const SECTION_BY_PATH = new Map(
  * supported language.
  */
 export function sectionPaths(section: SectionWithPath): string[] {
-  return translatedSegments(`routing.${section}Path`, section);
+  return translatedSegments(`routing.${section}`, section);
 }
 
 /**
@@ -153,7 +153,7 @@ export function getPathEnhet(pathname: string): string | undefined {
 // included, so recognising a URL means accepting the same combinations.
 const SAKSMAPPE_SEGMENTS = new Set(sectionPaths('saksmappe'));
 const JOURNALPOST_SEGMENTS = new Set(
-  translatedSegments('journalpost.pathName', 'journalpost'),
+  translatedSegments('routing.journalpost', 'journalpost'),
 );
 
 /**
