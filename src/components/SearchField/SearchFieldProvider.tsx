@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useTranslation } from '~/hooks/useTranslation';
 import { buildSearchHref } from '~/lib/utils/searchHref';
 import {
   type SearchToken,
@@ -35,6 +36,7 @@ const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
 export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const navigation = useNavigation();
+  const t = useTranslation();
   const optimisticPathname = navigation.optimisticPathname;
   const optimisticSearchParams = navigation.optimisticSearchParams;
   const [searchQuery, _setSearchQuery] = useState(
@@ -56,12 +58,10 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      // TODO: decide whether the search path should be localized. The enhet
-      // selector uses `routing.search` here, which makes the URL depend on
-      // the viewer's session language; localized spellings already resolve via
-      // the rewrites in next.config.ts.
       const pathname =
-        optimisticPathname === '/' ? '/search' : optimisticPathname;
+        optimisticPathname === '/'
+          ? `/${t('routing.search')}`
+          : optimisticPathname;
       navigation.push(
         buildSearchHref({
           pathname,
@@ -70,7 +70,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         }),
       );
     },
-    [navigation, optimisticPathname, optimisticSearchParams],
+    [navigation, optimisticPathname, optimisticSearchParams, t],
   );
 
   const setSearchQuery = useCallback(
