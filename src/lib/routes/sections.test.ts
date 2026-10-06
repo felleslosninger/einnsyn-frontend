@@ -167,18 +167,23 @@ describe('getJournalpostFromPath', () => {
     );
   });
 
-  it('accepts every locale, mixed locales included', () => {
+  it('accepts every locale', () => {
+    assert.equal(getJournalpostFromPath('/sak/abc/journalpost/xyz'), 'xyz');
     assert.equal(getJournalpostFromPath('/case/abc/record/xyz'), 'xyz');
     assert.equal(getJournalpostFromPath('/ášši/abc/journalapoasta/xyz'), 'xyz');
-    // The rewrites combine the two segments independently, so a path mixing
-    // languages resolves rather than 404-ing.
-    assert.equal(getJournalpostFromPath('/sak/abc/record/xyz'), 'xyz');
-    assert.equal(getJournalpostFromPath('/case/abc/journalpost/xyz'), 'xyz');
+  });
+
+  it('rejects a path mixing languages, which the rewrites do not match', () => {
+    assert.equal(getJournalpostFromPath('/sak/abc/record/xyz'), undefined);
+    assert.equal(
+      getJournalpostFromPath('/case/abc/journalpost/xyz'),
+      undefined,
+    );
   });
 
   it('accepts percent-encoded fixed segments', () => {
     assert.equal(
-      getJournalpostFromPath('/%C3%A1%C5%A1%C5%A1i/abc/record/xyz'),
+      getJournalpostFromPath('/%C3%A1%C5%A1%C5%A1i/abc/journalapoasta/xyz'),
       'xyz',
     );
   });

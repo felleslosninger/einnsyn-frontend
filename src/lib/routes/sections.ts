@@ -148,13 +148,22 @@ export function getPathEnhet(pathname: string): string | undefined {
 }
 
 // The words a saksmappe/journalpost URL may use for its fixed segments —
-// `/<saksmappe word>/:saksmappe/<journalpost word>/:journalpost`. The rewrites
-// in next.config.ts accept each word in any supported language, mixed locales
-// included, so recognising a URL means accepting the same combinations.
+// `/<saksmappe word>/:saksmappe/<journalpost word>/:journalpost`. Like the
+// rewrites in next.config.ts, both words must come from the same language
+// (`/case/:s/record/:j`, not `/sak/:s/record/:j`).
 const SAKSMAPPE_SEGMENTS = new Set(sectionPaths('saksmappe'));
-const JOURNALPOST_SEGMENTS = new Set(
-  translatedSegments('routing.journalpost', 'journalpost'),
-);
+const JOURNALPOST_SEGMENT_PAIRS = new Set([
+  'saksmappe/journalpost',
+  ...supportedLanguages.map((languageCode) => {
+    const t = getTranslateFunction(languageCode);
+    // A missing translation falls back to the canonical word, as in the rewrites.
+    const word = (key: string, canonical: string) => {
+      const translated = t(key);
+      return translated === key ? canonical : normalizeSegment(translated);
+    };
+    return `${word('routing.saksmappe', 'saksmappe')}/${word('routing.journalpost', 'journalpost')}`;
+  }),
+]);
 
 /**
  * The saksmappe identifier (slug or id) a pathname points at, in any supported
@@ -171,21 +180,15 @@ export function getSaksmappeFromPath(pathname: string): string | undefined {
 
 /**
  * The journalpost identifier (slug or id) a pathname points at, or `undefined`
- * when it is not a journalpost detail URL. Language-agnostic, matching what
- * the rewrites accept: `/saksmappe/:s/journalpost/:j`, `/case/:s/record/:j`,
- * and mixed-locale forms.
+ * when it is not a journalpost detail URL. Matches what the rewrites accept:
+ * `/saksmappe/:s/journalpost/:j`, `/case/:s/record/:j`, … in one language.
  */
 export function getJournalpostFromPath(pathname: string): string | undefined {
   const segments = pathSegments(pathname);
   if (segments.length !== 4) return undefined;
   const [sectionWord, , journalpostWord, journalpost] = segments;
-  if (!SAKSMAPPE_SEGMENTS.has(normalizeSegment(sectionWord))) {
-    return undefined;
-  }
-  if (!JOURNALPOST_SEGMENTS.has(normalizeSegment(journalpostWord))) {
-    return undefined;
-  }
-  return journalpost;
+  const pair = `${normalizeSegment(sectionWord)}/${normalizeSegment(journalpostWord)}`;
+  return JOURNALPOST_SEGMENT_PAIRS.has(pair) ? journalpost : undefined;
 }
 
 /** Path segments, with any query/hash tail stripped. */
