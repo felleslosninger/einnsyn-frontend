@@ -34,33 +34,6 @@ export function buildSearchHref({
 }
 
 /**
- * Whether the first path segment is this enhet, i.e. we are on `/{enhet}` or
- * somewhere below it.
- *
- * The segment is percent-decoded before comparing, because the two sides can
- * disagree on encoding (`/m%C3%B8re-og-romsdal` vs `møre-og-romsdal`).
- */
-export function pathnameContainsEnhet(
-  pathname: string,
-  pathEnhet: string | undefined,
-): boolean {
-  if (!pathEnhet) {
-    return false;
-  }
-
-  const firstPathSegment = pathname.split('/').filter(Boolean)[0];
-  if (!firstPathSegment) {
-    return false;
-  }
-
-  try {
-    return decodeURIComponent(firstPathSegment) === pathEnhet;
-  } catch {
-    return firstPathSegment === pathEnhet;
-  }
-}
-
-/**
  * The href for a new enhet selection.
  *
  * An enhet can be selected in two places: the path (`/oslo`) or the `enhet`

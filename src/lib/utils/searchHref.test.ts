@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-  buildEnhetSelectionHref,
-  buildSearchHref,
-  pathnameContainsEnhet,
-} from './searchHref';
+import { buildEnhetSelectionHref, buildSearchHref } from './searchHref';
 
 describe('buildSearchHref', () => {
   it('sets a param and keeps the others', () => {
@@ -55,21 +51,6 @@ describe('buildSearchHref', () => {
         searchParams: new URLSearchParams('q=innsyn'),
       }),
       '/oslo?q=innsyn',
-    );
-  });
-});
-
-describe('pathnameContainsEnhet', () => {
-  it('recognizes the path enhet on direct and nested routes', () => {
-    assert.equal(pathnameContainsEnhet('/oslo', 'oslo'), true);
-    assert.equal(pathnameContainsEnhet('/oslo/moeter', 'oslo'), true);
-    assert.equal(pathnameContainsEnhet('/search', 'oslo'), false);
-  });
-
-  it('recognizes URL-encoded path enhets', () => {
-    assert.equal(
-      pathnameContainsEnhet('/m%C3%B8re-og-romsdal', 'møre-og-romsdal'),
-      true,
     );
   });
 });
