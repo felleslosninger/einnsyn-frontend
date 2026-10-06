@@ -53,13 +53,6 @@ const nextConfig: NextConfig = {
       ...getTranslationRewrites("search"),
       ...getTranslationRewrites("about"),
       ...getTranslationRewrites("privacy"),
-      ...getTranslationRewrites("saksmappe", ":saksmappe"),
-      ...getTranslationRewrites(
-        "saksmappe",
-        ":saksmappe",
-        "journalpost",
-        ":journalpost",
-      ),
     ];
   },
 };
