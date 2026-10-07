@@ -1,7 +1,7 @@
 'use server';
 
 import type { ApiKey } from '@digdir/einnsyn-sdk';
-import { cachedApiClient } from '~/actions/api/getApiClient';
+import { cachedApiClient } from '~/lib/api/api.server';
 
 export async function deleteApiKeyAction(formData: FormData) {
   const apiClient = await cachedApiClient();

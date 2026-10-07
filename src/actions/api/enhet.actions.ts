@@ -2,6 +2,7 @@
 
 import { EInnsynError, type Enhet } from '@digdir/einnsyn-sdk';
 import { unstable_cache } from 'next/cache';
+import { cachedApiClient, cachedPublicApiClient } from '~/lib/api/api.server';
 import type { LanguageCode } from '~/lib/translation/translation';
 import {
   expandTrimmedEnhetsWithAncestors,
@@ -10,7 +11,6 @@ import {
 } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
 import { parseParamList } from '~/lib/utils/paramList';
-import { cachedApiClient, cachedPublicApiClient } from './getApiClient';
 
 const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
 const ENHET_LIST_TAG = 'enhet-list';

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { maybeRefreshToken } from './actions/authentication/auth';
+import { maybeRefreshToken } from './lib/auth/auth.server';
 
 export async function proxy(request: NextRequest) {
   // This will update the auth cookie if needed
