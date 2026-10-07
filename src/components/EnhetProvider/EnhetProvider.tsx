@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 import {
-  ensureFullList,
+  ensureEnhetListLoaded,
   seedEnhets,
   useEnhetStoreSnapshot,
 } from './enhetStore';
@@ -74,7 +74,7 @@ export function useEnhets() {
 
   return {
     enhetMap,
-    fullListLoaded: snapshot.loadedVersion !== null,
-    ensureFullList,
+    enhetListLoaded: snapshot.loadedVersion !== null,
+    ensureEnhetListLoaded,
   };
 }

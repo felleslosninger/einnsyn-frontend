@@ -48,7 +48,11 @@ export function useEnhetSelectorState({
   const navigation = useNavigation();
   const { optimisticSearchParams, optimisticPathname } = navigation;
 
-  const { enhetMap: rawEnhetMap, fullListLoaded, ensureFullList } = useEnhets();
+  const {
+    enhetMap: rawEnhetMap,
+    enhetListLoaded,
+    ensureEnhetListLoaded,
+  } = useEnhets();
   const { enhetMap, enhetList } = useResolvedEnhetMap(rawEnhetMap);
 
   //
@@ -164,10 +168,10 @@ export function useEnhetSelectorState({
   const [filterValue, setFilterValue] = useState('');
 
   useEffect(() => {
-    if (active && !fullListLoaded) {
-      ensureFullList();
+    if (active && !enhetListLoaded) {
+      ensureEnhetListLoaded();
     }
-  }, [active, fullListLoaded, ensureFullList]);
+  }, [active, enhetListLoaded, ensureEnhetListLoaded]);
 
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -482,7 +486,7 @@ export function useEnhetSelectorState({
     availableNodes,
     searchMatchedSelectedNodes,
     selectedEnheter,
-    fullListLoaded,
+    enhetListLoaded,
 
     // Focus state
     focus,

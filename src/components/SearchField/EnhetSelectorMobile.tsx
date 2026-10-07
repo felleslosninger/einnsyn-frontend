@@ -180,7 +180,7 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
     availableListRef,
     availableNodes,
     searchMatchedSelectedNodes,
-    fullListLoaded,
+    enhetListLoaded,
     filterValue,
     focus,
     focusedOptionId,
@@ -258,8 +258,8 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
           />
         ))}
 
-        {!fullListLoaded && <SkeletonRows />}
-        {fullListLoaded &&
+        {!enhetListLoaded && <SkeletonRows />}
+        {enhetListLoaded &&
           searchMatchedSelectedNodes.length === 0 &&
           availableNodes.length === 0 && (
             <div className={styles.emptyState}>{t('common.noResults')}</div>

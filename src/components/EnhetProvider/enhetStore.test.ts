@@ -74,7 +74,7 @@ describe('enhet client store', () => {
       version: 'v1',
     }));
 
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     const snapshot = store.getEnhetStoreSnapshot();
     assert.equal(snapshot.loadedVersion, 'v1');
@@ -86,7 +86,7 @@ describe('enhet client store', () => {
       enhets: [enhet('a')],
       version: 'v1',
     }));
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     store.seedEnhets([], 'v2');
 
@@ -104,29 +104,29 @@ describe('enhet client store', () => {
       enhets: [enhet('a')],
       version: 'v1',
     }));
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     store.seedEnhets([enhet('a')], 'v1');
 
     assert.equal(store.getEnhetStoreSnapshot().loadedVersion, 'v1');
   });
 
-  test('the next ensureFullList refetches after an invalidation', async () => {
+  test('the next ensureEnhetListLoaded refetches after an invalidation', async () => {
     let calls = 0;
     const store = await freshStore(async () => {
       calls += 1;
       return { enhets: [enhet('a')], version: `v${calls}` };
     });
 
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
     assert.equal(calls, 1);
 
     // Nothing more to fetch while the version holds.
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
     assert.equal(calls, 1);
 
     store.seedEnhets([], 'moved');
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
     assert.equal(calls, 2, 'the resolved in-flight promise must not be reused');
   });
 
@@ -135,7 +135,7 @@ describe('enhet client store', () => {
       enhets: [enhet('a', 'Old name')],
       version: 'v1',
     }));
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     store.seedEnhets([enhet('a', 'New name')], 'v2');
 
@@ -150,7 +150,7 @@ describe('enhet client store', () => {
       enhets: [{ ...enhet('a', 'Old name'), slug: 'old-slug' }],
       version: 'v1',
     }));
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     store.seedEnhets([{ ...enhet('a', 'New name'), slug: 'new-slug' }], 'v2');
 
@@ -168,11 +168,11 @@ describe('enhet client store', () => {
     const removed = { ...enhet('b'), slug: 'b-slug' };
     let list: ListResult = { enhets: [enhet('a'), removed], version: 'v1' };
     const store = await freshStore(async () => list);
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     list = { enhets: [enhet('a')], version: 'v2' };
     store.seedEnhets([], 'v2');
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     const { enhetMap, loadedVersion } = store.getEnhetStoreSnapshot();
     assert.equal(loadedVersion, 'v2');
@@ -186,7 +186,7 @@ describe('enhet client store', () => {
     const store = await freshStore(gate.getList);
     store.seedEnhets([enhet('a')], 'v1');
 
-    const inflight = store.ensureFullList();
+    const inflight = store.ensureEnhetListLoaded();
     store.seedEnhets([], 'v2');
     gate.release();
     await inflight;
@@ -202,7 +202,7 @@ describe('enhet client store', () => {
     const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
     const store = await freshStore(gate.getList);
 
-    const inflight = store.ensureFullList();
+    const inflight = store.ensureEnhetListLoaded();
     store.seedEnhets([], 'v2');
     gate.release();
     await inflight;
@@ -222,10 +222,10 @@ describe('enhet client store', () => {
     const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
     const store = await freshStore(gate.getList);
 
-    const inflight = store.ensureFullList();
+    const inflight = store.ensureEnhetListLoaded();
     // The seed invalidates, but the fetch it would restart is still running.
     store.seedEnhets([], 'v2');
-    const reentrant = store.ensureFullList();
+    const reentrant = store.ensureEnhetListLoaded();
     assert.equal(gate.started(), 1, 'the in-flight fetch is reused');
 
     gate.release();
@@ -239,17 +239,17 @@ describe('enhet client store', () => {
     }));
     const store = await freshStore(gate.getList);
 
-    const inflight = store.ensureFullList();
+    const inflight = store.ensureEnhetListLoaded();
     store.seedEnhets([], 'v2');
     gate.release();
     await inflight;
 
-    // Nobody calls `ensureFullList` again: the selector's effect only re-runs
-    // when `fullListLoaded` flips, which an invalidated fetch never does.
+    // Nobody calls `ensureEnhetListLoaded` again: the selector's effect only re-runs
+    // when `enhetListLoaded` flips, which an invalidated fetch never does.
     assert.equal(gate.started(), 2, 'the stale fetch restarts on its own');
 
     gate.release();
-    await store.ensureFullList();
+    await store.ensureEnhetListLoaded();
 
     assert.equal(
       store.getEnhetStoreSnapshot().loadedVersion,

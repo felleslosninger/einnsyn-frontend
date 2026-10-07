@@ -10,15 +10,13 @@ export type EnhetStoreSnapshot = {
   loadedVersion: string | null;
 };
 
-let snapshot: EnhetStoreSnapshot = {
+// Never mutated: every update assigns a new snapshot.
+const emptySnapshot: EnhetStoreSnapshot = {
   enhetMap: new Map<string, TrimmedEnhet>(),
   loadedVersion: null,
 };
 
-const serverSnapshot: EnhetStoreSnapshot = {
-  enhetMap: new Map<string, TrimmedEnhet>(),
-  loadedVersion: null,
-};
+let snapshot = emptySnapshot;
 
 // The newest version any server response has carried, and a counter bumped
 // whenever it moves. The counter is what an in-flight full-list fetch compares
@@ -47,7 +45,7 @@ export function getEnhetStoreSnapshot(): EnhetStoreSnapshot {
 }
 
 function getServerSnapshot(): EnhetStoreSnapshot {
-  return serverSnapshot;
+  return emptySnapshot;
 }
 
 function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
@@ -112,7 +110,7 @@ export function seedEnhets(
   }
 }
 
-export function ensureFullList(): Promise<void> {
+export function ensureEnhetListLoaded(): Promise<void> {
   if (snapshot.loadedVersion !== null) {
     return Promise.resolve();
   }
@@ -156,9 +154,9 @@ export function ensureFullList(): Promise<void> {
       // is in flight and a seed cannot null it out from under one.
       fullListPromise = null;
       // Nothing else would retry: the sole caller re-runs its effect on
-      // `fullListLoaded`, which an invalidated fetch never flips.
+      // `enhetListLoaded`, which an invalidated fetch never flips.
       if (invalidatedMidFetch) {
-        void ensureFullList();
+        void ensureEnhetListLoaded();
       }
     }
   })();

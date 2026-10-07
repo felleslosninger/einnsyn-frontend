@@ -274,7 +274,7 @@ const AvailableColumn = ({ state, getRowSubtitle }: ColumnProps) => {
   const t = useTranslation();
   const {
     availableNodes,
-    fullListLoaded,
+    enhetListLoaded,
     focus,
     focusedOptionId,
     addEnhet,
@@ -319,8 +319,8 @@ const AvailableColumn = ({ state, getRowSubtitle }: ColumnProps) => {
               onClick={() => addEnhet(node.enhet)}
             />
           ))}
-          {!fullListLoaded && <SkeletonRows keyPrefix="loading-available" />}
-          {fullListLoaded && availableNodes.length === 0 && (
+          {!enhetListLoaded && <SkeletonRows keyPrefix="loading-available" />}
+          {enhetListLoaded && availableNodes.length === 0 && (
             <div className={styles.emptyState}>{t('common.noResults')}</div>
           )}
         </VList>
