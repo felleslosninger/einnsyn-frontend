@@ -24,6 +24,8 @@ export default function SearchResultContainer({
 }) {
   const t = useTranslation();
   const {
+    loadingPathname,
+    pathname,
     loadingSearchParamsString,
     searchParamsString,
     loading,
@@ -40,7 +42,10 @@ export default function SearchResultContainer({
   );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
-  const isLoading = loading && loadingSearchParamsString !== searchParamsString;
+  const isLoading =
+    loading &&
+    (loadingPathname !== pathname ||
+      loadingSearchParamsString !== searchParamsString);
 
   const searchSymbolRef = useRef<symbol>(Symbol());
 
