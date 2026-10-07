@@ -1,5 +1,5 @@
 import { Divider } from '@digdir/designsystemet-react';
-import { cachedAuthInfo } from '~/actions/authentication/auth';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
 import ChangeEmailForm from './ChangeEmailForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import DeactivateAccountSection from './DeactivateAccountForm';

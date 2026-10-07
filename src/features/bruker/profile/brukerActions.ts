@@ -2,9 +2,9 @@
 
 import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { redirect } from 'next/navigation';
-import { cachedApiClient } from '~/actions/api/getApiClient';
-import { cachedAuthInfo } from '~/actions/authentication/auth';
-import { deleteAuthAction } from '~/actions/cookies/authCookie';
+import { cachedApiClient } from '~/lib/api/api.server';
+import { logoutAction } from '~/lib/auth/auth.actions';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export type ProfileActionState = {
   success?: boolean;
@@ -79,7 +79,7 @@ export async function deleteAccountAction(
   try {
     const api = await cachedApiClient();
     await api.bruker.delete(authInfo.id);
-    await deleteAuthAction();
+    await logoutAction();
   } catch (error) {
     if (error instanceof EInnsynError) return { error: error.type };
     return { error: 'internalServerError' };
