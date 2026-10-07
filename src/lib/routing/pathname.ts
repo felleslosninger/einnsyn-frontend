@@ -1,194 +1,215 @@
-import {
-  getTranslateFunction,
-  supportedLanguages,
-} from '~/lib/translation/translation';
-
-// A list of sections that have their own path segment. 'home' and 'enhet' are
-// special cases, "home" is the root path, and any unknown root segment is an
-// "enhet" slug.
-const SECTIONS_WITH_PATH = [
-  'search',
-  'saksmappe',
-  'moetemappe',
-  'admin',
-  'login',
-  'about',
-  'privacy',
-] as const;
-export type SectionWithPath = (typeof SECTIONS_WITH_PATH)[number];
-export type Section = 'home' | 'enhet' | SectionWithPath;
-
-// A map of sections, keyed by path name
-const SECTION_BY_PATH = new Map(
-  SECTIONS_WITH_PATH.flatMap((section) =>
-    sectionPaths(section).map((path) => [path, section]),
-  ),
-);
+// Relative imports: next.config.ts loads this module, without the `~` alias.
+import en from '../../resources/translations/en/translations.json';
+import nb from '../../resources/translations/nb/translations.json';
+import nn from '../../resources/translations/nn/translations.json';
+import se from '../../resources/translations/se/translations.json';
+import type { LanguageCode } from '../translation/translation';
 
 /**
- * Every word that resolves to a section: its own name, plus a translation per
- * supported language.
- */
-export function sectionPaths(section: SectionWithPath): string[] {
-  return translatedSegments(`routing.${section}`, section);
-}
-
-/**
- * Every word a translated path segment may arrive as: its canonical
- * (route-folder) name, plus a translation per supported language, normalized.
- */
-function translatedSegments(
-  translationKey: string,
-  canonical: string,
-): string[] {
-  const translated = supportedLanguages
-    .map((languageCode) => getTranslateFunction(languageCode)(translationKey))
-    // `getTranslateFunction` echoes the key back when there is no entry, which
-    // is how a segment with no translation yet is recognised.
-    .filter((segment) => segment !== translationKey)
-    .map((segment) => normalizeSegment(segment));
-
-  return [...new Set([canonical, ...translated])];
-}
-
-/**
- * The section a pathname belongs to.
+ * Every URL shape the app has:
  *
- * An unrecognised root segment is an enhet slug — enhet pages live at the root
- * (`/oslo`), so they cannot be told apart from a typo, and `enhet` is the
- * fallback rather than an explicit match.
+ *   /                                       home
+ *   /<root page>[/…]                        `routing.root`: search, about, …
+ *   /:enhet                                 enhet
+ *   /:enhet/<enhet page>[/…]                `routing.enhet`
+ *   /:enhet/<mappe>/:mappe[/:child]         `routing.mappe`: saksmappe, moetemappe
+ *
+ * Each `routing` key is a route folder, its value the folder's spelling in that
+ * language. Every spelling is accepted, so no URL favours a language;
+ * `buildPathname` writes the viewer's.
  */
-export function getSection(pathname: string): Section {
-  const rootSegment = getRootSegment(pathname);
-  if (rootSegment === undefined) {
-    return 'home';
+export type RootPage = keyof typeof nb.routing.root;
+export type EnhetPage = keyof typeof nb.routing.enhet;
+type Mappe = keyof typeof nb.routing.mappe;
+
+// Pages are named; entity routes are told apart by which identifiers they carry.
+export type Route =
+  | Exclusive<{ page: 'home' | RootPage }>
+  | Exclusive<{ page: EnhetPage; enhetIdentifier: string }>
+  | Exclusive<{ enhetIdentifier: string }>
+  | Exclusive<{
+      enhetIdentifier: string;
+      saksmappeIdentifier: string;
+      journalpostIdentifier?: string;
+    }>
+  | Exclusive<{
+      enhetIdentifier: string;
+      moetemappeIdentifier: string;
+      moetesakIdentifier?: string;
+    }>;
+
+type RouteKey =
+  | 'page'
+  | 'enhetIdentifier'
+  | 'saksmappeIdentifier'
+  | 'journalpostIdentifier'
+  | 'moetemappeIdentifier'
+  | 'moetesakIdentifier';
+
+// Forbids every other route's keys, which a plain union would let through.
+type Exclusive<T> = T & { [K in Exclude<RouteKey, keyof T>]?: never };
+
+// The identifier fields of each mappe and of its child.
+const MAPPE_FIELDS = {
+  saksmappe: ['saksmappeIdentifier', 'journalpostIdentifier'],
+  moetemappe: ['moetemappeIdentifier', 'moetesakIdentifier'],
+} as const satisfies Record<Mappe, readonly [RouteKey, RouteKey]>;
+
+type Level = keyof typeof nb.routing;
+type Words = Partial<Record<string, string>>;
+
+const ROUTING: Record<LanguageCode, Record<Level, Words>> = {
+  nb: nb.routing,
+  nn: nn.routing,
+  en: en.routing,
+  se: se.routing,
+};
+
+/** The route folder name plus every translation of it, deduplicated. */
+function spellings(level: Level, folder: string): string[] {
+  return [
+    ...new Set([
+      folder,
+      ...Object.values(ROUTING).flatMap(
+        (routing) => routing[level][folder] ?? [],
+      ),
+    ]),
+  ];
+}
+
+type Folder = { level: Level; folder: string };
+
+// Normalized spelling → folder, over levels that share a path position.
+function foldersBySpelling(...levels: Level[]): Map<string, Folder> {
+  const map = new Map<string, Folder>();
+  for (const level of levels) {
+    for (const folder of Object.keys(nb.routing[level])) {
+      for (const spelling of spellings(level, folder).map(normalizeSegment)) {
+        const existing = map.get(spelling);
+        if (existing !== undefined && existing.folder !== folder) {
+          throw new Error(
+            `"${spelling}" spells both ${existing.folder} and ${folder}`,
+          );
+        }
+        map.set(spelling, { level, folder });
+      }
+    }
+  }
+  return map;
+}
+
+const ROOT_FOLDERS = foldersBySpelling('root');
+const ENHET_FOLDERS = foldersBySpelling('enhet', 'mappe');
+
+/**
+ * The route a pathname points at, in any language. `undefined` for a path
+ * below an enhet that matches no route.
+ */
+export function parsePathname(pathname: string): Route | undefined {
+  const [first, second, mappeId, childId, ...rest] = pathSegments(pathname);
+  if (first === undefined) {
+    return { page: 'home' };
   }
 
-  return SECTION_BY_PATH.get(rootSegment) ?? 'enhet';
-}
+  const root = ROOT_FOLDERS.get(normalizeSegment(first));
+  if (root !== undefined) {
+    return { page: root.folder as RootPage };
+  }
 
-// Sections that also exist as an intercepted modal route (`@modal/(.)login`).
-// Navigating to one client-side puts its URL in the address bar while leaving
-// the page beneath it mounted, so the section the URL names is not the section
-// on screen.
-const MODAL_SECTIONS: ReadonlySet<Section> = new Set(['login']);
+  const enhetIdentifier = normalizeSegment(first);
+  if (second === undefined) {
+    return { enhetIdentifier };
+  }
 
-/** Whether this section can be shown as a modal over the page beneath it. */
-export function isModalSection(section: Section): boolean {
-  return MODAL_SECTIONS.has(section);
-}
+  const match = ENHET_FOLDERS.get(normalizeSegment(second));
+  if (match?.level === 'enhet') {
+    return { page: match.folder as EnhetPage, enhetIdentifier };
+  }
+  if (match === undefined || mappeId === undefined || rest.length > 0) {
+    return undefined;
+  }
 
-// How deep into the site a section sits: the results you search from, and the
-// entity pages you open from them. Everything else — the static pages, admin —
-// counts as the outer level, so arriving from one still reads as going inward.
-const ENTITY_SECTIONS: ReadonlySet<Section> = new Set([
-  'saksmappe',
-  'moetemappe',
-]);
-
-/**
- * The section's level, for a navigation that wants to know which way it is
- * going. Equal levels mean a sideways move, which has no direction to show.
- */
-export function sectionDepth(section: Section): number {
-  return ENTITY_SECTIONS.has(section) ? 1 : 0;
-}
-
-/** Sections that show search results. */
-const SECTIONS_WITH_RESULTS: ReadonlySet<Section> = new Set([
-  // The landing page carries the search field with an empty query.
-  'home',
-  'search',
-  'enhet',
-]);
-
-/**
- * Sections whose header carries the search field: the ones that show results,
- * plus entity detail pages, which keep the field showing the search that led
- * there. Only sections with no relationship to search at all are absent.
- */
-const SECTIONS_WITH_SEARCH_FIELD: ReadonlySet<Section> = new Set([
-  ...SECTIONS_WITH_RESULTS,
-  'saksmappe',
-  'moetemappe',
-]);
-
-/**
- * Whether this pathname shows search results.
- *
- * Intercepted modal routes change the pathname while leaving the page beneath
- * them in place, so they read as false here. That is what we want for a
- * remembered search — `/login` must not overwrite it — but it also puts the
- * back link in the search field. Harmless while `@header/login` renders
- * nothing; a modal over a route that *does* show the header would need
- * excluding explicitly.
- */
-export function showsSearchResults(pathname: string): boolean {
-  return SECTIONS_WITH_RESULTS.has(getSection(pathname));
+  const [mappeField, childField] = MAPPE_FIELDS[match.folder as Mappe];
+  return {
+    enhetIdentifier,
+    [mappeField]: decodeSegment(mappeId),
+    ...(childId !== undefined && { [childField]: decodeSegment(childId) }),
+  } as Route;
 }
 
 /**
- * Whether the header on this pathname carries the search field.
- *
- * This is what lets the field live in `@header/layout.tsx` as a single
- * persistent element instead of being re-mounted by each slot page.
- */
-export function showsSearchField(pathname: string): boolean {
-  return SECTIONS_WITH_SEARCH_FIELD.has(getSection(pathname));
-}
-
-/**
- * The enhet a URL scopes itself to via its path (`/oslo`), or `undefined` when
- * it is not an enhet page.
+ * The enhet a URL is scoped to by its path (`/oslo`, `/oslo/sak/…`), or
+ * `undefined` when the root segment is not an enhet.
  */
 export function getPathEnhet(pathname: string): string | undefined {
-  return getSection(pathname) === 'enhet'
-    ? getRootSegment(pathname)
-    : undefined;
+  const [first] = pathSegments(pathname);
+  if (first === undefined) {
+    return undefined;
+  }
+
+  const segment = normalizeSegment(first);
+  return ROOT_FOLDERS.has(segment) ? undefined : segment;
 }
 
-// The words a saksmappe/journalpost URL may use for its fixed segments —
-// `/<saksmappe word>/:saksmappe/<journalpost word>/:journalpost`. Like the
-// rewrites in next.config.ts, both words must come from the same language
-// (`/case/:s/record/:j`, not `/sak/:s/record/:j`).
-const SAKSMAPPE_SEGMENTS = new Set(sectionPaths('saksmappe'));
-const JOURNALPOST_SEGMENT_PAIRS = new Set([
-  'saksmappe/journalpost',
-  ...supportedLanguages.map((languageCode) => {
-    const t = getTranslateFunction(languageCode);
-    // A missing translation falls back to the canonical word, as in the rewrites.
-    const word = (key: string, canonical: string) => {
-      const translated = t(key);
-      return translated === key ? canonical : normalizeSegment(translated);
-    };
-    return `${word('routing.saksmappe', 'saksmappe')}/${word('routing.journalpost', 'journalpost')}`;
-  }),
-]);
+/** The href for a route, with fixed segments in the given language. */
+export function buildPathname(
+  route: Route,
+  languageCode: LanguageCode,
+): string {
+  const routing = ROUTING[languageCode];
+  const segments: string[] = [];
 
-/**
- * The saksmappe identifier (slug or id) a pathname points at, in any supported
- * language (`/saksmappe/:s`, `/sak/:s`, `/case/:s`, …). A journalpost detail
- * URL carries one too. `undefined` when the pathname is not a saksmappe route.
- */
-export function getSaksmappeFromPath(pathname: string): string | undefined {
-  const [sectionWord, saksmappe] = pathSegments(pathname);
-  if (sectionWord === undefined || saksmappe === undefined) return undefined;
-  return SAKSMAPPE_SEGMENTS.has(normalizeSegment(sectionWord))
-    ? saksmappe
-    : undefined;
+  if (route.enhetIdentifier !== undefined) {
+    segments.push(route.enhetIdentifier);
+  }
+
+  if (route.page !== undefined && route.page !== 'home') {
+    const level = route.enhetIdentifier === undefined ? 'root' : 'enhet';
+    segments.push(routing[level][route.page] ?? route.page);
+  }
+
+  for (const [mappe, [mappeField, childField]] of Object.entries(
+    MAPPE_FIELDS,
+  )) {
+    const mappeIdentifier = route[mappeField];
+    if (mappeIdentifier === undefined) {
+      continue;
+    }
+    segments.push(routing.mappe[mappe] ?? mappe, mappeIdentifier);
+    const childIdentifier = route[childField];
+    if (childIdentifier !== undefined) {
+      segments.push(childIdentifier);
+    }
+  }
+
+  return `/${segments.map(encodeURIComponent).join('/')}`;
 }
 
 /**
- * The journalpost identifier (slug or id) a pathname points at, or `undefined`
- * when it is not a journalpost detail URL. Matches what the rewrites accept:
- * `/saksmappe/:s/journalpost/:j`, `/case/:s/record/:j`, … in one language.
+ * Rewrites from every translated spelling to the route folder, for
+ * next.config.ts. Without them a translated path falls through to `[enhet]`.
  */
-export function getJournalpostFromPath(pathname: string): string | undefined {
-  const segments = pathSegments(pathname);
-  if (segments.length !== 4) return undefined;
-  const [sectionWord, , journalpostWord, journalpost] = segments;
-  const pair = `${normalizeSegment(sectionWord)}/${normalizeSegment(journalpostWord)}`;
-  return JOURNALPOST_SEGMENT_PAIRS.has(pair) ? journalpost : undefined;
+export function routeRewrites(): { source: string; destination: string }[] {
+  const rewrites = (level: Level, prefix: string, tails: string[]) =>
+    Object.keys(nb.routing[level]).flatMap((folder) =>
+      spellings(level, folder)
+        .filter((spelling) => spelling !== folder)
+        // Browsers send non-ASCII segments percent-encoded: `ášši` as `%C3%A1…`.
+        .flatMap((spelling) => [spelling, encodeURIComponent(spelling)])
+        .filter((spelling, index, all) => all.indexOf(spelling) === index)
+        .flatMap((spelling) =>
+          tails.map((tail) => ({
+            source: `${prefix}/${spelling}${tail}`,
+            destination: `${prefix}/${folder}${tail}`,
+          })),
+        ),
+    );
+
+  return [
+    ...rewrites('root', '', ['', '/:rest*']),
+    ...rewrites('enhet', '/:enhet', ['', '/:rest*']),
+    ...rewrites('mappe', '/:enhet', ['/:mappe', '/:mappe/:child']),
+  ];
 }
 
 /** Path segments, with any query/hash tail stripped. */
@@ -196,18 +217,16 @@ function pathSegments(pathname: string): string[] {
   return pathname.split(/[?#]/)[0].split('/').filter(Boolean);
 }
 
-/** The first path segment, normalized for comparison. `undefined` for `/`. */
-function getRootSegment(pathname: string): string | undefined {
-  const [rootSegment] = pathname.split('/').filter(Boolean);
-  return rootSegment === undefined ? undefined : normalizeSegment(rootSegment);
+function decodeSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
 }
 
 // Segments arrive percent-encoded (`/%C3%A1%C5%A1%C5%A1i` vs `/ášši`), so both
 // sides are decoded and case-folded before comparing.
 function normalizeSegment(segment: string): string {
-  try {
-    return decodeURIComponent(segment).toLowerCase();
-  } catch {
-    return segment.toLowerCase();
-  }
+  return decodeSegment(segment).toLowerCase();
 }

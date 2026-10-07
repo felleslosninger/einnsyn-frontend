@@ -11,8 +11,7 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { useTranslation } from '~/hooks/useTranslation';
-import { buildSearchHref } from '~/lib/utils/searchHref';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import {
   type SearchToken,
   searchQueryToTokens,
@@ -36,8 +35,7 @@ const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
 export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const navigation = useNavigation();
-  const t = useTranslation();
-  const optimisticPathname = navigation.optimisticPathname;
+  const searchHref = useSearchHref();
   const optimisticSearchParams = navigation.optimisticSearchParams;
   const [searchQuery, _setSearchQuery] = useState(
     () => optimisticSearchParams.get('q') ?? '',
@@ -58,19 +56,9 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      const pathname =
-        optimisticPathname === '/'
-          ? `/${t('routing.search')}`
-          : optimisticPathname;
-      navigation.push(
-        buildSearchHref({
-          pathname,
-          searchParams: optimisticSearchParams,
-          updates: { q: queryToPush },
-        }),
-      );
+      navigation.push(searchHref({ q: queryToPush }));
     },
-    [navigation, optimisticPathname, optimisticSearchParams, t],
+    [navigation, searchHref],
   );
 
   const setSearchQuery = useCallback(

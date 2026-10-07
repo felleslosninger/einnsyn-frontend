@@ -3,50 +3,26 @@
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinDropdown } from '~/components/EinDropdown';
 import { EinLink } from '~/components/EinLink/EinLink';
-import {
-  useOptimisticPathname,
-  useOptimisticSearchParams,
-} from '~/components/NavigationProvider/NavigationProvider';
+import { useOptimisticSearchParams } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
+import {
+  DEFAULT_SORT,
+  isSortOption,
+  SORT_OPTIONS,
+  type SortOption,
+} from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
 import styles from './SearchSortDropdown.module.scss';
-
-const SORT_OPTIONS = [
-  'score',
-  'publisertDatoDesc',
-  'publisertDatoAsc',
-  'oppdatertDatoDesc',
-  'oppdatertDatoAsc',
-  'offentligTittelAsc',
-  'offentligTittelDesc',
-  'enhetAsc',
-  'enhetDesc',
-] as const;
-
-type SortOption = (typeof SORT_OPTIONS)[number];
-
-const DEFAULT_SORT: SortOption = 'score';
 
 export default function SearchSortDropdown() {
   const t = useTranslation();
   const searchParams = useOptimisticSearchParams();
-  const pathname = useOptimisticPathname();
+  const searchHref = useSearchHref();
 
   const sortParam = searchParams?.get('sort');
-  const currentSort: SortOption =
-    sortParam && SORT_OPTIONS.includes(sortParam as SortOption)
-      ? (sortParam as SortOption)
-      : DEFAULT_SORT;
-  const getSortUrl = (sortKey: SortOption) => {
-    const p = new URLSearchParams(searchParams ?? undefined);
-    if (sortKey === 'score') {
-      p.delete('sort');
-    } else {
-      p.set('sort', sortKey);
-    }
-    const query = p.toString();
-    return query ? `${pathname}?${query}` : pathname;
-  };
+  const currentSort = isSortOption(sortParam) ? sortParam : DEFAULT_SORT;
+  const getSortUrl = (sortKey: SortOption) => searchHref({ sort: sortKey });
 
   return (
     <div className={styles.sortContainer} data-size="sm">

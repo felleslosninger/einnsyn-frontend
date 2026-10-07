@@ -2,268 +2,202 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import nextConfig from '../../../next.config';
+import { supportedLanguages } from '../translation/translation';
 import {
-  getJournalpostFromPath,
+  buildPathname,
   getPathEnhet,
-  getSaksmappeFromPath,
-  getSection,
-  isModalSection,
-  sectionDepth,
-  sectionPaths,
-  showsSearchField,
-  showsSearchResults,
-} from './sections';
+  parsePathname,
+  type Route,
+  routeRewrites,
+} from './pathname';
 
-describe('getSection', () => {
-  it('reads the canonical route-folder name', () => {
-    assert.equal(getSection('/search'), 'search');
-    assert.equal(getSection('/saksmappe/abc'), 'saksmappe');
-    assert.equal(getSection('/moetemappe/abc'), 'moetemappe');
-    assert.equal(getSection('/admin'), 'admin');
-    assert.equal(getSection('/login'), 'login');
-    assert.equal(getSection('/about'), 'about');
-    assert.equal(getSection('/privacy'), 'privacy');
+describe('parsePathname', () => {
+  it('reads home', () => {
+    assert.deepEqual(parsePathname('/'), { page: 'home' });
+    assert.deepEqual(parsePathname(''), { page: 'home' });
   });
 
-  it('reads a translated segment in any supported language', () => {
-    assert.equal(getSection('/søk'), 'search');
-    assert.equal(getSection('/oza'), 'search');
-    assert.equal(getSection('/sak/abc'), 'saksmappe');
-    assert.equal(getSection('/case/abc'), 'saksmappe');
-    assert.equal(getSection('/ášši/abc'), 'saksmappe');
-    assert.equal(getSection('/moete/abc'), 'moetemappe');
-    assert.equal(getSection('/meeting/abc'), 'moetemappe');
-    assert.equal(getSection('/čoahkkin/abc'), 'moetemappe');
-    assert.equal(getSection('/om'), 'about');
-    assert.equal(getSection('/personvern'), 'privacy');
+  it('reads a root page in any language, encoding or case', () => {
+    for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
+      assert.deepEqual(parsePathname(path), { page: 'search' }, path);
+    }
+    assert.deepEqual(parsePathname('/om'), { page: 'about' });
+    assert.deepEqual(parsePathname('/personvern'), { page: 'privacy' });
+    assert.deepEqual(parsePathname('/login'), { page: 'login' });
   });
 
-  it('reads a percent-encoded segment', () => {
-    assert.equal(getSection('/s%C3%B8k'), 'search');
-    assert.equal(getSection('/%C3%A1%C5%A1%C5%A1i/abc'), 'saksmappe');
-    assert.equal(getSection('/%C4%8Doahkkin/abc'), 'moetemappe');
+  it('reads a root page with segments below it', () => {
+    assert.deepEqual(parsePathname('/admin/abc/api-keys'), { page: 'admin' });
   });
 
-  it('ignores case', () => {
-    assert.equal(getSection('/SØK'), 'search');
-    assert.equal(getSection('/Case/abc'), 'saksmappe');
-  });
-
-  it('is home at the root and enhet for anything unrecognised', () => {
-    assert.equal(getSection('/'), 'home');
-    assert.equal(getSection(''), 'home');
-    assert.equal(getSection('/oslo'), 'enhet');
+  it('reads an enhet, normalized', () => {
+    assert.deepEqual(parsePathname('/oslo'), { enhetIdentifier: 'oslo' });
+    assert.deepEqual(parsePathname('/OSLO'), { enhetIdentifier: 'oslo' });
+    assert.deepEqual(parsePathname('/tr%C3%B8ndelag'), {
+      enhetIdentifier: 'trøndelag',
+    });
     // A typo is indistinguishable from an enhet slug, by design.
-    assert.equal(getSection('/serach'), 'enhet');
+    assert.deepEqual(parsePathname('/serach'), { enhetIdentifier: 'serach' });
   });
 
-  it('only matches a section past the root segment as an enhet', () => {
-    assert.equal(getSection('/oslo/search'), 'enhet');
-  });
-});
-
-describe('sectionPaths', () => {
-  it('lists the canonical name plus one entry per translation', () => {
-    assert.deepEqual(sectionPaths('search').toSorted(), [
-      'oza',
-      'search',
-      'søk',
-    ]);
-    assert.deepEqual(sectionPaths('saksmappe').toSorted(), [
-      'case',
-      'sak',
+  it('reads a mappe in any language', () => {
+    for (const word of [
       'saksmappe',
+      'sak',
+      'case',
       'ášši',
-    ]);
+      '%C3%A1%C5%A1%C5%A1i',
+    ]) {
+      assert.deepEqual(
+        parsePathname(`/oslo/${word}/sm_1`),
+        { enhetIdentifier: 'oslo', saksmappeIdentifier: 'sm_1' },
+        word,
+      );
+    }
+    for (const word of ['moetemappe', 'moete', 'meeting', 'čoahkkin']) {
+      assert.deepEqual(
+        parsePathname(`/oslo/${word}/mm_1`),
+        { enhetIdentifier: 'oslo', moetemappeIdentifier: 'mm_1' },
+        word,
+      );
+    }
   });
 
-  it('falls back to the canonical name where a translation is missing', () => {
-    // `routing.about` has no se entry, and neither has a routing key at
-    // all — an untranslated section resolves by its route-folder name only.
-    assert.deepEqual(sectionPaths('about').toSorted(), ['about', 'om']);
-    assert.deepEqual(sectionPaths('admin'), ['admin']);
-    assert.deepEqual(sectionPaths('login'), ['login']);
-  });
-});
-
-describe('showsSearchResults', () => {
-  it('is true for the sections that list results', () => {
-    assert.equal(showsSearchResults('/'), true);
-    assert.equal(showsSearchResults('/søk'), true);
-    assert.equal(showsSearchResults('/oslo'), true);
+  it('reads the child below a mappe', () => {
+    assert.deepEqual(parsePathname('/oslo/sak/sm_1/jp_1'), {
+      enhetIdentifier: 'oslo',
+      saksmappeIdentifier: 'sm_1',
+      journalpostIdentifier: 'jp_1',
+    });
+    assert.deepEqual(parsePathname('/oslo/moete/mm_1/ms_1'), {
+      enhetIdentifier: 'oslo',
+      moetemappeIdentifier: 'mm_1',
+      moetesakIdentifier: 'ms_1',
+    });
   });
 
-  it('is false for entity and static pages', () => {
-    assert.equal(showsSearchResults('/sak/abc'), false);
-    assert.equal(showsSearchResults('/moete/abc'), false);
-    assert.equal(showsSearchResults('/login'), false);
-    assert.equal(showsSearchResults('/om'), false);
-  });
-});
-
-describe('showsSearchField', () => {
-  it('adds the entity detail pages to the sections showing results', () => {
-    assert.equal(showsSearchField('/'), true);
-    assert.equal(showsSearchField('/søk'), true);
-    assert.equal(showsSearchField('/oslo'), true);
-    assert.equal(showsSearchField('/sak/abc'), true);
-    assert.equal(showsSearchField('/moete/abc'), true);
+  it('decodes identifiers without case-folding them', () => {
+    assert.deepEqual(parsePathname('/oslo/sak/A%2FB?x=1'), {
+      enhetIdentifier: 'oslo',
+      saksmappeIdentifier: 'A/B',
+    });
   });
 
-  it('is false where the header has no relationship to search', () => {
-    assert.equal(showsSearchField('/login'), false);
-    assert.equal(showsSearchField('/admin'), false);
-    assert.equal(showsSearchField('/om'), false);
-    assert.equal(showsSearchField('/personvern'), false);
+  it('is undefined below an enhet where no route matches', () => {
+    assert.equal(parsePathname('/oslo/sak'), undefined);
+    assert.equal(parsePathname('/oslo/unknown/abc'), undefined);
+    assert.equal(parsePathname('/oslo/sak/sm_1/jp_1/extra'), undefined);
   });
 });
 
 describe('getPathEnhet', () => {
-  it('returns the root segment of an enhet page, normalized', () => {
+  it('returns the enhet of anything below it', () => {
     assert.equal(getPathEnhet('/oslo'), 'oslo');
     assert.equal(getPathEnhet('/OSLO'), 'oslo');
-    assert.equal(getPathEnhet('/oslo/sak/abc'), 'oslo');
-    assert.equal(getPathEnhet('/tr%C3%B8ndelag'), 'trøndelag');
+    assert.equal(getPathEnhet('/oslo/sak/sm_1'), 'oslo');
+    assert.equal(getPathEnhet('/oslo/unknown'), 'oslo');
   });
 
-  it('is undefined anywhere that is not an enhet page', () => {
+  it('is undefined at the root and on root pages', () => {
     assert.equal(getPathEnhet('/'), undefined);
     assert.equal(getPathEnhet('/søk'), undefined);
-    assert.equal(getPathEnhet('/sak/abc'), undefined);
-  });
-});
-
-describe('getSaksmappeFromPath', () => {
-  it('reads the identifier after a saksmappe segment in any language', () => {
-    assert.equal(getSaksmappeFromPath('/saksmappe/abc'), 'abc');
-    assert.equal(getSaksmappeFromPath('/sak/abc'), 'abc');
-    assert.equal(getSaksmappeFromPath('/case/abc'), 'abc');
-    assert.equal(getSaksmappeFromPath('/ášši/abc'), 'abc');
-    assert.equal(getSaksmappeFromPath('/%C3%A1%C5%A1%C5%A1i/abc'), 'abc');
+    assert.equal(getPathEnhet('/admin/abc'), undefined);
   });
 
-  it('reads it from a journalpost detail URL too', () => {
-    assert.equal(getSaksmappeFromPath('/sak/abc/journalpost/xyz'), 'abc');
-  });
-
-  it('returns the identifier verbatim, still encoded', () => {
-    // Callers decode it themselves; see `decodeIdentifier` in JournalpostList.
-    assert.equal(getSaksmappeFromPath('/sak/a%2Fb'), 'a%2Fb');
-  });
-
-  it('is undefined without both a saksmappe segment and an identifier', () => {
-    assert.equal(getSaksmappeFromPath('/saksmappe'), undefined);
-    assert.equal(getSaksmappeFromPath('/'), undefined);
-    assert.equal(getSaksmappeFromPath('/moete/abc'), undefined);
-    assert.equal(getSaksmappeFromPath('/oslo/sak/abc'), undefined);
-  });
-});
-
-describe('getJournalpostFromPath', () => {
-  it('reads the identifier from a canonical journalpost URL', () => {
-    assert.equal(
-      getJournalpostFromPath('/saksmappe/abc/journalpost/xyz'),
-      'xyz',
-    );
-  });
-
-  it('accepts every locale', () => {
-    assert.equal(getJournalpostFromPath('/sak/abc/journalpost/xyz'), 'xyz');
-    assert.equal(getJournalpostFromPath('/case/abc/record/xyz'), 'xyz');
-    assert.equal(getJournalpostFromPath('/ášši/abc/journalapoasta/xyz'), 'xyz');
-  });
-
-  it('rejects a path mixing languages, which the rewrites do not match', () => {
-    assert.equal(getJournalpostFromPath('/sak/abc/record/xyz'), undefined);
-    assert.equal(
-      getJournalpostFromPath('/case/abc/journalpost/xyz'),
-      undefined,
-    );
-  });
-
-  it('accepts percent-encoded fixed segments', () => {
-    assert.equal(
-      getJournalpostFromPath('/%C3%A1%C5%A1%C5%A1i/abc/journalapoasta/xyz'),
-      'xyz',
-    );
-  });
-
-  it('needs exactly four segments', () => {
-    assert.equal(getJournalpostFromPath('/sak/abc'), undefined);
-    assert.equal(getJournalpostFromPath('/sak/abc/journalpost'), undefined);
-    assert.equal(
-      getJournalpostFromPath('/sak/abc/journalpost/xyz/extra'),
-      undefined,
-    );
-  });
-
-  it('is undefined when either fixed segment is something else', () => {
-    assert.equal(
-      getJournalpostFromPath('/moete/abc/journalpost/xyz'),
-      undefined,
-    );
-    assert.equal(getJournalpostFromPath('/sak/abc/dokument/xyz'), undefined);
-  });
-});
-
-describe('isModalSection', () => {
-  it('marks the sections that are shown over the page beneath them', () => {
-    assert.equal(isModalSection('login'), true);
-    assert.equal(isModalSection('saksmappe'), false);
-    assert.equal(isModalSection('home'), false);
-  });
-
-  it('agrees with the intercepted routes in app/@modal', async () => {
-    const intercepted = (
-      await readdir(new URL('../../app/@modal', import.meta.url))
+  it('reserves every root route folder', async () => {
+    const folders = (
+      await readdir(new URL('../../app', import.meta.url), {
+        withFileTypes: true,
+      })
     )
-      // `(.)login` intercepts `/login`; the catch-all and default render null.
-      .filter((entry) => entry.startsWith('(.)'))
-      .map((entry) => getSection(`/${entry.slice('(.)'.length)}`));
+      // Skip `[enhet]`, `@slots` and `(groups)`, which add no static segment.
+      .filter((entry) => entry.isDirectory() && /^[a-z]/.test(entry.name))
+      .map((entry) => entry.name);
 
-    assert.deepEqual(intercepted.filter(isModalSection), intercepted);
+    assert.ok(folders.length > 0);
+    for (const folder of folders) {
+      assert.equal(getPathEnhet(`/${folder}`), undefined, folder);
+    }
   });
 });
 
-describe('sectionDepth', () => {
-  it('puts the entity pages one level in from the results', () => {
-    assert.ok(sectionDepth('saksmappe') > sectionDepth('search'));
-    assert.ok(sectionDepth('moetemappe') > sectionDepth('enhet'));
-    assert.ok(sectionDepth('saksmappe') > sectionDepth('home'));
+describe('buildPathname', () => {
+  it('writes fixed segments in the given language', () => {
+    assert.equal(buildPathname({ page: 'search' }, 'nb'), '/s%C3%B8k');
+    assert.equal(buildPathname({ page: 'search' }, 'en'), '/search');
+    assert.equal(
+      buildPathname(
+        { enhetIdentifier: 'oslo', saksmappeIdentifier: 'sm_1' },
+        'en',
+      ),
+      '/oslo/case/sm_1',
+    );
+    assert.equal(
+      buildPathname(
+        {
+          enhetIdentifier: 'oslo',
+          moetemappeIdentifier: 'mm_1',
+          moetesakIdentifier: 'ms_1',
+        },
+        'nn',
+      ),
+      '/oslo/moete/mm_1/ms_1',
+    );
   });
 
-  it('keeps every results section on one level, so moving between them has no direction', () => {
-    assert.equal(sectionDepth('home'), sectionDepth('search'));
-    assert.equal(sectionDepth('search'), sectionDepth('enhet'));
-    assert.equal(sectionDepth('saksmappe'), sectionDepth('moetemappe'));
+  it('falls back to the route folder where a translation is missing', () => {
+    assert.equal(buildPathname({ page: 'about' }, 'se'), '/about');
+  });
+
+  it('round-trips through parsePathname in every language', () => {
+    const routes: Route[] = [
+      { page: 'home' },
+      { page: 'search' },
+      { page: 'about' },
+      { page: 'admin' },
+      { enhetIdentifier: 'trøndelag' },
+      { enhetIdentifier: 'oslo', saksmappeIdentifier: 'a/b' },
+      {
+        enhetIdentifier: 'oslo',
+        saksmappeIdentifier: 'sm_1',
+        journalpostIdentifier: 'jp_1',
+      },
+      {
+        enhetIdentifier: 'oslo',
+        moetemappeIdentifier: 'mm_1',
+        moetesakIdentifier: 'ms_1',
+      },
+    ];
+    for (const languageCode of supportedLanguages) {
+      for (const route of routes) {
+        const href = buildPathname(route, languageCode);
+        assert.deepEqual(parsePathname(href), route, `${languageCode} ${href}`);
+      }
+    }
   });
 });
 
-// The rewrites in next.config.ts and the lookup tables here are built from the
-// same translation files but never compared, so a routing key renamed in one
-// language silently desynchronises them. Reading every rewrite source and its
-// destination the same way is the contract.
-describe('next.config.ts rewrites', () => {
-  const withIdentifiers = (pattern: string) =>
-    pattern.replace(':saksmappe', 'SAK').replace(':journalpost', 'JP');
+describe('routeRewrites', () => {
+  const withParams = (pattern: string) =>
+    pattern
+      .replace(':enhet', 'oslo')
+      .replace(':rest*', 'a/b')
+      .replace(':mappe', 'sm_1')
+      .replace(':child', 'jp_1');
 
-  it('reads each rewrite source exactly as its destination', async () => {
-    const rewrites = await nextConfig.rewrites?.();
-    assert.ok(Array.isArray(rewrites) && rewrites.length > 0);
+  it('is what next.config.ts serves', async () => {
+    assert.deepEqual(await nextConfig.rewrites?.(), routeRewrites());
+  });
+
+  it('reads each source exactly as its destination', () => {
+    const rewrites = routeRewrites();
+    assert.ok(rewrites.length > 0);
 
     for (const { source, destination } of rewrites) {
-      const from = withIdentifiers(source);
-      const to = withIdentifiers(destination);
-
-      assert.equal(getSection(from), getSection(to), source);
-      assert.equal(
-        getSaksmappeFromPath(from),
-        getSaksmappeFromPath(to),
-        source,
-      );
-      assert.equal(
-        getJournalpostFromPath(from),
-        getJournalpostFromPath(to),
+      assert.notEqual(source, destination);
+      assert.deepEqual(
+        parsePathname(withParams(source)),
+        parsePathname(withParams(destination)),
         source,
       );
     }

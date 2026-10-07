@@ -1,27 +1,77 @@
-import { normalizeParamList, serializeParamList } from './paramList';
+import type { LanguageCode } from '../translation/translation';
+import {
+  normalizeParamList,
+  parseParamList,
+  serializeParamList,
+} from '../utils/paramList';
+import { buildPathname, getPathEnhet } from './pathname';
+
+export const SEARCHABLE_ENTITIES = [
+  'Journalpost',
+  'Saksmappe',
+  'Moetemappe',
+  'Moetesak',
+] as const;
+export type SearchableEntity = (typeof SEARCHABLE_ENTITIES)[number];
+
+export const isSearchableEntity = (value: unknown): value is SearchableEntity =>
+  SEARCHABLE_ENTITIES.includes(value as SearchableEntity);
+
+export const SORT_OPTIONS = [
+  'score',
+  'publisertDatoDesc',
+  'publisertDatoAsc',
+  'oppdatertDatoDesc',
+  'oppdatertDatoAsc',
+  'offentligTittelAsc',
+  'offentligTittelDesc',
+  'enhetAsc',
+  'enhetDesc',
+] as const;
+export type SortOption = (typeof SORT_OPTIONS)[number];
+export const DEFAULT_SORT = 'score';
+
+export const isSortOption = (value: unknown): value is SortOption =>
+  SORT_OPTIONS.includes(value as SortOption);
+
+/** The search URL's query params. Filters live as tokens inside `q`. */
+export type SearchParams = {
+  q: string;
+  entity: SearchableEntity;
+  sort: SortOption;
+  /** Serialized with `serializeParamList` in the URL. */
+  enhet: readonly string[];
+};
+
+// A param at its default is left out of the URL, so each search has one href.
+const SEARCH_PARAM_DEFAULTS: Partial<Record<keyof SearchParams, string>> = {
+  sort: DEFAULT_SORT,
+};
 
 /**
- * A search href: `pathname` with `updates` applied to its search params.
+ * The query string for `searchParams` with `updates` applied, like
+ * `location.search`: `?…`, or `''` when no params remain, so it can be appended
+ * to a pathname as is.
  *
- * An `undefined` or empty-string value deletes the param. The `?` is omitted
- * when no params remain, so clearing the last one gives `/search` rather than
- * `/search?`.
+ * `undefined`, empty-string values and values equal to the default delete the param.
  *
  * `searchParams` is nullable because `useOptimisticSearchParams` is typed that
  * way; `undefined` counts as empty.
  */
-export function buildSearchHref({
-  pathname,
+export function buildQueryString({
   searchParams,
   updates,
 }: {
-  pathname: string;
   searchParams: URLSearchParams | undefined;
-  updates?: Record<string, string | undefined>;
+  updates?: Partial<SearchParams>;
 }): string {
   const nextSearchParams = new URLSearchParams(searchParams?.toString());
 
-  for (const [key, value] of Object.entries(updates ?? {})) {
+  for (const [key, update] of Object.entries(updates ?? {})) {
+    const value =
+      typeof update === 'string'
+        ? update
+        : update && serializeParamList(update);
     if (value) {
       nextSearchParams.set(key, value);
     } else {
@@ -29,44 +79,70 @@ export function buildSearchHref({
     }
   }
 
-  const searchParamsString = nextSearchParams.toString();
-  return searchParamsString ? `${pathname}?${searchParamsString}` : pathname;
+  for (const [key, defaultValue] of Object.entries(SEARCH_PARAM_DEFAULTS)) {
+    if (nextSearchParams.get(key) === defaultValue) {
+      nextSearchParams.delete(key);
+    }
+  }
+
+  const queryString = nextSearchParams.toString();
+  return queryString ? `?${queryString}` : '';
 }
 
 /**
- * The href for a new enhet selection.
- *
- * An enhet can be selected in two places: the path (`/oslo`) or the `enhet`
- * search param. The path form is only used while a single enhet is selected and
- * it is already the path enhet — the path names one enhet, so it cannot
- * represent a wider selection. Selecting a second enhet therefore moves to
- * `searchPathname` with the whole selection in the param, as does deselecting
- * the path enhet.
+ * The enhet selection a URL encodes: the path enhet (`/oslo`), then every
+ * `enhet` param value. The inverse of {@link buildSearchHref}.
  */
-export function buildEnhetSelectionHref({
+export function getEnhetSelection(
+  pathEnhet: string | undefined,
+  searchParams: URLSearchParams,
+): string[] {
+  return normalizeParamList([
+    ...(pathEnhet ? [pathEnhet] : []),
+    ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
+  ]);
+}
+
+/**
+ * The href for a search: the current search with `updates` applied.
+ *
+ * A single selected Enhet goes in the path (`/oslo`); none or several go to the
+ * search page, all in the `enhet` param. So each selection has one URL,
+ * wherever the search started. Without an `enhet` update, the selection is
+ * read from the current URL (pass `[]` to clear it).
+ */
+export function buildSearchHref({
   pathname,
-  searchPathname,
   searchParams,
-  pathEnhetValue,
-  selectedEnhetIdentifiers,
+  languageCode,
+  updates = {},
 }: {
   pathname: string;
-  searchPathname: string;
-  searchParams: URLSearchParams;
-  pathEnhetValue?: string;
-  selectedEnhetIdentifiers: readonly string[];
+  searchParams: URLSearchParams | undefined;
+  languageCode: LanguageCode;
+  updates?: Partial<SearchParams>;
 }): string {
-  const normalizedIdentifiers = normalizeParamList(selectedEnhetIdentifiers);
-  const keepsPathEnhet =
-    pathEnhetValue !== undefined &&
-    normalizedIdentifiers.length === 1 &&
-    normalizedIdentifiers[0] === pathEnhetValue;
-  // Keeping the path enhet means it is the whole selection, so the param is empty.
-  const queryEnhetIdentifiers = keepsPathEnhet ? [] : normalizedIdentifiers;
+  const { enhet, ...otherUpdates } = updates;
+  const selection =
+    enhet !== undefined
+      ? normalizeParamList(enhet)
+      : getEnhetSelection(
+          getPathEnhet(pathname),
+          searchParams ?? new URLSearchParams(),
+        );
+  const pathEnhet = selection.length === 1 ? selection[0] : undefined;
 
-  return buildSearchHref({
-    pathname: pathEnhetValue && !keepsPathEnhet ? searchPathname : pathname,
+  const targetPathname = buildPathname(
+    pathEnhet !== undefined
+      ? { enhetIdentifier: pathEnhet }
+      : { page: 'search' },
+    languageCode,
+  );
+  return `${targetPathname}${buildQueryString({
     searchParams,
-    updates: { enhet: serializeParamList(queryEnhetIdentifiers) },
-  });
+    updates: {
+      ...otherUpdates,
+      enhet: pathEnhet !== undefined ? [] : selection,
+    },
+  })}`;
 }

@@ -10,7 +10,6 @@ import {
   type TrimmedEnhet,
 } from '~/lib/utils/enhetUtils';
 import { logger } from '~/lib/utils/logger';
-import { parseParamList } from '~/lib/utils/paramList';
 
 const ENHET_LIST_REVALIDATE_SECONDS = 60 * 60;
 const ENHET_LIST_TAG = 'enhet-list';
@@ -91,25 +90,15 @@ export const getTrimmedEnhetsByIdsOrSlugs = async (
 };
 
 export const getInitialEnhetsForRequest = async ({
-  pathEnhet,
-  searchParamsEnhet,
+  selected,
   limit = DEFAULT_PRELOAD_LIMIT,
   languageCode = 'nb',
 }: {
-  pathEnhet?: string;
-  searchParamsEnhet?: string;
+  selected: readonly string[];
   limit?: number;
   languageCode?: LanguageCode;
 }): Promise<TrimmedEnhet[]> => {
   try {
-    const selected: string[] = [];
-    if (pathEnhet) {
-      selected.push(pathEnhet);
-    }
-    if (searchParamsEnhet) {
-      selected.push(...parseParamList(searchParamsEnhet));
-    }
-
     // The collapsed selector does not need a preloaded list when nothing is
     // selected. Let the client load it lazily on first expand instead of
     // blocking route transitions on a full enhet fetch.

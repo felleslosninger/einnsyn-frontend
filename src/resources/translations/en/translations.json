@@ -103,14 +103,18 @@
     "searchingIn": "Searching in"
   },
   "routing": {
-    "search": "search",
-    "saksmappe": "case",
-    "journalpost": "record",
-    "moetemappe": "meeting",
-    "about": "about",
-    "privacy": "privacy",
-    "calendar": "calendar",
-    "statistics": "statistics"
+    "root": {
+      "search": "search",
+      "about": "about",
+      "privacy": "privacy",
+      "admin": "admin",
+      "login": "login"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "case",
+      "moetemappe": "meeting"
+    }
   },
   "common": {
     "publishedAt": "Published",

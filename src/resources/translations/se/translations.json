@@ -103,12 +103,16 @@
     "searchingIn": "Ohcamin"
   },
   "routing": {
-    "search": "oza",
-    "saksmappe": "ášši",
-    "journalpost": "journalapoasta",
-    "moetemappe": "čoahkkin",
-    "calendar": "kaleandar",
-    "statistics": "statistihkka"
+    "root": {
+      "search": "oza",
+      "admin": "admin",
+      "login": "login"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "ášši",
+      "moetemappe": "čoahkkin"
+    }
   },
   "common": {
     "publishedAt": "Almmuhuvvon",

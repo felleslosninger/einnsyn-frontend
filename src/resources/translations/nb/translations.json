@@ -103,14 +103,18 @@
     "searchingIn": "Søker i"
   },
   "routing": {
-    "search": "søk",
-    "saksmappe": "sak",
-    "journalpost": "journalpost",
-    "moetemappe": "moete",
-    "about": "om",
-    "privacy": "personvern",
-    "calendar": "kalender",
-    "statistics": "statistikk"
+    "root": {
+      "search": "søk",
+      "about": "om",
+      "privacy": "personvern",
+      "admin": "admin",
+      "login": "login"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "sak",
+      "moetemappe": "moete"
+    }
   },
   "common": {
     "publishedAt": "Publisert",
