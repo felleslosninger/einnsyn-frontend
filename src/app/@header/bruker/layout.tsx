@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { cachedAuthInfo } from '~/actions/authentication/auth';
 import BrukerHeader from '~/features/bruker/BrukerHeader';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export default async function BrukerHeaderLayout() {
   const authInfo = await cachedAuthInfo();

@@ -1,3 +1,3 @@
 export default function AccessRequestsPage() {
-  return <></>;
+  return null;
 }

@@ -1,6 +1,6 @@
-import { getInitialEnhetsForRequest } from '~/actions/api/enhetActions';
-import { getSettings } from '~/actions/cookies/settingsCookie';
+import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
 import { SearchHeader } from '~/features/search';
+import { getSettings } from '~/lib/settings/settings.server';
 
 export type HeaderSearchParams = Promise<{
   [key: string]: string | string[] | undefined;

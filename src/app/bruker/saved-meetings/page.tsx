@@ -1,3 +1,3 @@
 export default function SavedMeetingsPage() {
-  return <></>;
+  return null;
 }
