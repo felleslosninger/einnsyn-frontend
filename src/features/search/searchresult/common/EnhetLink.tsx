@@ -3,7 +3,8 @@ import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import cn from '~/lib/utils/className';
-import { getAncestors, getEnhetHref, getName } from '~/lib/utils/enhetUtils';
+import { getAncestors, getName } from '~/lib/utils/enhetUtils';
+import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 
 export default function EnhetLink({
   enhet,
@@ -29,7 +30,7 @@ export default function EnhetLink({
     <Fragment key={enhet.id}>
       <EinLink
         data-color="neutral"
-        href={getEnhetHref(enhet)}
+        href={generateEnhetURL(enhet)}
         className={cn('enhet-link', className)}
         {...props}
       >

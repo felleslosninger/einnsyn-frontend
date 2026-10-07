@@ -1,3 +1,3 @@
-export default function ApiKeysHeader() {
-  return <></>;
+export default function AdminHeaderSlot() {
+  return null;
 }

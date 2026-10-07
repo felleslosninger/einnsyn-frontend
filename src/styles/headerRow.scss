@@ -1,0 +1,28 @@
+// The vertical box shared by everything in the header's second row: the search
+// tabs and the breadcrumb trail that replaces them.
+//
+// Defining it once here is what keeps the row exactly the same height whichever
+// of the two is showing. Neither side measures or mirrors the other, and adding
+// a third kind of row means including this rather than matching numbers by eye.
+
+$block-start: var(--ds-size-4);
+$block-end: var(--ds-size-3);
+// The tabs' active-state underline, reserved as a transparent border so
+// selecting a tab does not shift the row.
+$underline-width: 3px;
+
+@mixin header-row-item {
+  padding-block: $block-start $block-end;
+  border-bottom: $underline-width solid transparent;
+}
+
+/// The height one such item occupies: its line box plus the same block padding
+/// and underline space. Built from the values above so it cannot drift from
+/// `header-row-item`.
+///
+/// The row needs this because mid-swap it briefly has no children at all — the
+/// outgoing row is removed a frame before the incoming one is revealed — and
+/// would otherwise collapse to nothing.
+@mixin header-row-reserved-height {
+  min-height: calc(1lh + #{$block-start} + #{$block-end} + #{$underline-width});
+}
