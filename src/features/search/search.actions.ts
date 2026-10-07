@@ -7,7 +7,7 @@ import {
   type PaginatedList,
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
-import { cachedApiClient } from '~/actions/api/getApiClient';
+import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 import { parseParamList } from '~/lib/utils/paramList';
 import {

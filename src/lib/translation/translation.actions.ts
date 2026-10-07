@@ -1,6 +1,6 @@
 'use server';
 
-import { getSettings } from '~/actions/cookies/settingsCookie';
+import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction, type LanguageCode } from './translation';
 
 /**

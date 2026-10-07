@@ -2,7 +2,7 @@ import 'server-only';
 
 import { createHash } from 'node:crypto';
 import type { Enhet } from '@digdir/einnsyn-sdk';
-import { getPublicApiClient } from '~/actions/api/getApiClient';
+import { getPublicApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 import { normalizeParamList } from '~/lib/utils/paramList';
 import {
