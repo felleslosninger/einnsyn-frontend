@@ -224,5 +224,13 @@
     "privacy": "Personsuodjalusjulggaštus",
     "accessibility": "Gievrrasvuođajulggaštus",
     "github": "eInnsyn Githubas"
+  },
+  "bruker": {
+    "title": "Mu eInnsyn",
+    "accessRequests": "Vuhtiiváldágoahtin",
+    "savedCases": "Vurkon ásaid",
+    "savedMeetings": "Vurkon čoahkkimiid",
+    "savedSearches": "Vurkon ohcanat",
+    "profile": "Profila"
   }
 }
