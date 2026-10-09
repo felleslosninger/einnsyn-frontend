@@ -251,3 +251,14 @@ export async function getInitialEnhets({
     return { enhets: [], version: null };
   }
 }
+
+/**
+ * Whether an id or slug doesn't match an enhet.
+ */
+export async function isUnknownEnhet(identifier: string): Promise<boolean> {
+  try {
+    return (await getEnhets([identifier])).length === 0;
+  } catch {
+    return false;
+  }
+}
