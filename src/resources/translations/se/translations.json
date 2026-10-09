@@ -103,10 +103,17 @@
     "searchingIn": "Ohcamin"
   },
   "routing": {
-    "searchPath": "oza",
-    "saksmappePath": "ášši",
-    "calendarPath": "kaleandar",
-    "statisticsPath": "statistihkka"
+    "root": {
+      "search": "oza",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "ášši",
+      "moetemappe": "čoahkkin"
+    }
   },
   "common": {
     "publishedAt": "Almmuhuvvon",
@@ -152,7 +159,6 @@
   "journalpost": {
     "label": "Journalapoasta",
     "labelPlural": "Journalapoasttat",
-    "pathName": "journalapoasta",
     "from": "Eret",
     "to": "Vuostáiváldi",
     "type": {

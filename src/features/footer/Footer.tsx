@@ -5,13 +5,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import SettingsMenu from '~/features/header/components/SettingsMenu';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import {
+  buildPathname,
+  parsePathname,
+  type RootPage,
+} from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 
 import styles from './Footer.module.scss';
 
 export default function Footer() {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   const pathname = usePathname();
   const footerRef = useRef<HTMLDivElement>(null);
   const footerPlaceholderRef = useRef<HTMLDivElement>(null);
@@ -77,8 +84,8 @@ export default function Footer() {
     return () => observer.disconnect();
   }, [stick, isAtBottom]);
 
-  const getLinkClassName = (href: string) => {
-    return cn('ein-link', { active: pathname === href });
+  const getLinkClassName = (page: RootPage) => {
+    return cn('ein-link', { active: parsePathname(pathname)?.page === page });
   };
 
   return (
@@ -90,15 +97,15 @@ export default function Footer() {
               <SettingsMenu />
               <EinLink
                 data-color="neutral"
-                href="/om"
-                className={getLinkClassName('/om')}
+                href={buildPathname({ page: 'about' }, languageCode)}
+                className={getLinkClassName('about')}
               >
                 {t('footer.about')}
               </EinLink>
               <EinLink
                 data-color="neutral"
-                href="/personvern"
-                className={getLinkClassName('/personvern')}
+                href={buildPathname({ page: 'privacy' }, languageCode)}
+                className={getLinkClassName('privacy')}
               >
                 {t('footer.privacy')}
               </EinLink>

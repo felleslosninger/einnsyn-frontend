@@ -2,7 +2,8 @@ import { isEnhet, type Moetemappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getEnhetHref, getName } from '~/lib/enhet/enhet';
+import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import SearchResultSubheader from './common/SearchResultSubheader';
@@ -43,7 +44,12 @@ export default function MoetemappeResult({
         </SearchResultSubheader>
         {isEnhet(utvalg) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={getEnhetHref(utvalg)}>
+            <EinLink
+              href={buildPathname(
+                { enhetIdentifier: getEnhetIdentifier(utvalg) },
+                languageCode,
+              )}
+            >
               {getName(utvalg, languageCode)}
             </EinLink>
           </div>
