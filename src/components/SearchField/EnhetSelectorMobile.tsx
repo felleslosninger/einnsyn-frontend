@@ -8,8 +8,8 @@ import EinModal, { EinModalHeader } from '~/components/EinModal/EinModal';
 import type { EinTransitionEvents } from '~/components/EinTransition/EinTransition';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getAncestorsAsString, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
-import { getAncestorsAsString, getName } from '~/lib/utils/enhetUtils';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
@@ -180,7 +180,7 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
     availableListRef,
     availableNodes,
     searchMatchedSelectedNodes,
-    fullListLoaded,
+    enhetListLoaded,
     filterValue,
     focus,
     focusedOptionId,
@@ -233,7 +233,7 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
             id={`enhet-option-selected-${node.enhet.id}`}
             label={getName(node.enhet, languageCode)}
             ancestors={
-              getAncestorsAsString(node.enhet, ' / ', languageCode) || undefined
+              getAncestorsAsString(node.enhet, languageCode) || undefined
             }
             isSelected
             onClick={() => toggleEnhet(node.enhet)}
@@ -251,15 +251,15 @@ const MobileList = ({ state }: { state: EnhetSelectorState }) => {
             id={`enhet-option-available-${node.enhet.id}`}
             label={getName(node.enhet, languageCode)}
             ancestors={
-              getAncestorsAsString(node.enhet, ' / ', languageCode) || undefined
+              getAncestorsAsString(node.enhet, languageCode) || undefined
             }
             isFocused={focus?.list === 'available' && focus.index === index}
             onClick={() => toggleEnhet(node.enhet)}
           />
         ))}
 
-        {!fullListLoaded && <SkeletonRows />}
-        {fullListLoaded &&
+        {!enhetListLoaded && <SkeletonRows />}
+        {enhetListLoaded &&
           searchMatchedSelectedNodes.length === 0 &&
           availableNodes.length === 0 && (
             <div className={styles.emptyState}>{t('common.noResults')}</div>
