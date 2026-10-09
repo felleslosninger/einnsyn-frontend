@@ -108,7 +108,8 @@
       "about": "om",
       "privacy": "personvern",
       "admin": "admin",
-      "login": "login"
+      "login": "login",
+      "bruker": "bruker"
     },
     "enhet": {},
     "mappe": {
@@ -231,5 +232,13 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelegheitserklæring",
     "github": "eInnsyn på Github"
+  },
+  "bruker": {
+    "title": "Mitt eInnsyn",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagra saker",
+    "savedMeetings": "Lagra møte",
+    "savedSearches": "Lagra søk",
+    "profile": "Profil"
   }
 }

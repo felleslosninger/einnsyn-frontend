@@ -8,14 +8,14 @@ import EinPopup from '~/components/EinPopup/EinPopup';
 import type { EinTransitionEvents } from '~/components/EinTransition/EinTransition';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import type { LanguageCode } from '~/lib/translation/translation';
-import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
-import cn from '~/lib/utils/className';
 import {
   getAncestorsAsString,
   getName,
   type TrimmedEnhet,
-} from '~/lib/utils/enhetUtils';
+} from '~/lib/enhet/enhet';
+import type { LanguageCode } from '~/lib/translation/translation';
+import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
+import cn from '~/lib/utils/className';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
@@ -274,7 +274,7 @@ const AvailableColumn = ({ state, getRowSubtitle }: ColumnProps) => {
   const t = useTranslation();
   const {
     availableNodes,
-    fullListLoaded,
+    enhetListLoaded,
     focus,
     focusedOptionId,
     addEnhet,
@@ -319,8 +319,8 @@ const AvailableColumn = ({ state, getRowSubtitle }: ColumnProps) => {
               onClick={() => addEnhet(node.enhet)}
             />
           ))}
-          {!fullListLoaded && <SkeletonRows keyPrefix="loading-available" />}
-          {fullListLoaded && availableNodes.length === 0 && (
+          {!enhetListLoaded && <SkeletonRows keyPrefix="loading-available" />}
+          {enhetListLoaded && availableNodes.length === 0 && (
             <div className={styles.emptyState}>{t('common.noResults')}</div>
           )}
         </VList>
@@ -481,7 +481,7 @@ function buildDesktopRowSubtitle(
   languageCode: LanguageCode,
   t: Translate,
 ): string | undefined {
-  const ancestors = getAncestorsAsString(enhet, ' / ', languageCode);
+  const ancestors = getAncestorsAsString(enhet, languageCode);
   if (ancestors) return ancestors;
 
   const typeKey = `search.enhetstype.${enhet.enhetstype}`;

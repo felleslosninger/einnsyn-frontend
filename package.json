@@ -12,20 +12,21 @@
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --import=tsx"
+    "test": "node --test --import=tsx --conditions=react-server --experimental-test-module-mocks"
   },
   "dependencies": {
     "@digdir/designsystemet-css": "^1.23.0",
     "@digdir/designsystemet-react": "^1.23.0",
-    "@digdir/einnsyn-sdk": "^1.5.0",
-    "@navikt/aksel-icons": "^8.17.2",
+    "@digdir/einnsyn-sdk": "^1.6.0",
+    "@navikt/aksel-icons": "^8.18.0",
     "@opentelemetry/api": "^1.9.1",
     "@vercel/otel": "^2.1.3",
     "next": "^16.3.8",
     "openid-client": "^6.8.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "sass": "^1.105.0",
+    "sass": "^1.105.1",
+    "server-only": "^0.0.1",
     "virtua": "^0.52.10"
   },
   "devDependencies": {

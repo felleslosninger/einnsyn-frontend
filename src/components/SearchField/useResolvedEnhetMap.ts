@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 
 type ResolvedEnhetMap = {
   /**

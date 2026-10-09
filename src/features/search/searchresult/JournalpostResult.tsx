@@ -3,9 +3,9 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { getEnhetIdentifier, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 

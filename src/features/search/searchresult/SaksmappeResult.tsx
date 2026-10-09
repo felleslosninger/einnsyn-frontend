@@ -2,10 +2,10 @@ import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
-import { getEnhetIdentifier, getName } from '~/lib/utils/enhetUtils';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
