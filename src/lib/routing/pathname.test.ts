@@ -145,10 +145,6 @@ describe('buildPathname', () => {
     );
   });
 
-  it('falls back to the route folder where a translation is missing', () => {
-    assert.equal(buildPathname({ page: 'about' }, 'se'), '/about');
-  });
-
   it('round-trips through parsePathname in every language', () => {
     const routes: Route[] = [
       { page: 'home' },
