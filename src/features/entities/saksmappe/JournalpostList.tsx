@@ -23,17 +23,11 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useScrollToExpanded } from '~/hooks/useScrollToExpanded';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getName } from '~/lib/enhet/enhet';
-import {
-  getJournalpostFromPath,
-  getSaksmappeFromPath,
-} from '~/lib/routes/sections';
+import { buildPathname, parsePathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
-import {
-  useJournalpostURLGenerator,
-  useSaksmappeURLGenerator,
-} from '~/lib/utils/urlGenerators';
+import { getSaksmappeRoute } from '~/lib/utils/urlGenerators';
 import styles from './JournalpostList.module.scss';
 
 type JournalpostTypeKind =
@@ -62,16 +56,6 @@ function journalpostIdentifier(j: Journalpost): string {
   return j.slug ?? j.id;
 }
 
-// Path segments arrive percent-encoded; slugs on an entity do not.
-function decodeIdentifier(identifier: string | undefined): string | undefined {
-  if (identifier === undefined) return undefined;
-  try {
-    return decodeURIComponent(identifier);
-  } catch {
-    return identifier;
-  }
-}
-
 // Extend the loaded window when a sentinel comes within this of the viewport.
 const EXTEND_MARGIN = '800px';
 
@@ -92,13 +76,12 @@ export default function JournalpostList({
     useInfiniteScroll(journalposts);
   const vlistRef = useRef<WindowVirtualizerHandle>(null);
 
-  const selectedJournalpostIdentifier = useMemo(() => {
-    return decodeIdentifier(getJournalpostFromPath(pathname));
-  }, [pathname]);
+  const currentRoute = useMemo(() => parsePathname(pathname), [pathname]);
+  const selectedJournalpostIdentifier = currentRoute?.journalpostIdentifier;
 
   // The optimistic pathname opens the row on click, before the route resolves.
   const optimisticJournalpostIdentifier = useMemo(() => {
-    return decodeIdentifier(getJournalpostFromPath(optimisticPathname));
+    return parsePathname(optimisticPathname)?.journalpostIdentifier;
   }, [optimisticPathname]);
 
   // The navigation target resolved from the in-memory list, so the expansion
@@ -112,16 +95,28 @@ export default function JournalpostList({
     );
   }, [page.items, optimisticJournalpostIdentifier]);
 
-  // Every in-view link uses the saksmappe identifier from the current URL: a
-  // slug/id mismatch between links would change the `[saksmappe]` route param
-  // on open/close and remount the subtree, canceling the transition.
-  const saksmappeURL = useSaksmappeURLGenerator();
-  const journalpostURL = useJournalpostURLGenerator();
-  const saksmappeRef = getSaksmappeFromPath(pathname) || saksmappe;
-  const saksmappeHref = saksmappeURL(saksmappeRef);
+  // Every in-view link reuses the enhet and saksmappe identifiers in the URL: a
+  // slug/id swap would change a route param on open/close and remount the
+  // subtree, canceling the transition.
+  const { enhetIdentifier, saksmappeIdentifier } =
+    currentRoute?.saksmappeIdentifier !== undefined
+      ? currentRoute
+      : getSaksmappeRoute(saksmappe);
+  const saksmappeHref = buildPathname(
+    { enhetIdentifier, saksmappeIdentifier },
+    languageCode,
+  );
   const journalpostHref = useCallback(
-    (j: Journalpost) => journalpostURL(j, saksmappeRef),
-    [journalpostURL, saksmappeRef],
+    (j: Journalpost) =>
+      buildPathname(
+        {
+          enhetIdentifier,
+          saksmappeIdentifier,
+          journalpostIdentifier: journalpostIdentifier(j),
+        },
+        languageCode,
+      ),
+    [enhetIdentifier, saksmappeIdentifier, languageCode],
   );
   const ownerEnhetName = isEnhet(saksmappe.administrativEnhetObjekt)
     ? getName(saksmappe.administrativEnhetObjekt, languageCode)

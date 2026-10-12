@@ -11,8 +11,9 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { showsSearchResults } from '~/lib/routes/sections';
-import { buildSearchHref } from '~/lib/utils/searchHref';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { buildSearchHref } from '~/lib/routing/searchParams';
+import { showsSearchResults } from '~/lib/routing/sections';
 import {
   type SearchToken,
   searchQueryToTokens,
@@ -51,6 +52,7 @@ const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
 export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const navigation = useNavigation();
+  const languageCode = useLanguageCode();
   const optimisticPathname = navigation.optimisticPathname;
   const optimisticSearchParams = navigation.optimisticSearchParams;
   const [searchQuery, _setSearchQuery] = useState(
@@ -94,8 +96,8 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     _setSearchQuery(authoritativeQuery);
   }, [authoritativeQuery]);
 
-  // Submitting from a detail page must go back to the search, not to
-  // `/case/abc?q=…`, and it has to carry the remembered filters, enhet and sort.
+  // Submitting from a detail page must go back to the search, not to the
+  // page's own enhet, and it has to carry the remembered filters, enhet and sort.
   const searchTarget = useMemo(() => {
     if (showsResults) {
       return {
@@ -124,19 +126,15 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      // TODO: decide whether the search path should be localized. The enhet
-      // selector uses `routing.searchPath` here, which makes the URL depend on
-      // the viewer's session language; localized spellings already resolve via
-      // the rewrites in next.config.ts.
       navigation.push(
         buildSearchHref({
-          pathname: searchTarget.pathname,
-          searchParams: searchTarget.searchParams,
+          ...searchTarget,
+          languageCode,
           updates: { q: queryToPush },
         }),
       );
     },
-    [navigation, searchTarget],
+    [navigation, searchTarget, languageCode],
   );
 
   const setSearchQuery = useCallback(

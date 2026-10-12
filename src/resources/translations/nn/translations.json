@@ -105,13 +105,19 @@
     "toSearch": "Til søk"
   },
   "routing": {
-    "searchPath": "søk",
-    "saksmappePath": "sak",
-    "moetemappePath": "moete",
-    "aboutPath": "om",
-    "privacyPath": "personvern",
-    "calendarPath": "kalender",
-    "statisticsPath": "statistikk"
+    "root": {
+      "search": "søk",
+      "about": "om",
+      "privacy": "personvern",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "sak",
+      "moetemappe": "moete"
+    }
   },
   "common": {
     "publishedAt": "Publisert",
@@ -167,7 +173,6 @@
     "numberLabel": "Journalpost #$1",
     "labelPlural": "Journalpostar",
     "labelPluralInCase": "Journalpostar i saka",
-    "pathName": "journalpost",
     "connectedToCase": "Tilknytta sak",
     "goToCase": "Til saka",
     "docNumber": "Doknr.",
@@ -212,8 +217,7 @@
   },
   "moetesak": {
     "label": "Møtesak",
-    "labelPlural": "Møtesaker",
-    "pathName": "moetesak"
+    "labelPlural": "Møtesaker"
   },
   "searchFilters": {
     "publisertDato": "Publiseringsdato",

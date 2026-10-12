@@ -16,7 +16,7 @@ import {
   getSection,
   type Section,
   showsSearchField,
-} from '~/lib/routes/sections';
+} from '~/lib/routing/sections';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
@@ -41,7 +41,7 @@ export default function StickyHeader({
 }) {
   const { loading, optimisticPathname } = useNavigation();
   // Canonical, so it does not depend on which language the URL is spelled in:
-  // `/case/abc` and `/sak/abc` are both the `saksmappe` section.
+  // `/oslo/case/abc` and `/oslo/sak/abc` are both the `saksmappe` section.
   const section = getSection(optimisticPathname);
   const isHome = section === 'home';
   const hasSearchField = showsSearchField(optimisticPathname);

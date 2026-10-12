@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { showsSearchResults } from '~/lib/routes/sections';
+import { showsSearchResults } from '~/lib/routing/sections';
 
 // Key under which the remembered search URL is stored on the history entry.
 //

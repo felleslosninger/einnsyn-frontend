@@ -2,9 +2,9 @@ import { type Enhet, isEnhet } from '@digdir/einnsyn-sdk';
 import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-import { getAncestors, getName } from '~/lib/enhet/enhet';
+import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
-import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 
 export default function EnhetLink({
   enhet,
@@ -30,7 +30,10 @@ export default function EnhetLink({
     <Fragment key={enhet.id}>
       <EinLink
         data-color="neutral"
-        href={generateEnhetURL(enhet)}
+        href={buildPathname(
+          { enhetIdentifier: getEnhetIdentifier(enhet) },
+          languageCode,
+        )}
         className={cn('enhet-link', className)}
         {...props}
       >

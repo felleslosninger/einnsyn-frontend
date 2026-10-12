@@ -8,7 +8,7 @@ import {
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { usePageSection } from '~/hooks/usePageSection';
 import { suspendScrollDirection } from '~/hooks/useScrollState';
-import { sectionDepth } from '~/lib/routes/sections';
+import { sectionDepth } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import styles from './PageTransition.module.scss';
 

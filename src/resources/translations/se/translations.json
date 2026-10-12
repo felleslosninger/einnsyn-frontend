@@ -105,11 +105,17 @@
     "toSearch": "Ohcui"
   },
   "routing": {
-    "searchPath": "oza",
-    "saksmappePath": "ášši",
-    "moetemappePath": "čoahkkin",
-    "calendarPath": "kaleandar",
-    "statisticsPath": "statistihkka"
+    "root": {
+      "search": "oza",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "ášši",
+      "moetemappe": "čoahkkin"
+    }
   },
   "common": {
     "publishedAt": "Almmuhuvvon",
@@ -165,7 +171,6 @@
     "numberLabel": "Journalapoasta #$1",
     "labelPlural": "Journalapoasttat",
     "labelPluralInCase": "Journalapoasttat áššis",
-    "pathName": "journalapoasta",
     "connectedToCase": "Čadnon ášši",
     "goToCase": "TÁššái",
     "docNumber": "Doknr.",
@@ -210,8 +215,7 @@
   },
   "moetesak": {
     "label": "Čoahkkinášši",
-    "labelPlural": "Čoahkkináššit",
-    "pathName": "čoahkkinášši"
+    "labelPlural": "Čoahkkináššit"
   },
   "searchFilters": {
     "publisertDato": "Almmuhanbeassi",

@@ -1,12 +1,14 @@
 'use client';
 
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getPathEnhet } from '~/lib/routing/pathname';
+import { getEnhetSelection } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
@@ -22,12 +24,29 @@ export default function SearchResultContainer({
   searchResults: PaginatedList<Base>;
 }) {
   const t = useTranslation();
-  const { selectedEnhetIdentifiers: enhetIds } = useEnhetFilterIds();
+  const {
+    loadingPathname,
+    pathname,
+    loadingSearchParamsString,
+    searchParamsString,
+    loading,
+  } = useNavigation();
+  // The search's own selection, which holds still while navigating to a hit.
+  const { searchTarget } = useSearchField();
+  const enhetIds = useMemo(
+    () =>
+      getEnhetSelection(
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
+      ),
+    [searchTarget],
+  );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
-  const { loadingSearchParamsString, searchParamsString, loading } =
-    useNavigation();
-  const isLoading = loading && loadingSearchParamsString !== searchParamsString;
+  const isLoading =
+    loading &&
+    (loadingPathname !== pathname ||
+      loadingSearchParamsString !== searchParamsString);
 
   const searchSymbolRef = useRef<symbol>(Symbol());
 

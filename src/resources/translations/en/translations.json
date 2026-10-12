@@ -105,13 +105,19 @@
     "toSearch": "Go to search"
   },
   "routing": {
-    "searchPath": "search",
-    "saksmappePath": "case",
-    "moetemappePath": "meeting",
-    "aboutPath": "about",
-    "privacyPath": "privacy",
-    "calendarPath": "calendar",
-    "statisticsPath": "statistics"
+    "root": {
+      "search": "search",
+      "about": "about",
+      "privacy": "privacy",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "case",
+      "moetemappe": "meeting"
+    }
   },
   "common": {
     "publishedAt": "Published",
@@ -167,7 +173,6 @@
     "numberLabel": "Record #$1",
     "labelPlural": "Records",
     "labelPluralInCase": "Records in the case",
-    "pathName": "record",
     "connectedToCase": "Associated case",
     "goToCase": "Go to case",
     "docNumber": "Doc. no.",
@@ -212,8 +217,7 @@
   },
   "moetesak": {
     "label": "Meeting case",
-    "labelPlural": "Meeting cases",
-    "pathName": "case"
+    "labelPlural": "Meeting cases"
   },
   "searchFilters": {
     "publisertDato": "Publication date",

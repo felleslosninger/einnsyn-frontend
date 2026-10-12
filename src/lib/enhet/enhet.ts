@@ -52,7 +52,7 @@ export const getName = (
  *
  * Not interchangeable with `enhet.id` at the API boundary: the cursor params
  * (`startingAfter`/`endingBefore`) silently misbehave when given a slug. Pass
- * `enhet.id` there, never this. For a link target, use `generateEnhetURL`.
+ * `enhet.id` there, never this. For a link target, use `buildPathname`.
  */
 export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
   return enhet.slug || enhet.id;
@@ -119,7 +119,7 @@ export const getAncestorsAsString = (
  * the map, which is normal for partial lists — callers treat either case as
  * "the chain ends here".
  */
-export function getEnhetParentFromMap<T extends TrimmedEnhet>(
+function getEnhetParentFromMap<T extends TrimmedEnhet>(
   enhet: TrimmedEnhet,
   enhetsById: ReadonlyMap<string, T>,
 ): T | undefined {

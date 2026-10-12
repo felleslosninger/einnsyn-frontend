@@ -3,10 +3,10 @@ import EinBreadcrumb, {
   type BreadcrumbItem,
 } from '~/components/EinBreadcrumb/Breadcrumbs';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
-import { getAncestors, getName } from '~/lib/enhet/enhet';
+import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
-import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 
 // Server component that builds the saksmappe breadcrumb trail. Used in the
 // `@header` slot so the trail sits in the sticky header where search lives on
@@ -30,7 +30,10 @@ export default async function SaksmappeBreadcrumb({
   const items: BreadcrumbItem[] = isEnhet(leafEnhet)
     ? [...getAncestors(leafEnhet), leafEnhet].map((enhet) => ({
         label: getName(enhet, languageCode),
-        href: generateEnhetURL(enhet),
+        href: buildPathname(
+          { enhetIdentifier: getEnhetIdentifier(enhet) },
+          languageCode,
+        ),
       }))
     : [];
 

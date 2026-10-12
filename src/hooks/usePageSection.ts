@@ -6,7 +6,7 @@ import {
   getSection,
   isModalSection,
   type Section,
-} from '~/lib/routes/sections';
+} from '~/lib/routing/sections';
 
 /**
  * The section of the page on screen, which is not always the one the URL

@@ -165,7 +165,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     >
       {/* Include current query parameters as hidden inputs. On a detail page
           these come from the remembered search, so a no-JS submit lands back on
-          the results rather than on `/case/abc?q=…`. `q` travels in the
+          the results rather than on `/oslo/sak/abc?q=…`. `q` travels in the
           textarea, except while the back link stands in for it. */}
       {Array.from(searchTarget.searchParams.entries()).map(
         ([key, value]) =>

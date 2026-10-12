@@ -2,12 +2,10 @@ import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getName } from '~/lib/enhet/enhet';
+import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
-import {
-  generateEnhetURL,
-  useSaksmappeURLGenerator,
-} from '~/lib/utils/urlGenerators';
+import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -47,7 +45,12 @@ export default function SaksmappeResult({
         </SearchResultSubheader>
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={generateEnhetURL(enhet)}>
+            <EinLink
+              href={buildPathname(
+                { enhetIdentifier: getEnhetIdentifier(enhet) },
+                languageCode,
+              )}
+            >
               {getName(enhet, languageCode)}
             </EinLink>
           </div>

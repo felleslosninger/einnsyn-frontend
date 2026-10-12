@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useMemo, useRef } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { getSection, isModalSection } from '~/lib/routes/sections';
+import { getSection, isModalSection } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import styles from './EinnsynBody.module.scss';
 

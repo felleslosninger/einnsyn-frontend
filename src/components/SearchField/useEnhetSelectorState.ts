@@ -4,17 +4,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
 import { useEnhets } from '~/components/EnhetProvider/EnhetProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
   getEnhetIdentifier,
   getName,
   type TrimmedEnhet,
 } from '~/lib/enhet/enhet';
-import { addParamListValue, removeParamListValue } from '~/lib/utils/paramList';
-import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
+import { getPathEnhet } from '~/lib/routing/pathname';
+import { getEnhetSelection } from '~/lib/routing/searchParams';
+import {
+  addParamListValue,
+  normalizeParamList,
+  removeParamListValue,
+} from '~/lib/utils/paramList';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
+import { useSearchField } from './SearchFieldProvider';
 import { useResolvedEnhetMap } from './useResolvedEnhetMap';
 
 export type EnhetSelectorFocus = {
@@ -33,9 +39,10 @@ export type UseEnhetSelectorStateOptions = {
  * filter input and keyboard focus, derives the available/selected lists, and
  * commits changes back to the URL.
  *
- * Desktop buffers selection changes until "Bruk valg" is clicked. Mobile
- * commits every change immediately. The view layer is layout-agnostic — it
- * just calls `addEnhet` / `removeEnhet` / `applySelection`.
+ * Selection changes buffer in a draft while the selector is open. Desktop
+ * commits it on "Bruk valg"; mobile commits it when the sheet closes, since a
+ * commit can change route and remount the sheet. The view layer is
+ * layout-agnostic — it just calls `addEnhet` / `removeEnhet` / `applySelection`.
  */
 export function useEnhetSelectorState({
   active,
@@ -44,9 +51,8 @@ export function useEnhetSelectorState({
 }: UseEnhetSelectorStateOptions) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-  const searchPathname = `/${t('routing.searchPath')}`;
   const navigation = useNavigation();
-  const { optimisticSearchParams, optimisticPathname } = navigation;
+  const { searchTarget } = useSearchField();
 
   const {
     enhetMap: rawEnhetMap,
@@ -72,17 +78,29 @@ export function useEnhetSelectorState({
   // Selection: URL-backed, with a desktop "draft" buffer that only commits on
   // Apply.
   //
-  const {
-    pathEnhetValue,
-    selectedEnhetIdentifiers: urlSelectedEnhetIdentifiers,
-  } = useEnhetFilterIds(enhetMap);
+  // Read from the search the field acts on — on a detail page the remembered
+  // one, so the selector shows the scope a submit uses. Each id or slug in its
+  // `getEnhetIdentifier` form, so an id and its slug dedupe and compare equal.
+  const urlSelectedEnhetIdentifiers = useMemo(() => {
+    const canonical = (value: string) => {
+      const enhet = enhetMap.get(value);
+      return enhet ? getEnhetIdentifier(enhet) : value;
+    };
+    return normalizeParamList(
+      getEnhetSelection(
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
+      ).map(canonical),
+    );
+  }, [enhetMap, searchTarget]);
+  const searchHref = useSearchHref();
 
-  const isBuffered = !isMobileLayout && active;
+  const isBuffered = active;
   const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<
     string[]
   >([]);
 
-  // Re-seed the draft from the URL whenever the desktop modal opens. URL
+  // Re-seed the draft from the URL whenever the selector opens. URL
   // changes mid-open are intentionally not synced — the user is editing.
   // biome-ignore lint/correctness/useExhaustiveDependencies: only re-init on transition into buffered mode.
   useEffect(() => {
@@ -97,23 +115,9 @@ export function useEnhetSelectorState({
 
   const commitToUrl = useCallback(
     (next: string[]) => {
-      navigation.replace(
-        buildEnhetSelectionHref({
-          pathname: optimisticPathname,
-          searchPathname,
-          searchParams: optimisticSearchParams,
-          pathEnhetValue,
-          selectedEnhetIdentifiers: next,
-        }),
-      );
+      navigation.replace(searchHref({ enhet: next }));
     },
-    [
-      navigation,
-      optimisticPathname,
-      optimisticSearchParams,
-      pathEnhetValue,
-      searchPathname,
-    ],
+    [navigation, searchHref],
   );
 
   const setSelectedEnhetIdentifiers = useCallback(
@@ -326,12 +330,24 @@ export function useEnhetSelectorState({
   const previousActiveRef = useRef(active);
   useEffect(() => {
     const wasActive = previousActiveRef.current;
+    previousActiveRef.current = active;
     if (!active && wasActive) {
       setFilterValue('');
       setFocus(null);
+      if (
+        isMobileLayout &&
+        draftSelectedIdentifiers.join() !== urlSelectedEnhetIdentifiers.join()
+      ) {
+        commitToUrl(draftSelectedIdentifiers);
+      }
     }
-    previousActiveRef.current = active;
-  }, [active]);
+  }, [
+    active,
+    commitToUrl,
+    draftSelectedIdentifiers,
+    isMobileLayout,
+    urlSelectedEnhetIdentifiers,
+  ]);
 
   // Shared arrow/Enter/Escape navigation. Bound to the filter input and to
   // both listboxes — the listboxes themselves are tab stops, so they need to

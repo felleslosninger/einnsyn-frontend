@@ -2,9 +2,11 @@
 
 import type { Enhet } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getEnhetIdentifier } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
 import { capitalize } from '~/lib/utils/stringutils';
-import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 import styles from './EnhetCard.module.scss';
 
 /**
@@ -20,11 +22,18 @@ export default function EnhetCard({
   headingKey: string;
 }) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
 
   return (
     <aside className={styles.enhetCard} data-size="sm">
       <div className={styles.enhetCardHeading}>{t(headingKey)}</div>
-      <EinLink href={generateEnhetURL(enhet)} className={styles.enhetName}>
+      <EinLink
+        href={buildPathname(
+          { enhetIdentifier: getEnhetIdentifier(enhet) },
+          languageCode,
+        )}
+        className={styles.enhetName}
+      >
         {enhet.navn}
       </EinLink>
       <div className={styles.enhetFields}>
