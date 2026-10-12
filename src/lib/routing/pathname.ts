@@ -56,7 +56,7 @@ const MAPPE_FIELDS = {
 } as const satisfies Record<Mappe, readonly [RouteKey, RouteKey]>;
 
 type Level = keyof typeof nb.routing;
-type Words = Partial<Record<string, string>>;
+type Words = Record<string, string | undefined>;
 
 const ROUTING: Record<LanguageCode, Record<Level, Words>> = {
   nb: nb.routing,
