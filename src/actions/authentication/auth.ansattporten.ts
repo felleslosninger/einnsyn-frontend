@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
+import { getSafeReturnUrl } from '~/lib/auth/safeReturnUrl';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import { logger } from '~/lib/utils/logger';
 import {
@@ -103,7 +104,8 @@ export async function ansattportenAuthAction(
   if (!originUrl) {
     throw new Error('Missing originUrl in form data');
   }
-  const authorizationUrl = await buildAuthorizationUrl(originUrl);
+  const safeReturnUrl = getSafeReturnUrl(originUrl, await getOrigin());
+  const authorizationUrl = await buildAuthorizationUrl(safeReturnUrl);
   redirect(authorizationUrl.href);
 }
 
@@ -207,7 +209,7 @@ export const handleCallback = async (request: Request) => {
     await deleteAnsattportenCookie();
   }
 
-  return originUrl;
+  return getSafeReturnUrl(originUrl, await getOrigin());
 };
 
 /**
