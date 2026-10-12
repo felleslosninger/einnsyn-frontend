@@ -19,12 +19,12 @@ import resultStyles from './searchresult/searchResultStyles.module.scss';
 export default function SearchResultContainer({
   searchResults,
 }: {
-  searchResults: PaginatedList<Base>;
+  searchResults: PaginatedList<Base> | null;
 }) {
   const t = useTranslation();
   const { selectedEnhetIdentifiers: enhetIds } = useEnhetFilterIds();
   const [currentSearchResults, setCurrentSearchResults] =
-    useState<PaginatedList<Base>>(searchResults);
+    useState<PaginatedList<Base> | null>(searchResults);
   const { loadingSearchParamsString, searchParamsString, loading } =
     useNavigation();
   const isLoading = loading && loadingSearchParamsString !== searchParamsString;
@@ -38,7 +38,7 @@ export default function SearchResultContainer({
   }, [searchResults]);
 
   const scrollTriggerHandler = useCallback(async () => {
-    if (!currentSearchResults.next) {
+    if (!currentSearchResults?.next) {
       return; // No next page to fetch
     }
     const newSearchSymbol = Symbol();
@@ -71,20 +71,22 @@ export default function SearchResultContainer({
               aria-busy={isLoading}
               aria-live="polite"
             >
-              {currentSearchResults.items.length ? (
-                currentSearchResults.items.map((item) => (
-                  <SearchResult
-                    className={styles.searchResult}
-                    key={item.id}
-                    item={item}
-                  />
-                ))
-              ) : (
-                <div className={cn(styles.searchResult, 'no-results')}>
-                  <p>{t('common.noResults')}</p>
-                </div>
+              {currentSearchResults === null ? null : (
+                currentSearchResults.items.length ? (
+                  currentSearchResults.items.map((item) => (
+                    <SearchResult
+                      className={styles.searchResult}
+                      key={item.id}
+                      item={item}
+                    />
+                  ))
+                ) : (
+                  <div className={cn(styles.searchResult, 'no-results')}>
+                    <p>{t('common.noResults')}</p>
+                  </div>
+                )
               )}
-              {currentSearchResults.next && (
+              {currentSearchResults?.next && (
                 <EinScrollTrigger onEnter={scrollTriggerHandler}>
                   <SearchResultSkeleton
                     className={styles.searchResult}
