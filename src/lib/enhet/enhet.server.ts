@@ -258,7 +258,8 @@ export async function getInitialEnhets({
 export async function isUnknownEnhet(identifier: string): Promise<boolean> {
   try {
     return (await getEnhets([identifier])).length === 0;
-  } catch {
+  } catch (error) {
+    logger.error('Failed to determine whether enhet is unknown', error);
     return false;
   }
 }
