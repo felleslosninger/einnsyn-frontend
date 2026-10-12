@@ -9,6 +9,7 @@ import type {
 import { useCallback } from 'react';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { getEnhetIdentifier } from '~/lib/enhet/enhet';
 import {
   getTranslateFunction,
   type TranslateFunction,
@@ -38,7 +39,7 @@ function identifierSegment(
  * relative value would resolve against the current document.
  */
 export function generateEnhetURL(enhet: Pick<Enhet, 'id' | 'slug'>): string {
-  return `/${identifierSegment(enhet)}`;
+  return `/${encodeURIComponent(getEnhetIdentifier(enhet))}`;
 }
 
 /**

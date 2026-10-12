@@ -20,6 +20,7 @@ describe('getSection', () => {
     assert.equal(getSection('/saksmappe/abc'), 'saksmappe');
     assert.equal(getSection('/moetemappe/abc'), 'moetemappe');
     assert.equal(getSection('/admin'), 'admin');
+    assert.equal(getSection('/bruker/profile'), 'bruker');
     assert.equal(getSection('/login'), 'login');
     assert.equal(getSection('/about'), 'about');
     assert.equal(getSection('/privacy'), 'privacy');
@@ -113,6 +114,7 @@ describe('showsSearchField', () => {
   it('is false where the header has no relationship to search', () => {
     assert.equal(showsSearchField('/login'), false);
     assert.equal(showsSearchField('/admin'), false);
+    assert.equal(showsSearchField('/bruker/profile'), false);
     assert.equal(showsSearchField('/om'), false);
     assert.equal(showsSearchField('/personvern'), false);
   });
@@ -130,6 +132,7 @@ describe('getPathEnhet', () => {
     assert.equal(getPathEnhet('/'), undefined);
     assert.equal(getPathEnhet('/søk'), undefined);
     assert.equal(getPathEnhet('/sak/abc'), undefined);
+    assert.equal(getPathEnhet('/bruker/profile'), undefined);
   });
 });
 

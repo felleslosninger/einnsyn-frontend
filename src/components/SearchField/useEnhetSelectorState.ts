@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { VListHandle } from 'virtua';
-import { useEnhetCache } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
+import { useEnhets } from '~/components/EnhetProvider/EnhetProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
@@ -11,7 +11,7 @@ import {
   getEnhetIdentifier,
   getName,
   type TrimmedEnhet,
-} from '~/lib/utils/enhetUtils';
+} from '~/lib/enhet/enhet';
 import { addParamListValue, removeParamListValue } from '~/lib/utils/paramList';
 import { buildEnhetSelectionHref } from '~/lib/utils/searchHref';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
@@ -50,9 +50,9 @@ export function useEnhetSelectorState({
 
   const {
     enhetMap: rawEnhetMap,
-    fullListLoaded,
-    ensureFullList,
-  } = useEnhetCache();
+    enhetListLoaded,
+    ensureEnhetListLoaded,
+  } = useEnhets();
   const { enhetMap, enhetList } = useResolvedEnhetMap(rawEnhetMap);
 
   //
@@ -168,10 +168,10 @@ export function useEnhetSelectorState({
   const [filterValue, setFilterValue] = useState('');
 
   useEffect(() => {
-    if (active && !fullListLoaded) {
-      ensureFullList();
+    if (active && !enhetListLoaded) {
+      ensureEnhetListLoaded();
     }
-  }, [active, fullListLoaded, ensureFullList]);
+  }, [active, enhetListLoaded, ensureEnhetListLoaded]);
 
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -486,7 +486,7 @@ export function useEnhetSelectorState({
     availableNodes,
     searchMatchedSelectedNodes,
     selectedEnheter,
-    fullListLoaded,
+    enhetListLoaded,
 
     // Focus state
     focus,

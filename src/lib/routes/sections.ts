@@ -11,6 +11,7 @@ const SECTIONS_WITH_PATH = [
   'saksmappe',
   'moetemappe',
   'admin',
+  'bruker',
   'login',
   'about',
   'privacy',

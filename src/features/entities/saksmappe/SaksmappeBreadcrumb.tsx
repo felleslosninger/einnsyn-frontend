@@ -3,9 +3,9 @@ import EinBreadcrumb, {
   type BreadcrumbItem,
 } from '~/components/EinBreadcrumb/Breadcrumbs';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
+import { getAncestors, getName } from '~/lib/enhet/enhet';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
-import { getAncestors, getName } from '~/lib/utils/enhetUtils';
 import { generateEnhetURL } from '~/lib/utils/urlGenerators';
 
 // Server component that builds the saksmappe breadcrumb trail. Used in the

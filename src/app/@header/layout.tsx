@@ -4,6 +4,7 @@ import {
   getRequestSearchParams,
 } from '~/lib/routes/requestPath';
 import { getPathEnhet } from '~/lib/routes/sections';
+import { readEnhetIdentifiers } from '~/lib/utils/searchHref';
 
 // A layout receives neither params nor searchParams, so the enhet the request
 // is scoped to is recovered from the request URL.
@@ -19,8 +20,10 @@ export default async function HeaderLayout({
 
   return (
     <Header
-      pathEnhet={getPathEnhet(pathname)}
-      searchParamsEnhet={searchParams.get('enhet') ?? undefined}
+      enhetIdentifiers={readEnhetIdentifiers({
+        pathEnhet: getPathEnhet(pathname),
+        enhetParam: searchParams.getAll('enhet'),
+      })}
     >
       {children}
     </Header>

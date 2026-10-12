@@ -6,11 +6,12 @@ import {
   EinTransition,
   type EinTransitionEvents,
 } from '~/components/EinTransition/EinTransition';
-import { EnhetCacheProvider } from '~/components/EnhetCacheProvider/EnhetCacheProvider';
+import { EnhetProvider } from '~/components/EnhetProvider/EnhetProvider';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useScrollState } from '~/hooks/useScrollState';
+import type { TrimmedEnhet } from '~/lib/enhet/enhet';
 import {
   getSection,
   type Section,
@@ -20,7 +21,6 @@ import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
-import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
 
 import UserMenu from './components/UserMenu';
 import styles from './StickyHeader.module.scss';
@@ -31,11 +31,13 @@ import styles from './StickyHeader.module.scss';
 export default function StickyHeader({
   children,
   initialEnhets,
+  enhetListVersion,
 }: {
   // The header's second row: search tabs, a breadcrumb trail, admin tabs. The
   // search field is not part of this — it lives here so it survives navigation.
   children: React.ReactNode;
   initialEnhets?: readonly TrimmedEnhet[];
+  enhetListVersion?: string | null;
 }) {
   const { loading, optimisticPathname } = useNavigation();
   // Canonical, so it does not depend on which language the URL is spelled in:
@@ -354,9 +356,12 @@ export default function StickyHeader({
             </div>
             <div className={cn(styles.container, 'container')}>
               {hasSearchField && (
-                <EnhetCacheProvider initialEnhets={initialEnhets}>
+                <EnhetProvider
+                  initialEnhets={initialEnhets}
+                  enhetListVersion={enhetListVersion}
+                >
                   <SearchField className={styles.searchForm} />
-                </EnhetCacheProvider>
+                </EnhetProvider>
               )}
 
               {/* The second row is the only part that changes between routes,

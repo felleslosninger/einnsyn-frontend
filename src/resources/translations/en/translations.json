@@ -286,5 +286,13 @@
     "telefon": "Telephone",
     "adresse": "address",
     "epost": "email"
+  },
+  "bruker": {
+    "title": "My eInnsyn",
+    "accessRequests": "Access requests",
+    "savedCases": "Saved cases",
+    "savedMeetings": "Saved meetings",
+    "savedSearches": "Saved searches",
+    "profile": "Profile"
   }
 }

@@ -281,5 +281,13 @@
     "telefon": "telefon",
     "adresse": "adresse",
     "epost": "e-post"
+  },
+  "bruker": {
+    "title": "Mitt eInnsyn",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagrede saker",
+    "savedMeetings": "Lagrede møter",
+    "savedSearches": "Lagrede søk",
+    "profile": "Profil"
   }
 }

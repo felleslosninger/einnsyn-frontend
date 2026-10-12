@@ -2,8 +2,8 @@ import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
-import { getName } from '~/lib/utils/enhetUtils';
 import {
   generateEnhetURL,
   useSaksmappeURLGenerator,

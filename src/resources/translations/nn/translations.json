@@ -271,5 +271,13 @@
     "telefon": "telefon",
     "adresse": "adresse",
     "epost": "e-post"
+  },
+  "bruker": {
+    "title": "Mitt eInnsyn",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagra saker",
+    "savedMeetings": "Lagra møte",
+    "savedSearches": "Lagra søk",
+    "profile": "Profil"
   }
 }

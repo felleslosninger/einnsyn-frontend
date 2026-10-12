@@ -1,30 +1,26 @@
-import { getInitialEnhetsForRequest } from '~/actions/api/enhet.actions';
 import StickyHeader from '~/features/header/StickyHeader';
-import { getSettings } from '~/lib/settings/settings.server';
+import { getInitialEnhets } from '~/lib/enhet/enhet.server';
 
 /**
- * The header, with the enhet cache its search field needs already seeded.
+ * The header, with the enhet store its search field needs already seeded.
  *
- * A request can be scoped to an enhet by its path (`/oslo`) or by the `enhet`
+ * A request can be scoped to enhets by its path (`/oslo`) or by the `enhet`
  * search param; either has to be resolved server-side so the selector paints
  * names rather than ids. Nothing selected means no preload at all — see
- * `getInitialEnhetsForRequest`.
+ * `getInitialEnhets`.
  */
 export default async function Header({
-  pathEnhet,
-  searchParamsEnhet,
+  enhetIdentifiers,
   children,
 }: {
-  pathEnhet?: string;
-  searchParamsEnhet?: string;
+  enhetIdentifiers: string[];
   children: React.ReactNode;
 }) {
-  const { language } = await getSettings();
-  const initialEnhets = await getInitialEnhetsForRequest({
-    pathEnhet,
-    searchParamsEnhet,
-    languageCode: language,
-  });
+  const { enhets, version } = await getInitialEnhets({ enhetIdentifiers });
 
-  return <StickyHeader initialEnhets={initialEnhets}>{children}</StickyHeader>;
+  return (
+    <StickyHeader initialEnhets={enhets} enhetListVersion={version}>
+      {children}
+    </StickyHeader>
+  );
 }

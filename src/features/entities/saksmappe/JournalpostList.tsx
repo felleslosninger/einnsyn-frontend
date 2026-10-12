@@ -22,13 +22,13 @@ import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useScrollToExpanded } from '~/hooks/useScrollToExpanded';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getName } from '~/lib/enhet/enhet';
 import {
   getJournalpostFromPath,
   getSaksmappeFromPath,
 } from '~/lib/routes/sections';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { getName } from '~/lib/utils/enhetUtils';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import {
   useJournalpostURLGenerator,

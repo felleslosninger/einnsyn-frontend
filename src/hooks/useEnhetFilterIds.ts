@@ -4,8 +4,8 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routes/sections';
-import { getEnhetIdentifier, type TrimmedEnhet } from '~/lib/utils/enhetUtils';
 import { normalizeParamList, parseParamList } from '~/lib/utils/paramList';
 import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
 
@@ -22,7 +22,7 @@ import { pathnameContainsEnhet } from '~/lib/utils/searchHref';
  *
  * `enhetMap` canonicalizes each value to its {@link getEnhetIdentifier} form,
  * so an id and its slug dedupe and the string comparisons in
- * `useEnhetSelectorState` match. Callers outside `EnhetCacheProvider` omit it.
+ * `useEnhetSelectorState` match. Callers outside `EnhetProvider` omit it.
  */
 export function useEnhetFilterIds(
   enhetMap?: ReadonlyMap<string, TrimmedEnhet>,

@@ -269,5 +269,13 @@
     "telefon": "telefovdna",
     "adresse": "čujuhus",
     "epost": "e-poasta"
+  },
+  "bruker": {
+    "title": "Mu eInnsyn",
+    "accessRequests": "Vuhtiiváldágoahtin",
+    "savedCases": "Vurkon ásaid",
+    "savedMeetings": "Vurkon čoahkkimiid",
+    "savedSearches": "Vurkon ohcanat",
+    "profile": "Profila"
   }
 }
