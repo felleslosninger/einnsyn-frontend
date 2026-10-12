@@ -65,7 +65,7 @@ export function buildQueryString({
   searchParams: URLSearchParams | undefined;
   updates?: Partial<SearchParams>;
 }): string {
-  const nextSearchParams = new URLSearchParams(searchParams?.toString());
+  const nextSearchParams = new URLSearchParams(searchParams);
 
   for (const [key, update] of Object.entries(updates ?? {})) {
     const value =
@@ -123,14 +123,14 @@ export function buildSearchHref({
   updates?: Partial<SearchParams>;
 }): string {
   const { enhet, ...otherUpdates } = updates;
-  const selection =
+  const enhetSelection =
     enhet !== undefined
       ? normalizeParamList(enhet)
       : getEnhetSelection(
           getPathEnhet(pathname),
           searchParams ?? new URLSearchParams(),
         );
-  const pathEnhet = selection.length === 1 ? selection[0] : undefined;
+  const pathEnhet = enhetSelection.length === 1 ? enhetSelection[0] : undefined;
 
   const targetPathname = buildPathname(
     pathEnhet !== undefined
@@ -142,7 +142,7 @@ export function buildSearchHref({
     searchParams,
     updates: {
       ...otherUpdates,
-      enhet: pathEnhet !== undefined ? [] : selection,
+      enhet: pathEnhet !== undefined ? [] : enhetSelection,
     },
   })}`;
 }
