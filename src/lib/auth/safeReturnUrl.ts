@@ -8,10 +8,13 @@ export function getSafeReturnUrl(returnUrl: string, appOrigin: string): string {
       return new URL('/', appUrl).href;
     }
 
-    return new URL(
+    const safeUrl = new URL(
       `${destination.pathname}${destination.search}${destination.hash}`,
       appUrl,
-    ).href;
+    );
+    return safeUrl.origin === appUrl.origin
+      ? safeUrl.href
+      : new URL('/', appUrl).href;
   } catch {
     return new URL('/', appUrl).href;
   }
