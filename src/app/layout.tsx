@@ -2,7 +2,6 @@ import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
-import { EinnsynBody } from '~/components/EinnsynBody/EinnsynBody';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
 import { PageTransition } from '~/components/PageTransition/PageTransition';
@@ -71,14 +70,14 @@ export default async function Layout({
         >
           <SearchFieldProvider>
             <body data-color-scheme={settings.colorScheme}>
-              <EinnsynBody>
+              <div className="einnsyn-body">
                 {header}
                 <PageTransition>{children}</PageTransition>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
                 <KeyboardFocusManager />
                 <ThemeManager />
-              </EinnsynBody>
+              </div>
             </body>
           </SearchFieldProvider>
         </SessionDataProvider>
