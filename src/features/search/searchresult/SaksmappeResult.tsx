@@ -2,12 +2,17 @@ import { isEnhet, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getEnhetHref, getName } from '~/lib/enhet/enhet';
+import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import { buildPathname } from '~/lib/routing/pathname';
+import type { LanguageCode } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
-export const getSaksmappeHref = (saksmappe: Saksmappe) => {
+export const getSaksmappeHref = (
+  saksmappe: Saksmappe,
+  languageCode: LanguageCode,
+) => {
   const enhet = saksmappe.administrativEnhetObjekt;
 
   // Fail gracefully if enhet isn't expanded
@@ -15,8 +20,13 @@ export const getSaksmappeHref = (saksmappe: Saksmappe) => {
     return '';
   }
 
-  const enhetHref = getEnhetHref(enhet);
-  return `${enhetHref}/saksmappe/${saksmappe.id}`;
+  return buildPathname(
+    {
+      enhetIdentifier: getEnhetIdentifier(enhet),
+      saksmappeIdentifier: saksmappe.id,
+    },
+    languageCode,
+  );
 };
 
 export default function SaksmappeResult({
@@ -28,7 +38,7 @@ export default function SaksmappeResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const saksmappeHref = getSaksmappeHref(item);
+  const saksmappeHref = getSaksmappeHref(item, languageCode);
   const enhet = item.administrativEnhetObjekt;
 
   return (
@@ -55,7 +65,12 @@ export default function SaksmappeResult({
         </SearchResultSubheader>
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
-            <EinLink href={getEnhetHref(enhet)}>
+            <EinLink
+              href={buildPathname(
+                { enhetIdentifier: getEnhetIdentifier(enhet) },
+                languageCode,
+              )}
+            >
               {getName(enhet, languageCode)}
             </EinLink>
           </div>

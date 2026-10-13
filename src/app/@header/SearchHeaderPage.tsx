@@ -1,6 +1,6 @@
 import { SearchHeader } from '~/features/search';
 import { getInitialEnhets } from '~/lib/enhet/enhet.server';
-import { readEnhetIdentifiers } from '~/lib/utils/searchHref';
+import { getEnhetSelection } from '~/lib/routing/searchParams';
 
 export type HeaderSearchParams = Promise<{
   [key: string]: string | string[] | undefined;
@@ -14,10 +14,10 @@ export default async function SearchHeaderPage({
   searchParams: HeaderSearchParams;
 }>) {
   const sp = await searchParams;
-  const enhetIdentifiers = readEnhetIdentifiers({
+  const enhetIdentifiers = getEnhetSelection(
     pathEnhet,
-    enhetParam: sp.enhet,
-  });
+    new URLSearchParams([sp.enhet ?? []].flat().map((v) => ['enhet', v])),
+  );
   const { enhets, version } = await getInitialEnhets({ enhetIdentifiers });
 
   return <SearchHeader initialEnhets={enhets} enhetListVersion={version} />;

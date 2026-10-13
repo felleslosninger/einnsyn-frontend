@@ -8,6 +8,12 @@ import {
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/lib/api/api.server';
+import {
+  getEnhetSelection,
+  isSearchableEntity,
+  isSortOption,
+  type SortOption,
+} from '~/lib/routing/searchParams';
 import { logger } from '~/lib/utils/logger';
 import { parseParamList } from '~/lib/utils/paramList';
 import {
@@ -18,7 +24,7 @@ import {
 type Journalposttype = FilterParameters['journalposttype'];
 
 const SORT_MAP: Record<
-  string,
+  SortOption,
   { sortBy: SearchParameters['sortBy']; sortOrder: 'asc' | 'desc' } | null
 > = {
   score: null,
@@ -37,20 +43,6 @@ export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
     items: [],
   };
 }
-
-type SearchableEntity = 'Journalpost' | 'Saksmappe' | 'Moetemappe' | 'Moetesak';
-const isSearchableEntity = (
-  entityName?: string | null,
-): entityName is SearchableEntity => {
-  return (
-    entityName !== undefined &&
-    entityName != null &&
-    (entityName === 'Journalpost' ||
-      entityName === 'Saksmappe' ||
-      entityName === 'Moetemappe' ||
-      entityName === 'Moetesak')
-  );
-};
 
 /**
  * Get a PaginatedList of search results
@@ -71,16 +63,7 @@ export const getSearchResults = async (
     apiQuery.entity = searchParams.getAll('entity').filter(isSearchableEntity);
   }
 
-  // Combine Enhet filter from path and searchParams
-  const enhet: string[] = [];
-  if (enhetSlug) {
-    enhet.push(enhetSlug);
-  }
-  if (searchParams.has('enhet')) {
-    enhet.push(
-      ...searchParams.getAll('enhet').flatMap((value) => parseParamList(value)),
-    );
-  }
+  const enhet = getEnhetSelection(enhetSlug, searchParams);
   if (enhet.length) {
     apiQuery.administrativEnhet = enhet;
   }
@@ -173,7 +156,7 @@ export const getSearchResults = async (
   }
 
   const sortParam = searchParams.get('sort');
-  const sortConfig = sortParam ? SORT_MAP[sortParam] : null;
+  const sortConfig = isSortOption(sortParam) ? SORT_MAP[sortParam] : null;
   if (sortConfig) {
     apiQuery.sortBy = sortConfig.sortBy;
     apiQuery.sortOrder = sortConfig.sortOrder;
