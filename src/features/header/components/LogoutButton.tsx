@@ -8,9 +8,7 @@ export default function LogoutButton() {
   const { authInfo } = useSessionData();
   return (
     <form action={logoutAction}>
-      <EinButton type="submit" style="link">
-        {t('site.logout')}
-      </EinButton>
+      <EinButton type="submit">{t('site.logout')}</EinButton>
     </form>
   );
 }
