@@ -7,6 +7,11 @@
 // margins here.
 .breadcrumbs {
   margin-block: 0;
+
+  li,
+  a {
+    color: var(--ds-color-neutral-text-default);
+  }
 }
 
 .breadcrumbs li {
@@ -24,7 +29,6 @@
 // `--ds-color-text-subtle` that `.ds-link` defaults to, and undecorated until
 // hover.
 .breadcrumbs a {
-  color: var(--ds-color-neutral-text-subtle);
   text-decoration: none;
 
   &:hover {
