@@ -13,6 +13,13 @@
   @include headerRow.header-row-item;
 }
 
+// Centre the caret on the link's line. Designsystemet's `vertical-align:
+// middle` centres it on the x-height, which sits low beside capitals.
+.breadcrumbs li:not(:last-child) {
+  display: flex;
+  align-items: center;
+}
+
 // Match the tabs' link treatment: neutral rather than the accent-derived
 // `--ds-color-text-subtle` that `.ds-link` defaults to, and undecorated until
 // hover.
