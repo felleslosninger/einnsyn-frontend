@@ -32,4 +32,18 @@ describe('getSafeReturnUrl', () => {
       'https://einnsyn.example/',
     );
   });
+
+  for (const returnUrl of [
+    '//attacker.example/',
+    '/.//attacker.example/',
+    '/x/..//attacker.example/',
+    'https://einnsyn.example//attacker.example/',
+  ]) {
+    test(`stays on the app origin for ${returnUrl}`, () => {
+      assert.equal(
+        new URL(getSafeReturnUrl(returnUrl, appOrigin)).origin,
+        appOrigin,
+      );
+    });
+  }
 });
