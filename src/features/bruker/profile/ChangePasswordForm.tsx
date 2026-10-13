@@ -123,11 +123,7 @@ export default function ChangePasswordForm() {
           />
           {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
           <div className={styles.formActions}>
-            <EinButton
-              variant="primary"
-              type="submit"
-              disabled={isPending}
-            >
+            <EinButton variant="primary" type="submit" disabled={isPending}>
               {t('bruker.profilePage.savePasswordChanges')}
             </EinButton>
             <EinButton
