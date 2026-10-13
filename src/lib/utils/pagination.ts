@@ -2,7 +2,7 @@ import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import {
   fetchNextPageAction,
   fetchPreviousPageAction,
-} from '~/actions/api/pagination.actions';
+} from '~/lib/api/api.actions';
 
 // Remove duplicates from a list of items based on their `id` property.
 function dedupeById<T extends Base>(items: T[]): T[] {

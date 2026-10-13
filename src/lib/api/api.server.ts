@@ -1,0 +1,29 @@
+import 'server-only';
+
+import EInnsynClient from '@digdir/einnsyn-sdk';
+import { cache } from 'react';
+import { getAuth } from '~/lib/auth/authCookie.server';
+
+export const getApiClient = async () => {
+  const auth = await getAuth();
+
+  return new EInnsynClient({
+    appInfo: 'eInnsyn frontend',
+    baseUrl: process.env.API_URL,
+    jwt: auth?.accessToken,
+    apiKey: auth?.apiKey,
+  });
+};
+
+export const cachedApiClient = cache(getApiClient);
+
+// For process-wide caches: a shared cache entry must not carry per-user
+// credentials, or it would leak auth across sessions.
+export const getPublicApiClient = async () => {
+  return new EInnsynClient({
+    appInfo: 'eInnsyn frontend',
+    baseUrl: process.env.API_URL,
+  });
+};
+
+export const cachedPublicApiClient = cache(getPublicApiClient);

@@ -1,5 +1,5 @@
+import type { TrimmedEnhet } from '~/lib/enhet/enhet';
 import type { LanguageCode } from '~/lib/translation/translation';
-import type { TrimmedEnhet } from '~/lib/utils/enhetUtils';
 
 export type EnhetNode = {
   currentName: string;

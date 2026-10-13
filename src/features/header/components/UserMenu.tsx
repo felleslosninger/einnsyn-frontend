@@ -2,14 +2,15 @@
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import { cloneElement, useState } from 'react';
-import type { ExtendedAuthInfo } from '~/actions/authentication/auth';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { brukerRoutes } from '~/features/bruker/brukerRoutes';
 import { useTranslation } from '~/hooks/useTranslation';
+import type { ExtendedAuthInfo } from '~/lib/auth/auth';
 import cn from '~/lib/utils/className';
+import { isStandardClick } from '~/lib/utils/isStandardClick';
 import LoginButton from './LoginButton';
 import LogoutButton from './LogoutButton';
 import styles from './UserMenu.module.scss';
@@ -201,7 +202,11 @@ export function Dropdown({
 
   const closeOnItemClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest('.ein-popup') && target.closest('a, button')) {
+    if (
+      isStandardClick(e) &&
+      target.closest('.ein-popup') &&
+      target.closest('a[href]')
+    ) {
       setOpen(false);
     }
   };

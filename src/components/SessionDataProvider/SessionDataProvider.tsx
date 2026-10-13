@@ -10,13 +10,14 @@ import {
   useMemo,
   useOptimistic,
 } from 'react';
-import type { AuthTimestamp } from '~/actions/cookies/authCookie';
-import {
-  type Settings,
-  updateSettingsAction,
-} from '~/actions/cookies/settingsCookie';
 import { useCookie } from '~/hooks/useCookie';
 import useIsChanged from '~/hooks/useIsChanged';
+import {
+  AUTH_TIMESTAMP_COOKIE_NAME,
+  type AuthTimestamp,
+} from '~/lib/auth/auth';
+import type { Settings } from '~/lib/settings/settings';
+import { updateSettingsAction } from '~/lib/settings/settings.actions';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 
 export type SessionData = {
@@ -53,7 +54,9 @@ export function SessionDataProvider({
   sessionData,
 }: SessionDataProviderProps) {
   const navigation = useNavigation();
-  const authTimestampCookie = useCookie<AuthTimestamp>('auth-timestamp');
+  const authTimestampCookie = useCookie<AuthTimestamp>(
+    AUTH_TIMESTAMP_COOKIE_NAME,
+  );
   const authIsChanged = useIsChanged([authTimestampCookie?.timestamp], true);
 
   const [optimisticSessionData, setOptimisticSessionData] = useOptimistic<

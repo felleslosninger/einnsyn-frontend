@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { maybeRefreshToken } from './actions/authentication/auth';
+import { maybeRefreshToken } from './lib/auth/auth.server';
 
 export async function proxy(request: NextRequest) {
   // This will update the auth cookie if needed
@@ -22,8 +22,14 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Expose the request URL to server components, since a Layout can't read
+  // its child segment's params.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+  requestHeaders.set('x-search', request.nextUrl.search);
+
   const response = NextResponse.next({
-    request,
+    request: { headers: requestHeaders },
   });
 
   return response;

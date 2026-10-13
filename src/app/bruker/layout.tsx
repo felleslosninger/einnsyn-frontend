@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { cachedAuthInfo } from '~/actions/authentication/auth';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export default async function BrukerLayout({
   children,
