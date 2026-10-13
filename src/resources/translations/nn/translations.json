@@ -241,7 +241,15 @@
     "savedSearches": "Lagra søk",
     "profile": "Profil",
     "savedSearchesPage": {
-      "description": "Her finn du søka du har lagra. Du kan abonnere på eit søk for å få varsel om nye treff."
+      "description": "Her finn du søka du har lagra. Du kan abonnere på eit søk for å få varsel om nye treff.",
+      "notificationInfo": "Varsel vert sendt på e-post éin gong i døgnet, kl. 06:00.",
+      "subscribe": "Abonner på søk",
+      "empty": "Du har ingen lagra søk enno.",
+      "sort": {
+        "default": "Dato oppretta",
+        "labelAsc": "Namn, A-Å",
+        "labelDesc": "Namn, Å-A"
+      }
     }
   }
 }

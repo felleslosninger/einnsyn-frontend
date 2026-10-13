@@ -239,7 +239,15 @@
     "savedSearches": "Vurkon ohcanat",
     "profile": "Profila",
     "savedSearchesPage": {
-      "description": "Dás gávnnat ohcamiid maid leat vurken. Sáhtát diŋgot ohcama vai oaččut dieđu ođđa bohtosiin."
+      "description": "Dás gávnnat ohcamiid maid leat vurken. Sáhtát diŋgot ohcama vai oaččut dieđu ođđa bohtosiin.",
+      "notificationInfo": "Dieđáhusat sáddejuvvojit e-poasttain oktii beaivái, dii. 06:00.",
+      "subscribe": "Diŋgo ohcama",
+      "empty": "Dus eai leat vurkon ohcanat.",
+      "sort": {
+        "default": "Ráhkadandáhpáhus",
+        "labelAsc": "Namma, A-Å",
+        "labelDesc": "Namma, Å-A"
+      }
     }
   }
 }

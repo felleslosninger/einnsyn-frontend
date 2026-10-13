@@ -21,7 +21,6 @@ export default function SearchHeader({
       enhetListVersion={enhetListVersion}
     >
       <SearchField className={styles.searchForm} />
-
       <SearchTabs className="header-tabs" />
     </EnhetProvider>
   );
