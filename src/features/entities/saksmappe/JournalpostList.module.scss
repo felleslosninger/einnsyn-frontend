@@ -2,8 +2,8 @@
 @use "../../../styles/metaSeparator" as meta;
 @use "../../../styles/effects" as fx;
 
-// The accent bar and the open row's surface animate alongside the expansion,
-// so this must match `EXPAND_DURATION_MS` in EinExpandable.
+// The open row's surface and number animate alongside the expansion, so this
+// must match `EXPAND_DURATION_MS` in EinExpandable.
 $expandDuration: 350ms;
 
 .journalpostList {
@@ -204,16 +204,11 @@ $expandDuration: 350ms;
   font-size: 1rem;
 }
 
-// Marking the expanded row: a tinted surface, the accent bar down its left
-// edge and the number in accent. The surface bleeds to the list's edges rather
-// than taking horizontal padding of its own, which would shift the row's grid
-// out of line with the rest.
+// Marking the expanded row: a tinted surface and the number in accent. The
+// surface bleeds to the list's edges rather than taking horizontal padding of
+// its own, which would shift the row's grid out of line with the rest.
 .selected {
   background: var(--ds-color-surface-tinted);
-}
-
-.selected::before {
-  opacity: 1;
 }
 
 .selected .itemNumber {
