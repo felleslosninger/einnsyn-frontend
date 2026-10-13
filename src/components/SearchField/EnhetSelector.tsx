@@ -19,8 +19,8 @@ type EnhetSelectorProps = {
  *
  * - **Desktop**: an anchored popup with a two-column "available / selected"
  *   layout. Changes buffer in a draft until the user clicks "Bruk valg".
- * - **Mobile**: a bottom-sheet modal with a flat list. Changes commit
- *   immediately on tap.
+ * - **Mobile**: a bottom-sheet modal with a flat list. Changes commit when the
+ *   sheet closes.
  *
  * List navigation keys are bound on the filter input itself (see
  * `onInputKeyDown` in `useEnhetSelectorState`), so Tab can move focus to

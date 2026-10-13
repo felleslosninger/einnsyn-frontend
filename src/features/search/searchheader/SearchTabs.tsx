@@ -1,34 +1,27 @@
 'use client';
 
 import { EinLink } from '~/components/EinLink/EinLink';
-import {
-  useOptimisticPathname,
-  useOptimisticSearchParams,
-} from '~/components/NavigationProvider/NavigationProvider';
+import { useOptimisticSearchParams } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
+import type { SearchableEntity } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
-import { buildSearchHref } from '~/lib/utils/searchHref';
 import resultStyles from '../searchresult/searchResultStyles.module.scss';
 import SearchFilterDropdown from './filter/SearchFilterDropdown';
 import styles from './SearchTabs.module.scss';
 
 export default function SearchTabs({ className }: { className?: string }) {
   const searchParams = useOptimisticSearchParams();
-  const pathname = useOptimisticPathname();
+  const searchHref = useSearchHref();
   const t = useTranslation();
 
-  // The "all" tab is the absence of an `entity` param, which `buildSearchHref`
-  // handles as the empty string.
-  const getTabHref = (entityName: string) =>
-    buildSearchHref({
-      pathname,
-      searchParams,
-      updates: { entity: entityName },
-    });
+  // The "all" tab is the absence of an `entity` param.
+  const getTabHref = (entityName?: SearchableEntity) =>
+    searchHref({ entity: entityName });
 
-  const getLinkClassName = (tabName: string) => {
+  const getLinkClassName = (tabName?: SearchableEntity) => {
     const classes: string[] = [styles.searchTab, 'header-tab'];
-    const activeTab = searchParams?.get('entity') || '';
+    const activeTab = searchParams?.get('entity') || undefined;
     if (activeTab === tabName) {
       classes.push('active');
     }
@@ -43,7 +36,7 @@ export default function SearchTabs({ className }: { className?: string }) {
     >
       <div className={styles.searchTabsScroll}>
         <div className={cn(styles.searchTabs)}>
-          <EinLink className={getLinkClassName('')} href={getTabHref('')}>
+          <EinLink className={getLinkClassName()} href={getTabHref()}>
             {t('common.all')}
           </EinLink>
           <EinLink
