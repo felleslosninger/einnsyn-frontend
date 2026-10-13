@@ -8,17 +8,23 @@ import {
 } from '~/components/EinTransition/EinTransition';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useTranslation } from '~/hooks/useTranslation';
 import { useScrollState } from '~/hooks/useScrollState';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import UserMenu from './components/UserMenu';
+import { getHeaderRootPath } from './headerPath';
 import styles from './Header.module.scss';
 
 export default function Header({ children }: { children: React.ReactNode }) {
   const { loading, optimisticPathname } = useNavigation();
-  const [rootPath = 'home'] = optimisticPathname.split('/').filter(Boolean);
+  const translate = useTranslation();
+  const rootPath = getHeaderRootPath(
+    optimisticPathname,
+    translate('routing.searchPath'),
+  );
   const isHome = rootPath === 'home';
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
@@ -161,8 +167,6 @@ export default function Header({ children }: { children: React.ReactNode }) {
         left: `${fixedViewportLeft}px`,
       }
     : undefined;
-
-  // TODO: Map rootPath from language specific URL pathname to generic pathname
 
   const className = cn(styles.header, `section-${rootPath}`, {
     [styles.scrolled]: !isHome && isScrollingDown,
