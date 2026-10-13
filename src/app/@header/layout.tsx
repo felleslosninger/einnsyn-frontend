@@ -1,4 +1,4 @@
-import { Header } from '~/features/header';
+import { HeaderWithEnhets } from '~/features/header';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import {
   getRequestPathname,
@@ -19,10 +19,10 @@ export default async function HeaderLayout({
   ]);
 
   return (
-    <Header
+    <HeaderWithEnhets
       enhetIdentifiers={getEnhetSelection(getPathEnhet(pathname), searchParams)}
     >
       {children}
-    </Header>
+    </HeaderWithEnhets>
   );
 }

@@ -2,7 +2,7 @@
 
 // Registered so that it can be transitioned at all: an unregistered custom
 // property jumps from one value to the next. Inherited, because the sticky
-// header reads the same one and has to fade in step (see StickyHeader).
+// header reads the same one and has to fade in step (see Header).
 @property --ein-top-wash {
   syntax: "<color>";
   inherits: true;
