@@ -259,12 +259,7 @@
       "description": "Here you find the searches you have saved. Subscribe to a search to be notified of new results.",
       "notificationInfo": "Notifications are sent by email once a day, at 06:00.",
       "subscribe": "Subscribe to search",
-      "empty": "You have no saved searches yet.",
-      "sort": {
-        "default": "Date created",
-        "labelAsc": "Name, A-Z",
-        "labelDesc": "Name, Z-A"
-      }
+      "empty": "You have no saved searches yet."
     }
   }
 }

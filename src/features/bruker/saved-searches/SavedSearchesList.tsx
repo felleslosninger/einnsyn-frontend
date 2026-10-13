@@ -7,19 +7,13 @@ import type {
 } from '@digdir/einnsyn-sdk';
 import { useCallback, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import { serializeParamList } from '~/lib/utils/paramList';
 import { tokensToSearchQuery } from '~/lib/utils/searchStringTokenizer';
 import styles from './SavedSearches.module.scss';
 import { SavedSearchItem } from './SavedSearchItem';
 import { SavedSearchItemSkeleton } from './SavedSearchItemSkeleton';
-
-const journalposttypeShorthand: Record<string, string> = {
-  inngaaende_dokument: 'inngaaende',
-  utgaaende_dokument: 'utgaaende',
-  organinternt_dokument_for_oppfoelging: 'organinternt',
-  organinternt_dokument_uten_oppfoelging: 'organinternt',
-};
 
 const dateToken = (prefix: string, from: unknown, to: unknown) =>
   from || to ? [{ prefix, value: `${from ?? ''}/${to ?? ''}` }] : [];
@@ -35,9 +29,7 @@ function savedSearchHref(searchPath: string, sp: SavedSearchParameters = {}) {
           {
             prefix: 'journalposttype',
             value: serializeParamList(
-              sp.journalposttype.map(
-                (type) => journalposttypeShorthand[type] ?? type,
-              ),
+              sp.journalposttype.map(toJournalposttypeShorthand),
             ),
           },
         ]
@@ -58,21 +50,11 @@ function savedSearchHref(searchPath: string, sp: SavedSearchParameters = {}) {
   return queryString ? `${searchPath}?${queryString}` : searchPath;
 }
 
-function sortItems(items: LagretSoek[], sort: string): LagretSoek[] {
-  if (sort === 'labelAsc')
-    return [...items].sort((a, b) => a.label.localeCompare(b.label));
-  if (sort === 'labelDesc')
-    return [...items].sort((a, b) => b.label.localeCompare(a.label));
-  return items;
-}
-
 export default function SavedSearchesList({
   initialPage,
-  sort,
   searchPath,
 }: {
   initialPage: PaginatedList<LagretSoek>;
-  sort: string;
   searchPath: string;
 }) {
   const [page, setPage] = useState(initialPage);
@@ -82,12 +64,10 @@ export default function SavedSearchesList({
     setPage(next);
   }, [page]);
 
-  const items = sortItems(page.items, sort);
-
   return (
     <>
       <ul className={styles.list}>
-        {items.map((savedSearch) => (
+        {page.items.map((savedSearch) => (
           <SavedSearchItem
             key={savedSearch.id}
             savedSearch={savedSearch}

@@ -29,9 +29,13 @@ export function SavedSearchItem({
   const handleSubscribeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     setSubscribe(checked);
-    startSubscribeTransition(() =>
-      setLagretSoekSubscription(savedSearch.id, checked),
-    );
+    startSubscribeTransition(async () => {
+      // Put the switch back if the server never stored the change, rather than
+      // leaving it showing a subscription the user does not have.
+      if (!(await setLagretSoekSubscription(savedSearch.id, checked))) {
+        setSubscribe(!checked);
+      }
+    });
   };
 
   return (
@@ -51,7 +55,11 @@ export function SavedSearchItem({
           data-size="sm"
           disabled={isDeleting}
           onClick={() =>
-            startDeleteTransition(() => deleteLagretSoek(savedSearch.id))
+            startDeleteTransition(async () => {
+              // A failure leaves the item in place, since the server only
+              // revalidates the list once the delete has actually happened.
+              await deleteLagretSoek(savedSearch.id);
+            })
           }
         >
           <TrashIcon aria-hidden />

@@ -1,24 +1,21 @@
 import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
-import SearchSortDropdown from '~/features/search/SearchSortDropdown';
-import { getTranslator } from '~/lib/translation/translation.actions';
+import { buildPathname } from '~/lib/routing/pathname';
+import {
+  getLanguageCode,
+  getTranslator,
+} from '~/lib/translation/translation.actions';
 import { listLagretSoek } from './lagretSoek.actions';
 import styles from './SavedSearches.module.scss';
 import SavedSearchesList from './SavedSearchesList';
 
-const SORT_OPTIONS = ['default', 'labelAsc', 'labelDesc'] as const;
-
-export default async function SavedSearches({
-  searchParams,
-}: {
-  searchParams: Promise<{ sort?: string }>;
-}) {
-  const [t, { sort }, initialPage] = await Promise.all([
+export default async function SavedSearches() {
+  const [t, languageCode, initialPage] = await Promise.all([
     getTranslator(),
-    searchParams,
+    getLanguageCode(),
     listLagretSoek(),
   ]);
 
-  const searchPath = `/${t('routing.searchPath')}`;
+  const searchPath = buildPathname({ page: 'search' }, languageCode);
 
   return (
     <div className="container-wrapper main-content">
@@ -35,17 +32,9 @@ export default async function SavedSearches({
         </div>
         <div className={styles.content}>
           <Divider />
-          <div className={styles.toolbar}>
-            <SearchSortDropdown
-              options={SORT_OPTIONS}
-              defaultOption="default"
-              translationPrefix="bruker.savedSearchesPage.sort"
-            />
-          </div>
           {initialPage.items.length ? (
             <SavedSearchesList
               initialPage={initialPage}
-              sort={sort ?? 'default'}
               searchPath={searchPath}
             />
           ) : (
