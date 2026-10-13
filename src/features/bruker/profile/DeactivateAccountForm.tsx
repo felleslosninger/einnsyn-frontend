@@ -8,19 +8,19 @@ import {
 } from '@digdir/designsystemet-react';
 import { useActionState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { deleteAccountAction } from '~/features/bruker/profile/brukerActions';
+import { deleteAccountAction } from '~/features/bruker/profile/bruker.actions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
 const DIALOG_ID = 'deactivate-account-dialog';
 
-export default function DeactivateAccountSection() {
+export default function DeactivateAccountForm() {
   const t = useTranslation();
   const [state, formAction] = useActionState(deleteAccountAction, {});
 
   return (
     <section className={styles.section}>
-      <Heading level={2} className="ds-heading" data-size="sm">
+      <Heading level={3} className="ds-heading" data-size="sm">
         {t('bruker.profilePage.deactivateAccount')}
       </Heading>
       <Paragraph>

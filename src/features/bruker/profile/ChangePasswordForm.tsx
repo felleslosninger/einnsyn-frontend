@@ -1,10 +1,11 @@
 'use client';
 
-import { Alert, Heading } from '@digdir/designsystemet-react';
+import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { PencilIcon } from '@navikt/aksel-icons';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
-import { updatePasswordAction } from '~/features/bruker/profile/brukerActions';
+import { updatePasswordAction } from '~/features/bruker/profile/bruker.actions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
 
@@ -22,6 +23,9 @@ export default function ChangePasswordForm() {
     {},
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const hasEditedRef = useRef(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,6 +39,7 @@ export default function ChangePasswordForm() {
 
   useEffect(() => {
     if (state.success) {
+      setIsEditing(false);
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -46,65 +51,95 @@ export default function ChangePasswordForm() {
     }
   }, [state]);
 
+  useEffect(() => {
+    if (isEditing) {
+      hasEditedRef.current = true;
+      formRef.current
+        ?.querySelector<HTMLInputElement>('input[name="oldPassword"]')
+        ?.focus();
+    } else if (hasEditedRef.current) {
+      editButtonRef.current?.focus();
+    }
+  }, [isEditing]);
+
   return (
-    <section className={styles.section}>
-      <Heading level={2} className="ds-heading" data-size="sm">
-        {t('bruker.profilePage.changePassword')}
+    <div className={styles.profileSection}>
+      <Heading level={3} className="ds-heading" data-size="xs">
+        {t('site.password')}
       </Heading>
-      <form
-        noValidate
-        ref={formRef}
-        action={formAction}
-        className={styles.form}
-      >
-        <EinInput
-          name="oldPassword"
-          type="password"
-          label={t('bruker.profilePage.currentPassword')}
-          autoComplete="current-password"
-          data-color="neutral"
-          required
-          fullWidth
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-        />
-        <EinInput
-          name="newPassword"
-          type="password"
-          label={t('bruker.profilePage.newPassword')}
-          autoComplete="new-password"
-          data-color="neutral"
-          required
-          fullWidth
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-        <EinInput
-          name="confirmPassword"
-          type="password"
-          label={t('bruker.profilePage.confirmNewPassword')}
-          autoComplete="new-password"
-          data-color="neutral"
-          required
-          fullWidth
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-        {state.success && (
-          <Alert data-color="success">
-            {t('bruker.profilePage.changePasswordSuccess')}
-          </Alert>
-        )}
-        {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
-        <EinButton
-          variant="primary"
-          type="submit"
-          data-color="default"
-          disabled={isPending}
+      {!isEditing ? (
+        <div className={styles.viewRow}>
+          <Paragraph>••••••••••</Paragraph>
+          <EinButton
+            ref={editButtonRef}
+            type="button"
+            style="link"
+            data-size="sm"
+            onClick={() => setIsEditing(true)}
+          >
+            <PencilIcon aria-hidden="true" focusable="false" />
+            {t('common.change')}
+          </EinButton>
+        </div>
+      ) : (
+        <form
+          noValidate
+          ref={formRef}
+          action={formAction}
+          className={styles.form}
         >
-          {t('bruker.profilePage.savePasswordChanges')}
-        </EinButton>
-      </form>
-    </section>
+          <EinInput
+            name="oldPassword"
+            type="password"
+            label={t('bruker.profilePage.currentPassword')}
+            autoComplete="current-password"
+            data-color="neutral"
+            required
+            fullWidth
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+          />
+          <EinInput
+            name="newPassword"
+            type="password"
+            label={t('bruker.profilePage.newPassword')}
+            autoComplete="new-password"
+            data-color="neutral"
+            required
+            fullWidth
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <EinInput
+            name="confirmPassword"
+            type="password"
+            label={t('bruker.profilePage.confirmNewPassword')}
+            autoComplete="new-password"
+            data-color="neutral"
+            required
+            fullWidth
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
+          <div className={styles.formActions}>
+            <EinButton
+              variant="primary"
+              type="submit"
+              disabled={isPending}
+            >
+              {t('bruker.profilePage.savePasswordChanges')}
+            </EinButton>
+            <EinButton
+              type="button"
+              variant="secondary"
+              onClick={() => setIsEditing(false)}
+            >
+              {t('common.cancel')}
+            </EinButton>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }
