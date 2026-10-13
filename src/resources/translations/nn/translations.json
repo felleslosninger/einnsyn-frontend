@@ -103,10 +103,19 @@
     "searchingIn": "Søkjer i"
   },
   "routing": {
-    "searchPath": "søk",
-    "saksmappePath": "sak",
-    "calendarPath": "kalender",
-    "statisticsPath": "statistikk"
+    "root": {
+      "search": "søk",
+      "about": "om",
+      "privacy": "personvern",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "sak",
+      "moetemappe": "moete"
+    }
   },
   "common": {
     "publishedAt": "Publisert",
@@ -152,7 +161,6 @@
   "journalpost": {
     "label": "Journalpost",
     "labelPlural": "Journalpostar",
-    "pathName": "journalpost",
     "from": "Frå",
     "to": "Til",
     "type": {
@@ -224,5 +232,13 @@
     "privacy": "Personvernerklæring",
     "accessibility": "Tilgjengelegheitserklæring",
     "github": "eInnsyn på Github"
+  },
+  "bruker": {
+    "title": "Mitt eInnsyn",
+    "accessRequests": "Innsynskrav",
+    "savedCases": "Lagra saker",
+    "savedMeetings": "Lagra møte",
+    "savedSearches": "Lagra søk",
+    "profile": "Profil"
   }
 }
