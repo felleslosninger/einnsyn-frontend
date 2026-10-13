@@ -10,8 +10,8 @@ const SCROLL_GAP_PX = 16;
 const SCROLL_ABORT_EVENTS = ['wheel', 'pointerdown', 'keydown'] as const;
 
 // First usable pixel below the site header (the first out-of-flow <header>).
-// Measured live: the header shrinks on scroll, and `--ein-header-height` is
-// declared but no longer written.
+// Measured live rather than read from `--ein-header-height`, which trails the
+// header's resize by a render.
 function stickyHeaderInset(): number {
   for (const el of document.querySelectorAll('header')) {
     const { position } = getComputedStyle(el);

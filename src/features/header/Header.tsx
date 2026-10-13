@@ -127,6 +127,15 @@ export default function Header({
     };
   }, [isHome]);
 
+  useLayoutEffect(() => {
+    if (headerHeight === null) return;
+    const rootStyle = document.documentElement.style;
+    rootStyle.setProperty('--ein-header-height', `${headerHeight}px`);
+    return () => {
+      rootStyle.removeProperty('--ein-header-height');
+    };
+  }, [headerHeight]);
+
   // Fixed-position width must track the visual viewport on mobile; `width:100%`
   // can be wider than the visible area while browser chrome is animating.
   useLayoutEffect(() => {
