@@ -11,6 +11,7 @@ import {
 import { getOrigin } from '~/lib/utils/getOrigin';
 import { logger } from '~/lib/utils/logger';
 import { deleteAuth, getAuth, updateAuth } from './authCookie.server';
+import { getSafeReturnUrl } from './safeReturnUrl';
 
 const ANSATTPORTEN_URL = process.env.ANSATTPORTEN_URL;
 const ANSATTPORTEN_CLIENT_ID = process.env.ANSATTPORTEN_CLIENT_ID;
@@ -89,7 +90,8 @@ async function getCallbackUri() {
 
 /** Send the visitor to Ansattporten to authenticate. Does not return. */
 export async function startAnsattportenLogin(originUrl: string): Promise<void> {
-  const authorizationUrl = await buildAuthorizationUrl(originUrl);
+  const safeReturnUrl = getSafeReturnUrl(originUrl, await getOrigin());
+  const authorizationUrl = await buildAuthorizationUrl(safeReturnUrl);
   redirect(authorizationUrl.href);
 }
 
@@ -193,7 +195,7 @@ export const handleCallback = async (request: Request) => {
     await deleteAnsattportenCookie();
   }
 
-  return originUrl;
+  return getSafeReturnUrl(originUrl, await getOrigin());
 };
 
 const updateAnsattportenCookie = async (content: AnsattportenCookieContent) => {
