@@ -12,10 +12,9 @@ $expandDuration: 350ms;
   --jp-col-gap: var(--ds-size-3);
   // Single source of truth for the journalpostnummer column width: `.itemRow`
   // and the expansion's left indent both read it, so the expanded detail
-  // starts at the exact x where `.itemBody` begins. Digits (measured in the
-  // list's own `ch`, a little wider than the number's smaller font, which
-  // leaves room for the selected row's bolder figures) with a floor that
-  // holds the column open while the first page is still skeletons.
+  // starts at the exact x where `.itemBody` begins. Digits in the list's own
+  // `ch`, which the number matches by sharing the title's size, with a floor
+  // that holds the column open while the first page is still skeletons.
   --jp-number-col: max(2ch, var(--jp-number-chars) * 1ch);
   // `.itemTitle`'s size and line height, tighter than the inherited 1.5 so
   // wrapped titles hold together. `.itemClose` centres itself on this line.
@@ -139,12 +138,15 @@ $expandDuration: 350ms;
 }
 
 .itemNumber {
-  // A quiet index rather than a badge: right-aligned tabular figures, so the
-  // units line up down the column whatever the digit count.
+  // A quiet index rather than a badge: the title's size and line, set light so
+  // the title still leads. Right-aligned tabular figures, so the units line up
+  // down the column whatever the digit count.
   justify-self: end;
   align-self: baseline;
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-2);
+  font-size: var(--jp-title-size);
+  line-height: var(--jp-title-line);
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
   transition: color $expandDuration fx.$easeOut;
 }
@@ -213,7 +215,7 @@ $expandDuration: 350ms;
 
 .selected .itemNumber {
   color: var(--ds-color-accent-text-default);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 
