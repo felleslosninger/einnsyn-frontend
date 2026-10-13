@@ -17,8 +17,11 @@ $expandDuration: 350ms;
   // leaves room for the selected row's bolder figures) with a floor that
   // holds the column open while the first page is still skeletons.
   --jp-number-col: max(2ch, var(--jp-number-chars) * 1ch);
-  // `.itemTitle`'s line height, tighter than the inherited 1.5 so wrapped
-  // titles hold together. `.itemClose` centres itself on this same line.
+  // `.itemTitle`'s size and line height, tighter than the inherited 1.5 so
+  // wrapped titles hold together. `.itemClose` centres itself on this line.
+  // Resolved here because `[data-size]` rescales `--ds-font-size-*`, and the
+  // close button carries one.
+  --jp-title-size: var(--ds-font-size-4);
   --jp-title-line: 1.35;
 }
 
@@ -68,43 +71,6 @@ $expandDuration: 350ms;
   }
 }
 
-.iconButton {
-  // Mirrors the Designsystemet tertiary icon button (`.ds-button[data-icon]`):
-  // subtle text that fills in on hover, surface hover/active fills, the shared
-  // focus ring and the disabled-opacity token.
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: none;
-  border-radius: var(--ds-border-radius-default);
-  background: transparent;
-  color: var(--ds-color-neutral-text-subtle);
-  cursor: pointer;
-  text-decoration: none;
-
-  &:hover {
-    background: var(--ds-color-neutral-surface-hover);
-    color: var(--ds-color-neutral-text-default);
-  }
-
-  &:active {
-    background: var(--ds-color-neutral-surface-active);
-  }
-
-  &:focus-visible {
-    position: relative;
-    box-shadow: var(--dsc-focus-boxShadow);
-    outline: var(--dsc-focus-outline);
-    outline-offset: var(--ds-border-width-focus);
-  }
-
-  svg {
-    font-size: 1.25rem;
-  }
-}
-
 .list {
   overflow-anchor: none;
   border: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
@@ -137,20 +103,6 @@ $expandDuration: 350ms;
   transition: background-color $expandDuration fx.$easeOut;
 }
 
-// The selected marker, drawn on every row and revealed on the open one. Placed
-// on `.item` rather than `.itemRow` so it spans the expansion as well, and
-// inset from the border box so it lands on the list's edge like the tinted
-// surface does.
-.item::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--ds-color-accent-base-default);
-  opacity: 0;
-  transition: opacity $expandDuration fx.$easeOut;
-}
-
 .itemRow {
   // The number cell IS the `--jp-number-col` track, so `.itemBody` and the
   // expansion below share a left edge. The action sits in a third, auto track
@@ -175,16 +127,15 @@ $expandDuration: 350ms;
 
 // The close button belongs to the title, not to the row: an open row keeps
 // growing downwards, and centring on its full height strands the button beside
-// the metadata. So centre it on the title's line box instead — `1lh` is that
-// line only because the title's font-size is matched here.
+// the metadata. So centre it on the title's line box instead.
 .itemClose {
   align-self: start;
-  font-size: var(--ds-font-size-4, 0.95rem);
-  line-height: var(--jp-title-line);
-  margin-top: calc((1lh - 2.25rem) / 2);
-  // Half the icon button's own padding, so the glyph — rather than its hit
-  // area — lines up with the buttons in the rows above and below.
-  margin-right: -0.5rem;
+  margin-top: calc(
+    (var(--jp-title-size) * var(--jp-title-line) - var(--dsc-button-size)) / 2
+  );
+  // Pulls the glyph, rather than its hit area, flush with the buttons in the
+  // rows above and below.
+  margin-right: calc((var(--ds-icon-size) - var(--dsc-button-size)) / 2);
 }
 
 .itemNumber {
@@ -212,7 +163,7 @@ $expandDuration: 350ms;
 // arrives on hover — the same bargain the search results strike.
 .itemBody .itemTitle {
   font-weight: 600;
-  font-size: var(--ds-font-size-4);
+  font-size: var(--jp-title-size);
   line-height: var(--jp-title-line);
   margin-bottom: var(--ds-size-1);
   text-decoration: none;

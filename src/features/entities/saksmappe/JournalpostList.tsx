@@ -10,6 +10,7 @@ import {
 import { SortDownIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { useCallback, useMemo, useRef } from 'react';
 import { WindowVirtualizer, type WindowVirtualizerHandle } from 'virtua';
+import { EinButton } from '~/components/EinButton/EinButton';
 import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
@@ -189,13 +190,15 @@ export default function JournalpostList({
           <h2 className={styles.title}>{t('journalpost.labelPluralInCase')}</h2>
         </div>
         <div className={styles.toolbar}>
-          <button
-            type="button"
-            className={styles.iconButton}
+          <EinButton
+            variant="tertiary"
+            icon
+            data-color="neutral"
+            data-size="sm"
             aria-label={t('searchFilters.sorting')}
           >
             <SortDownIcon aria-hidden="true" />
-          </button>
+          </EinButton>
         </div>
       </div>
 
@@ -348,19 +351,23 @@ function JournalpostListItem({
         {selected ? (
           // The expansion lists the same documents, so the action would be a
           // second copy of what is already on screen. Same href as the title.
-          <EinLink
-            href={href}
-            scroll={false}
-            aria-label={t('common.close')}
-            className={cn(
-              styles.iconButton,
-              styles.itemAction,
-              styles.itemClose,
-            )}
-            unstyled
+          <EinButton
+            asChild
+            variant="tertiary"
+            icon
+            data-color="neutral"
+            data-size="sm"
+            className={cn(styles.itemAction, styles.itemClose)}
           >
-            <XMarkIcon aria-hidden="true" />
-          </EinLink>
+            <EinLink
+              href={href}
+              scroll={false}
+              aria-label={t('common.close')}
+              unstyled
+            >
+              <XMarkIcon aria-hidden="true" />
+            </EinLink>
+          </EinButton>
         ) : (
           // In the row so it's reachable without opening the journalpost.
           <DocumentActions
