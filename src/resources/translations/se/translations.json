@@ -101,8 +101,7 @@
       "VIRKSOMHET": "Organisašuvdna"
     },
     "searchingIn": "Ohcamin",
-    "backToResults": "Ruovttoluotta ohcanbohtosiidda",
-    "toSearch": "Ohcui"
+    "backToResults": "Ruovttoluotta ohcanbohtosiidda"
   },
   "routing": {
     "root": {
@@ -141,10 +140,8 @@
     "select": "Vállje",
     "unnamed": "Nama haga",
     "close": "Gidde",
-    "open": "Raba",
     "copyToClipboard": "Kopier čuohpuspircui",
     "copiedToClipboard": "Kopierejuvvon čuohpuspircui",
-    "title": "Bajilčála",
     "apply": "Geavat",
     "clear": "Sihko",
     "filter": "Sillit",
@@ -168,35 +165,19 @@
   },
   "journalpost": {
     "label": "Journalapoasta",
-    "numberLabel": "Journalapoasta #$1",
     "labelPlural": "Journalapoasttat",
     "labelPluralInCase": "Journalapoasttat áššis",
-    "connectedToCase": "Čadnon ášši",
-    "goToCase": "TÁššái",
-    "docNumber": "Doknr.",
     "from": "Geas",
     "to": "Geasa",
-    "fromTo": "Geas/geasa",
     "moreParties": "+$1 eanet",
     "allParties": "Korrespondansaoasit",
     "docDate": "Dokumeantadáhton",
-    "recordDate": "Journálii registrerejuvvon",
-    "pubDate": "Almmuhuvvon",
     "legalBasis": "Láhkavuođđu",
     "attachmentPlural": "Mildosat",
-    "attachmentCount": "$1 mildosat",
     "mainDocument": "Váldodokumeanta",
-    "expandAttachments": "Čájet buot mildosiid",
-    "collapseAttachments": "Čiega mildosiid",
-    "notPublished": "Ii almmuhuvvon",
     "orderAccess": "Diŋgo geahčadeami",
     "downloadDocument": "Last ned dokument",
     "recordType": "Dok.málle",
-    "totalCount": "$1 oktiibuot",
-    "previous": "Ovddit journalapoasta",
-    "next": "Boahtte journalapoasta",
-    "favorite": "Mearkkaš favorihttan",
-    "moreActions": "Eanet doaibmabijut",
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",
@@ -268,8 +249,6 @@
     "github": "eInnsyn Githubas"
   },
   "virksomhet": {
-    "label": "fitnidat",
-    "navn": "namma",
     "telefon": "telefovdna",
     "adresse": "čujuhus",
     "epost": "e-poasta"
