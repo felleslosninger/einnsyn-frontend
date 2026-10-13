@@ -1,7 +1,5 @@
-'use client'; // needed for useTranslation
-
 import { Heading } from '@digdir/designsystemet-react';
-import { useTranslation } from '~/hooks/useTranslation';
+import { getTranslator } from '~/lib/translation/translation.actions';
 import ChangeEmailForm from './ChangeEmailForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import styles from './ProfileForms.module.scss';
@@ -10,8 +8,8 @@ type Props = {
   currentEmail: string;
 };
 
-export default function ProfileContent({ currentEmail }: Props) {
-  const t = useTranslation();
+export default async function ProfileContent({ currentEmail }: Props) {
+  const t = await getTranslator();
 
   return (
     <>

@@ -44,7 +44,7 @@ export async function updatePasswordAction(
 
   if (!oldPassword || !newPassword) return { error: 'missingFields' };
   if (newPassword !== confirmPassword) return { error: 'passwordMismatch' };
-  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W]).{8,}$/.test(newPassword))
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W]).{8,250}$/.test(newPassword))
     return { error: 'invalidPassword' };
 
   const authInfo = await cachedAuthInfo();
@@ -56,11 +56,7 @@ export async function updatePasswordAction(
     return { success: true };
   } catch (error) {
     if (error instanceof EInnsynError) {
-      if (
-        error.type === 'authorizationError' ||
-        error.type === 'badRequest' ||
-        error.type === 'notFound'
-      )
+      if (error.type === 'authorizationError')
         return { error: 'wrongPassword' };
       if (error.type === 'validationError') return { error: 'invalidPassword' };
       return { error: error.type };
@@ -79,11 +75,13 @@ export async function deleteAccountAction(
   try {
     const api = await cachedApiClient();
     await api.bruker.delete(authInfo.id);
-    await logoutAction();
   } catch (error) {
     if (error instanceof EInnsynError) return { error: error.type };
     return { error: 'internalServerError' };
   }
 
+  // Both of these signal by throwing, so they have to stay outside the catch
+  // above, or the redirect is swallowed and reported as a server error.
+  await logoutAction();
   redirect('/');
 }

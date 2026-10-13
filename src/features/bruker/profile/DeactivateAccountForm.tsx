@@ -18,6 +18,13 @@ export default function DeactivateAccountForm() {
   const t = useTranslation();
   const [state, formAction] = useActionState(deleteAccountAction, {});
 
+  const errorMessage = (() => {
+    if (!state.error) return undefined;
+    const key = `bruker.profilePage.errors.${state.error}`;
+    const msg = t(key);
+    return msg !== key ? msg : t('bruker.profilePage.deactivateAccountError');
+  })();
+
   return (
     <section className={styles.section}>
       <Heading level={3} className="ds-heading" data-size="sm">
@@ -26,17 +33,7 @@ export default function DeactivateAccountForm() {
       <Paragraph>
         {t('bruker.profilePage.deactivateAccountDescription')}
       </Paragraph>
-      {state.error && (
-        <Alert data-color="danger">
-          {(() => {
-            const key = `bruker.profilePage.errors.${state.error}`;
-            const msg = t(key);
-            return msg !== key
-              ? msg
-              : t('bruker.profilePage.deactivateAccountError');
-          })()}
-        </Alert>
-      )}
+      {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
       <EinButton
         type="button"
         style="destructive"
