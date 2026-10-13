@@ -260,11 +260,6 @@
     "accessibility": "Tilgjengelighetserklæring",
     "github": "eInnsyn på Github"
   },
-  "virksomhet": {
-    "telefon": "telefon",
-    "adresse": "adresse",
-    "epost": "e-post"
-  },
   "bruker": {
     "title": "Mitt eInnsyn",
     "accessRequests": "Innsynskrav",

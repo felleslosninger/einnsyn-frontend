@@ -265,11 +265,6 @@
     "accessibility": "Accessibility Statement",
     "github": "eInnsyn on Github"
   },
-  "virksomhet": {
-    "telefon": "Telephone",
-    "adresse": "address",
-    "epost": "email"
-  },
   "bruker": {
     "title": "My eInnsyn",
     "accessRequests": "Access requests",
