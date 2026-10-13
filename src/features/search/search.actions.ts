@@ -32,6 +32,14 @@ const SORT_MAP: Record<
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
+const SEARCH_FILTER_PREFIXES = new Set([
+  'fulltext',
+  'publisert',
+  'oppdatert',
+  'moetedato',
+  'journalposttype',
+]);
+
 export async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
   return {
     items: [],
@@ -90,7 +98,9 @@ export const getSearchResults = async (
     const searchTokens = searchQueryToTokens(searchParams.get('q') ?? '');
 
     // Add regular search words (preserving quotes)
-    const filteredTokens = searchTokens.filter((token) => !token.prefix);
+    const filteredTokens = searchTokens.filter(
+      (token) => !token.prefix || !SEARCH_FILTER_PREFIXES.has(token.prefix),
+    );
     apiQuery.query = tokensToSearchQuery(filteredTokens);
 
     // Fulltext
