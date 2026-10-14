@@ -1,5 +1,7 @@
+import { notFound } from 'next/navigation';
+import { isUnknownEnhet } from '~/lib/enhet/enhet.server';
 import SearchResultContainer from './SearchResultContainer';
-import { getSearchResults } from './search.actions';
+import { getSearchResults } from './search.server';
 
 export async function SearchPage({
   params,
@@ -9,6 +11,10 @@ export async function SearchPage({
   searchParams: Promise<{ [key: string]: string }>;
 }) {
   const { enhet = '' } = await params;
+  if (enhet && (await isUnknownEnhet(enhet))) {
+    notFound();
+  }
+
   const urlSearchParams = new URLSearchParams(await searchParams);
   const searchResults = await getSearchResults(enhet, urlSearchParams);
   return <SearchResultContainer searchResults={searchResults} />;
