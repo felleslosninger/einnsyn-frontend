@@ -17,9 +17,11 @@ import styles from './SavedSearches.module.scss';
 export function SavedSearchItem({
   savedSearch,
   href,
+  onDelete,
 }: {
   savedSearch: LagretSoek;
   href: string;
+  onDelete: (id: string) => void;
 }) {
   const t = useTranslation();
   const [subscribe, setSubscribe] = useState(savedSearch.subscribe ?? false);
@@ -56,9 +58,8 @@ export function SavedSearchItem({
           disabled={isDeleting}
           onClick={() =>
             startDeleteTransition(async () => {
-              // A failure leaves the item in place, since the server only
-              // revalidates the list once the delete has actually happened.
               await deleteLagretSoek(savedSearch.id);
+              onDelete(savedSearch.id);
             })
           }
         >

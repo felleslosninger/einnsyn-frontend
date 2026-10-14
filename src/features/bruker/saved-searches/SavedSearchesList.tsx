@@ -64,6 +64,10 @@ export default function SavedSearchesList({
     setPage(next);
   }, [page]);
 
+  const handleDelete = useCallback((id: string) => {
+    setPage((prev) => ({ ...prev, items: prev.items.filter((item) => item.id !== id) }));
+  }, []);
+
   return (
     <>
       <ul className={styles.list}>
@@ -72,6 +76,7 @@ export default function SavedSearchesList({
             key={savedSearch.id}
             savedSearch={savedSearch}
             href={savedSearchHref(searchPath, savedSearch.searchParameters)}
+            onDelete={handleDelete}
           />
         ))}
       </ul>
