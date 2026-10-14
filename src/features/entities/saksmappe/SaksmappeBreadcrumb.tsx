@@ -1,8 +1,8 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import EinBreadcrumb, {
-  type BreadcrumbItem,
-} from '~/components/EinBreadcrumb/Breadcrumbs';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
+import HeaderBreadcrumbs, {
+  type BreadcrumbItem,
+} from '~/features/header/HeaderBreadcrumbs';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import { getSettings } from '~/lib/settings/settings.server';
@@ -43,5 +43,5 @@ export default async function SaksmappeBreadcrumb({
     href: generateSaksmappeURL(saksmappeEntity, languageCode),
   };
 
-  return <EinBreadcrumb items={items} current={current} />;
+  return <HeaderBreadcrumbs items={items} current={current} />;
 }

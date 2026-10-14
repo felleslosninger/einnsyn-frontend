@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import styles from './Breadcrumbs.module.scss';
+import styles from './HeaderBreadcrumbs.module.scss';
 
 export type BreadcrumbItem = {
   label: string;
@@ -58,7 +58,7 @@ function buildVisibleItems(
  * single ancestor remains does it fall back to CSS text-overflow on
  * `current`. The breadcrumb never wraps.
  */
-export default function EinBreadcrumb({
+export default function HeaderBreadcrumbs({
   items,
   current,
 }: {
