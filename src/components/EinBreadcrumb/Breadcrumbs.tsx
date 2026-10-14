@@ -50,8 +50,8 @@ function buildVisibleItems(
 
 /**
  * Renders an ordered breadcrumb trail. `items` are the ancestors; `current` is
- * the page itself, linked like the rest as Designsystemet expects, and marked
- * aria-current.
+ * the page itself. It is a link too, because Designsystemet marks the last link
+ * in the trail aria-current.
  *
  * On overflow the component first collapses `items` from the middle one by
  * one (a single ellipsis crumb represents the hidden range), and only once a

@@ -1,7 +1,7 @@
 @use '../../styles/headerRow.scss' as headerRow;
 
-// The component collapses and truncates instead of wrapping. Two classes, to
-// outrank Designsystemet's `flex-wrap: wrap` whatever the load order.
+// Never wraps: the component collapses and truncates. Two classes, to outrank
+// Designsystemet's `flex-wrap: wrap` whatever the load order.
 .breadcrumbs .list {
   flex-wrap: nowrap;
 }

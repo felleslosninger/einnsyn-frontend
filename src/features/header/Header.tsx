@@ -207,9 +207,8 @@ export default function Header({
   // otherwise just update in place.
   const transitionDeps = [isHome ? 'home' : 'inner'];
   // The second row swaps whenever the section does — search tabs, breadcrumb,
-  // admin tabs. Keying on the canonical section rather than the raw segment
-  // also means moving between two enhet pages no longer counts as a change:
-  // both show the same tabs, so there is nothing to transition.
+  // admin tabs. Keyed on the canonical section, not the raw segment, so moving
+  // between two enhet pages, which show the same tabs, is not a change.
   const secondRowTransitionDeps = [section];
   const transitionEvents: EinTransitionEvents<typeof transitionDeps> = useMemo(
     () => ({

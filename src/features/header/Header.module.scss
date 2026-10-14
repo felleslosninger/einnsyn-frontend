@@ -128,9 +128,9 @@
 // The header's second row, normally a `HeaderBar`. It is the only part that
 // changes between routes, so it is what EinTransition snapshots and swaps.
 //
-// Its items inherit the font size rather than declare it: `data-size` rescales
-// the `--ds-font-size-*` tokens in here, and is kept for the spacing tokens.
-// Height is reserved because mid-swap the row briefly has no children.
+// Don't declare a font size here: `data-size` rescales the `--ds-font-size-*`
+// tokens. It is there for the spacing tokens. Height is reserved because
+// mid-swap the row briefly has no children.
 .secondRow {
   min-height: headerRow.$bar-height;
 
@@ -144,10 +144,8 @@
 // Every step ends with `await domTransitionend(element)`, whose fallback timer
 // is the element's *computed* transition-duration — so a step with no motion of
 // its own still waits out whatever the base rule declares (here, min-height's
-// 200ms). Left alone that costs ~400ms before the fade-out even starts, and
-// another 200ms sitting empty between the rows. Hence `transition: none` on
-// every step that should be instant; only the two that actually move declare a
-// duration.
+// 200ms). Steps that should be instant therefore set `transition: none`; only
+// the two that actually move declare a duration.
 //
 // These rules are all single-class, so equal specificity: source order decides
 // which wins where several are applied at once. Keep them in step order.
@@ -156,8 +154,7 @@
   transition: none;
 }
 
-// Fades out as soon as navigation starts, in parallel with loading, rather than
-// waiting for the incoming row to be ready.
+// Fades out as soon as navigation starts, in parallel with loading.
 .secondRow:global(.ein-transition-exit-transition) {
   opacity: 0;
   transition: opacity 150ms fx.$easeOut;
