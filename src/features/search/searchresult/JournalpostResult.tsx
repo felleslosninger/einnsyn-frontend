@@ -1,9 +1,8 @@
-import { isEnhet, isSaksmappe, type Journalpost } from '@digdir/einnsyn-sdk';
+import { isSaksmappe, type Journalpost } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
+import { Korrespondansepart } from '~/features/entities/journalpost/Korrespondansepart';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { useJournalpostURLGenerator } from '~/lib/utils/urlGenerators';
@@ -67,7 +66,7 @@ export default function JournalpostResult({
             </span>
           )}
         </SearchResultSubheader>
-        <JournalpostCorrespondence journalpost={item} />
+        <Korrespondansepart journalpost={item} />
         {/* TODO: implement open document functionality
         <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
           {translate('search.openDocument')}
@@ -78,79 +77,5 @@ export default function JournalpostResult({
         </EinLink> */}
       </div>
     </div>
-  );
-}
-
-function JournalpostCorrespondence({
-  journalpost,
-}: {
-  journalpost: Journalpost;
-}) {
-  const t = useTranslation();
-  const languageCode = useLanguageCode();
-  const searchHref = useSearchHref();
-  const enhet = journalpost.administrativEnhetObjekt;
-
-  if (!isEnhet(enhet)) {
-    return null;
-  }
-
-  const partyNames = (typePattern: RegExp) =>
-    (journalpost.korrespondansepart ?? [])
-      .filter((k) => typeof k !== 'string')
-      .filter((k) => typePattern.test(k.korrespondanseparttype))
-      .map((k) => k.korrespondansepartNavnSensitiv)
-      .filter((navn): navn is string => Boolean(navn));
-
-  const enhetNavn = getName(enhet, languageCode);
-  const enhetHref = searchHref({ enhet: [getEnhetIdentifier(enhet)] });
-  const from = t('journalpost.from');
-  const to = t('journalpost.to');
-  const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
-  const isOutgoing = journalpost.journalposttype === 'utgaaende_dokument';
-  const enhetNode = (
-    <EinLink href={enhetHref} className={styles.correspondenceParty}>
-      {enhetNavn}
-    </EinLink>
-  );
-
-  return (
-    <div className={styles.searchResultCorrespondence}>
-      {isIncoming && (
-        <>
-          <span className={styles.correspondenceDirection}>{to}: </span>
-          {enhetNode}{' '}
-          <span className={styles.correspondenceDirection}>{from}: </span>
-          <PartyNameList names={partyNames(/^[Aa]vsender$/)} />
-        </>
-      )}
-      {isOutgoing && (
-        <>
-          <span className={styles.correspondenceDirection}>{from}: </span>
-          {enhetNode}{' '}
-          <span className={styles.correspondenceDirection}>{to}: </span>
-          <PartyNameList names={partyNames(/^[Mm]ottaker$/)} />
-        </>
-      )}
-      {!isIncoming && !isOutgoing && enhetNode}
-    </div>
-  );
-}
-
-function PartyNameList({ names }: { names: string[] }) {
-  const t = useTranslation();
-
-  if (names.length === 0) {
-    return null;
-  }
-
-  const [first, ...rest] = names;
-  return (
-    <span className={styles.correspondenceParty}>
-      {first}
-      {rest.length > 0 && (
-        <span> {t('common.andMore', String(rest.length))}</span>
-      )}
-    </span>
   );
 }

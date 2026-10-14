@@ -1,11 +1,10 @@
 'use client';
 
 import { Skeleton } from '@digdir/designsystemet-react';
-import {
-  isEnhet,
-  type Journalpost,
-  type PaginatedList,
-  type Saksmappe,
+import type {
+  Journalpost,
+  PaginatedList,
+  Saksmappe,
 } from '@digdir/einnsyn-sdk';
 import { SortDownIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { useCallback, useMemo, useRef } from 'react';
@@ -23,7 +22,6 @@ import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useScrollToExpanded } from '~/hooks/useScrollToExpanded';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getName } from '~/lib/enhet/enhet';
 import { buildPathname, parsePathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
@@ -119,9 +117,6 @@ export default function JournalpostList({
       ),
     [enhetIdentifier, saksmappeIdentifier, languageCode],
   );
-  const ownerEnhetName = isEnhet(saksmappe.administrativEnhetObjekt)
-    ? getName(saksmappe.administrativEnhetObjekt, languageCode)
-    : '';
 
   const selectedIndex = useMemo(() => {
     if (!optimisticJournalpostIdentifier) {
@@ -226,7 +221,7 @@ export default function JournalpostList({
                 key={j.id}
                 journalpost={j}
                 href={selected ? saksmappeHref : journalpostHref(j)}
-                ownerEnhetName={ownerEnhetName}
+                ownerEnhet={saksmappe.administrativEnhetObjekt}
                 selected={selected}
                 languageCode={languageCode}
                 onExpand={onExpand}
@@ -288,7 +283,7 @@ function JournalpostListItemSkeleton({ index }: { index: number }) {
 function JournalpostListItem({
   journalpost,
   href,
-  ownerEnhetName,
+  ownerEnhet,
   selected,
   languageCode,
   onExpand,
@@ -296,7 +291,7 @@ function JournalpostListItem({
 }: {
   journalpost: Journalpost;
   href: string;
-  ownerEnhetName: string;
+  ownerEnhet: Saksmappe['administrativEnhetObjekt'];
   selected: boolean;
   languageCode: ReturnType<typeof useLanguageCode>;
   onExpand: (expandable: HTMLElement, contentHeight: number) => void;
@@ -344,7 +339,7 @@ function JournalpostListItem({
           </div>
           <Korrespondansepart
             journalpost={journalpost}
-            owner={ownerEnhetName}
+            enhet={ownerEnhet}
             className={styles.itemKorr}
           />
         </div>

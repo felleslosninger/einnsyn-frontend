@@ -28,6 +28,7 @@
   width: 100%;
   z-index: 10;
 
+  border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
   box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
 

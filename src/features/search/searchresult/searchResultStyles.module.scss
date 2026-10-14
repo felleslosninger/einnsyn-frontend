@@ -109,19 +109,6 @@
   gap: var(--ds-size-3);
 }
 
-.searchResultCorrespondence {
-
-  .correspondenceParty {
-    white-space: nowrap;
-    margin-right: var(--ds-size-2);
-  }
-
-  .correspondenceDirection {
-    font-weight: 600;
-  }
-
-}
-
 .searchResultAction {
   white-space: normal;
   cursor: pointer;
