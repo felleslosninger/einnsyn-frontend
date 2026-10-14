@@ -25,6 +25,12 @@
   max-width: 30rem;
 }
 
+.headingWithIcon {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+}
+
 .viewRow {
   display: flex;
   align-items: center;

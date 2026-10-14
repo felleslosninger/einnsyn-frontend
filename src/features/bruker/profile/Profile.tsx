@@ -1,6 +1,6 @@
 import { Divider, Heading } from '@digdir/designsystemet-react';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
-import { getTranslator } from '~/lib/translation/translation.actions';
+import { getTranslator } from '~/lib/translation/translation.server';
 import ChangeEmailForm from './ChangeEmailForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import DeactivateAccountForm from './DeactivateAccountForm';
@@ -14,9 +14,9 @@ export default async function Profile() {
     <div className="container-wrapper main-content">
       <div className="container-pre collapsible" />
       <div className="container">
-        <Heading level={2} className="ds-heading" data-size="sm">
+        {/* <Heading level={2} className="ds-heading" data-size="sm">
           {t('bruker.profile')}
-        </Heading>
+        </Heading> */}
         <div className={styles.profileList}>
           <ChangeEmailForm currentEmail={currentEmail} />
           <ChangePasswordForm />

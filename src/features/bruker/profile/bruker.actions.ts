@@ -56,7 +56,11 @@ export async function updatePasswordAction(
     return { success: true };
   } catch (error) {
     if (error instanceof EInnsynError) {
-      if (error.type === 'authorizationError')
+      if (
+        error.type === 'authorizationError' ||
+        error.type === 'notFound' ||
+        error.type === 'badRequest'
+      )
         return { error: 'wrongPassword' };
       if (error.type === 'validationError') return { error: 'invalidPassword' };
       return { error: error.type };

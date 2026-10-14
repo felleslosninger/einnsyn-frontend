@@ -253,11 +253,13 @@
     "profilePage": {
       "newEmail": "Ny e-post",
       "changeEmailError": "Kunne ikke oppdatere e-postadressen",
+      "changeEmailSuccess": "E-postadressen er oppdatert",
       "saveEmailChanges": "Lagre ny e-post",
       "currentPassword": "Nåværende passord",
       "newPassword": "Nytt passord",
       "confirmNewPassword": "Bekreft nytt passord",
       "changePasswordError": "Kunne ikke oppdatere passordet",
+      "changePasswordSuccess": "Passordet er oppdatert",
       "savePasswordChanges": "Lagre nytt passord",
       "deactivateAccount": "Slett konto",
       "deactivateAccountDescription": "Dette sletter kontoen din permanent. Alle innsynskrav, lagrede saker og lagrede søk vil bli slettet og kan ikke gjenopprettes.",

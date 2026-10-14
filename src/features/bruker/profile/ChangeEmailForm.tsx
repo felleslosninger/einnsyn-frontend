@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
-import { PencilIcon } from '@navikt/aksel-icons';
+import { EnvelopeClosedIcon, PencilIcon } from '@navikt/aksel-icons';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
@@ -57,22 +57,32 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   return (
     <div className={styles.profileSection}>
       <Heading level={3} className="ds-heading" data-size="xs">
-        {t('common.email')}
+        <span className={styles.headingWithIcon}>
+          <EnvelopeClosedIcon aria-hidden="true" focusable="false" />
+          {t('common.email')}
+        </span>
       </Heading>
       {!isEditing ? (
-        <div className={styles.viewRow}>
-          <Paragraph>{currentEmail}</Paragraph>
-          <EinButton
-            ref={editButtonRef}
-            type="button"
-            style="link"
-            data-size="sm"
-            onClick={() => setIsEditing(true)}
-          >
-            <PencilIcon aria-hidden="true" focusable="false" />
-            {t('common.change')}
-          </EinButton>
-        </div>
+        <>
+          <div className={styles.viewRow}>
+            <Paragraph>{currentEmail}</Paragraph>
+            <EinButton
+              ref={editButtonRef}
+              type="button"
+              style="link"
+              data-size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <PencilIcon aria-hidden="true" focusable="false" />
+              {t('common.change')}
+            </EinButton>
+          </div>
+          {state.success && (
+            <Alert data-color="success">
+              {t('bruker.profilePage.changeEmailSuccess')}
+            </Alert>
+          )}
+        </>
       ) : (
         <form
           noValidate

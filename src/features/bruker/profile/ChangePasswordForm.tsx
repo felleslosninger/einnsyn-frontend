@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
-import { PencilIcon } from '@navikt/aksel-icons';
+import { PadlockLockedIcon, PencilIcon } from '@navikt/aksel-icons';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
@@ -11,7 +11,6 @@ import styles from './ProfileForms.module.scss';
 
 const ERROR_FIELD_MAP: Record<string, string> = {
   wrongPassword: 'oldPassword',
-  missingFields: 'oldPassword',
   invalidPassword: 'newPassword',
   passwordMismatch: 'confirmPassword',
 };
@@ -44,7 +43,15 @@ export default function ChangePasswordForm() {
       setNewPassword('');
       setConfirmPassword('');
     } else if (state.error) {
-      const fieldName = ERROR_FIELD_MAP[state.error] ?? 'oldPassword';
+      let fieldName: string;
+      if (state.error === 'missingFields') {
+        const oldInput = formRef.current?.querySelector<HTMLInputElement>(
+          'input[name="oldPassword"]',
+        );
+        fieldName = !oldInput?.value ? 'oldPassword' : 'newPassword';
+      } else {
+        fieldName = ERROR_FIELD_MAP[state.error] ?? 'oldPassword';
+      }
       formRef.current
         ?.querySelector<HTMLInputElement>(`input[name="${fieldName}"]`)
         ?.focus();
@@ -65,22 +72,32 @@ export default function ChangePasswordForm() {
   return (
     <div className={styles.profileSection}>
       <Heading level={3} className="ds-heading" data-size="xs">
-        {t('site.password')}
+        <span className={styles.headingWithIcon}>
+          <PadlockLockedIcon aria-hidden="true" focusable="false" />
+          {t('site.password')}
+        </span>
       </Heading>
       {!isEditing ? (
-        <div className={styles.viewRow}>
-          <Paragraph>••••••••••</Paragraph>
-          <EinButton
-            ref={editButtonRef}
-            type="button"
-            style="link"
-            data-size="sm"
-            onClick={() => setIsEditing(true)}
-          >
-            <PencilIcon aria-hidden="true" focusable="false" />
-            {t('common.change')}
-          </EinButton>
-        </div>
+        <>
+          <div className={styles.viewRow}>
+            <Paragraph>••••••••••</Paragraph>
+            <EinButton
+              ref={editButtonRef}
+              type="button"
+              style="link"
+              data-size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <PencilIcon aria-hidden="true" focusable="false" />
+              {t('common.change')}
+            </EinButton>
+          </div>
+          {state.success && (
+            <Alert data-color="success">
+              {t('bruker.profilePage.changePasswordSuccess')}
+            </Alert>
+          )}
+        </>
       ) : (
         <form
           noValidate

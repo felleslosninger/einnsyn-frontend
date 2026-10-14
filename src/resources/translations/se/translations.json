@@ -241,11 +241,13 @@
     "profilePage": {
       "newEmail": "Ođas e-poasta",
       "changeEmailError": "Ii sáhttán ođastit e-poastačujuhusa",
+      "changeEmailSuccess": "E-poastačujuhus lea ođastiuvvon",
       "saveEmailChanges": "Vurket ođas e-poastačujuhusa",
       "currentPassword": "Dálá sátnevuloš",
       "newPassword": "Ođas sátnevuloš",
       "confirmNewPassword": "Duođaš ođas sátnevuloš",
       "changePasswordError": "Ii sáhttán ođastit sátnevuloša",
+      "changePasswordSuccess": "Sátnevuloš lea ođastiuvvon",
       "savePasswordChanges": "Vurket ođas sátnevuloša",
       "deactivateAccount": "Slett kontoa",
       "deactivateAccountDescription": "Dát sihkkut kontoain bissovaččat. Buot vuhtiiváldágoahtimat, vurkon ásaid ja vurkon ohcanat sihkkujuvvojit eikge sáhte máhcahuvvot.",

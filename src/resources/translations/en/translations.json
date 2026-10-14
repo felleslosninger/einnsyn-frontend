@@ -258,11 +258,13 @@
     "profilePage": {
       "newEmail": "New email",
       "changeEmailError": "Could not update email address",
+      "changeEmailSuccess": "Email address updated",
       "saveEmailChanges": "Save new email",
       "currentPassword": "Current password",
       "newPassword": "New password",
       "confirmNewPassword": "Confirm new password",
       "changePasswordError": "Could not update password",
+      "changePasswordSuccess": "Password updated",
       "savePasswordChanges": "Save new password",
       "deactivateAccount": "Delete account",
       "deactivateAccountDescription": "This permanently deletes your account. All access requests, saved cases, and saved searches will be deleted and cannot be recovered.",
