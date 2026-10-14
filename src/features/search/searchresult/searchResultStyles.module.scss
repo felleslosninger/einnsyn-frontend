@@ -1,5 +1,3 @@
-@use "../../../styles/metaSeparator" as meta;
-
 .searchResults {
   padding-top: var(--ds-size-6);
 }
@@ -90,16 +88,10 @@
   }
 
   .searchResultMeta {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
     // Takes the rest of the subheader's line and wraps inside itself, so the
     // dot keeps the label company instead of being left on a line of its own.
     flex: 1;
     min-width: 0;
-    row-gap: var(--ds-size-2);
-
-    @include meta.separators;
   }
 }
 
