@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { isUnknownEnhet } from '~/lib/enhet/enhet.server';
 import SearchResultContainer from './SearchResultContainer';
-import { getSearchResults } from './search.actions';
+import { getSearchResults } from './search.server';
 
 export async function SearchPage({
   params,
