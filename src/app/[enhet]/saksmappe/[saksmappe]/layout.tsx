@@ -4,14 +4,7 @@ import { getRequestPathname } from '~/lib/routing/requestPath.server';
 
 // The saksmappe page is rendered from a layout rather than a page so that
 // JournalpostList stays a single mounted instance across the index <-> detail
-// navigation —
-// that's what lets the detail pane's open/close transition run to completion
-// instead of being canceled by a remount.
-//
-// A layout can't read its child segment's `journalpost` param, so the active
-// journalpost is recovered from the request pathname. This only runs on the
-// initial server render; the layout is reused across client navigations within
-// the saksmappe.
+// navigation.
 export default async function SaksmappeLayout({
   params,
   children,
@@ -19,15 +12,18 @@ export default async function SaksmappeLayout({
   params: Promise<{ saksmappe: string }>;
   children: React.ReactNode;
 }) {
+  // A layout receives neither params nor searchParams, so the saksmappe and
+  // journalpostIdentifier the request is scoped to is recovered from the request URL.
   const [{ saksmappe = '' }, pathname] = await Promise.all([
     params,
     getRequestPathname(),
   ]);
+  const journalpostIdentifier = parsePathname(pathname)?.journalpostIdentifier;
 
   return (
     <Saksmappe
       saksmappeId={saksmappe}
-      activeJournalpost={parsePathname(pathname)?.journalpostIdentifier}
+      activeJournalpost={journalpostIdentifier}
     >
       {children}
     </Saksmappe>
