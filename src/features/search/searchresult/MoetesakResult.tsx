@@ -5,7 +5,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
-import { useMoetesakURLGenerator } from '~/lib/utils/urlGenerators';
+import { generateMoetesakURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -18,12 +18,11 @@ export default function MoetesakResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const moetesakURL = useMoetesakURLGenerator();
   const utvalg = item.utvalgObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'moetesak-result')}>
-      <EinLink href={moetesakURL(item)}>
+      <EinLink href={generateMoetesakURL(item, languageCode)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>

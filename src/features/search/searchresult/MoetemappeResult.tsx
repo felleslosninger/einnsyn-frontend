@@ -6,7 +6,7 @@ import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
-import { useMoetemappeURLGenerator } from '~/lib/utils/urlGenerators';
+import { generateMoetemappeURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -19,7 +19,6 @@ export default function MoetemappeResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const moetemappeURL = useMoetemappeURLGenerator();
   const meetingDate = item.moetedato
     ? dateFormat(item.moetedato, languageCode)
     : undefined;
@@ -27,7 +26,7 @@ export default function MoetemappeResult({
 
   return (
     <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
-      <EinLink href={moetemappeURL(item)}>
+      <EinLink href={generateMoetemappeURL(item, languageCode)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>

@@ -1,13 +1,14 @@
 import { isSaksmappe, type Saksmappe } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
-import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 
 export default function SaksmappeLink({
   saksmappe,
 }: {
   saksmappe: Saksmappe | string | undefined;
 }) {
-  const saksmappeURL = useSaksmappeURLGenerator();
+  const languageCode = useLanguageCode();
 
   // A collapsed reference (a bare id) has no saksnummer to label the link with.
   if (!isSaksmappe(saksmappe)) {
@@ -18,7 +19,7 @@ export default function SaksmappeLink({
     <EinLink
       className="saksmappe-link"
       data-color="neutral"
-      href={saksmappeURL(saksmappe)}
+      href={generateSaksmappeURL(saksmappe, languageCode)}
     >
       {saksmappe.saksnummer}
     </EinLink>

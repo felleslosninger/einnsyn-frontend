@@ -5,7 +5,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
-import { useSaksmappeURLGenerator } from '~/lib/utils/urlGenerators';
+import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -18,12 +18,11 @@ export default function SaksmappeResult({
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
-  const saksmappeURL = useSaksmappeURLGenerator();
   const enhet = item.administrativEnhetObjekt;
 
   return (
     <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
-      <EinLink href={saksmappeURL(item)}>
+      <EinLink href={generateSaksmappeURL(item, languageCode)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>

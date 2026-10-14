@@ -8,7 +8,6 @@ import type {
 } from '@digdir/einnsyn-sdk';
 import { useCallback } from 'react';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
-import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { getEnhetIdentifier } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import type { LanguageCode } from '~/lib/translation/translation';
@@ -105,40 +104,6 @@ export function generateFileURL(
   apiUrl: string,
 ): string {
   return `${apiUrl}/dokumentobjekt/${dokumentobjekt.id}/download`;
-}
-
-// Hook wrappers for use in client components
-export function useSaksmappeURLGenerator() {
-  const languageCode = useLanguageCode();
-  return useCallback(
-    (saksmappe: Saksmappe) => generateSaksmappeURL(saksmappe, languageCode),
-    [languageCode],
-  );
-}
-
-export function useJournalpostURLGenerator() {
-  const languageCode = useLanguageCode();
-  return useCallback(
-    (journalpost: Journalpost) =>
-      generateJournalpostURL(journalpost, languageCode),
-    [languageCode],
-  );
-}
-
-export function useMoetemappeURLGenerator() {
-  const languageCode = useLanguageCode();
-  return useCallback(
-    (moetemappe: Moetemappe) => generateMoetemappeURL(moetemappe, languageCode),
-    [languageCode],
-  );
-}
-
-export function useMoetesakURLGenerator() {
-  const languageCode = useLanguageCode();
-  return useCallback(
-    (moetesak: Moetesak) => generateMoetesakURL(moetesak, languageCode),
-    [languageCode],
-  );
 }
 
 export function useFileURLGenerator() {
