@@ -159,6 +159,13 @@ describe('tokensToSearchQuery', () => {
     assert.strictEqual(result, 'prefix:prefixed prefix2:"prefixed sequence"');
   });
 
+  test('quotes prefixed values with spaces', () => {
+    const result = tokensToSearchQuery([
+      { value: 'Oslo kommune', prefix: 'unit' },
+    ]);
+    assert.strictEqual(result, 'unit:"Oslo kommune"');
+  });
+
   test('mix', () => {
     const result = tokensToSearchQuery([
       { value: 'prefixed', prefix: 'prefix' },
