@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
+import cn from '~/lib/utils/className';
 import styles from './EntityHeader.module.scss';
 
 /** One `label: value` pair in an entity's metadata. */
@@ -21,7 +22,9 @@ export default function EntityHeader({
 }) {
   return (
     <header className={styles.entityHeader}>
-      <h1 className={styles.title}>{title}</h1>
+      <h1 className={cn('ds-heading', styles.title)} data-size="sm">
+        {title}
+      </h1>
 
       {meta.length > 0 && (
         <dl className={styles.meta}>

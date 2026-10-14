@@ -43,11 +43,6 @@ $expandDuration: 350ms;
   margin-bottom: calc(var(--ds-size-2) * -1);
 }
 
-.title {
-  margin: 0;
-  font-size: var(--ds-font-size-4, 0.95rem);
-}
-
 .count {
   color: var(--ds-color-neutral-text-subtle, inherit);
   font-size: var(--ds-font-size-3, 0.875rem);

@@ -182,7 +182,9 @@ export default function JournalpostList({
     >
       <div className={styles.listHeader}>
         <div className={styles.titleGroup}>
-          <h2 className={styles.title}>{t('journalpost.labelPluralInCase')}</h2>
+          <h2 className="ds-heading" data-size="2xs">
+            {t('journalpost.labelPluralInCase')}
+          </h2>
         </div>
         <div className={styles.toolbar}>
           <EinButton

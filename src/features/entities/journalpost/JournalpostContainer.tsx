@@ -28,7 +28,7 @@ export default function JournalpostContainer({
     return (
       <>
         <div>{t('journalpost.label')}</div>
-        <h2>{t('journalpost.404')}</h2>
+        <h2 className="ds-heading">{t('journalpost.404')}</h2>
       </>
     );
   }
