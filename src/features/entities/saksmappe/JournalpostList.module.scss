@@ -7,21 +7,11 @@
 $expandDuration: 350ms;
 
 .journalpostList {
-  // Digit count of the widest loaded journalpostnummer, set from JS.
-  --jp-number-chars: 1;
-  --jp-col-gap: var(--ds-size-3);
-  // Single source of truth for the journalpostnummer column width: `.itemRow`
-  // and the expansion's left indent both read it, so the expanded detail
-  // starts at the exact x where `.itemBody` begins. Digits in the list's own
-  // `ch`, which the number matches by sharing the title's size, with a floor
-  // that holds the column open while the first page is still skeletons.
-  --jp-number-col: max(2ch, var(--jp-number-chars) * 1ch);
-  // `.itemTitle`'s size and line height, tighter than the inherited 1.5 so
-  // wrapped titles hold together. `.itemClose` centres itself on this line.
-  // Resolved here because `[data-size]` rescales `--ds-font-size-*`, and the
-  // close button carries one.
-  --jp-title-size: var(--ds-font-size-4);
-  --jp-title-line: 1.35;
+  // The title's line box, for `.itemClose` to centre on. Resolved here because
+  // `[data-size]` rescales the font tokens, and the close button carries one.
+  --jp-title-line-box: calc(
+    var(--ds-body-md-font-size) * var(--ds-body-short-md-line-height)
+  );
 }
 
 .listHeader {
@@ -41,11 +31,6 @@ $expandDuration: 350ms;
   position: relative;
   padding-bottom: var(--ds-size-4);
   margin-bottom: calc(var(--ds-size-2) * -1);
-}
-
-.count {
-  color: var(--ds-color-neutral-text-subtle, inherit);
-  font-size: var(--ds-font-size-3, 0.875rem);
 }
 
 .toolbar {
@@ -103,7 +88,7 @@ $expandDuration: 350ms;
   // at the far right.
   display: grid;
   grid-template-columns: var(--jp-number-col) minmax(0, 1fr) auto;
-  column-gap: var(--jp-col-gap);
+  column-gap: var(--ds-size-3);
   // The number and the body sit on a shared baseline (see `.itemNumber`); the
   // start alignment is what the action track falls back to before it centres
   // itself.
@@ -119,28 +104,23 @@ $expandDuration: 350ms;
   align-self: center;
 }
 
-// The close button belongs to the title, not to the row: an open row keeps
-// growing downwards, and centring on its full height strands the button beside
-// the metadata. So centre it on the title's line box instead.
+// Centred on the title's line: an open row keeps growing downwards, and
+// centring on its full height would strand the button beside the metadata.
 .itemClose {
   align-self: start;
-  margin-top: calc(
-    (var(--jp-title-size) * var(--jp-title-line) - var(--dsc-button-size)) / 2
-  );
+  margin-top: calc((var(--jp-title-line-box) - var(--dsc-button-size)) / 2);
   // Pulls the glyph, rather than its hit area, flush with the buttons in the
   // rows above and below.
   margin-right: calc((var(--ds-icon-size) - var(--dsc-button-size)) / 2);
 }
 
 .itemNumber {
-  // A quiet index rather than a badge: the title's size and line, set light so
-  // the title still leads. Right-aligned tabular figures, so the units line up
-  // down the column whatever the digit count.
+  // Set light so the title still leads. Tabular figures keep the units lined
+  // up down the column whatever the digit count.
   justify-self: end;
   align-self: baseline;
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--jp-title-size);
-  line-height: var(--jp-title-line);
+  line-height: var(--ds-body-short-md-line-height);
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   transition: color $expandDuration fx.$easeOut;
@@ -156,12 +136,9 @@ $expandDuration: 350ms;
 }
 
 // Two classes to outrank EinLink's own `.einLink`, which underlines every
-// link: in a list of them the colour is signal enough, and the underline
-// arrives on hover — the same bargain the search results strike.
+// link; here the underline only comes on hover.
 .itemBody .itemTitle {
-  font-weight: 600;
-  font-size: var(--jp-title-size);
-  line-height: var(--jp-title-line);
+  line-height: var(--ds-body-short-md-line-height);
   margin-bottom: var(--ds-size-1);
   text-decoration: none;
 
@@ -178,28 +155,18 @@ $expandDuration: 350ms;
   align-items: center;
   row-gap: var(--ds-size-1);
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-2);
+  font-size: var(--ds-body-xs-font-size);
 
   @include meta.separators;
 }
 
 .itemBody .itemKorr {
-  font-size: var(--ds-font-size-2);
+  font-size: var(--ds-body-xs-font-size);
 }
 
-.attachmentBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ds-size-1);
-}
-
-.attachmentIcon {
-  font-size: 1rem;
-}
-
-// Marking the expanded row: a tinted surface and the number in accent. The
-// surface bleeds to the list's edges rather than taking horizontal padding of
-// its own, which would shift the row's grid out of line with the rest.
+// The expanded row: a tinted surface and the number in accent. The surface
+// bleeds to the list's edges; padding of its own would shift the row's grid out
+// of line with the others.
 .selected {
   background: var(--ds-color-surface-tinted);
 }
@@ -215,7 +182,7 @@ $expandDuration: 350ms;
 
 .expansion {
   // Align the detail's left edge with `.itemBody`.
-  padding-left: calc(var(--jp-number-col) + var(--jp-col-gap));
+  padding-left: calc(var(--jp-number-col) + var(--ds-size-3));
 
   @include mq.small {
     padding-left: 0;

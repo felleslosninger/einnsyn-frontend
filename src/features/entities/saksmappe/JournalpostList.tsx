@@ -144,10 +144,10 @@ export default function JournalpostList({
     scrollToItem: scrollToSelected,
   });
 
-  // Digit count of the widest loaded journalpostnummer; the stylesheet turns
-  // it into the `--jp-number-col` width.
+  // Digit count of the widest loaded journalpostnummer, at least 2 so the
+  // column stays open while the first page is still skeletons.
   const numberColChars = useMemo(() => {
-    let maxChars = 0;
+    let maxChars = 2;
     for (const j of page.items) {
       maxChars = Math.max(
         maxChars,
@@ -178,7 +178,9 @@ export default function JournalpostList({
     <div
       ref={rootRef}
       className={styles.journalpostList}
-      style={{ '--jp-number-chars': numberColChars } as React.CSSProperties}
+      style={
+        { '--jp-number-col': `${numberColChars}ch` } as React.CSSProperties
+      }
     >
       <div className={styles.listHeader}>
         <div className={styles.titleGroup}>
