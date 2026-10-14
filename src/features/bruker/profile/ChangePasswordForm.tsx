@@ -80,7 +80,7 @@ export default function ChangePasswordForm() {
       {!isEditing ? (
         <>
           <div className={styles.viewRow}>
-            <Paragraph>••••••••••</Paragraph>
+            <Paragraph>•••••••••••••</Paragraph>
             <EinButton
               ref={editButtonRef}
               type="button"
