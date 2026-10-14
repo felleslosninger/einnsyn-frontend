@@ -4,7 +4,7 @@ import { describe, test } from 'node:test';
 import { resolveLanguageCode, supportedLanguages } from './translation';
 
 describe('translation', () => {
-  describe('getLanguageCode', () => {
+  describe('resolveLanguageCode', () => {
     test('*', () => {
       const result = resolveLanguageCode('*', ['en', 'nb', 'nn', 'se']);
       assert.strictEqual(result, 'en');
@@ -53,8 +53,8 @@ describe('translation', () => {
     });
   });
 
-  // These pin the list `getLanguageCode` passes: an unsupported code has no
-  // translation bundle, so returning one would print raw keys in the UI.
+  // These pin the list `resolveDefaultLanguage` passes: an unsupported code has
+  // no translation bundle, so returning one would print raw keys in the UI.
   describe('supportedLanguages', () => {
     test('picks the preferred supported language', () => {
       assert.strictEqual(
