@@ -280,10 +280,10 @@ export default function Header({
 
           await Promise.all([domTransitionend(head), domTransitionend(form)]);
         } else if (fromInnerToHome(fromLayout, toLayout)) {
-          const headerTabs = head.querySelector('.header-tabs');
-          const currentHeaderTabsRect =
-            headerTabs instanceof HTMLElement
-              ? headerTabs.getBoundingClientRect()
+          const headerBar = head.querySelector('.header-bar');
+          const currentHeaderBarRect =
+            headerBar instanceof HTMLElement
+              ? headerBar.getBoundingClientRect()
               : null;
 
           lockElementToRect(head, currentHeadRect, currentHeadRect, {
@@ -294,14 +294,10 @@ export default function Header({
           });
           lockElementToRect(form, currentFormRect, currentHeadRect);
           if (
-            headerTabs instanceof HTMLElement &&
-            currentHeaderTabsRect instanceof DOMRect
+            headerBar instanceof HTMLElement &&
+            currentHeaderBarRect instanceof DOMRect
           ) {
-            lockElementToRect(
-              headerTabs,
-              currentHeaderTabsRect,
-              currentHeadRect,
-            );
+            lockElementToRect(headerBar, currentHeaderBarRect, currentHeadRect);
           }
 
           await animationFrame(1);
@@ -314,9 +310,9 @@ export default function Header({
           head.style.borderBottomColor = 'transparent';
           head.style.height = `${targetHeadRect.height}px`;
 
-          if (headerTabs instanceof HTMLElement) {
-            headerTabs.style.transition = `opacity 200ms ${EASE_OUT_QUART}`;
-            headerTabs.style.opacity = '0';
+          if (headerBar instanceof HTMLElement) {
+            headerBar.style.transition = `opacity 200ms ${EASE_OUT_QUART}`;
+            headerBar.style.opacity = '0';
           }
 
           // Animate input field

@@ -59,11 +59,9 @@
       }
     }
 
-    :global(.header-tabs) {
+    :global(.header-bar) {
       opacity: 0;
       height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
       overflow: hidden;
       transition: all 0.2s fx.$easeOut;
     }
@@ -103,7 +101,7 @@
       }
     }
 
-    :global(.header-tabs) {
+    :global(.header-bar) {
       display: none;
     }
 
@@ -113,10 +111,6 @@
       min-height: 0;
     }
   }
-
-  // (Entity pages put their breadcrumb in the second row, where search results
-  // show their tabs. Both inherit the row's type, so nothing section-specific
-  // is needed here — the breadcrumb's own module zeroes its block margins.)
 }
 
 .searchForm {
@@ -131,27 +125,14 @@
   }
 }
 
-// The header's second row: search tabs, breadcrumb trail, admin tabs. This is
-// the only part that changes between routes, so it is what EinTransition
-// snapshots and swaps — the search field above it is never re-mounted.
+// The header's second row, normally a `HeaderBar`. It is the only part that
+// changes between routes, so it is what EinTransition snapshots and swaps.
 //
-// Type is settled here, once, and inherited by whatever the row holds — that is
-// what makes the breadcrumb match the search tabs it replaces, rather than the
-// two being coincidentally similar.
-//
-// The target is the tabs as they were: `body`'s md size with the tabs' own 1.3
-// leading. Note the size is deliberately *not* declared. `data-size` below
-// rescales the `--ds-font-size-*` tokens, so `var(--ds-body-md-font-size)`
-// resolved in here would come out smaller than the same token on `body`;
-// inheriting instead gives the real md size. `data-size` stays only because
-// descendants use the rescaled *spacing* tokens for their padding.
-//
-// Height is reserved rather than derived from the children, because mid-swap
-// the row briefly has none: EinTransition removes the outgoing row a frame
-// before revealing the incoming one. The reserved value comes from the same
-// place as the item box, so the two cannot drift apart.
+// Its items inherit the font size rather than declare it: `data-size` rescales
+// the `--ds-font-size-*` tokens in here, and is kept for the spacing tokens.
+// Height is reserved because mid-swap the row briefly has no children.
 .secondRow {
-  @include headerRow.header-row-reserved-height;
+  min-height: headerRow.$bar-height;
 
   line-height: var(--ds-line-height-sm);
   transition: min-height 0.2s fx.$easeOut;

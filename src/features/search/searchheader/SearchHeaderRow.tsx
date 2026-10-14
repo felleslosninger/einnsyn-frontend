@@ -1,3 +1,5 @@
+import HeaderBar from '~/features/header/HeaderBar';
+import SearchFilterDropdown from '~/features/search/searchheader/filter/SearchFilterDropdown';
 import SearchTabs from '~/features/search/searchheader/SearchTabs';
 
 /**
@@ -6,5 +8,9 @@ import SearchTabs from '~/features/search/searchheader/SearchTabs';
  * a search route's header slot contributes.
  */
 export default function SearchHeaderRow() {
-  return <SearchTabs className="header-tabs" />;
+  return (
+    <HeaderBar end={<SearchFilterDropdown />}>
+      <SearchTabs />
+    </HeaderBar>
+  );
 }

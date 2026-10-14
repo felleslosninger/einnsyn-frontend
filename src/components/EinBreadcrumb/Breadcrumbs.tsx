@@ -2,6 +2,7 @@
 
 import { Breadcrumbs } from '@digdir/designsystemet-react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './Breadcrumbs.module.scss';
@@ -48,8 +49,9 @@ function buildVisibleItems(
 }
 
 /**
- * Renders an ordered breadcrumb trail. `items` are the linkable ancestors;
- * `current` is the trailing aria-current label.
+ * Renders an ordered breadcrumb trail. `items` are the ancestors; `current` is
+ * the page itself, linked like the rest as Designsystemet expects, and marked
+ * aria-current.
  *
  * On overflow the component first collapses `items` from the middle one by
  * one (a single ellipsis crumb represents the hidden range), and only once a
@@ -61,7 +63,7 @@ export default function EinBreadcrumb({
   current,
 }: {
   items: readonly BreadcrumbItem[];
-  current: string;
+  current: BreadcrumbItem;
 }) {
   const t = useTranslation();
 
@@ -108,30 +110,31 @@ export default function EinBreadcrumb({
       className={styles.breadcrumbs}
       aria-label={t('breadcrumbs.label')}
     >
-      <Breadcrumbs.List ref={listRef} className={styles.breadcrumbs}>
+      <Breadcrumbs.List ref={listRef} className={styles.list}>
         {visibleItems.map((slot) =>
           slot.kind === 'ellipsis' ? (
             <Breadcrumbs.Item key="ellipsis">
-              <span className={styles.ellipsis} aria-hidden="true">
-                …
-              </span>
+              <span aria-hidden="true">…</span>
             </Breadcrumbs.Item>
           ) : (
             <Breadcrumbs.Item key={slot.item.href}>
-              <Breadcrumbs.Link href={slot.item.href}>
+              <EinLink unstyled className={styles.item} href={slot.item.href}>
                 {slot.item.label}
-              </Breadcrumbs.Link>
+              </EinLink>
             </Breadcrumbs.Item>
           ),
         )}
         <Breadcrumbs.Item>
-          <span
-            className={cn(styles.currentItem, {
+          <EinLink
+            unstyled
+            className={cn(styles.item, {
               [styles.truncate]: truncateCurrent,
             })}
+            href={current.href}
+            aria-current="page"
           >
-            {current}
-          </span>
+            {current.label}
+          </EinLink>
         </Breadcrumbs.Item>
       </Breadcrumbs.List>
     </Breadcrumbs>

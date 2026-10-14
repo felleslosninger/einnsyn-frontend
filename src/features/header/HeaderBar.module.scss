@@ -1,0 +1,31 @@
+@use '../../styles/headerRow.scss' as headerRow;
+@use '../../styles/mediaQueries.scss' as mq;
+
+// The height is explicit rather than auto so the collapse on scroll can
+// animate it, and the row is pinned to the bottom so it leaves with that edge.
+.bar {
+  display: flex;
+  align-items: flex-end;
+  height: headerRow.$bar-height;
+  // Pull the end action out towards the search field's edge, which also
+  // reaches past the container.
+  margin-right: calc(-1 * var(--ds-size-4));
+
+  @include mq.small {
+    margin-right: 0;
+  }
+}
+
+// Centres the end action on the items, which are taller.
+.row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-4);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}

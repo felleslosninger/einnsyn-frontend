@@ -7,6 +7,7 @@ import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
+import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 
 // Server component that builds the saksmappe breadcrumb trail. Used in the
 // `@header` slot so the trail sits in the sticky header where search lives on
@@ -37,7 +38,10 @@ export default async function SaksmappeBreadcrumb({
       }))
     : [];
 
-  const saksmappeLabel = `${t('saksmappe.label')} ${saksmappeEntity.saksnummer}`;
+  const current: BreadcrumbItem = {
+    label: `${t('saksmappe.label')} ${saksmappeEntity.saksnummer}`,
+    href: generateSaksmappeURL(saksmappeEntity, languageCode),
+  };
 
-  return <EinBreadcrumb items={items} current={saksmappeLabel} />;
+  return <EinBreadcrumb items={items} current={current} />;
 }
