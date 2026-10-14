@@ -27,7 +27,7 @@
     "react-dom": "^19.3.0",
     "sass": "^1.105.1",
     "server-only": "^0.0.1",
-    "virtua": "^0.53.1"
+    "virtua": "^0.53.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
