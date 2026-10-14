@@ -1,11 +1,28 @@
-import { ApiKeysPage } from '~/features/admin';
+import { notFound } from 'next/navigation';
+import { cachedApiClient } from '~/lib/api/api.server';
+import { cachedAuthInfo } from '~/lib/auth/auth.server';
+import { logger } from '~/lib/utils/logger';
+import ApiKeys from '../../../../features/admin/api-keys/ApiKeys';
 
-export default async function ApiKeys({
+export default async function ApiKeysPage({
   params,
 }: {
   params: Promise<{ enhetId: string }>;
 }) {
-  const { enhetId } = await params;
+  const authInfo = await cachedAuthInfo();
+  if (!authInfo) {
+    notFound();
+  }
 
-  return <ApiKeysPage enhetId={enhetId} />;
+  const { enhetId } = await params;
+  const apiClient = await cachedApiClient();
+
+  const apiKeys = await apiClient.enhet.listApiKey(enhetId).catch((error) => {
+    logger.warn('Failed to fetch API keys for enhet', {
+      error: error instanceof Error ? error.message : String(error),
+      enhetId,
+    });
+    notFound();
+  });
+  return <ApiKeys apiKeys={apiKeys} />;
 }

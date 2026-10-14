@@ -1,2 +1,1 @@
-export { default as AdminHeaderRow } from './AdminHeaderRow';
-export { default as ApiKeysPage } from './api-keys/ApiKeysPage';
+export { default as AdminTabs } from './AdminTabs';
