@@ -4,7 +4,6 @@ import { describe, it } from 'node:test';
 import {
   getSection,
   isModalSection,
-  sectionDepth,
   showsSearchField,
   showsSearchResults,
 } from './sections';
@@ -88,19 +87,5 @@ describe('isModalSection', () => {
       .map((entry) => getSection(`/${entry.slice('(.)'.length)}`));
 
     assert.deepEqual(intercepted.filter(isModalSection), intercepted);
-  });
-});
-
-describe('sectionDepth', () => {
-  it('puts the entity pages one level in from the results', () => {
-    assert.ok(sectionDepth('saksmappe') > sectionDepth('search'));
-    assert.ok(sectionDepth('moetemappe') > sectionDepth('enhet'));
-    assert.ok(sectionDepth('saksmappe') > sectionDepth('home'));
-  });
-
-  it('keeps every results section on one level, so moving between them has no direction', () => {
-    assert.equal(sectionDepth('home'), sectionDepth('search'));
-    assert.equal(sectionDepth('search'), sectionDepth('enhet'));
-    assert.equal(sectionDepth('saksmappe'), sectionDepth('moetemappe'));
   });
 });

@@ -36,27 +36,38 @@
   right: 0;
 }
 
-// How far the page travels. Enough to read as a direction, not as a slide.
-$travel: 2rem;
+$travel: 3rem;
+$exitDuration: 250ms;
+$enterDuration: 250ms;
 
-// Which way each half moves. The direction is carried in custom properties
-// rather than in the step selectors below, so that every step rule stays a
-// plain pair of classes — see the ordering note there.
 .page[data-page-transition="inward"] {
   --page-exit-x: -#{$travel};
-  --page-enter-x: #{$travel};
+  --page-enter-x: #{$travel/4};
+  --page-exit-duration: 350ms;
+  --page-enter-duration: 350ms;
 }
 
 .page[data-page-transition="outward"] {
   --page-exit-x: #{$travel};
-  --page-enter-x: -#{$travel};
+  --page-enter-x: -#{$travel/4};
+  --page-exit-duration: 300ms;
+  --page-enter-duration: 300ms;
+}
+
+// A cross-fade. `none` rather than `0px`: a page with any translate becomes the
+// containing block for what is absolutely positioned inside it, so that would
+// move as the page arrives.
+.page[data-page-transition="fade"] {
+  --page-exit-x: none;
+  --page-enter-x: none;
 }
 
 // Someone who has asked for less motion gets the cross-fade without the travel.
+// Same specificity as the rules above, so it has to stay after them.
 @media (prefers-reduced-motion: reduce) {
   .page[data-page-transition] {
-    --page-exit-x: 0px;
-    --page-enter-x: 0px;
+    --page-exit-x: none;
+    --page-enter-x: none;
   }
 }
 
@@ -74,10 +85,11 @@ $travel: 2rem;
 // the incoming one: `waitForLoad` is the step after this.
 .page:global(.ein-transition-exit-transition) {
   opacity: 0;
-  transform: translateX(var(--page-exit-x, 0px));
-  transition:
-    opacity 150ms fx.$easeOut,
-    transform 150ms fx.$easeOut;
+  translate: var(--page-exit-x, none);
+  transition-property: opacity, translate;
+  transition-duration: calc(var(--page-exit-duration, #{$exitDuration}) / 2),
+  var(--page-exit-duration, #{$exitDuration});
+  transition-timing-function: fx.$easeOut;
 }
 
 // Held here, already gone, while the new page loads.
@@ -89,7 +101,7 @@ $travel: 2rem;
 // animated, and the gap between the two pages waits on this step.
 .page:global(.ein-transition-init-enter-transition) {
   opacity: 0;
-  transform: translateX(var(--page-enter-x, 0px));
+  translate: var(--page-enter-x, none);
   transition: none;
 }
 
@@ -97,8 +109,9 @@ $travel: 2rem;
 // step, and this is the one that has to win.
 .page:global(.ein-transition-enter-transition) {
   opacity: 1;
-  transform: none;
-  transition:
-    opacity 200ms fx.$easeOut,
-    transform 200ms fx.$easeOut;
+  translate: none;
+  transition-property: opacity, translate;
+  transition-duration: calc(var(--page-enter-duration, #{$enterDuration}) / 2),
+  var(--page-enter-duration, #{$enterDuration});
+  transition-timing-function: linear, fx.$easeOut;
 }
