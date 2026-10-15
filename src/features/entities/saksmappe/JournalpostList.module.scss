@@ -79,6 +79,9 @@ $expandDuration: 350ms;
 .item {
   position: relative;
   padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  // Kept clear of the header and viewport edges when an expanded row is
+  // scrolled into place, by `useScrollToExpanded` and by the browser alike.
+  scroll-margin-block: var(--ds-size-4);
   transition: background-color $expandDuration fx.$easeOut;
 }
 

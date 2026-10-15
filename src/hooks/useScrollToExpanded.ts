@@ -3,23 +3,34 @@ import { EXPAND_DURATION_MS } from '~/components/EinExpandable/EinExpandable';
 import { suspendScrollDirection } from '~/hooks/useScrollState';
 import { animationFrame } from '~/lib/utils/animationFrame';
 
-// Gap between the expanded item and the header/viewport edges.
-const SCROLL_GAP_PX = 16;
 // User input cancels the scroll glide. The click that started the expansion
 // fired its pointerdown before the listener goes on.
 const SCROLL_ABORT_EVENTS = ['wheel', 'pointerdown', 'keydown'] as const;
 
-// First usable pixel below the site header (the first out-of-flow <header>).
-// Measured live rather than read from `--ein-header-height`, which trails the
-// header's resize by a render.
-function stickyHeaderInset(): number {
+// Height of the site header (the first out-of-flow <header>). Measured live
+// rather than read from `--ein-header-height`, which trails the header's
+// resize by a render.
+function stickyHeaderHeight(): number {
   for (const el of document.querySelectorAll('header')) {
     const { position } = getComputedStyle(el);
     if (position === 'fixed' || position === 'sticky') {
-      return el.getBoundingClientRect().height + SCROLL_GAP_PX;
+      return el.getBoundingClientRect().height;
     }
   }
-  return SCROLL_GAP_PX;
+  return 0;
+}
+
+// The band an item comes to rest in, viewport-relative: clear of the header
+// and the bottom edge by the item's `scroll-margin`.
+type Bounds = { top: number; bottom: number };
+
+function restingBounds(item: Element | null | undefined): Bounds {
+  const style = item ? getComputedStyle(item) : undefined;
+  const margin = (value = '') => Number.parseFloat(value) || 0;
+  return {
+    top: stickyHeaderHeight() + margin(style?.scrollMarginTop),
+    bottom: window.innerHeight - margin(style?.scrollMarginBottom),
+  };
 }
 
 // How an expanded item should come to rest. Intent rather than a coordinate:
@@ -32,26 +43,22 @@ type Placement =
 function placeExpanded(
   currentTop: number,
   itemHeight: number,
-  inset: number,
+  bounds: Bounds,
 ): Placement {
-  const bottomLimit = window.innerHeight - SCROLL_GAP_PX;
-  if (inset + itemHeight > bottomLimit) return { mode: 'top' };
-  if (currentTop < inset) return { mode: 'top' };
-  if (currentTop + itemHeight > bottomLimit) {
+  if (bounds.top + itemHeight > bounds.bottom) return { mode: 'top' };
+  if (currentTop < bounds.top) return { mode: 'top' };
+  if (currentTop + itemHeight > bounds.bottom) {
     return { mode: 'bottom', itemHeight };
   }
   return { mode: 'keep', top: currentTop };
 }
 
-function placementTop(placement: Placement, inset: number): number {
-  if (placement.mode === 'top') return inset;
+function placementTop(placement: Placement, bounds: Bounds): number {
+  if (placement.mode === 'top') return bounds.top;
   if (placement.mode === 'bottom') {
-    return Math.max(
-      inset,
-      window.innerHeight - SCROLL_GAP_PX - placement.itemHeight,
-    );
+    return Math.max(bounds.top, bounds.bottom - placement.itemHeight);
   }
-  return Math.max(inset, placement.top);
+  return Math.max(bounds.top, placement.top);
 }
 
 // Matches `fx.$easeOut` ($easeOutQuint) so the scroll glide follows the CSS
@@ -135,11 +142,12 @@ function whenLaidOut(element: HTMLElement, run: () => void): () => void {
  * Scrolls the expanded item in a window-scrolled list to a comfortable
  * resting place, gliding in step with `EinExpandable`'s height transition.
  *
- * The consumer marks the expanded item with `data-expanded` inside the
- * element `rootRef` is attached to, and passes `onExpand` to the item's
- * `EinExpandable`. A deep link (already expanded on first render, no enter
- * transition coming) is placed on mount, through `scrollToItem` where there
- * is one.
+ * The consumer marks every item with `data-expanded` ("true" on the expanded
+ * one) inside the element `rootRef` is attached to, gives the items the
+ * `scroll-margin` to keep from the header and viewport edges, and passes
+ * `onExpand` to the item's `EinExpandable`. A deep link (already expanded on
+ * first render, no enter transition coming) is placed on mount, through
+ * `scrollToItem` where there is one.
  */
 export function useScrollToExpanded({
   expandedKey,
@@ -149,9 +157,9 @@ export function useScrollToExpanded({
   // the deep-link/out-of-window handling.
   expandedKey: string | undefined;
   // Bring the expanded item into the rendered window when it isn't in the
-  // DOM (e.g. a virtualizer hasn't mounted it), offset by the given header
-  // inset. Must be referentially stable.
-  scrollToItem?: (headerInset: number) => void;
+  // DOM (e.g. a virtualizer hasn't mounted it), its top at the given offset
+  // from the viewport top. Must be referentially stable.
+  scrollToItem?: (top: number) => void;
 }): {
   rootRef: RefObject<HTMLDivElement | null>;
   onExpand: (expandable: HTMLElement, contentHeight: number) => void;
@@ -172,16 +180,20 @@ export function useScrollToExpanded({
       const releaseScrollDirection = suspendScrollDirection();
       animationFrame(2).then(releaseScrollDirection, releaseScrollDirection);
 
-      const inset = stickyHeaderInset();
       const item = root?.querySelector<HTMLElement>('[data-expanded="true"]');
+      // Items share their scroll margin, so an unmounted one borrows any
+      // mounted item's.
+      const bounds = restingBounds(
+        item ?? root?.querySelector('[data-expanded]'),
+      );
       if (!item) {
-        scrollToItem?.(inset);
+        scrollToItem?.(bounds.top);
         return;
       }
       if (!isInitial) return;
 
       const rect = item.getBoundingClientRect();
-      const placement = placeExpanded(rect.top, rect.height, inset);
+      const placement = placeExpanded(rect.top, rect.height, bounds);
       if (placement.mode === 'keep') return;
       // The item is in the DOM but its offset is not final: the server renders
       // every row, and the virtualizer then swaps the ones outside its window
@@ -189,9 +201,9 @@ export function useScrollToExpanded({
       // off the further down the list the item is, so where the consumer has a
       // measuring scroll of its own, the placement is its job.
       if (scrollToItem) {
-        scrollToItem(inset);
+        scrollToItem(bounds.top);
       } else {
-        window.scrollBy(0, rect.top - placementTop(placement, inset));
+        window.scrollBy(0, rect.top - placementTop(placement, bounds));
       }
     };
 
@@ -210,9 +222,9 @@ export function useScrollToExpanded({
       // collapsed row alone.
       const top = settledItemTop(rootRef.current, item);
       const itemHeight = item.getBoundingClientRect().height + contentHeight;
-      const inset = stickyHeaderInset();
-      const placement = placeExpanded(top, itemHeight, inset);
-      smoothScrollBy(top - placementTop(placement, inset));
+      const bounds = restingBounds(item);
+      const placement = placeExpanded(top, itemHeight, bounds);
+      smoothScrollBy(top - placementTop(placement, bounds));
     },
     [],
   );

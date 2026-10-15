@@ -132,11 +132,11 @@ export default function JournalpostList({
 
   // Called when the selected row isn't mounted — a history navigation to a
   // journalpost outside virtua's rendered window.
-  const scrollToSelected = useCallback((headerInset: number) => {
+  const scrollToSelected = useCallback((top: number) => {
     if (selectedIndexRef.current < 0) return;
     vlistRef.current?.scrollToIndex(selectedIndexRef.current, {
       align: 'start',
-      offset: -headerInset,
+      offset: -top,
     });
   }, []);
   const { rootRef, onExpand } = useScrollToExpanded({
@@ -307,8 +307,9 @@ function JournalpostListItem({
   return (
     <div
       className={cn(styles.item, { [styles.selected]: selected })}
-      // Lets `useScrollToExpanded` find the expanded row across virtua remounts.
-      data-expanded={selected || undefined}
+      // On every row: `useScrollToExpanded` finds the expanded one across
+      // virtua remounts, and reads the rows' scroll margin from any of them.
+      data-expanded={selected}
     >
       <div className={styles.itemRow}>
         {/* Readable text, not a link: the number must reach assistive tech. */}
