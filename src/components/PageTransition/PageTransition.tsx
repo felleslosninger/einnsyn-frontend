@@ -8,23 +8,41 @@ import {
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { usePageSection } from '~/hooks/usePageSection';
 import { suspendScrollDirection } from '~/hooks/useScrollState';
-import { sectionDepth } from '~/lib/routes/sections';
+import type { Section } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import styles from './PageTransition.module.scss';
+import { type PageTransitionName, pageTransition } from './pageTransitionRules';
 
-// Which way the page is travelling, as a value the stylesheet can select on.
-// Only the pair of levels knows this, and by the time the incoming page is
-// posed the level it came from is gone — so each side is stamped as it starts.
-function markDirection(
-  element: HTMLElement,
-  [to]: number[],
-  from: number[] | undefined,
-): string | undefined {
-  const previous = from?.[0];
-  if (previous === undefined) return undefined;
-  const direction = to > previous ? 'inward' : 'outward';
-  element.dataset.pageTransition = direction;
-  return direction;
+// A new object per transition, so two in a row with the same name still read as
+// a change to `EinTransition`.
+type Transition = { name: PageTransitionName };
+
+// The transition the last change of section asked for. A change the rules
+// answer with `null` keeps the previous one, so `EinTransition` sees nothing
+// change and does not start.
+function useSectionTransition(): Transition | null {
+  const section = usePageSection();
+  const last = useRef<{ section: Section; transition: Transition | null }>({
+    section,
+    transition: null,
+  });
+  if (section !== last.current.section) {
+    const name = pageTransition(last.current.section, section);
+    last.current = {
+      section,
+      transition: name ? { name } : last.current.transition,
+    };
+  }
+  return last.current.transition;
+}
+
+// The transition's name, for the stylesheet to select on. The outgoing page is
+// a snapshot and the incoming one a different element, so each is stamped as
+// its half starts.
+function markPage(element: HTMLElement, transition: Transition | null) {
+  if (transition) {
+    element.dataset.pageTransition = transition.name;
+  }
 }
 
 // Pins the outgoing page to the viewport at the offset it was last seen. The
@@ -48,45 +66,45 @@ function pinOutgoing(outgoing: HTMLElement) {
 // scroll position of the page being returned to inside that window — against a
 // document that is not there, so the position is lost. The mark is what lets
 // the stylesheet keep the page in the layout and hide it by other means.
-function markContainer(element: HTMLElement, direction: string | undefined) {
+function markContainer(element: HTMLElement, name: string | undefined) {
   const container = element.parentElement;
   if (!container) return;
-  if (direction) {
-    container.dataset.pageTransition = direction;
+  if (name) {
+    container.dataset.pageTransition = name;
   } else {
     delete container.dataset.pageTransition;
   }
 }
 
 /**
- * The `<main>` element, with the page inside it animated across a move between
- * search results and an entity page: the outgoing page leaves towards the side
- * it came from, the incoming one arrives from the other.
+ * The `<main>` element, with the page inside it animated when the section on
+ * screen changes. Whether it animates, and how, is up to the rules in
+ * `pageTransition`; the stylesheet gives each name its motion.
  *
- * The depth — not the pathname — is the dependency, so the transition runs on
- * exactly those moves. A journalpost opening inside its saksmappe, a new query
- * on the search page, or a modal over either one all stay on one level and are
- * left to the animations those views run themselves.
+ * The section — not the pathname — is what is watched, so a journalpost opening
+ * inside its saksmappe, a new query on the search page, or a modal over either
+ * one are left to the animations those views run themselves.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const { loading } = useNavigation();
-  const depth = sectionDepth(usePageSection());
+  const transition = useSectionTransition();
   // Taken as the transition starts, so the header is already on its way back to
   // full height while the outgoing page leaves, and held for the length of the
   // transition: the router's scroll, and any the arriving page makes to bring
   // its own content into view, must not compact it again.
   const releaseScrollDirection = useRef<(() => void) | null>(null);
 
-  const events = useMemo<EinTransitionEvents<number[]>>(
+  const events = useMemo<EinTransitionEvents<[Transition | null]>>(
     () => ({
-      onInitTransition: (element, to, from) => {
+      onInitTransition: (element, [transition]) => {
         pinOutgoing(element);
-        markContainer(element, markDirection(element, to, from));
+        markPage(element, transition);
+        markContainer(element, transition?.name);
         releaseScrollDirection.current?.();
         releaseScrollDirection.current = suspendScrollDirection();
       },
-      onInitEnterTransition: (element, to, from) => {
-        markDirection(element, to, from);
+      onInitEnterTransition: (element, [transition]) => {
+        markPage(element, transition);
       },
       // Before the step classes come off, so the page is never both class-less
       // and still under the rules that hide it.
@@ -110,7 +128,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     // take over from the viewport for anything sticky on the page.
     <main className={cn('content-flex-grow', styles.viewport)}>
       <EinTransition
-        dependencies={[depth]}
+        dependencies={[transition]}
         loading={loading}
         events={events}
         withClassNames
