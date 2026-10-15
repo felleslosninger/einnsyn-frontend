@@ -19,14 +19,14 @@ mock.module(apiUrl, {
 
 let moduleSequence = 0;
 
-async function freshSearchActions(search: () => Promise<PaginatedList<Base>>) {
+async function freshSearchServer(search: () => Promise<PaginatedList<Base>>) {
   currentSearch = search;
   moduleSequence += 1;
-  return import(`./search.actions.ts?test=${moduleSequence}`);
+  return import(`./search.server.ts?test=${moduleSequence}`);
 }
 
 test('keeps a successful empty search result', async () => {
-  const { getSearchResults } = await freshSearchActions(async () => ({
+  const { getSearchResults } = await freshSearchServer(async () => ({
     items: [],
   }));
 
@@ -36,7 +36,7 @@ test('keeps a successful empty search result', async () => {
 });
 
 test('returns null when the search request fails', async () => {
-  const { getSearchResults } = await freshSearchActions(async () => {
+  const { getSearchResults } = await freshSearchServer(async () => {
     throw new Error('Search API unavailable');
   });
 

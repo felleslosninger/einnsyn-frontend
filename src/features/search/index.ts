@@ -1,4 +1,4 @@
 export { SearchPage } from './SearchPage';
 export { default as SearchResultContainer } from './SearchResultContainer';
-export { getEmptySearchResults, getSearchResults } from './search.actions';
+export { getSearchResults } from './search.server';
 export { default as SearchHeader } from './searchheader/SearchHeader';

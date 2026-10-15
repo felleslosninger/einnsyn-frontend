@@ -1,19 +1,4 @@
-'use client';
-
-import { useEffect } from 'react';
-import { logger } from '~/lib/utils/logger';
-
-export default function EinError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  useEffect(() => {
-    logger.error(error);
-  }, [error]);
-
+export default function NotFound() {
   return (
     <div className="container-wrapper">
       <div className="container-pre" />

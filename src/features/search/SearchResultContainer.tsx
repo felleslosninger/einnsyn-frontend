@@ -1,12 +1,13 @@
 'use client';
 
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { useEnhetFilterIds } from '~/hooks/useEnhetFilterIds';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getPathEnhet } from '~/lib/routing/pathname';
+import { getEnhetSelection } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
@@ -22,12 +23,29 @@ export default function SearchResultContainer({
   searchResults: PaginatedList<Base> | null;
 }) {
   const t = useTranslation();
-  const { selectedEnhetIdentifiers: enhetIds } = useEnhetFilterIds();
+  const {
+    loadingPathname,
+    pathname,
+    loadingSearchParamsString,
+    searchParamsString,
+    loading,
+    optimisticPathname,
+    optimisticSearchParams,
+  } = useNavigation();
+  const enhetIds = useMemo(
+    () =>
+      getEnhetSelection(
+        getPathEnhet(optimisticPathname),
+        optimisticSearchParams,
+      ),
+    [optimisticPathname, optimisticSearchParams],
+  );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base> | null>(searchResults);
-  const { loadingSearchParamsString, searchParamsString, loading } =
-    useNavigation();
-  const isLoading = loading && loadingSearchParamsString !== searchParamsString;
+  const isLoading =
+    loading &&
+    (loadingPathname !== pathname ||
+      loadingSearchParamsString !== searchParamsString);
 
   const searchSymbolRef = useRef<symbol>(Symbol());
 
@@ -71,20 +89,19 @@ export default function SearchResultContainer({
               aria-busy={isLoading}
               aria-live="polite"
             >
-              {currentSearchResults === null ? null : (
-                currentSearchResults.items.length ? (
-                  currentSearchResults.items.map((item) => (
-                    <SearchResult
-                      className={styles.searchResult}
-                      key={item.id}
-                      item={item}
-                    />
-                  ))
-                ) : (
-                  <div className={cn(styles.searchResult, 'no-results')}>
-                    <p>{t('common.noResults')}</p>
-                  </div>
-                )
+              {currentSearchResults === null ? null : currentSearchResults.items
+                  .length ? (
+                currentSearchResults.items.map((item) => (
+                  <SearchResult
+                    className={styles.searchResult}
+                    key={item.id}
+                    item={item}
+                  />
+                ))
+              ) : (
+                <div className={cn(styles.searchResult, 'no-results')}>
+                  <p>{t('common.noResults')}</p>
+                </div>
               )}
               {currentSearchResults?.next && (
                 <EinScrollTrigger onEnter={scrollTriggerHandler}>
