@@ -1,5 +1,6 @@
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react';
 import { EXPAND_DURATION_MS } from '~/components/EinExpandable/EinExpandable';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { suspendScrollDirection } from '~/hooks/useScrollState';
 import { animationFrame } from '~/lib/utils/animationFrame';
 
@@ -20,16 +21,26 @@ function stickyHeaderHeight(): number {
   return 0;
 }
 
-// The band an item comes to rest in, viewport-relative: clear of the header
-// and the bottom edge by the item's `scroll-margin`.
-type Bounds = { top: number; bottom: number };
+// Viewport-relative. An item between `visibleTop` and `visibleBottom` (the
+// header and the bottom edge) is in view; one that has to move comes to rest
+// between `top` and `bottom`, the same inset by its `scroll-margin`.
+type Bounds = {
+  visibleTop: number;
+  visibleBottom: number;
+  top: number;
+  bottom: number;
+};
 
 function restingBounds(item: Element | null | undefined): Bounds {
   const style = item ? getComputedStyle(item) : undefined;
   const margin = (value = '') => Number.parseFloat(value) || 0;
+  const visibleTop = stickyHeaderHeight();
+  const visibleBottom = window.innerHeight;
   return {
-    top: stickyHeaderHeight() + margin(style?.scrollMarginTop),
-    bottom: window.innerHeight - margin(style?.scrollMarginBottom),
+    visibleTop,
+    visibleBottom,
+    top: visibleTop + margin(style?.scrollMarginTop),
+    bottom: visibleBottom - margin(style?.scrollMarginBottom),
   };
 }
 
@@ -45,12 +56,16 @@ function placeExpanded(
   itemHeight: number,
   bounds: Bounds,
 ): Placement {
-  if (bounds.top + itemHeight > bounds.bottom) return { mode: 'top' };
-  if (currentTop < bounds.top) return { mode: 'top' };
-  if (currentTop + itemHeight > bounds.bottom) {
-    return { mode: 'bottom', itemHeight };
+  // In view is enough: the margin is only for where a moved item stops.
+  if (
+    currentTop >= bounds.visibleTop &&
+    currentTop + itemHeight <= bounds.visibleBottom
+  ) {
+    return { mode: 'keep', top: currentTop };
   }
-  return { mode: 'keep', top: currentTop };
+  if (bounds.top + itemHeight > bounds.bottom) return { mode: 'top' };
+  if (currentTop < bounds.visibleTop) return { mode: 'top' };
+  return { mode: 'bottom', itemHeight };
 }
 
 function placementTop(placement: Placement, bounds: Bounds): number {
@@ -58,7 +73,7 @@ function placementTop(placement: Placement, bounds: Bounds): number {
   if (placement.mode === 'bottom') {
     return Math.max(bounds.top, bounds.bottom - placement.itemHeight);
   }
-  return Math.max(bounds.top, placement.top);
+  return Math.max(bounds.visibleTop, placement.top);
 }
 
 // Matches `fx.$easeOut` ($easeOutQuint) so the scroll glide follows the CSS
@@ -147,7 +162,8 @@ function whenLaidOut(element: HTMLElement, run: () => void): () => void {
  * `scroll-margin` to keep from the header and viewport edges, and passes
  * `onExpand` to the item's `EinExpandable`. A deep link (already expanded on
  * first render, no enter transition coming) is placed on mount, through
- * `scrollToItem` where there is one.
+ * `scrollToItem` where there is one, except on back/forward, where the
+ * browser restores the scroll.
  */
 export function useScrollToExpanded({
   expandedKey,
@@ -165,53 +181,93 @@ export function useScrollToExpanded({
   onExpand: (expandable: HTMLElement, contentHeight: number) => void;
 } {
   const rootRef = useRef<HTMLDivElement>(null);
+  // Read when the list mounts: back/forward leaves the scroll to the browser,
+  // which restores it.
+  const { navigationType } = useNavigation();
+  const navigationTypeRef = useRef(navigationType);
+  navigationTypeRef.current = navigationType;
 
-  const initialPlacementPending = useRef(true);
+  // Cleared once the arrival placement has run, not when it is scheduled: an
+  // effect cleaned up before its frame (Strict Mode, a quick re-render) leaves
+  // it to the next run.
+  const arrivalPending = useRef(true);
   useLayoutEffect(() => {
-    const isInitial = initialPlacementPending.current;
-    initialPlacementPending.current = false;
-    if (!expandedKey) return;
+    if (!expandedKey) {
+      arrivalPending.current = false;
+      return;
+    }
 
     const root = rootRef.current;
+    let cancelled = false;
 
-    const place = () => {
-      // A virtualizer corrects its own scroll over the following frames, so the
-      // hold outlasts the call that starts it.
+    // A virtualizer corrects its own scroll over the following frames, so the
+    // hold outlasts the call that starts it.
+    const holdScrollDirection = () => {
       const releaseScrollDirection = suspendScrollDirection();
       animationFrame(2).then(releaseScrollDirection, releaseScrollDirection);
+    };
 
+    // A page arrived at starts at the top, so the item is placed as it sits
+    // there, and the page goes back to the top when it fits.
+    const placeOnArrival = () => {
       const item = root?.querySelector<HTMLElement>('[data-expanded="true"]');
-      // Items share their scroll margin, so an unmounted one borrows any
-      // mounted item's.
-      const bounds = restingBounds(
-        item ?? root?.querySelector('[data-expanded]'),
-      );
-      if (!item) {
-        scrollToItem?.(bounds.top);
+      if (cancelled || !item) return;
+      arrivalPending.current = false;
+      holdScrollDirection();
+
+      const bounds = restingBounds(item);
+      const rect = item.getBoundingClientRect();
+      const topAtPageTop = rect.top + window.scrollY;
+      const placement = placeExpanded(topAtPageTop, rect.height, bounds);
+      if (placement.mode === 'keep') {
+        window.scrollTo(0, 0);
         return;
       }
-      if (!isInitial) return;
-
-      const rect = item.getBoundingClientRect();
-      const placement = placeExpanded(rect.top, rect.height, bounds);
-      if (placement.mode === 'keep') return;
       // The item is in the DOM but its offset is not final: the server renders
       // every row, and the virtualizer then swaps the ones outside its window
       // for estimated spacers. Scrolling by a delta measured now lands further
       // off the further down the list the item is, so where the consumer has a
       // measuring scroll of its own, the placement is its job.
       if (scrollToItem) {
-        scrollToItem(bounds.top);
+        scrollToItem(placementTop(placement, bounds));
       } else {
-        window.scrollBy(0, rect.top - placementTop(placement, bounds));
+        window.scrollTo(0, topAtPageTop - placementTop(placement, bounds));
       }
+    };
+
+    const place = () => {
+      const item = root?.querySelector<HTMLElement>('[data-expanded="true"]');
+      if (!item) {
+        arrivalPending.current = false;
+        holdScrollDirection();
+        // Items share their scroll margin, so an unmounted one borrows any
+        // mounted item's.
+        scrollToItem?.(
+          restingBounds(root?.querySelector('[data-expanded]')).top,
+        );
+        return;
+      }
+      if (!arrivalPending.current) return;
+      if (navigationTypeRef.current === 'native') {
+        arrivalPending.current = false;
+        return;
+      }
+      // The commit that mounts the list is not the settled layout (the
+      // virtualizer has yet to measure), so the placement waits a frame.
+      animationFrame(1).then(placeOnArrival);
     };
 
     if (!root) {
       place();
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
-    return whenLaidOut(root, place);
+    const stopWaiting = whenLaidOut(root, place);
+    return () => {
+      cancelled = true;
+      stopWaiting();
+    };
   }, [expandedKey, scrollToItem]);
 
   const onExpand = useCallback(
