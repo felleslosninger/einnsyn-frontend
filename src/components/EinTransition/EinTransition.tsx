@@ -442,8 +442,10 @@ export function EinTransition<T extends unknown[] = [number]>(
     }
   }, [loading, transitionStep]);
 
-  // Cleanup on unmount
-  useEffect(() => {
+  // Cleanup on unmount. A layout effect, so the snapshot leaves in the same
+  // commit as its owner: anything that measures in that commit (Next's scroll
+  // to the new page) must not still see it.
+  useLayoutEffect(() => {
     return () => {
       snapshotRef.current?.remove();
       transitionIdRef.current = null;
