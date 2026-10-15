@@ -11,13 +11,15 @@ import { showsSearchResults } from '~/lib/routing/sections';
 // not whichever search happened most recently.
 const SEARCH_ORIGIN_KEY = '__einSearchOrigin';
 
-function readSearchOrigin(): string | undefined {
+// `null` marks an entry visited with no search in front of it; `undefined`
+// means it was never stamped, i.e. a fresh hop.
+function readSearchOrigin(): string | null | undefined {
   if (typeof window === 'undefined') return undefined;
   const value = window.history.state?.[SEARCH_ORIGIN_KEY];
-  return typeof value === 'string' ? value : undefined;
+  return typeof value === 'string' || value === null ? value : undefined;
 }
 
-function writeSearchOrigin(url: string | undefined) {
+function writeSearchOrigin(url: string | null) {
   if (typeof window === 'undefined') return;
   if (readSearchOrigin() === url) return;
 
@@ -47,30 +49,33 @@ export function useSearchOrigin(
   pathname: string,
   searchParamsString: string,
 ): string | undefined {
-  const [searchOrigin, setSearchOrigin] = useState<string | undefined>(
-    undefined,
-  );
+  const [searchOrigin, setSearchOrigin] = useState<string | null>(null);
   // Mirrors the state so the effect can carry the previous value forward
   // without re-running when it changes.
-  const searchOriginRef = useRef<string | undefined>(undefined);
+  const searchOriginRef = useRef<string | null>(null);
 
   useEffect(() => {
     const currentUrl = searchParamsString
       ? `${pathname}?${searchParamsString}`
       : pathname;
 
-    const nextSearchOrigin = showsSearchResults(pathname)
-      ? currentUrl
-      : // A stamped entry means we have been here before (back/forward, or a
-        // reload); otherwise this is a fresh hop away from the last search.
-        (readSearchOrigin() ?? searchOriginRef.current);
+    let nextSearchOrigin: string | null;
+    if (showsSearchResults(pathname)) {
+      nextSearchOrigin = currentUrl;
+    } else {
+      // A stamped entry means we have been here before (back/forward, or a
+      // reload); otherwise this is a fresh hop away from the last search.
+      const stamped = readSearchOrigin();
+      nextSearchOrigin =
+        stamped === undefined ? searchOriginRef.current : stamped;
+    }
 
     searchOriginRef.current = nextSearchOrigin;
     setSearchOrigin(nextSearchOrigin);
     writeSearchOrigin(nextSearchOrigin);
   }, [pathname, searchParamsString]);
 
-  return searchOrigin;
+  return searchOrigin ?? undefined;
 }
 
 /**

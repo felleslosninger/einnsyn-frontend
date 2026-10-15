@@ -8,12 +8,10 @@ import {
 } from '@navikt/aksel-icons';
 import { useCallback, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
-import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
-import { isStandardClick } from '~/lib/utils/isStandardClick';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
 import { useSearchField } from './SearchFieldProvider';
@@ -33,8 +31,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     backToSearchHref,
     searchTarget,
   } = useSearchField();
-  const navigation = useNavigation();
-  const { previousPathname, previousSearchParamsString } = navigation;
   const isMobileLayout = useBreakpoint('SM');
   const [activeContainer, setActiveContainer] = useState<string | undefined>(
     undefined,
@@ -64,34 +60,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     setSearchQuery('');
   }, [setSearchQuery]);
 
-  // Prefer `back()` when the search really is the previous history entry: it
-  // reuses the router cache and lets the browser restore the result list's
-  // scroll position, which a fresh push cannot. Deeper chains
-  // (`search → saksmappe → journalpost`) fall back to a push.
-  const handleBackToSearch = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>) => {
-      if (!isStandardClick(event) || event.defaultPrevented) {
-        return;
-      }
-
-      const previousUrl = previousSearchParamsString
-        ? `${previousPathname}?${previousSearchParamsString}`
-        : previousPathname;
-
-      if (previousUrl === backToSearchHref) {
-        event.preventDefault();
-        navigation.back();
-      }
-      // Otherwise let EinLink push the remembered search as normal.
-    },
-    [
-      navigation,
-      previousPathname,
-      previousSearchParamsString,
-      backToSearchHref,
-    ],
-  );
-
   const showClearButton =
     !backToSearchHref &&
     !!searchQuery &&
@@ -110,7 +78,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
     <EinLink
       href={backToSearchHref}
       className={cn(styles.backToSearch)}
-      onClick={handleBackToSearch}
       unstyled
     >
       <ArrowLeftIcon
