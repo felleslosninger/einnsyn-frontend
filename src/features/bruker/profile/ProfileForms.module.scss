@@ -1,0 +1,54 @@
+.profileContent {
+  max-width: 700px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-5);
+  padding-block: var(--ds-size-5);
+}
+
+.profileList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-8);
+  padding-block: var(--ds-size-6);
+}
+
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  max-width: 30rem;
+}
+
+.headingWithIcon {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+}
+
+.viewRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-4);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+}
