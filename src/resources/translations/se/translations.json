@@ -176,6 +176,15 @@
     "orderAccess": "Diŋgo geahčadeami",
     "downloadDocument": "Last ned dokument",
     "recordType": "Dok.málle",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendere: $2",
+      "mottaker": "$1 mottakere: $2"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendere, alle $2",
+      "mottaker": "$1 mottakere, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",

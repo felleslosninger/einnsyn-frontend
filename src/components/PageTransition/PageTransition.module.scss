@@ -42,14 +42,14 @@ $enterDuration: 250ms;
 
 .page[data-page-transition="inward"] {
   --page-exit-x: -#{$travel};
-  --page-enter-x: #{$travel/4};
+  --page-enter-x: calc(#{$travel} / 4);
   --page-exit-duration: 350ms;
   --page-enter-duration: 350ms;
 }
 
 .page[data-page-transition="outward"] {
   --page-exit-x: #{$travel};
-  --page-enter-x: -#{$travel/4};
+  --page-enter-x: calc(-#{$travel} / 4);
   --page-exit-duration: 300ms;
   --page-enter-duration: 300ms;
 }

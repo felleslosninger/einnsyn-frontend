@@ -5,11 +5,10 @@ import styles from './JournalpostContainer.module.scss';
 // Mirrors the `Field` rows in JournalpostContainer, so the placeholder has the
 // same shape as the content that replaces it.
 const FIELD_ROWS = [
-  'recordType',
+  'correspondence',
   'docDate',
   'recordDate',
-  'correspondence',
-  'legalBasis',
+  'number',
 ] as const;
 
 export default function JournalpostContainerSkeleton() {

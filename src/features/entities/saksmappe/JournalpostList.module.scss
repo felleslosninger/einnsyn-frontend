@@ -2,16 +2,30 @@
 @use "../../../styles/metaSeparator" as meta;
 @use "../../../styles/effects" as fx;
 
-// The open row's surface and number animate alongside the expansion, so this
-// must match `EXPAND_DURATION_MS` in EinExpandable.
+// The open row's card, node and chevron animate alongside the expansion, so
+// this must match `EXPAND_DURATION_MS` in EinExpandable.
 $expandDuration: 350ms;
+$railWidth: 2px;
 
 .journalpostList {
-  // The title's line box, for `.itemClose` to centre on. Resolved here because
-  // `[data-size]` rescales the font tokens, and the close button carries one.
-  --jp-title-line-box: calc(
-    var(--ds-body-md-font-size) * var(--ds-body-short-md-line-height)
-  );
+  // Resolved here because `[data-size]` rescales the size and font tokens, and
+  // the open detail carries one.
+  --jp-node-size: var(--ds-size-10);
+  --jp-rail-gap: var(--ds-size-5);
+  --jp-row-gap: var(--ds-size-3);
+  --jp-card-padding-block: var(--ds-size-4);
+  --jp-card-padding-inline: var(--ds-size-5);
+  --jp-chevron-size: var(--ds-size-6);
+  --jp-meta-line-box: calc(var(--ds-body-xs-font-size) * var(--ds-body-short-xs-line-height));
+  // The node sits level with the top of the card's content.
+  --jp-node-offset: calc(var(--ds-border-width-default) + var(--jp-card-padding-block));
+  --jp-node-center: calc(var(--jp-row-gap) / 2 + var(--jp-node-offset) + var(--jp-node-size) / 2);
+
+  @include mq.small {
+    --jp-node-size: var(--ds-size-8);
+    --jp-rail-gap: var(--ds-size-3);
+    --jp-card-padding-inline: var(--ds-size-3);
+  }
 }
 
 .listHeader {
@@ -52,106 +66,116 @@ $expandDuration: 350ms;
 
 .list {
   overflow-anchor: none;
-  border: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
-  border-radius: var(--ds-border-radius-lg);
-  overflow: hidden;
-
-  :not(:first-child)>.item {
-    border-top: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
-  }
-
-  // Loaded rows arrive one per virtualizer wrapper, so the rule above separates
-  // them. The placeholders at either end share one wrapper — the scroll trigger
-  // — and are separated from each other here.
-  .item+.item {
-    border-top: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
-  }
-
-  // The first loaded row is the first child inside the virtualizer and so draws
-  // no rule of its own. When placeholders stand above it, the last of them
-  // closes that seam. Matches nothing when there are none: the virtualizer's
-  // own children are wrappers, not rows.
-  >:first-child>.item:last-child {
-    border-bottom: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
-  }
 }
 
 .item {
   position: relative;
-  padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
+  display: grid;
+  grid-template-columns: var(--jp-node-size) minmax(0, 1fr);
+  column-gap: var(--jp-rail-gap);
+  align-items: start;
+  padding-block: calc(var(--jp-row-gap) / 2);
   // Kept clear of the header and viewport edges when an expanded row is
   // scrolled into place, by `useScrollToExpanded` and by the browser alike.
   scroll-margin-block: var(--ds-size-4);
-  transition: background-color $expandDuration fx.$easeOut;
-}
 
-.itemRow {
-  // The number cell IS the `--jp-number-col` track, so `.itemBody` and the
-  // expansion below share a left edge. The action sits in a third, auto track
-  // at the far right.
-  display: grid;
-  grid-template-columns: var(--jp-number-col) minmax(0, 1fr) auto;
-  column-gap: var(--ds-size-3);
-  // The number and the body sit on a shared baseline (see `.itemNumber`); the
-  // start alignment is what the action track falls back to before it centres
-  // itself.
-  align-items: start;
-  padding: var(--ds-size-2) 0;
-}
-
-// Its own track at the row's right edge, so the button stays put whatever
-// width the body takes. Centred against the row's full height rather than the
-// `align-items: start` the other tracks use.
-.itemAction {
-  justify-self: end;
-  align-self: center;
-}
-
-// Centred on the title's line: an open row keeps growing downwards, and
-// centring on its full height would strand the button beside the metadata.
-.itemClose {
-  align-self: start;
-  margin-top: calc((var(--jp-title-line-box) - var(--dsc-button-size)) / 2);
-  // Pulls the glyph, rather than its hit area, flush with the buttons in the
-  // rows above and below.
-  margin-right: calc((var(--ds-icon-size) - var(--dsc-button-size)) / 2);
-}
-
-.itemNumber {
-  // Set light so the title still leads. Tabular figures keep the units lined
-  // up down the column whatever the digit count.
-  justify-self: end;
-  align-self: baseline;
-  color: var(--ds-color-neutral-text-subtle);
-  line-height: var(--ds-body-short-md-line-height);
-  font-weight: 300;
-  font-variant-numeric: tabular-nums;
-  transition: color $expandDuration fx.$easeOut;
-}
-
-.itemBody {
-  // Baseline-aligned against `.itemNumber`: a flex container takes the
-  // baseline of its first item, which is the title's.
-  align-self: baseline;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-// Two classes to outrank EinLink's own `.einLink`, which underlines every
-// link; here the underline only comes on hover.
-.itemBody .itemTitle {
-  line-height: var(--ds-body-short-md-line-height);
-  margin-bottom: var(--ds-size-1);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
+  // The timeline. Every row draws its own stretch, overlapping the next by a
+  // pixel so rows at fractional offsets leave no seam.
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    left: calc((var(--jp-node-size) - #{$railWidth}) / 2);
+    width: $railWidth;
+    background: var(--ds-color-neutral-border-subtle);
   }
 }
 
-// The two secondary lines share a size; what separates them is that the
-// parties are in body text and these are subtle.
+// The line runs from the first node to the last, not off the ends of the list.
+.first::before {
+  top: var(--jp-node-center);
+}
+
+.last::before {
+  bottom: auto;
+  height: var(--jp-node-center);
+}
+
+.first.last::before {
+  content: none;
+}
+
+.node {
+  // Positioned, so it paints over the line.
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--jp-node-size);
+  height: var(--jp-node-size);
+  margin-top: var(--jp-node-offset);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-default);
+  border-radius: var(--ds-border-radius-full);
+  background: var(--ds-color-neutral-background-default);
+  color: var(--ds-color-neutral-text-default);
+  font-size: calc(var(--jp-node-size) / 2);
+  transition:
+    background-color $expandDuration fx.$easeOut,
+    border-color $expandDuration fx.$easeOut,
+    color $expandDuration fx.$easeOut;
+}
+
+.selected .node {
+  border-color: var(--ds-color-accent-base-default);
+  background: var(--ds-color-accent-base-default);
+  color: var(--ds-color-accent-base-contrast-default);
+}
+
+.card {
+  min-width: 0;
+  // Transparent while closed, so opening adds no size.
+  border: var(--ds-border-width-default) solid transparent;
+  border-radius: var(--ds-border-radius-lg);
+  transition:
+    background-color $expandDuration fx.$easeOut,
+    border-color $expandDuration fx.$easeOut;
+}
+
+.selected .card {
+  border-color: var(--ds-color-neutral-border-subtle);
+  background: var(--ds-color-neutral-surface-tinted);
+}
+
+.summary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+  padding: var(--jp-card-padding-block) var(--jp-card-padding-inline);
+  // Keeps every line clear of the chevron.
+  padding-right: calc(var(--jp-card-padding-inline) + var(--jp-chevron-size) + var(--ds-size-3));
+}
+
+.node[data-clickdelegatefor],
+.summary[data-clickdelegatefor] {
+  cursor: pointer;
+}
+
+// Centred on the first line.
+.chevron {
+  position: absolute;
+  top: calc(var(--jp-card-padding-block) + (var(--jp-meta-line-box) - var(--jp-chevron-size)) / 2);
+  right: var(--jp-card-padding-inline);
+  font-size: var(--jp-chevron-size);
+  color: var(--ds-color-neutral-text-subtle);
+  transition:
+    rotate $expandDuration fx.$easeOut,
+    color $expandDuration fx.$easeOut;
+}
+
+.selected .chevron {
+  rotate: 180deg;
+}
+
 .itemMeta {
   display: flex;
   flex-wrap: wrap;
@@ -159,39 +183,53 @@ $expandDuration: 350ms;
   row-gap: var(--ds-size-1);
   color: var(--ds-color-neutral-text-subtle);
   font-size: var(--ds-body-xs-font-size);
+  line-height: var(--ds-body-short-xs-line-height);
 
   @include meta.separators;
 }
 
-.itemBody .itemKorr {
-  font-size: var(--ds-body-xs-font-size);
+.itemNumber {
+  color: var(--ds-color-neutral-text-default);
+  font-weight: var(--ds-font-weight-semibold);
 }
 
-// The expanded row: a tinted surface and the number in accent. The surface
-// bleeds to the list's edges; padding of its own would shift the row's grid out
-// of line with the others.
-.selected {
-  background: var(--ds-color-surface-tinted);
-}
+// Two classes to outrank EinLink's own `.einLink`, which underlines every
+// link; here the underline only comes on hover. `:click-delegate-hover` is
+// Designsystemet's hover state for the delegating row.
+.summary .itemTitle {
+  line-height: var(--ds-body-short-md-line-height);
+  text-decoration: none;
 
-.selected .itemNumber {
-  color: var(--ds-color-accent-text-default);
-  font-weight: 400;
-}
-
-
-// Inline expansion. `EinExpandable` owns the open/close animation; these are
-// only the list's own alignment and framing.
-
-.expansion {
-  // Align the detail's left edge with `.itemBody`.
-  padding-left: calc(var(--jp-number-col) + var(--ds-size-3));
-
-  @include mq.small {
-    padding-left: 0;
+  &:hover,
+  &:global(.\:click-delegate-hover) {
+    color: var(--ds-color-neutral-text-default);
+    text-decoration: underline;
   }
 }
 
+.itemKorr {
+  font-size: var(--ds-body-xs-font-size);
+  line-height: var(--ds-body-short-xs-line-height);
+}
+
+.direction {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item:not(.selected) .card:has(:global(.\:click-delegate-hover)) {
+    border-color: var(--ds-color-neutral-border-subtle);
+  }
+
+  .summary:has(:global(.\:click-delegate-hover)) .chevron {
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
+// `EinExpandable` owns the open/close animation; this is the card's framing
+// of the detail, inset like the summary so the divider spans the content.
 .expansionContent {
-  padding: var(--ds-size-5) 0 var(--ds-size-6);
+  margin-inline: var(--jp-card-padding-inline);
+  padding: var(--ds-size-5) 0 var(--jp-card-padding-block);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
 }

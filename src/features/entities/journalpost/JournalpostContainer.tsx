@@ -4,13 +4,16 @@ import { Skeleton } from '@digdir/designsystemet-react';
 import {
   type Dokumentbeskrivelse,
   isDokumentbeskrivelse,
+  isSaksmappe,
   isSkjerming,
   type Journalpost,
 } from '@digdir/einnsyn-sdk';
 import { ExternalLinkIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { partyNames } from '~/features/entities/journalpost/Korrespondansepart';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import type { TranslateFunction } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { useFileURLGenerator } from '~/lib/utils/urlGenerators';
@@ -64,30 +67,27 @@ export default function JournalpostContainer({
   // count to size the loading skeleton while the detail expand resolves.
   const pendingDocumentCount = (journalpost.dokumentbeskrivelse ?? []).length;
 
-  const korrparts = (journalpost.korrespondansepart ?? []).filter(
-    (k) => typeof k !== 'string',
-  );
-  const senders = korrparts
-    .filter((k) => /^[Aa]vsender$/.test(k.korrespondanseparttype))
-    .map((k) => k.korrespondansepartNavnSensitiv)
-    .join(', ');
-  const receivers = korrparts
-    .filter((k) => /^[Mm]ottaker$/.test(k.korrespondanseparttype))
-    .map((k) => k.korrespondansepartNavnSensitiv)
-    .join(', ');
-
-  const typeLabel = t(`journalpost.type.${journalpost.journalposttype}`);
+  const senders = partyNames(journalpost, 'avsender');
+  const receivers = partyNames(journalpost, 'mottaker');
+  const saksnummer = isSaksmappe(journalpost.saksmappe)
+    ? journalpost.saksmappe.saksnummer
+    : undefined;
 
   return (
-    // No title here: this renders inline underneath the list row, which
-    // already shows the journalpost's title as its own (link) heading.
+    // No title, type or publishing date here: this renders inline underneath
+    // the list row, which already shows them.
     <article className={styles.content} data-size="sm">
       <dl className={styles.fields}>
-        <Field label={t('journalpost.recordType')}>
-          <span className={styles.typeLabel}>{typeLabel}</span>
-        </Field>
-        {senders && <Field label={t('journalpost.from')}>{senders}</Field>}
-        {receivers && <Field label={t('journalpost.to')}>{receivers}</Field>}
+        {senders.length > 0 && (
+          <Field label={t('journalpost.from')}>
+            {partySummary(senders, 'avsender', t)}
+          </Field>
+        )}
+        {receivers.length > 0 && (
+          <Field label={t('journalpost.to')}>
+            {partySummary(receivers, 'mottaker', t)}
+          </Field>
+        )}
         {journalpost.dokumentetsDato && (
           <Field label={t('journalpost.docDate')}>
             {dateFormat(journalpost.dokumentetsDato, languageCode)}
@@ -109,6 +109,11 @@ export default function JournalpostContainer({
               {dateFormat(journalpost.oppdatertDato, languageCode)}
             </Field>
           )}
+        {saksnummer && (
+          <Field label={t('journalpost.number')}>
+            {`${saksnummer}-${journalpost.journalpostnummer}`}
+          </Field>
+        )}
         {isSkjerming(journalpost.skjerming) &&
           journalpost.skjerming.skjermingshjemmel && (
             <Field label={t('journalpost.legalBasis')}>
@@ -156,6 +161,35 @@ export default function JournalpostContainer({
         </>
       )}
     </article>
+  );
+}
+
+// Several parties get a count, and a name they all share (a screening marker
+// such as "Avskjermet") is given once rather than repeated.
+function partySummary(
+  names: string[],
+  role: 'avsender' | 'mottaker',
+  t: TranslateFunction,
+): string {
+  const [first] = names;
+  if (names.length === 1) {
+    return first;
+  }
+  if (names.every((name) => name === first)) {
+    // A capitalised single word reads as an adjective after "alle".
+    const shared = /^\p{Lu}\p{Ll}+$/u.test(first)
+      ? first.toLocaleLowerCase()
+      : first;
+    return t(
+      `journalpost.partyCountAllSame.${role}`,
+      String(names.length),
+      shared,
+    );
+  }
+  return t(
+    `journalpost.partyCount.${role}`,
+    String(names.length),
+    names.join(', '),
   );
 }
 

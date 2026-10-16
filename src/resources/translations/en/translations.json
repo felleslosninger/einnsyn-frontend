@@ -178,6 +178,15 @@
     "orderAccess": "Request access",
     "downloadDocument": "Download document",
     "recordType": "Type",
+    "number": "Record no.",
+    "partyCount": {
+      "avsender": "$1 senders: $2",
+      "mottaker": "$1 recipients: $2"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 senders, all $2",
+      "mottaker": "$1 recipients, all $2"
+    },
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",

@@ -178,6 +178,15 @@
     "orderAccess": "Bestill innsyn",
     "downloadDocument": "Last ned dokument",
     "recordType": "Type",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendarar: $2",
+      "mottaker": "$1 mottakarar: $2"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendarar, alle $2",
+      "mottaker": "$1 mottakarar, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Inngåande dokument",
       "utgaaende_dokument": "Utgåande dokument",
