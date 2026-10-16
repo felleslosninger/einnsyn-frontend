@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
   devIndicators: false,
   reactProductionProfiling: true,
+  poweredByHeader: false,
   async rewrites() {
     return routeRewrites();
   },

@@ -100,7 +100,8 @@
       "UTVALG": "Utvalg",
       "VIRKSOMHET": "Virksomhet"
     },
-    "searchingIn": "Søker i"
+    "searchingIn": "Søker i",
+    "backToResults": "Tilbake til søkeresultat"
   },
   "routing": {
     "root": {
@@ -153,16 +154,39 @@
     "yes": "Ja",
     "no": "Nei"
   },
+  "breadcrumbs": {
+    "label": "Brødsmulesti"
+  },
   "saksmappe": {
     "label": "Sak",
     "labelPlural": "Saker",
-    "saksnummer": "Saksnummer"
+    "saksnummer": "Saksnummer",
+    "journalfoert": "Journalført",
+    "follow": "Følg saken",
+    "publishedBy": "Publisert av"
   },
   "journalpost": {
     "label": "Journalpost",
     "labelPlural": "Journalposter",
+    "labelPluralInCase": "Journalposter i saken",
     "from": "Fra",
     "to": "Til",
+    "docDate": "Dokumentdato",
+    "legalBasis": "Hjemmel",
+    "attachmentPlural": "Vedlegg",
+    "mainDocument": "Hoveddokument",
+    "orderAccess": "Bestill innsyn",
+    "downloadDocument": "Last ned dokument",
+    "recordType": "Type",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendere: $2",
+      "mottaker": "$1 mottakere: $2"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendere, alle $2",
+      "mottaker": "$1 mottakere, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",

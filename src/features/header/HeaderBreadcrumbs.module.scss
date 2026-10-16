@@ -1,0 +1,30 @@
+@use '../../styles/headerRow.scss' as headerRow;
+
+// Never wraps: the component collapses and truncates. Two classes, to outrank
+// Designsystemet's `flex-wrap: wrap` whatever the load order.
+.breadcrumbs .list {
+  flex-wrap: nowrap;
+}
+
+// The separator and the ellipsis take the list item's colour.
+.breadcrumbs li {
+  display: flex;
+  align-items: center;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.item {
+  @include headerRow.header-row-item;
+}
+
+// When the final ancestor still doesn't fit, the current item shrinks and clips.
+.breadcrumbs li:last-child:has(.truncate) {
+  min-width: 0;
+}
+
+.truncate {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

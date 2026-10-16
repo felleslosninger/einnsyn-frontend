@@ -1,26 +1,22 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { buildSearchHref, type SearchParams } from '~/lib/routing/searchParams';
 import { useLanguageCode } from './useLanguageCode';
 
 /**
- * {@link buildSearchHref} for the current, optimistic URL and the viewer's
- * language: pass only what changes.
+ * {@link buildSearchHref} for the search the viewer is in, in their language:
+ * pass only what changes. That is the current, optimistic URL on a results
+ * page, and the remembered search on a detail page (see `searchTarget`).
  */
 export function useSearchHref() {
-  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const { searchTarget } = useSearchField();
   const languageCode = useLanguageCode();
 
   return useCallback(
     (updates?: Partial<SearchParams>) =>
-      buildSearchHref({
-        pathname: optimisticPathname,
-        searchParams: optimisticSearchParams,
-        languageCode,
-        updates,
-      }),
-    [optimisticPathname, optimisticSearchParams, languageCode],
+      buildSearchHref({ ...searchTarget, languageCode, updates }),
+    [searchTarget, languageCode],
   );
 }

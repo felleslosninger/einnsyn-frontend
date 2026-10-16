@@ -20,6 +20,7 @@ import {
   removeParamListValue,
 } from '~/lib/utils/paramList';
 import { type EnhetNode, filterEnhetList } from './enhetSearch';
+import { useSearchField } from './SearchFieldProvider';
 import { useResolvedEnhetMap } from './useResolvedEnhetMap';
 
 export type EnhetSelectorFocus = {
@@ -51,7 +52,7 @@ export function useEnhetSelectorState({
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const navigation = useNavigation();
-  const { optimisticSearchParams, optimisticPathname } = navigation;
+  const { searchTarget } = useSearchField();
 
   const {
     enhetMap: rawEnhetMap,
@@ -77,8 +78,9 @@ export function useEnhetSelectorState({
   // Selection: URL-backed, with a desktop "draft" buffer that only commits on
   // Apply.
   //
-  // Each id or slug in its `getEnhetIdentifier` form, so an id and its slug
-  // dedupe and compare equal.
+  // Read from the search the field acts on — on a detail page the remembered
+  // one, so the selector shows the scope a submit uses. Each id or slug in its
+  // `getEnhetIdentifier` form, so an id and its slug dedupe and compare equal.
   const urlSelectedEnhetIdentifiers = useMemo(() => {
     const canonical = (value: string) => {
       const enhet = enhetMap.get(value);
@@ -86,11 +88,11 @@ export function useEnhetSelectorState({
     };
     return normalizeParamList(
       getEnhetSelection(
-        getPathEnhet(optimisticPathname),
-        optimisticSearchParams,
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
       ).map(canonical),
     );
-  }, [enhetMap, optimisticPathname, optimisticSearchParams]);
+  }, [enhetMap, searchTarget]);
   const searchHref = useSearchHref();
 
   const isBuffered = active;
