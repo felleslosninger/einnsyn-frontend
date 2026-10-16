@@ -4,6 +4,7 @@ import type {
   Moetesak,
   Saksmappe,
 } from '@digdir/einnsyn-sdk';
+import { EinMetaRow } from '~/components/EinMetaRow/EinMetaRow';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -48,17 +49,12 @@ export default function SearchResultSubheader({
         className={cn(styles.searchResultDot, dotVariantClass[variant])}
         aria-hidden="true"
       />
-      {/* Inside the meta row, not beside it: the label is the first field of
-          the same run, and the separators are drawn between its children. */}
-      <span className={styles.searchResultMeta}>
-        <span>{capitalize(label)}</span>
+      <EinMetaRow className={styles.searchResultMeta}>
+        {capitalize(label)}
         {children}
-        {publishedDate && (
-          <span>
-            {capitalize(t('common.publishedAt'))} {publishedDate}
-          </span>
-        )}
-      </span>
+        {publishedDate &&
+          `${capitalize(t('common.publishedAt'))} ${publishedDate}`}
+      </EinMetaRow>
     </div>
   );
 }
