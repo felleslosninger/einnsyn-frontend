@@ -14,16 +14,24 @@ const PARTY_TYPE_PATTERNS = {
   mottaker: /^[Mm]ottaker$/,
 };
 
+export type PartyType = keyof typeof PARTY_TYPE_PATTERNS;
+export type Party = { id: string; name: string };
+
+/** A journalpost's senders or receivers, in the API's order. */
+export function getParties(journalpost: Journalpost, type: PartyType): Party[] {
+  return (journalpost.korrespondansepart ?? [])
+    .filter((k) => typeof k !== 'string')
+    .filter((k) => PARTY_TYPE_PATTERNS[type].test(k.korrespondanseparttype))
+    .map((k) => ({ id: k.id, name: k.korrespondansepartNavnSensitiv }))
+    .filter((party): party is Party => Boolean(party.name));
+}
+
 /** The names of a journalpost's senders or receivers, in the API's order. */
 export function partyNames(
   journalpost: Journalpost,
-  role: keyof typeof PARTY_TYPE_PATTERNS,
+  type: PartyType,
 ): string[] {
-  return (journalpost.korrespondansepart ?? [])
-    .filter((k) => typeof k !== 'string')
-    .filter((k) => PARTY_TYPE_PATTERNS[role].test(k.korrespondanseparttype))
-    .map((k) => k.korrespondansepartNavnSensitiv)
-    .filter((navn): navn is string => Boolean(navn));
+  return getParties(journalpost, type).map((party) => party.name);
 }
 
 export function Korrespondansepart({
@@ -52,7 +60,7 @@ export function Korrespondansepart({
   const isIncoming = journalpost.journalposttype === 'inngaaende_dokument';
   const isOutgoing = journalpost.journalposttype === 'utgaaende_dokument';
   const enhetNode = (
-    <EinLink href={enhetHref} className={styles.party}>
+    <EinLink href={enhetHref} className={styles.name}>
       {enhetNavn}
     </EinLink>
   );
@@ -61,24 +69,43 @@ export function Korrespondansepart({
     <div className={cn(styles.korr, className)}>
       {isIncoming && (
         <>
-          <span className={styles.direction}>{to}: </span>
-          {enhetNode} <span className={styles.direction}>{from}: </span>
-          <PartyNameList names={partyNames(journalpost, 'avsender')} />
+          <Part label={to}>{enhetNode}</Part>
+          <PartyNameList
+            label={from}
+            names={partyNames(journalpost, 'avsender')}
+          />
         </>
       )}
       {isOutgoing && (
         <>
-          <span className={styles.direction}>{from}: </span>
-          {enhetNode} <span className={styles.direction}>{to}: </span>
-          <PartyNameList names={partyNames(journalpost, 'mottaker')} />
+          <Part label={from}>{enhetNode}</Part>
+          <PartyNameList
+            label={to}
+            names={partyNames(journalpost, 'mottaker')}
+          />
         </>
       )}
-      {!isIncoming && !isOutgoing && enhetNode}
+      {!isIncoming && !isOutgoing && <Part>{enhetNode}</Part>}
     </div>
   );
 }
 
-function PartyNameList({ names }: { names: string[] }) {
+function Part({
+  label,
+  children,
+}: {
+  label?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={styles.part}>
+      {label && <span className={styles.direction}>{label}:</span>}
+      {children}
+    </span>
+  );
+}
+
+function PartyNameList({ label, names }: { label: string; names: string[] }) {
   const t = useTranslation();
 
   if (names.length === 0) {
@@ -87,11 +114,11 @@ function PartyNameList({ names }: { names: string[] }) {
 
   const [first, ...rest] = names;
   return (
-    <span className={styles.party}>
-      {first}
+    <Part label={label}>
+      <span className={styles.name}>{first}</span>
       {rest.length > 0 && (
-        <span> {t('common.andMore', String(rest.length))}</span>
+        <span>{t('common.andMore', String(rest.length))}</span>
       )}
-    </span>
+    </Part>
   );
 }

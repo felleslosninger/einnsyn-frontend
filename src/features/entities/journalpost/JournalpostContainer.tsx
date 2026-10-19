@@ -10,14 +10,18 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { ExternalLinkIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { partyNames } from '~/features/entities/journalpost/Korrespondansepart';
+import {
+  getParties,
+  type Party,
+  type PartyType,
+} from '~/features/entities/journalpost/Korrespondansepart';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import type { TranslateFunction } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { useFileURLGenerator } from '~/lib/utils/urlGenerators';
 import styles from './JournalpostContainer.module.scss';
+import { PartyList } from './PartyList';
 
 export default function JournalpostContainer({
   journalpost,
@@ -67,8 +71,8 @@ export default function JournalpostContainer({
   // count to size the loading skeleton while the detail expand resolves.
   const pendingDocumentCount = (journalpost.dokumentbeskrivelse ?? []).length;
 
-  const senders = partyNames(journalpost, 'avsender');
-  const receivers = partyNames(journalpost, 'mottaker');
+  const senders = getParties(journalpost, 'avsender');
+  const receivers = getParties(journalpost, 'mottaker');
   const saksnummer = isSaksmappe(journalpost.saksmappe)
     ? journalpost.saksmappe.saksnummer
     : undefined;
@@ -80,12 +84,12 @@ export default function JournalpostContainer({
       <dl className={styles.fields}>
         {senders.length > 0 && (
           <Field label={t('journalpost.from')}>
-            {partySummary(senders, 'avsender', t)}
+            <Parties parties={senders} type="avsender" />
           </Field>
         )}
         {receivers.length > 0 && (
           <Field label={t('journalpost.to')}>
-            {partySummary(receivers, 'mottaker', t)}
+            <Parties parties={receivers} type="mottaker" />
           </Field>
         )}
         {journalpost.dokumentetsDato && (
@@ -164,33 +168,27 @@ export default function JournalpostContainer({
   );
 }
 
-// Several parties get a count, and a name they all share (a screening marker
-// such as "Avskjermet") is given once rather than repeated.
-function partySummary(
-  names: string[],
-  role: 'avsender' | 'mottaker',
-  t: TranslateFunction,
-): string {
-  const [first] = names;
-  if (names.length === 1) {
-    return first;
+// A name all the parties share (a screening marker such as "Avskjermet") is
+// given once with a count, rather than repeated.
+function Parties({ parties, type }: { parties: Party[]; type: PartyType }) {
+  const t = useTranslation();
+  const [first] = parties;
+  if (parties.length === 1) {
+    // Wraps, since there is no popup to read a cut name in.
+    return first.name;
   }
-  if (names.every((name) => name === first)) {
+  if (parties.every((p) => p.name === first.name)) {
     // A capitalised single word reads as an adjective after "alle".
-    const shared = /^\p{Lu}\p{Ll}+$/u.test(first)
-      ? first.toLocaleLowerCase()
-      : first;
+    const shared = /^\p{Lu}\p{Ll}+$/u.test(first.name)
+      ? first.name.toLocaleLowerCase()
+      : first.name;
     return t(
-      `journalpost.partyCountAllSame.${role}`,
-      String(names.length),
+      `journalpost.partyCountAllSame.${type}`,
+      String(parties.length),
       shared,
     );
   }
-  return t(
-    `journalpost.partyCount.${role}`,
-    String(names.length),
-    names.join(', '),
-  );
+  return <PartyList parties={parties} type={type} />;
 }
 
 function Field({

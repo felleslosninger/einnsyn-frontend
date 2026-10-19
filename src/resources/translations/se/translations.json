@@ -178,8 +178,8 @@
     "recordType": "Dok.málle",
     "number": "Journalpostnr.",
     "partyCount": {
-      "avsender": "$1 avsendere: $2",
-      "mottaker": "$1 mottakere: $2"
+      "avsender": "$1 avsendere",
+      "mottaker": "$1 mottakere"
     },
     "partyCountAllSame": {
       "avsender": "$1 avsendere, alle $2",

@@ -180,8 +180,8 @@
     "recordType": "Type",
     "number": "Record no.",
     "partyCount": {
-      "avsender": "$1 senders: $2",
-      "mottaker": "$1 recipients: $2"
+      "avsender": "$1 senders",
+      "mottaker": "$1 recipients"
     },
     "partyCountAllSame": {
       "avsender": "$1 senders, all $2",

@@ -180,8 +180,8 @@
     "recordType": "Type",
     "number": "Journalpostnr.",
     "partyCount": {
-      "avsender": "$1 avsendarar: $2",
-      "mottaker": "$1 mottakarar: $2"
+      "avsender": "$1 avsendarar",
+      "mottaker": "$1 mottakarar"
     },
     "partyCountAllSame": {
       "avsender": "$1 avsendarar, alle $2",
