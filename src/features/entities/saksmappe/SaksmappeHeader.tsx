@@ -7,9 +7,15 @@ import EntityHeader, {
 } from '~/features/entities/common/EntityHeader';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import {
+  getAncestors,
+  getEnhetIdentifier,
+  getName,
+  type TrimmedEnhet,
+} from '~/lib/enhet/enhet';
 import { buildPathname } from '~/lib/routing/pathname';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import styles from './SaksmappeHeader.module.scss';
 
 /** Which of a saksmappe's fields the shared entity header shows, and in what order. */
 export default function SaksmappeHeader({
@@ -40,18 +46,30 @@ export default function SaksmappeHeader({
 
   const enhet = saksmappe.administrativEnhetObjekt;
   if (isEnhet(enhet)) {
+    const enhetLink = (node: TrimmedEnhet) => (
+      <EinLink
+        href={buildPathname(
+          { enhetIdentifier: getEnhetIdentifier(node) },
+          languageCode,
+        )}
+      >
+        {getName(node, languageCode)}
+      </EinLink>
+    );
+    const chain = [...getAncestors(enhet), enhet];
     meta.push({
       label: t('saksmappe.publishedBy'),
-      value: (
-        <EinLink
-          href={buildPathname(
-            { enhetIdentifier: getEnhetIdentifier(enhet) },
-            languageCode,
-          )}
-        >
-          {getName(enhet, languageCode)}
-        </EinLink>
-      ),
+      // A lone enhet stays a plain link: a one-item list is screen-reader noise.
+      value:
+        chain.length > 1 ? (
+          <ol className={styles.enhetChain}>
+            {chain.map((node) => (
+              <li key={node.id}>{enhetLink(node)}</li>
+            ))}
+          </ol>
+        ) : (
+          enhetLink(enhet)
+        ),
     });
   }
 
