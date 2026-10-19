@@ -22,7 +22,11 @@ import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import JournalpostContainer from '~/features/entities/journalpost/JournalpostContainer';
 import JournalpostContainerSkeleton from '~/features/entities/journalpost/JournalpostContainerSkeleton';
-import { partyNames } from '~/features/entities/journalpost/Korrespondansepart';
+import {
+  getCounterpartType,
+  getParties,
+} from '~/features/entities/journalpost/Korrespondansepart';
+import { PartyList } from '~/features/entities/journalpost/PartyList';
 import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useScrollToExpanded } from '~/hooks/useScrollToExpanded';
@@ -102,8 +106,8 @@ export default function JournalpostList({
     );
   }, [page.items, optimisticJournalpostIdentifier]);
 
-  // The navigation target resolved from the in-memory list, so the expansion
-  // renders real metadata immediately and skeletons only the documents.
+  // The navigation target resolved from the in-memory list, which carries the
+  // detail's parties and documents, so the expansion renders at once.
   const optimisticJournalpost = useMemo(() => {
     const journalpost = page.items[selectedIndex];
     // The list leaves `saksmappe` unexpanded, and the detail shows its number.
@@ -306,12 +310,8 @@ function JournalpostListItem({
     journalpost.publisertDato;
 
   // The saksmappe's owner is the other party, so only the counterpart is named.
-  const counterpartRole =
-    kind === 'inngaaende' ? ('avsender' as const) : ('mottaker' as const);
-  const [counterpart, ...otherCounterparts] = partyNames(
-    journalpost,
-    counterpartRole,
-  );
+  const counterpartType = getCounterpartType(journalpost);
+  const counterparts = getParties(journalpost, counterpartType);
 
   return (
     <div
@@ -352,19 +352,21 @@ function JournalpostListItem({
           >
             {journalpost.offentligTittel}
           </EinLink>
-          {counterpart && (
+          {counterparts.length > 0 && (
             <div className={styles.itemKorr}>
               <span className={styles.direction}>
                 {t(
-                  counterpartRole === 'avsender'
+                  counterpartType === 'avsender'
                     ? 'journalpost.from'
                     : 'journalpost.to',
                 )}
                 :
-              </span>{' '}
-              {counterpart}
-              {otherCounterparts.length > 0 &&
-                ` ${t('common.andMore', String(otherCounterparts.length))}`}
+              </span>
+              <PartyList
+                parties={counterparts}
+                type={counterpartType}
+                interactive={false}
+              />
             </div>
           )}
           <ChevronDownIcon className={styles.chevron} aria-hidden="true" />

@@ -208,11 +208,14 @@ $railWidth: 2px;
 }
 
 .itemKorr {
+  display: flex;
+  gap: var(--ds-size-1);
   font-size: var(--ds-body-xs-font-size);
   line-height: var(--ds-body-short-xs-line-height);
 }
 
 .direction {
+  flex-shrink: 0;
   color: var(--ds-color-neutral-text-subtle);
 }
 

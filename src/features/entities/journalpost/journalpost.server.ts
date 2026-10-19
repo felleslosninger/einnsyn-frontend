@@ -4,7 +4,8 @@ import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
 import { cachedApiClient } from '~/lib/api/api.server';
 
-const LIST_EXPAND = [
+// Everything the open journalpost needs, so a row can open without a fetch.
+export const LIST_EXPAND = [
   'skjerming',
   'korrespondansepart',
   'dokumentbeskrivelse.dokumentobjekt',

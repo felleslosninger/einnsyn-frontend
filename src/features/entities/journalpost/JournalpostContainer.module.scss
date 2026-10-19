@@ -1,5 +1,3 @@
-@use "../../../styles/mediaQueries" as mq;
-
 .content {
   // No padding of its own: the detail is inlined into the journalpost list,
   // whose open card frames and spaces it.
@@ -15,10 +13,6 @@
   gap: var(--ds-size-1);
   margin: 0;
   padding: 0;
-
-  @include mq.small {
-    flex-direction: column;
-  }
 }
 
 .field {
@@ -85,9 +79,4 @@
 
 .documentItemTitle {
   min-width: 0;
-}
-
-.documentItemMeta {
-  color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-3, 0.875rem);
 }

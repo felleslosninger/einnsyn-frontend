@@ -1,6 +1,9 @@
 import EntityKind from '~/features/entities/common/EntityKind';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
-import { getJournalpostWindow } from '~/features/entities/journalpost/journalpost.server';
+import {
+  getJournalpostWindow,
+  LIST_EXPAND,
+} from '~/features/entities/journalpost/journalpost.server';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
@@ -32,11 +35,7 @@ export default async function Saksmappe({
           sortOrder: 'desc',
           id: '',
           saksmappeId: '',
-          expand: [
-            'skjerming',
-            'korrespondansepart',
-            'dokumentbeskrivelse.dokumentobjekt',
-          ],
+          expand: LIST_EXPAND,
         }),
   ]);
 

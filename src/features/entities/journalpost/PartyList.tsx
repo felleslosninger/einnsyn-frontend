@@ -8,15 +8,56 @@ import type { Party, PartyType } from './Korrespondansepart';
 import styles from './PartyList.module.scss';
 
 /**
- * Parties on one line, as many as fit. The rest collapse into a "+ N more"
- * button that opens a popup listing every party.
+ * A journalpost's senders or receivers. A name they all share (a screening
+ * marker such as "Avskjermet") is given once with a count.
  */
 export function PartyList({
   parties,
   type,
+  interactive = true,
 }: {
   parties: Party[];
   type: PartyType;
+  // Off inside a row that is one click target: "+ N more" is then plain text.
+  interactive?: boolean;
+}) {
+  const t = useTranslation();
+  const [first] = parties;
+  if (!first) {
+    return null;
+  }
+  if (parties.length === 1) {
+    // Wraps, since there is no popup to read a cut name in.
+    return first.name;
+  }
+  if (parties.every((p) => p.name === first.name)) {
+    // A capitalised single word reads as an adjective after "alle".
+    const shared = /^\p{Lu}\p{Ll}+$/u.test(first.name)
+      ? first.name.toLocaleLowerCase()
+      : first.name;
+    return t(
+      `journalpost.partyCountAllSame.${type}`,
+      String(parties.length),
+      shared,
+    );
+  }
+  return (
+    <FittedPartyList parties={parties} type={type} interactive={interactive} />
+  );
+}
+
+/**
+ * Parties on one line, as many as fit. The rest collapse into "+ N more", a
+ * button that opens a popup listing every party.
+ */
+function FittedPartyList({
+  parties,
+  type,
+  interactive,
+}: {
+  parties: Party[];
+  type: PartyType;
+  interactive: boolean;
 }) {
   const t = useTranslation();
   const rowRef = useRef<HTMLSpanElement>(null);
@@ -67,7 +108,12 @@ export function PartyList({
           .map((party) => party.name)
           .join(', ')}
       </span>
-      {hiddenCount > 0 && (
+      {hiddenCount > 0 && !interactive && (
+        <span className={styles.more}>
+          {t('common.andMore', String(hiddenCount))}
+        </span>
+      )}
+      {hiddenCount > 0 && interactive && (
         <>
           <button
             ref={buttonRef}

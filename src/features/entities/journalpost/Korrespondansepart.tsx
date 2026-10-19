@@ -26,12 +26,11 @@ export function getParties(journalpost: Journalpost, type: PartyType): Party[] {
     .filter((party): party is Party => Boolean(party.name));
 }
 
-/** The names of a journalpost's senders or receivers, in the API's order. */
-export function partyNames(
-  journalpost: Journalpost,
-  type: PartyType,
-): string[] {
-  return getParties(journalpost, type).map((party) => party.name);
+/** The side facing the saksmappe's owner: senders on incoming, else receivers. */
+export function getCounterpartType(journalpost: Journalpost): PartyType {
+  return journalpost.journalposttype === 'inngaaende_dokument'
+    ? 'avsender'
+    : 'mottaker';
 }
 
 export function Korrespondansepart({
@@ -67,25 +66,17 @@ export function Korrespondansepart({
 
   return (
     <div className={cn(styles.korr, className)}>
-      {isIncoming && (
+      {isIncoming || isOutgoing ? (
         <>
-          <Part label={to}>{enhetNode}</Part>
+          <Part label={isIncoming ? to : from}>{enhetNode}</Part>
           <PartyNameList
-            label={from}
-            names={partyNames(journalpost, 'avsender')}
+            label={isIncoming ? from : to}
+            parties={getParties(journalpost, getCounterpartType(journalpost))}
           />
         </>
+      ) : (
+        <Part>{enhetNode}</Part>
       )}
-      {isOutgoing && (
-        <>
-          <Part label={from}>{enhetNode}</Part>
-          <PartyNameList
-            label={to}
-            names={partyNames(journalpost, 'mottaker')}
-          />
-        </>
-      )}
-      {!isIncoming && !isOutgoing && <Part>{enhetNode}</Part>}
     </div>
   );
 }
@@ -105,17 +96,23 @@ function Part({
   );
 }
 
-function PartyNameList({ label, names }: { label: string; names: string[] }) {
+function PartyNameList({
+  label,
+  parties,
+}: {
+  label: string;
+  parties: Party[];
+}) {
   const t = useTranslation();
 
-  if (names.length === 0) {
+  if (parties.length === 0) {
     return null;
   }
 
-  const [first, ...rest] = names;
+  const [first, ...rest] = parties;
   return (
     <Part label={label}>
-      <span className={styles.name}>{first}</span>
+      <span className={styles.name}>{first.name}</span>
       {rest.length > 0 && (
         <span>{t('common.andMore', String(rest.length))}</span>
       )}

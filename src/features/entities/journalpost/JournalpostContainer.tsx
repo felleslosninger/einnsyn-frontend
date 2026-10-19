@@ -1,6 +1,5 @@
 'use client';
 
-import { Skeleton } from '@digdir/designsystemet-react';
 import {
   type Dokumentbeskrivelse,
   isDokumentbeskrivelse,
@@ -10,11 +9,7 @@ import {
 } from '@digdir/einnsyn-sdk';
 import { ExternalLinkIcon } from '@navikt/aksel-icons';
 import { EinButton } from '~/components/EinButton/EinButton';
-import {
-  getParties,
-  type Party,
-  type PartyType,
-} from '~/features/entities/journalpost/Korrespondansepart';
+import { getParties } from '~/features/entities/journalpost/Korrespondansepart';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -43,11 +38,6 @@ export default function JournalpostContainer({
   const dokumentbeskrivelser = (journalpost.dokumentbeskrivelse ?? []).filter(
     (db): db is Dokumentbeskrivelse => typeof db !== 'string',
   );
-  // Unexpanded id strings mean the detail expand hasn't resolved yet; skeleton
-  // the documents until it lands.
-  const documentsPending = (journalpost.dokumentbeskrivelse ?? []).some(
-    (db) => typeof db === 'string',
-  );
   const mainDocument = dokumentbeskrivelser.find((db) =>
     db.tilknyttetRegistreringSom.endsWith('hoveddokument'),
   );
@@ -66,11 +56,6 @@ export default function JournalpostContainer({
           .length === 0,
     );
 
-  // In the list payload `dokumentbeskrivelse` is unexpanded (string ids), so we
-  // know how many documents exist but not their type, title or files. Use the
-  // count to size the loading skeleton while the detail expand resolves.
-  const pendingDocumentCount = (journalpost.dokumentbeskrivelse ?? []).length;
-
   const senders = getParties(journalpost, 'avsender');
   const receivers = getParties(journalpost, 'mottaker');
   const saksnummer = isSaksmappe(journalpost.saksmappe)
@@ -84,12 +69,12 @@ export default function JournalpostContainer({
       <dl className={styles.fields}>
         {senders.length > 0 && (
           <Field label={t('journalpost.from')}>
-            <Parties parties={senders} type="avsender" />
+            <PartyList parties={senders} type="avsender" />
           </Field>
         )}
         {receivers.length > 0 && (
           <Field label={t('journalpost.to')}>
-            <Parties parties={receivers} type="mottaker" />
+            <PartyList parties={receivers} type="mottaker" />
           </Field>
         )}
         {journalpost.dokumentetsDato && (
@@ -126,7 +111,7 @@ export default function JournalpostContainer({
           )}
       </dl>
 
-      {!documentsPending && hasUndownloadableDocument && (
+      {hasUndownloadableDocument && (
         // TODO: wire up the "order access" flow.
         <div className={styles.orderAccess}>
           <EinButton style="secondary">
@@ -135,60 +120,31 @@ export default function JournalpostContainer({
         </div>
       )}
 
-      {documentsPending ? (
-        <DocumentSectionSkeleton count={pendingDocumentCount} />
-      ) : (
-        <>
-          {isDokumentbeskrivelse(mainDocument) && (
-            <section className={styles.documentSection}>
-              <h3 className={styles.documentSectionHeading}>
-                {t('journalpost.mainDocument')}
-              </h3>
-              <ul className={styles.documentList}>
-                <DocumentItem document={mainDocument} />
-              </ul>
-            </section>
-          )}
+      {isDokumentbeskrivelse(mainDocument) && (
+        <section className={styles.documentSection}>
+          <h3 className={styles.documentSectionHeading}>
+            {t('journalpost.mainDocument')}
+          </h3>
+          <ul className={styles.documentList}>
+            <DocumentItem document={mainDocument} />
+          </ul>
+        </section>
+      )}
 
-          {attachments.length > 0 && (
-            <section className={styles.documentSection}>
-              <h3 className={styles.documentSectionHeading}>
-                {`${t('journalpost.attachmentPlural')} (${attachments.length})`}
-              </h3>
-              <ul className={styles.documentList}>
-                {attachments.map((attachment) => (
-                  <DocumentItem key={attachment.id} document={attachment} />
-                ))}
-              </ul>
-            </section>
-          )}
-        </>
+      {attachments.length > 0 && (
+        <section className={styles.documentSection}>
+          <h3 className={styles.documentSectionHeading}>
+            {`${t('journalpost.attachmentPlural')} (${attachments.length})`}
+          </h3>
+          <ul className={styles.documentList}>
+            {attachments.map((attachment) => (
+              <DocumentItem key={attachment.id} document={attachment} />
+            ))}
+          </ul>
+        </section>
       )}
     </article>
   );
-}
-
-// A name all the parties share (a screening marker such as "Avskjermet") is
-// given once with a count, rather than repeated.
-function Parties({ parties, type }: { parties: Party[]; type: PartyType }) {
-  const t = useTranslation();
-  const [first] = parties;
-  if (parties.length === 1) {
-    // Wraps, since there is no popup to read a cut name in.
-    return first.name;
-  }
-  if (parties.every((p) => p.name === first.name)) {
-    // A capitalised single word reads as an adjective after "alle".
-    const shared = /^\p{Lu}\p{Ll}+$/u.test(first.name)
-      ? first.name.toLocaleLowerCase()
-      : first.name;
-    return t(
-      `journalpost.partyCountAllSame.${type}`,
-      String(parties.length),
-      shared,
-    );
-  }
-  return <PartyList parties={parties} type={type} />;
 }
 
 function Field({
@@ -227,58 +183,6 @@ function DocumentItem({ document }: { document: Dokumentbeskrivelse }) {
       ) : (
         <span className={styles.documentItemTitle}>{document.tittel}</span>
       )}
-    </li>
-  );
-}
-
-// Stable keys for the placeholder cards so we avoid array-index keys while the
-// rendered card count is derived at runtime.
-const DOCUMENT_SKELETON_KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-
-function DocumentSectionSkeleton({ count }: { count: number }) {
-  if (count <= 0) return null;
-  // Mirror the resolved layout — a main-document section (one card) plus an
-  // attachments section — so the documents area doesn't restructure on resolve.
-  // The first document is assumed to be the hoveddokument (the common case), so
-  // the attachments section holds the remaining count.
-  const attachmentKeys = DOCUMENT_SKELETON_KEYS.slice(
-    0,
-    Math.min(count - 1, DOCUMENT_SKELETON_KEYS.length - 1),
-  );
-  return (
-    <>
-      <section
-        className={styles.documentSection}
-        aria-busy="true"
-        aria-live="polite"
-      >
-        <h3 className={styles.documentSectionHeading}>
-          <Skeleton variant="text" width="9rem" />
-        </h3>
-        <ul className={styles.documentList}>
-          <DocumentItemSkeleton />
-        </ul>
-      </section>
-      {attachmentKeys.length > 0 && (
-        <section className={styles.documentSection} aria-busy="true">
-          <h3 className={styles.documentSectionHeading}>
-            <Skeleton variant="text" width="7rem" />
-          </h3>
-          <ul className={styles.documentList}>
-            {attachmentKeys.map((key) => (
-              <DocumentItemSkeleton key={key} />
-            ))}
-          </ul>
-        </section>
-      )}
-    </>
-  );
-}
-
-function DocumentItemSkeleton() {
-  return (
-    <li className={styles.documentItem}>
-      <Skeleton variant="text" width="60%" />
     </li>
   );
 }
