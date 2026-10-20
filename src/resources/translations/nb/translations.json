@@ -254,7 +254,9 @@
       "description": "Her finner du søkene du har lagret. Du kan abonnere på et søk for å få varsel om nye treff.",
       "notificationInfo": "Varsler sendes på e-post én gang i døgnet, kl. 06:00.",
       "subscribe": "Abonner på søk",
-      "empty": "Du har ingen lagrede søk ennå."
+      "empty": "Du har ingen lagrede søk ennå.",
+      "deleteError": "Kunne ikke slette søket. Prøv igjen.",
+      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen."
     }
   }
 }

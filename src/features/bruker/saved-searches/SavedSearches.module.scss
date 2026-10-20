@@ -8,10 +8,15 @@
   h1 {
     margin-bottom: var(--ds-size-4);
   }
+
+  p {
+    text-wrap: pretty;
+  }
 }
 
+.header,
 .content {
-  max-width: 45rem;
+  max-width: 700px; //half of container max width 1400
 }
 
 .list {
@@ -22,9 +27,15 @@
 
 .item {
   display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  padding: var(--ds-size-7) 0;
+}
+
+.row {
+  display: flex;
   align-items: flex-start;
   gap: var(--ds-size-8);
-  padding: var(--ds-size-7) 0;
 }
 
 .title {
@@ -43,4 +54,26 @@
   align-items: center;
   gap: var(--ds-size-3);
   flex-shrink: 0;
+}
+
+.skeletonTitle {
+  pointer-events: none;
+}
+
+.skeletonSwitch {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  margin-right: var(--ds-size-1);
+}
+
+// Matches the track of a data-size="sm" Switch.
+.skeletonSwitchTrack {
+  width: 40.5px;
+  height: 1.5rem;
+}
+
+.skeletonDelete {
+  margin: 0 var(--ds-size-1);
+  padding-left: var(--ds-size-9);
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { Paragraph } from '@digdir/designsystemet-react';
 import type {
   LagretSoek,
   PaginatedList,
@@ -7,13 +8,14 @@ import type {
 } from '@digdir/einnsyn-sdk';
 import { useCallback, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import { useTranslation } from '~/hooks/useTranslation';
 import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
 import { fetchNextPage } from '~/lib/utils/pagination';
 import { serializeParamList } from '~/lib/utils/paramList';
 import { tokensToSearchQuery } from '~/lib/utils/searchStringTokenizer';
 import styles from './SavedSearches.module.scss';
 import { SavedSearchItem } from './SavedSearchItem';
-import { SavedSearchItemSkeleton } from './SavedSearchItemSkeleton';
+import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
 const dateToken = (prefix: string, from: unknown, to: unknown) =>
   from || to ? [{ prefix, value: `${from ?? ''}/${to ?? ''}` }] : [];
@@ -57,6 +59,7 @@ export default function SavedSearchesList({
   initialPage: PaginatedList<LagretSoek>;
   searchPath: string;
 }) {
+  const t = useTranslation();
   const [page, setPage] = useState(initialPage);
 
   const handleScrollTrigger = useCallback(async () => {
@@ -65,8 +68,15 @@ export default function SavedSearchesList({
   }, [page]);
 
   const handleDelete = useCallback((id: string) => {
-    setPage((prev) => ({ ...prev, items: prev.items.filter((item) => item.id !== id) }));
+    setPage((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== id),
+    }));
   }, []);
+
+  if (!page.items.length && !page.next) {
+    return <Paragraph>{t('bruker.savedSearchesPage.empty')}</Paragraph>;
+  }
 
   return (
     <>
@@ -82,11 +92,7 @@ export default function SavedSearchesList({
       </ul>
       {page.next && (
         <EinScrollTrigger onEnter={handleScrollTrigger}>
-          <ul className={styles.list}>
-            <SavedSearchItemSkeleton index={0} />
-            <SavedSearchItemSkeleton index={1} />
-            <SavedSearchItemSkeleton index={2} />
-          </ul>
+          <SavedSearchesListSkeleton />
         </EinScrollTrigger>
       )}
     </>

@@ -1,16 +1,17 @@
 import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Suspense } from 'react';
 import { buildPathname } from '~/lib/routing/pathname';
 import {
   getLanguageCode,
   getTranslator,
 } from '~/lib/translation/translation.actions';
-import { listLagretSoek } from './lagretSoek.actions';
+import { listLagretSoek } from './lagretSoek.server';
 import styles from './SavedSearches.module.scss';
 import SavedSearchesList from './SavedSearchesList';
+import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
-export default async function SavedSearches() {
-  const [t, languageCode, initialPage] = await Promise.all([
-    getTranslator(),
+async function SavedSearchesContent() {
+  const [languageCode, initialPage] = await Promise.all([
     getLanguageCode(),
     listLagretSoek(),
   ]);
@@ -18,11 +19,19 @@ export default async function SavedSearches() {
   const searchPath = buildPathname({ page: 'search' }, languageCode);
 
   return (
+    <SavedSearchesList initialPage={initialPage} searchPath={searchPath} />
+  );
+}
+
+export default async function SavedSearches() {
+  const t = await getTranslator();
+
+  return (
     <div className="container-wrapper main-content">
       <div className="container-pre collapsible" />
       <div className="container">
         <div className={styles.header}>
-          <Heading level={1} data-size="md">
+          <Heading level={1} data-size="sm">
             {t('bruker.savedSearches')}
           </Heading>
           <Paragraph>{t('bruker.savedSearchesPage.description')}</Paragraph>
@@ -32,14 +41,9 @@ export default async function SavedSearches() {
         </div>
         <div className={styles.content}>
           <Divider />
-          {initialPage.items.length ? (
-            <SavedSearchesList
-              initialPage={initialPage}
-              searchPath={searchPath}
-            />
-          ) : (
-            <Paragraph>{t('bruker.savedSearchesPage.empty')}</Paragraph>
-          )}
+          <Suspense fallback={<SavedSearchesListSkeleton />}>
+            <SavedSearchesContent />
+          </Suspense>
         </div>
       </div>
       <div className="container-post" />
