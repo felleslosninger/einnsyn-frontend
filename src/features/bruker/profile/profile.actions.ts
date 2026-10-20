@@ -3,13 +3,38 @@
 import { EInnsynError } from '@digdir/einnsyn-sdk';
 import { redirect } from 'next/navigation';
 import { cachedApiClient } from '~/lib/api/api.server';
-import { logoutAction } from '~/lib/auth/auth.actions';
-import { cachedAuthInfo } from '~/lib/auth/auth.server';
+import { cachedAuthInfo, endSession } from '~/lib/auth/auth.server';
+import { validatePassword } from '~/lib/utils/validators';
+
+const API_ERRORS = [
+  'authenticationError',
+  'authorizationError',
+  'badRequest',
+  'notFound',
+  'tooManyRequests',
+] as const;
+
+export type ProfileError =
+  | (typeof API_ERRORS)[number]
+  | 'internalServerError'
+  | 'invalidEmail'
+  | 'invalidPassword'
+  | 'missingFields'
+  | 'passwordMismatch'
+  | 'wrongPassword';
 
 export type ProfileActionState = {
   success?: boolean;
-  error?: string;
+  error?: ProfileError;
 };
+
+function toProfileError(error: unknown): ProfileError {
+  if (error instanceof EInnsynError) {
+    const apiError = API_ERRORS.find((type) => type === error.type);
+    if (apiError) return apiError;
+  }
+  return 'internalServerError';
+}
 
 export async function updateEmailAction(
   _prevState: ProfileActionState,
@@ -26,11 +51,9 @@ export async function updateEmailAction(
     await api.bruker.update(authInfo.id, { email });
     return { success: true };
   } catch (error) {
-    if (error instanceof EInnsynError) {
-      if (error.type === 'validationError') return { error: 'invalidEmail' };
-      return { error: error.type };
-    }
-    return { error: 'internalServerError' };
+    if (error instanceof EInnsynError && error.type === 'validationError')
+      return { error: 'invalidEmail' };
+    return { error: toProfileError(error) };
   }
 }
 
@@ -44,8 +67,7 @@ export async function updatePasswordAction(
 
   if (!oldPassword || !newPassword) return { error: 'missingFields' };
   if (newPassword !== confirmPassword) return { error: 'passwordMismatch' };
-  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W]).{8,250}$/.test(newPassword))
-    return { error: 'invalidPassword' };
+  if (!validatePassword(newPassword)) return { error: 'invalidPassword' };
 
   const authInfo = await cachedAuthInfo();
   if (!authInfo?.id) return { error: 'authenticationError' };
@@ -56,16 +78,13 @@ export async function updatePasswordAction(
     return { success: true };
   } catch (error) {
     if (error instanceof EInnsynError) {
-      if (
-        error.type === 'authorizationError' ||
-        error.type === 'notFound' ||
-        error.type === 'badRequest'
-      )
+      // The backend answers 404 when the old password is wrong, and 400 when
+      // it doesn't meet the password rules.
+      if (error.type === 'notFound' || error.type === 'badRequest')
         return { error: 'wrongPassword' };
       if (error.type === 'validationError') return { error: 'invalidPassword' };
-      return { error: error.type };
     }
-    return { error: 'internalServerError' };
+    return { error: toProfileError(error) };
   }
 }
 
@@ -80,12 +99,10 @@ export async function deleteAccountAction(
     const api = await cachedApiClient();
     await api.bruker.delete(authInfo.id);
   } catch (error) {
-    if (error instanceof EInnsynError) return { error: error.type };
-    return { error: 'internalServerError' };
+    return { error: toProfileError(error) };
   }
 
-  // Both of these signal by throwing, so they have to stay outside the catch
-  // above, or the redirect is swallowed and reported as a server error.
-  await logoutAction();
+  // redirect() throws, so it has to stay outside the try/catch above.
+  await endSession();
   redirect('/');
 }

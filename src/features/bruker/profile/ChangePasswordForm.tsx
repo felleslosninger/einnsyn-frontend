@@ -5,9 +5,9 @@ import { PadlockLockedIcon, PencilIcon } from '@navikt/aksel-icons';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
-import { updatePasswordAction } from '~/features/bruker/profile/bruker.actions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
+import { updatePasswordAction } from './profile.actions';
 
 const ERROR_FIELD_MAP: Record<string, string> = {
   wrongPassword: 'oldPassword',
@@ -29,19 +29,19 @@ export default function ChangePasswordForm() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const errorMessage = (() => {
-    if (!state.error) return undefined;
-    const key = `bruker.profilePage.errors.${state.error}`;
-    const msg = t(key);
-    return msg !== key ? msg : t('bruker.profilePage.changePasswordError');
-  })();
+  const errorMessage =
+    state.error && t(`bruker.profilePage.errors.${state.error}`);
+
+  const startEditing = () => {
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setIsEditing(true);
+  };
 
   useEffect(() => {
     if (state.success) {
       setIsEditing(false);
-      setOldPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
     } else if (state.error) {
       let fieldName: string;
       if (state.error === 'missingFields') {
@@ -86,14 +86,15 @@ export default function ChangePasswordForm() {
               type="button"
               style="link"
               data-size="sm"
-              onClick={() => setIsEditing(true)}
+              aria-label={`${t('common.change')} ${t('site.password')}`}
+              onClick={startEditing}
             >
               <PencilIcon aria-hidden="true" focusable="false" />
               {t('common.change')}
             </EinButton>
           </div>
           {state.success && (
-            <Alert data-color="success">
+            <Alert data-color="success" role="status">
               {t('bruker.profilePage.changePasswordSuccess')}
             </Alert>
           )}
@@ -140,7 +141,7 @@ export default function ChangePasswordForm() {
           />
           {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
           <div className={styles.formActions}>
-            <EinButton variant="primary" type="submit" disabled={isPending}>
+            <EinButton type="submit" disabled={isPending}>
               {t('bruker.profilePage.savePasswordChanges')}
             </EinButton>
             <EinButton

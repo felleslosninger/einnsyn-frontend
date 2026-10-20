@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinInput } from '~/components/EinInput/EinInput';
-import { updateEmailAction } from '~/features/bruker/profile/bruker.actions';
 import { useTranslation } from '~/hooks/useTranslation';
 import styles from './ProfileForms.module.scss';
+import { updateEmailAction } from './profile.actions';
 
 type Props = {
   currentEmail: string;
@@ -24,17 +24,17 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [emailValue, setEmailValue] = useState('');
 
-  const errorMessage = (() => {
-    if (!state.error) return undefined;
-    const key = `bruker.profilePage.errors.${state.error}`;
-    const msg = t(key);
-    return msg !== key ? msg : t('bruker.profilePage.changeEmailError');
-  })();
+  const errorMessage =
+    state.error && t(`bruker.profilePage.errors.${state.error}`);
+
+  const startEditing = () => {
+    setEmailValue('');
+    setIsEditing(true);
+  };
 
   useEffect(() => {
     if (state.success) {
       setIsEditing(false);
-      setEmailValue('');
       router.refresh();
     } else if (state.error) {
       formRef.current
@@ -71,14 +71,15 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
               type="button"
               style="link"
               data-size="sm"
-              onClick={() => setIsEditing(true)}
+              aria-label={`${t('common.change')} ${t('common.email')}`}
+              onClick={startEditing}
             >
               <PencilIcon aria-hidden="true" focusable="false" />
               {t('common.change')}
             </EinButton>
           </div>
           {state.success && (
-            <Alert data-color="success">
+            <Alert data-color="success" role="status">
               {t('bruker.profilePage.changeEmailSuccess')}
             </Alert>
           )}
@@ -94,7 +95,6 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
             name="email"
             type="email"
             label={t('bruker.profilePage.newEmail')}
-            placeholder={currentEmail}
             autoComplete="email"
             data-color="neutral"
             required
@@ -104,7 +104,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
           />
           {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
           <div className={styles.formActions}>
-            <EinButton type="submit" variant="primary" disabled={isPending}>
+            <EinButton type="submit" disabled={isPending}>
               {t('bruker.profilePage.saveEmailChanges')}
             </EinButton>
             <EinButton

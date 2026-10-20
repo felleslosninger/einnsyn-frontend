@@ -1,5 +1,8 @@
 .profileContent {
   max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
 }
 
 .section {
@@ -42,12 +45,6 @@
 }
 
 .formActions {
-  display: flex;
-  gap: var(--ds-size-4);
-  flex-wrap: wrap;
-}
-
-.confirmActions {
   display: flex;
   gap: var(--ds-size-4);
   flex-wrap: wrap;
