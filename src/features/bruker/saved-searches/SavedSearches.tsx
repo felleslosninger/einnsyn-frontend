@@ -1,22 +1,20 @@
 import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { Suspense } from 'react';
 import { buildPathname } from '~/lib/routing/pathname';
-import {
-  getLanguageCode,
-  getTranslator,
-} from '~/lib/translation/translation.actions';
+import { getSettings } from '~/lib/settings/settings.server';
+import { getTranslator } from '~/lib/translation/translation.server';
 import { listLagretSoek } from './lagretSoek.server';
 import styles from './SavedSearches.module.scss';
 import SavedSearchesList from './SavedSearchesList';
 import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
 async function SavedSearchesContent() {
-  const [languageCode, initialPage] = await Promise.all([
-    getLanguageCode(),
+  const [{ language }, initialPage] = await Promise.all([
+    getSettings(),
     listLagretSoek(),
   ]);
 
-  const searchPath = buildPathname({ page: 'search' }, languageCode);
+  const searchPath = buildPathname({ page: 'search' }, language);
 
   return (
     <SavedSearchesList initialPage={initialPage} searchPath={searchPath} />

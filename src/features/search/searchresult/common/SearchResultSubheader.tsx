@@ -4,6 +4,7 @@ import type {
   Moetesak,
   Saksmappe,
 } from '@digdir/einnsyn-sdk';
+import { EinMetaRow } from '~/components/EinMetaRow/EinMetaRow';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -48,15 +49,12 @@ export default function SearchResultSubheader({
         className={cn(styles.searchResultDot, dotVariantClass[variant])}
         aria-hidden="true"
       />
-      <span>{capitalize(label)}</span>
-      <span className={styles.searchResultMeta}>
+      <EinMetaRow className={styles.searchResultMeta}>
+        {capitalize(label)}
         {children}
-        {publishedDate && (
-          <span>
-            {capitalize(t('common.publishedAt'))} {publishedDate}
-          </span>
-        )}
-      </span>
+        {publishedDate &&
+          `${capitalize(t('common.publishedAt'))} ${publishedDate}`}
+      </EinMetaRow>
     </div>
   );
 }

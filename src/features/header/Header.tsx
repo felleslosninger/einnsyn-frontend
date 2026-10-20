@@ -22,6 +22,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const isHome = rootPath === 'home';
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
+  const [spacerHeight, setSpacerHeight] = useState<number | null>(null);
   const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
     null,
   );
@@ -152,6 +153,14 @@ export default function Header({ children }: { children: React.ReactNode }) {
 
   const fixedHeader =
     !isHome && !isAtTop && headerHeight !== null && fixedViewportWidth !== null;
+
+  // Keep the header height equal to the unfixed header (when possible)
+  if (
+    spacerHeight !== headerHeight &&
+    (!fixedHeader || spacerHeight === null)
+  ) {
+    setSpacerHeight(headerHeight);
+  }
 
   const fixedHeaderStyle = fixedHeader
     ? {
@@ -305,8 +314,8 @@ export default function Header({ children }: { children: React.ReactNode }) {
     >
       <div>
         {/* Spacer for fixed header: only render while header is fixed. */}
-        {fixedHeader && headerHeight !== null && (
-          <div aria-hidden="true" style={{ height: `${headerHeight}px` }} />
+        {fixedHeader && spacerHeight !== null && (
+          <div aria-hidden="true" style={{ height: `${spacerHeight}px` }} />
         )}
         <header ref={headerRef} className={className} style={fixedHeaderStyle}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>
