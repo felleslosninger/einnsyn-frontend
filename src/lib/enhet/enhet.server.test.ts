@@ -223,18 +223,4 @@ describe('enhet list versioning', () => {
 
     assert.equal((await a.get()).version, (await b.get()).version);
   });
-
-  test('peekVersion never blocks on a cold cache', async () => {
-    let started = 0;
-    const cache = createEnhetListCache(async () => {
-      started += 1;
-      return [enhet('a')];
-    });
-
-    assert.equal(cache.peekVersion(), null);
-    assert.equal(started, 0, 'peeking must not trigger a walk');
-
-    const { version } = await cache.get();
-    assert.equal(cache.peekVersion(), version);
-  });
 });

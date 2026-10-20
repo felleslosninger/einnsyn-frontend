@@ -30,13 +30,11 @@ import styles from './Header.module.scss';
 export default function Header({
   children,
   initialEnhets,
-  enhetListVersion,
 }: {
   // The header's second row: search tabs, a breadcrumb trail, admin tabs. The
   // search field is not part of this — it lives here so it survives navigation.
   children: React.ReactNode;
   initialEnhets?: readonly TrimmedEnhet[];
-  enhetListVersion?: string | null;
 }) {
   const { loading, optimisticPathname } = useNavigation();
   // Canonical, so it does not depend on which language the URL is spelled in:
@@ -368,10 +366,7 @@ export default function Header({
             </div>
             <div className={cn(styles.container, 'container')}>
               {hasSearchField && (
-                <EnhetProvider
-                  initialEnhets={initialEnhets}
-                  enhetListVersion={enhetListVersion}
-                >
+                <EnhetProvider initialEnhets={initialEnhets}>
                   <SearchField className={styles.searchForm} />
                 </EnhetProvider>
               )}
