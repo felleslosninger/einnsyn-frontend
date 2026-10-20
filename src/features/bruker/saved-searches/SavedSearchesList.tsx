@@ -6,7 +6,7 @@ import type {
   PaginatedList,
   SavedSearchParameters,
 } from '@digdir/einnsyn-sdk';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { useTranslation } from '~/hooks/useTranslation';
 import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
@@ -61,13 +61,20 @@ export default function SavedSearchesList({
 }) {
   const t = useTranslation();
   const [page, setPage] = useState(initialPage);
+  // A page request started before a delete finished still contains the
+  // deleted item, so it is filtered out again when the page arrives.
+  const deletedIds = useRef(new Set<string>());
 
   const handleScrollTrigger = useCallback(async () => {
     const next = await fetchNextPage(page);
-    setPage(next);
+    setPage({
+      ...next,
+      items: next.items.filter((item) => !deletedIds.current.has(item.id)),
+    });
   }, [page]);
 
   const handleDelete = useCallback((id: string) => {
+    deletedIds.current.add(id);
     setPage((prev) => ({
       ...prev,
       items: prev.items.filter((item) => item.id !== id),
