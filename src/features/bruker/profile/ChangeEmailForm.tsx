@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { EnvelopeClosedIcon, PencilIcon } from '@navikt/aksel-icons';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -55,8 +55,8 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   }, [isEditing]);
 
   return (
-    <div className={styles.profileSection}>
-      <Heading level={3} className="ds-heading" data-size="xs">
+    <Card.Block className={styles.profileSection}>
+      <Heading level={4} className="ds-heading" data-size="2xs">
         <span className={styles.headingWithIcon}>
           <EnvelopeClosedIcon aria-hidden="true" focusable="false" />
           {t('common.email')}
@@ -69,7 +69,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
             <EinButton
               ref={editButtonRef}
               type="button"
-              style="link"
+              variant="tertiary"
               data-size="sm"
               aria-label={`${t('common.change')} ${t('common.email')}`}
               onClick={startEditing}
@@ -117,6 +117,6 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
           </div>
         </form>
       )}
-    </div>
+    </Card.Block>
   );
 }

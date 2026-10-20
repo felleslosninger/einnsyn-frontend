@@ -240,6 +240,8 @@
     "profile": "Profila",
     "profilePage": {
       "title": "Profiladieđut",
+      "description": "Hálddaš sisačálgama ja kontoat.",
+      "login": "Sisačálgan",
       "newEmail": "Ođas e-poasta",
       "changeEmailSuccess": "E-poastačujuhus lea ođastiuvvon",
       "saveEmailChanges": "Vurket ođas e-poastačujuhusa",

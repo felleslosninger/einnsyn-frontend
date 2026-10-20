@@ -2,6 +2,7 @@
 
 import {
   Alert,
+  Card,
   Dialog,
   Heading,
   Paragraph,
@@ -25,10 +26,7 @@ export default function DeleteAccountForm() {
     state.error && t(`bruker.profilePage.errors.${state.error}`);
 
   return (
-    <section className={styles.section}>
-      <Heading level={3} className="ds-heading" data-size="xs">
-        {t('bruker.profilePage.deleteAccount')}
-      </Heading>
+    <Card.Block className={styles.section}>
       <Paragraph data-size="sm">
         {t('bruker.profilePage.deleteAccountDescription')}
       </Paragraph>
@@ -73,6 +71,6 @@ export default function DeleteAccountForm() {
           </form>
         </Dialog.Block>
       </Dialog>
-    </section>
+    </Card.Block>
   );
 }

@@ -242,6 +242,8 @@
     "profile": "Profil",
     "profilePage": {
       "title": "Profilinformasjon",
+      "description": "Administrer innlogginga og kontoen din.",
+      "login": "Innlogging",
       "newEmail": "Ny e-post",
       "changeEmailSuccess": "E-postadressa er oppdatert",
       "saveEmailChanges": "Lagre ny e-post",

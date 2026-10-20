@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { PadlockLockedIcon, PencilIcon } from '@navikt/aksel-icons';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
@@ -70,8 +70,8 @@ export default function ChangePasswordForm() {
   }, [isEditing]);
 
   return (
-    <div className={styles.profileSection}>
-      <Heading level={3} className="ds-heading" data-size="xs">
+    <Card.Block className={styles.profileSection}>
+      <Heading level={4} className="ds-heading" data-size="2xs">
         <span className={styles.headingWithIcon}>
           <PadlockLockedIcon aria-hidden="true" focusable="false" />
           {t('site.password')}
@@ -84,7 +84,7 @@ export default function ChangePasswordForm() {
             <EinButton
               ref={editButtonRef}
               type="button"
-              style="link"
+              variant="tertiary"
               data-size="sm"
               aria-label={`${t('common.change')} ${t('site.password')}`}
               onClick={startEditing}
@@ -154,6 +154,6 @@ export default function ChangePasswordForm() {
           </div>
         </form>
       )}
-    </div>
+    </Card.Block>
   );
 }

@@ -257,6 +257,8 @@
     "profile": "Profile",
     "profilePage": {
       "title": "Profile information",
+      "description": "Manage your login and account.",
+      "login": "Login",
       "newEmail": "New email",
       "changeEmailSuccess": "Email address updated",
       "saveEmailChanges": "Save new email",
