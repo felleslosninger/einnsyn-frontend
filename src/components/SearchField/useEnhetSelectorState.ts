@@ -230,8 +230,11 @@ export function useEnhetSelectorState({
     if (selectedEnhetIdentifiers.length === 0) return;
     setSelectedEnhetIdentifiers([]);
     setFocus(null);
-    focusInput();
+    if (active) {
+      focusInput();
+    }
   }, [
+    active,
     focusInput,
     selectedEnhetIdentifiers.length,
     setSelectedEnhetIdentifiers,
