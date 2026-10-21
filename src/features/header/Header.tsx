@@ -44,15 +44,10 @@ export default function Header({
   const hasSearchField = showsSearchField(optimisticPathname);
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
-  const [spacerHeight, setSpacerHeight] = useState<number | null>(null);
-  const [fixedViewportWidth, setFixedViewportWidth] = useState<number | null>(
-    null,
-  );
-  const [fixedViewportTop, setFixedViewportTop] = useState(0);
-  const [fixedViewportLeft, setFixedViewportLeft] = useState(0);
+  const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const { isAtTop, isScrollingDown } = useScrollState();
 
-  // ref to the actual sticky header element
+  // The header itself; its wrapper is the sticky element.
   const headerRef = useRef<HTMLElement>(null);
   const previousSectionRef = useRef(section);
   const activeRouteTransitionRef = useRef<{
@@ -83,8 +78,8 @@ export default function Header({
           activeRouteTransition.toSection === 'home'))
     );
 
-  // Keep the in-flow header height measured so we can switch to fixed
-  // immediately when scroll leaves the top without waiting for a second pass.
+  // Keep the in-flow header height measured, so the wrapper can hold it as soon
+  // as the header sticks, without waiting for a second pass.
   useLayoutEffect(() => {
     if (isHome) {
       setHeaderHeight(null);
@@ -135,76 +130,17 @@ export default function Header({
     };
   }, [headerHeight]);
 
-  // Fixed-position width must track the visual viewport on mobile; `width:100%`
-  // can be wider than the visible area while browser chrome is animating.
-  useLayoutEffect(() => {
-    if (isHome) {
-      setFixedViewportWidth(null);
-      setFixedViewportTop(0);
-      setFixedViewportLeft(0);
-      return;
-    }
+  const stuck = !isHome && !isAtTop && headerHeight !== null;
 
-    const updateViewportBounds = () => {
-      const viewport = window.visualViewport;
-      const nextTop = Math.round(viewport?.offsetTop ?? 0);
-      const nextWidth = Math.round(
-        viewport?.width ?? document.documentElement.clientWidth,
-      );
-      const nextLeft = Math.round(viewport?.offsetLeft ?? 0);
-
-      setFixedViewportTop((currentTop) =>
-        currentTop === nextTop ? currentTop : nextTop,
-      );
-      setFixedViewportWidth((currentWidth) =>
-        currentWidth === nextWidth ? currentWidth : nextWidth,
-      );
-      setFixedViewportLeft((currentLeft) =>
-        currentLeft === nextLeft ? currentLeft : nextLeft,
-      );
-    };
-
-    updateViewportBounds();
-    window.addEventListener('resize', updateViewportBounds);
-    window.visualViewport?.addEventListener('resize', updateViewportBounds);
-    window.visualViewport?.addEventListener('scroll', updateViewportBounds);
-
-    return () => {
-      window.removeEventListener('resize', updateViewportBounds);
-      window.visualViewport?.removeEventListener(
-        'resize',
-        updateViewportBounds,
-      );
-      window.visualViewport?.removeEventListener(
-        'scroll',
-        updateViewportBounds,
-      );
-    };
-  }, [isHome]);
-
-  const fixedHeader =
-    !isHome && !isAtTop && headerHeight !== null && fixedViewportWidth !== null;
-
-  // Keep the header height equal to the unfixed header (when possible)
-  if (
-    spacerHeight !== headerHeight &&
-    (!fixedHeader || spacerHeight === null)
-  ) {
-    setSpacerHeight(headerHeight);
+  // Measured only at the top. While stuck, the wrapper holds this height so the
+  // header collapsing doesn't reflow the page (see `.sticky`).
+  if (flowHeight !== headerHeight && (!stuck || flowHeight === null)) {
+    setFlowHeight(headerHeight);
   }
-
-  const fixedHeaderStyle = fixedHeader
-    ? {
-        top: `${fixedViewportTop}px`,
-        width: `${fixedViewportWidth}px`,
-        maxWidth: `${fixedViewportWidth}px`,
-        left: `${fixedViewportLeft}px`,
-      }
-    : undefined;
 
   const className = cn(styles.header, `section-${section}`, {
     [styles.scrolled]: !isHome && isScrollingDown,
-    [styles.fixed]: !isHome && fixedHeader && headerHeight !== null,
+    [styles.stuck]: stuck,
   });
 
   // Only the home <-> inner morph runs here. Every other route change leaves
@@ -346,12 +282,15 @@ export default function Header({
       loading={waitForLoad}
       events={transitionEvents}
     >
-      <div>
-        {/* Spacer for fixed header: only render while header is fixed. */}
-        {fixedHeader && spacerHeight !== null && (
-          <div aria-hidden="true" style={{ height: `${spacerHeight}px` }} />
-        )}
-        <header ref={headerRef} className={className} style={fixedHeaderStyle}>
+      <div
+        className={cn({ [styles.sticky]: !isHome })}
+        style={
+          stuck && flowHeight !== null
+            ? { height: `${flowHeight}px` }
+            : undefined
+        }
+      >
+        <header ref={headerRef} className={className}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>
             <div
               className={cn(

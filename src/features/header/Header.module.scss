@@ -2,6 +2,18 @@
 @use '../../styles/effects.scss' as fx;
 @use '../../styles/headerRow.scss' as headerRow;
 
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+
+  >.header {
+    pointer-events: auto;
+    clip-path: inset(0 -100vw -100vh);
+  }
+}
+
 .header {
   --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
 
@@ -29,16 +41,11 @@
   z-index: 10;
 
   border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
-  box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
 
-  position: sticky;
-  top: 0;
+  position: relative;
 
-  &.fixed {
-    position: fixed;
-    box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
-    border-bottom: 0px;
+  &.stuck {
     transition: all 0.2s fx.$easeOut;
   }
 
@@ -63,7 +70,7 @@
       opacity: 0;
       height: 0;
       overflow: hidden;
-      transition: all 0.2s fx.$easeOut;
+      transition: all .4s fx.$easeInOutQuart;
     }
 
     // Release the row's reserved height too, or the header would keep it while
@@ -80,8 +87,6 @@
   &:global(.section-home) {
     height: 80vh;
     border-bottom: none;
-    position: relative;
-    top: auto;
 
     :global(.container-wrapper) {
       height: 100%;
