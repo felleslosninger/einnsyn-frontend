@@ -1,8 +1,11 @@
 import 'server-only';
 
+import { NotFoundError } from '@digdir/einnsyn-sdk';
+import { getPublicApiClient } from '~/lib/api/api.server';
 import { updateSettings } from '~/lib/settings/settings.server';
+import { logger } from '~/lib/utils/logger';
 import { validateUsername } from '~/lib/utils/validators';
-import type { LoginState } from './auth';
+import type { LoginState, PasswordResetState } from './auth';
 import { updateAuth } from './authCookie.server';
 
 const API_URL = process.env.API_URL;
@@ -110,4 +113,32 @@ export const eInnsynLogin = async (
       message: 'A network error occurred. Please try again later.',
     };
   }
+};
+
+/**
+ * Ask the API to e-mail a password reset link. An address without an account
+ * gets the same answer, so the form doesn't reveal who has one.
+ */
+export const requestPasswordReset = async (
+  _prevState: PasswordResetState,
+  formData: FormData,
+): Promise<PasswordResetState> => {
+  const username = formData.get('username');
+  if (!validateUsername(username)) {
+    return { error: 'invalidUsername' };
+  }
+
+  try {
+    const api = await getPublicApiClient();
+    // The SDK puts the id into the path as is.
+    const id = encodeURIComponent(username).replaceAll('%40', '@');
+    await api.bruker.requestPasswordReset(id);
+  } catch (error) {
+    if (!(error instanceof NotFoundError)) {
+      logger.error('Failed to request a password reset', error);
+      return { error: 'UnknownError' };
+    }
+  }
+
+  return { sent: true };
 };

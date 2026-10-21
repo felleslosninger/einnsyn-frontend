@@ -16,7 +16,6 @@ import {
 import { createPortal } from 'react-dom';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useDraggable } from '~/hooks/useDraggable';
-import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useScrollwheelTrap } from '~/hooks/useScrollwheelTrap';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -65,7 +64,6 @@ export default function EinModal({
   transitionEvents: transitionEventsProp,
 }: EinModalProps) {
   const navigation = useNavigation();
-  const basepath = useModalBasepath();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   // Update portal target for client-side rendering
@@ -79,12 +77,11 @@ export default function EinModal({
     onClose?.();
     if (setOpen) {
       setOpen(false);
-    } else if (basepath !== navigation.pathname) {
-      // Route-driven callers (intercepted route segments) rely on navigation
-      // back to the basepath instead of a setter.
-      navigation.push(basepath);
+    } else {
+      // Route-driven modals (app/@modal) close through the history.
+      navigation.closeModal();
     }
-  }, [onClose, setOpen, basepath, navigation]);
+  }, [onClose, setOpen, navigation]);
 
   const contextValue = useMemo(() => ({ close: closeModal }), [closeModal]);
   const isMobileLayout = useBreakpoint('SM');
@@ -266,7 +263,7 @@ export function EinModalHeader({
   children,
 }: EinModalHeaderProps) {
   const t = useTranslation();
-  const basepath = useModalBasepath();
+  const { href } = useNavigation();
   const einModal = useContext(EinModalContext);
   const isMobileLayout = useBreakpoint('SM');
 
@@ -282,7 +279,7 @@ export function EinModalHeader({
           {title}
         </h1>
       )}
-      <form method="get" action={basepath} onSubmit={closeHandler}>
+      <form method="get" action={href} onSubmit={closeHandler}>
         {isMobileLayout ? (
           <Button
             type="submit"

@@ -2,15 +2,15 @@
 
 import { useFormStatus } from 'react-dom';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
-import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { ansattportenAuthAction } from '~/lib/auth/auth.actions';
 
 export function AnsattportenLogin() {
-  const basepath = useModalBasepath();
+  const { href } = useNavigation();
   const { origin } = useSessionData();
   const { pending } = useFormStatus();
-  const originUrl = new URL(basepath, origin).href;
+  const originUrl = new URL(href, origin).href;
 
   return (
     <form action={ansattportenAuthAction} data-size="sm">

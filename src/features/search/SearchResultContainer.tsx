@@ -9,7 +9,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
-import { fetchNextPage } from '~/lib/utils/pagination';
+import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
@@ -48,12 +48,24 @@ export default function SearchResultContainer({
       loadingSearchParamsString !== searchParamsString);
 
   const searchSymbolRef = useRef<symbol>(Symbol());
+  const searchKey = `${pathname}?${searchParamsString}`;
+  const searchKeyRef = useRef(searchKey);
 
-  // Update currentSearchResults when searchResults prop changes (new search)
+  // A new search starts the list over. A refresh of the same search (e.g.
+  // after logging in) keeps the pages already loaded.
   useEffect(() => {
-    searchSymbolRef.current = Symbol();
-    setCurrentSearchResults(searchResults);
-  }, [searchResults]);
+    const sameSearch = searchKeyRef.current === searchKey;
+    searchKeyRef.current = searchKey;
+    if (!sameSearch) {
+      searchSymbolRef.current = Symbol();
+    }
+    setCurrentSearchResults((current) => {
+      if (current === searchResults) {
+        return current;
+      }
+      return sameSearch ? mergeWindow(current, searchResults) : searchResults;
+    });
+  }, [searchResults, searchKey]);
 
   const scrollTriggerHandler = useCallback(async () => {
     if (!currentSearchResults.next) {

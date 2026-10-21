@@ -26,6 +26,12 @@ export type ExtendedAuthInfo = AuthInfo & {
   bruker?: Bruker;
 };
 
+/** The state `useActionState` carries between password reset requests. */
+export type PasswordResetState = {
+  sent?: boolean;
+  error?: string;
+};
+
 /** The state `useActionState` carries between login attempts. */
 export type LoginState = {
   success?: boolean;

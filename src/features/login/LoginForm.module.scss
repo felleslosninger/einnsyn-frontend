@@ -1,14 +1,4 @@
-@use '~/styles/mediaQueries.scss' as *;
-
-.loginContainer {
-  display: flex;
-  align-items: center;
-  //width: px(400);
-
-  @include small {
-    width: 100%;
-  }
-}
+@use '~/styles/effects.scss' as fx;
 
 .loginOptionsContainer {
   display: flex;
@@ -18,28 +8,9 @@
   gap: 2rem;
 }
 
+// On a `ds-fieldset`, which resets it and spaces the fields
 .loginFieldset {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
-}
-
-.loginInputContainer {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 1.5rem;
-}
-
-.updatePasswordContainer {
-  display: flex;
-  align-items: center;
-  width: 100%;
+  --dsc-fieldset-gap: var(--ein-horizontal-spacing);
 }
 
 .rememberForgottenWrapper {
@@ -48,31 +19,57 @@
   flex-flow: row nowrap;
   justify-content: space-between !important;
   align-items: center;
-  //gap: px(16);
-
-  > button {
-    width: fit-content;
-  }
 }
 
-.forgotPasswordLink,
-.createUserAccountBtn {
+.forgotPasswordLink {
   width: fit-content;
   height: max-content;
   font-weight: 500;
+}
 
-  &:visited {
-    color: var(--fds-semantic-text-action-primary-default);
-    text-decoration-color: var(--fds-semantic-text-action-primary-default);
+// A message wraps within the form's width instead of widening the modal.
+.formAlert {
+  contain: inline-size;
+}
+
+// Collapses (height and fade) on the forgotten-password step.
+.passwordField {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows fx.$transitionDuration fx.$easeOut,
+    margin-top fx.$transitionDuration fx.$easeOut,
+    opacity fx.$transitionDuration linear;
+
+  &[inert] {
+    grid-template-rows: 0fr;
+    // Drops the fieldset's spacing above it
+    margin-top: 0;
+    opacity: 0;
   }
 
-  &:active {
-    color: var(--fds-semantic-text-action-primary-active);
-    text-decoration-color: var(--fds-semantic-text-action-primary-active);
+  > * {
+    // The focus ring sticks out by its width plus its offset
+    $focusRing: calc(-2 * var(--ds-border-width-focus));
+
+    min-height: 0;
+    clip-path: inset(0 $focusRing $focusRing);
+  }
+}
+
+.stayLoggedIn {
+  transition: opacity fx.$transitionDuration linear;
+
+  // Out of the row at once, so the link's longer text neither wraps beside it
+  // nor overlaps it while fading
+  &[inert] {
+    position: absolute;
+    opacity: 0;
+    transition: none;
   }
 
-  &:hover {
-    color: var(--fds-semantic-text-action-primary-hover);
-    text-decoration-color: var(--fds-semantic-text-action-primary-hover);
+  // Stays on the right when it is alone in the row
+  + .forgotPasswordLink {
+    margin-left: auto;
   }
 }
