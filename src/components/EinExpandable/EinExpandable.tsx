@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Fragment,
+  isValidElement,
   type ReactNode,
   type RefObject,
   useCallback,
@@ -11,6 +13,16 @@ import cn from '~/lib/utils/className';
 import { domFreeze } from '~/lib/utils/domFreeze';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import styles from './EinExpandable.module.scss';
+
+function isEmpty(node: ReactNode): boolean {
+  if (node == null || typeof node === 'boolean') return true;
+  if (Array.isArray(node)) return node.every(isEmpty);
+  return (
+    isValidElement<{ children?: ReactNode }>(node) &&
+    node.type === Fragment &&
+    isEmpty(node.props.children)
+  );
+}
 
 function removeFrozen(frozen: RefObject<HTMLElement | null>) {
   frozen.current?.remove();
@@ -45,7 +57,9 @@ export function EinExpandable({
   // Updated in a layout effect, so it still holds the last commit's value when
   // React removes dropped content.
   const wasExpanded = useRef(expanded);
-  const hasContent = children != null && typeof children !== 'boolean';
+  // Content that renders nothing has to unmount the wrapper: its ref cleanup
+  // is what leaves the frozen copy
+  const hasContent = !isEmpty(children);
 
   const attachContent = useCallback((content: HTMLDivElement) => {
     removeFrozen(frozenRef);
