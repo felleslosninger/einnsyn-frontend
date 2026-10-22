@@ -239,6 +239,15 @@
     "savedCases": "Lagra saker",
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "savedSearchesPage": {
+      "description": "Her finn du søka du har lagra. Du kan abonnere på eit søk for å få varsel om nye treff.",
+      "notificationInfo": "Varsel vert sendt på e-post éin gong i døgnet, kl. 06:00.",
+      "subscribe": "Abonner på søk",
+      "empty": "Du har ingen lagra søk enno.",
+      "deleteError": "Kunne ikkje slette søket. Prøv igjen.",
+      "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
+      "loadError": "Kunne ikkje hente lagra søk. Prøv igjen seinare."
+    }
   }
 }
