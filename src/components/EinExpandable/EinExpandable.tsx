@@ -15,7 +15,7 @@ import { domTransitionend } from '~/lib/utils/domTransitionend';
 import styles from './EinExpandable.module.scss';
 
 function isEmpty(node: ReactNode): boolean {
-  if (node == null || typeof node === 'boolean') return true;
+  if (node == null || typeof node === 'boolean' || node === '') return true;
   if (Array.isArray(node)) return node.every(isEmpty);
   return (
     isValidElement<{ children?: ReactNode }>(node) &&
