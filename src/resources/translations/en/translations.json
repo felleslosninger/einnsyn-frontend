@@ -261,7 +261,8 @@
       "subscribe": "Subscribe to search",
       "empty": "You have no saved searches yet.",
       "deleteError": "Could not delete the search. Please try again.",
-      "subscribeError": "Could not change the subscription. Please try again."
+      "subscribeError": "Could not change the subscription. Please try again.",
+      "loadError": "Could not load your saved searches. Please try again later."
     }
   }
 }

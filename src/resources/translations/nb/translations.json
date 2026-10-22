@@ -256,7 +256,8 @@
       "subscribe": "Abonner på søk",
       "empty": "Du har ingen lagrede søk ennå.",
       "deleteError": "Kunne ikke slette søket. Prøv igjen.",
-      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen."
+      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
+      "loadError": "Kunne ikke hente lagrede søk. Prøv igjen senere."
     }
   }
 }

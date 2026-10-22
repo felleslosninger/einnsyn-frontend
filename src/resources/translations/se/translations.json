@@ -244,7 +244,8 @@
       "subscribe": "Diŋgo ohcama",
       "empty": "Dus eai leat vurkon ohcanat.",
       "deleteError": "Ii lihkostuvvan sihkkut ohcama. Geahččal ođđasit.",
-      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit."
+      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
+      "loadError": "Ii lihkostuvvan viežžat vurkon ohcamiid. Geahččal ođđasit maŋŋelaš."
     }
   }
 }

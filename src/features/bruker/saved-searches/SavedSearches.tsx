@@ -1,4 +1,9 @@
-import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
+import {
+  Alert,
+  Divider,
+  Heading,
+  Paragraph,
+} from '@digdir/designsystemet-react';
 import { Suspense } from 'react';
 import { buildPathname } from '~/lib/routing/pathname';
 import { getSettings } from '~/lib/settings/settings.server';
@@ -9,10 +14,19 @@ import SavedSearchesList from './SavedSearchesList';
 import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
 async function SavedSearchesContent() {
-  const [{ language }, initialPage] = await Promise.all([
+  const [{ language }, initialPage, t] = await Promise.all([
     getSettings(),
     listLagretSoek(),
+    getTranslator(),
   ]);
+
+  if (!initialPage) {
+    return (
+      <Alert data-color="danger">
+        {t('bruker.savedSearchesPage.loadError')}
+      </Alert>
+    );
+  }
 
   const searchPath = buildPathname({ page: 'search' }, language);
 
@@ -29,7 +43,7 @@ export default async function SavedSearches() {
       <div className="container-pre collapsible" />
       <div className="container">
         <div className={styles.header}>
-          <Heading level={1} data-size="sm">
+          <Heading level={1} data-size="md">
             {t('bruker.savedSearches')}
           </Heading>
           <Paragraph>{t('bruker.savedSearchesPage.description')}</Paragraph>

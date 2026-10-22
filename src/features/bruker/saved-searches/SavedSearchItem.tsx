@@ -98,7 +98,11 @@ export function SavedSearchItem({
           </EinButton>
         </div>
       </div>
-      {error && <ValidationMessage data-size="sm">{error}</ValidationMessage>}
+      {error && (
+        <ValidationMessage data-size="sm" role="alert">
+          {error}
+        </ValidationMessage>
+      )}
     </li>
   );
 }
