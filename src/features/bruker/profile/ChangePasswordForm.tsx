@@ -28,6 +28,7 @@ export default function ChangePasswordForm() {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
 
   const errorMessage =
     state.error && t(`bruker.profilePage.errors.${state.error}`);
@@ -36,10 +37,12 @@ export default function ChangePasswordForm() {
     setOldPassword('');
     setNewPassword('');
     setConfirmPassword('');
+    setShowAlert(false);
     setIsEditing(true);
   };
 
   useEffect(() => {
+    setShowAlert(true);
     if (state.success) {
       setIsEditing(false);
     } else if (state.error) {
@@ -73,7 +76,11 @@ export default function ChangePasswordForm() {
     <Card.Block className={styles.profileSection}>
       <Heading level={4} className="ds-heading" data-size="2xs">
         <span className={styles.headingWithIcon}>
-          <PadlockLockedIcon aria-hidden="true" focusable="false" />
+          <PadlockLockedIcon
+            fontSize="1.5rem"
+            aria-hidden="true"
+            focusable="false"
+          />
           {t('site.password')}
         </span>
       </Heading>
@@ -93,7 +100,7 @@ export default function ChangePasswordForm() {
               {t('common.change')}
             </EinButton>
           </div>
-          {state.success && (
+          {showAlert && state.success && (
             <Alert data-color="success" role="status">
               {t('bruker.profilePage.changePasswordSuccess')}
             </Alert>
@@ -105,6 +112,7 @@ export default function ChangePasswordForm() {
           ref={formRef}
           action={formAction}
           className={styles.form}
+          onChange={() => setShowAlert(false)}
         >
           <EinInput
             name="oldPassword"
@@ -139,7 +147,9 @@ export default function ChangePasswordForm() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
+          {showAlert && errorMessage && (
+            <Alert data-color="danger">{errorMessage}</Alert>
+          )}
           <div className={styles.formActions}>
             <EinButton type="submit" disabled={isPending}>
               {t('bruker.profilePage.savePasswordChanges')}

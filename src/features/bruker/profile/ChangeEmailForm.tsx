@@ -23,16 +23,19 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [emailValue, setEmailValue] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
 
   const errorMessage =
     state.error && t(`bruker.profilePage.errors.${state.error}`);
 
   const startEditing = () => {
     setEmailValue('');
+    setShowAlert(false);
     setIsEditing(true);
   };
 
   useEffect(() => {
+    setShowAlert(true);
     if (state.success) {
       setIsEditing(false);
       router.refresh();
@@ -58,7 +61,11 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
     <Card.Block className={styles.profileSection}>
       <Heading level={4} className="ds-heading" data-size="2xs">
         <span className={styles.headingWithIcon}>
-          <EnvelopeClosedIcon aria-hidden="true" focusable="false" />
+          <EnvelopeClosedIcon
+            fontSize="1.5rem"
+            aria-hidden="true"
+            focusable="false"
+          />
           {t('common.email')}
         </span>
       </Heading>
@@ -78,7 +85,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
               {t('common.change')}
             </EinButton>
           </div>
-          {state.success && (
+          {showAlert && state.success && (
             <Alert data-color="success" role="status">
               {t('bruker.profilePage.changeEmailSuccess')}
             </Alert>
@@ -90,6 +97,7 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
           ref={formRef}
           action={formAction}
           className={styles.form}
+          onChange={() => setShowAlert(false)}
         >
           <EinInput
             name="email"
@@ -102,7 +110,9 @@ export default function ChangeEmailForm({ currentEmail }: Props) {
             value={emailValue}
             onChange={(e) => setEmailValue(e.target.value)}
           />
-          {errorMessage && <Alert data-color="danger">{errorMessage}</Alert>}
+          {showAlert && errorMessage && (
+            <Alert data-color="danger">{errorMessage}</Alert>
+          )}
           <div className={styles.formActions}>
             <EinButton type="submit" disabled={isPending}>
               {t('bruker.profilePage.saveEmailChanges')}
