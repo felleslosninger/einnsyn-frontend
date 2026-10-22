@@ -36,7 +36,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
     display: flex;
     align-items: center;
     width: 100%;
-    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+    border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-surface-tinted);
     padding: $horizontalPadding $verticalPadding;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
 
@@ -46,11 +46,15 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
   }
 
   .einModalFooter {
+    // Content can space itself by this too, to match the padding
+    --ein-modal-footer-padding: var(--ds-size-6);
+
     display: flex;
     align-items: center;
     width: 100%;
     border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
-    padding: $horizontalPadding $verticalPadding;
+    background: var(--ds-color-neutral-surface-tinted);
+    padding: var(--ein-modal-footer-padding) $verticalPadding;
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
   }
 
@@ -204,7 +208,7 @@ $horizontalPadding: calc(var(--ein-horizontal-spacing));
       margin: auto;
       border-radius: var(--ds-border-radius-base);
       box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
-      overflow: visible;
+      overflow: hidden;
       min-height: 200px;
       min-width: 400px;
 

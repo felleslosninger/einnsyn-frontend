@@ -1,9 +1,9 @@
 'use server';
 
 import { startAnsattportenLogin } from './ansattporten.server';
-import type { LoginState, PasswordResetState } from './auth';
+import type { LoginState, PasswordResetState, RegisterState } from './auth';
 import { endSession } from './auth.server';
-import { eInnsynLogin, requestPasswordReset } from './einnsyn.server';
+import { eInnsynLogin, register, requestPasswordReset } from './einnsyn.server';
 
 // Every export here is a publicly callable endpoint, so this file holds only
 // what a form or client component actually submits to. Server-side callers use
@@ -34,6 +34,14 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<PasswordResetState> {
   return await requestPasswordReset(prevState, formData);
+}
+
+/** `useActionState` on the registration form. */
+export async function registerAction(
+  prevState: RegisterState,
+  formData: FormData,
+): Promise<RegisterState> {
+  return await register(prevState, formData);
 }
 
 /** `<form action>` on the log out button. */

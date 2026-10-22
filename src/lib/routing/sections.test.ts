@@ -38,6 +38,7 @@ describe('isModalSection', () => {
   it('marks the sections that open over the page beneath them', () => {
     assert.equal(isModalSection('login'), true);
     assert.equal(isModalSection(getSection('/login/forgotten-password')), true);
+    assert.equal(isModalSection(getSection('/login/register')), true);
     assert.equal(isModalSection('saksmappe'), false);
     assert.equal(isModalSection('home'), false);
     assert.equal(isModalSection(getSection('/oslo/login')), false);

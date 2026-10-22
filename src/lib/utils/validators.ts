@@ -1,5 +1,6 @@
+// The API's rule: lower and upper case, and a digit or special character
 export const passwordRegexp = new RegExp(
-  /((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,250})/,
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W]).{8,}$/,
 );
 export const emailRegexp = new RegExp(/.@./);
 

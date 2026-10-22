@@ -5,7 +5,6 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 2rem;
 }
 
 // On a `ds-fieldset`, which resets it and spaces the fields
@@ -27,49 +26,38 @@
   font-weight: 500;
 }
 
+// Under the button, on the steps that lead back to the login. It spans the
+// row, as a collapsed one sized to its contained content would be 0 wide.
+.backToLogin {
+  align-self: stretch;
+  justify-items: end;
+  margin-top: var(--ds-size-4);
+  font-weight: 500;
+}
+
+// The message box spaces itself from the fields, so the space closes with it
+.notice {
+  margin-bottom: var(--dsc-fieldset-gap);
+}
+
+.username {
+  margin-top: 0;
+}
+
+// The password rules, as a footnote to the form
+.passwordHint p {
+  margin: 0;
+  font-size: var(--ds-font-size-minus-1);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
 // A message wraps within the form's width instead of widening the modal.
-.formAlert {
+.formAlert,
+.passwordHint {
   contain: inline-size;
 }
 
-// Collapses (height and fade) on the forgotten-password step.
-.passwordField {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition:
-    grid-template-rows fx.$transitionDuration fx.$easeOut,
-    margin-top fx.$transitionDuration fx.$easeOut,
-    opacity fx.$transitionDuration linear;
-
-  &[inert] {
-    grid-template-rows: 0fr;
-    // Drops the fieldset's spacing above it
-    margin-top: 0;
-    opacity: 0;
-  }
-
-  > * {
-    // The focus ring sticks out by its width plus its offset
-    $focusRing: calc(-2 * var(--ds-border-width-focus));
-
-    min-height: 0;
-    clip-path: inset(0 $focusRing $focusRing);
-  }
-}
-
-.stayLoggedIn {
-  transition: opacity fx.$transitionDuration linear;
-
-  // Out of the row at once, so the link's longer text neither wraps beside it
-  // nor overlaps it while fading
-  &[inert] {
-    position: absolute;
-    opacity: 0;
-    transition: none;
-  }
-
-  // Stays on the right when it is alone in the row
-  + .forgotPasswordLink {
-    margin-left: auto;
-  }
+// Collapses (height and fade) on the step it isn't part of.
+.collapsible {
+  @include fx.collapsible;
 }

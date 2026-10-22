@@ -32,6 +32,12 @@ export type PasswordResetState = {
   error?: string;
 };
 
+/** The state `useActionState` carries between registration attempts. */
+export type RegisterState = {
+  sent?: boolean;
+  error?: string;
+};
+
 /** The state `useActionState` carries between login attempts. */
 export type LoginState = {
   success?: boolean;
