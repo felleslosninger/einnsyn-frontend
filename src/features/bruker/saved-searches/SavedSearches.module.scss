@@ -1,3 +1,5 @@
+@use '../../../styles/mediaQueries.scss' as mq;
+
 .header {
   display: flex;
   flex-direction: column;
@@ -36,6 +38,11 @@
   display: flex;
   align-items: flex-start;
   gap: var(--ds-size-8);
+
+  @include mq.small {
+    flex-direction: column;
+    gap: var(--ds-size-3);
+  }
 }
 
 .title {

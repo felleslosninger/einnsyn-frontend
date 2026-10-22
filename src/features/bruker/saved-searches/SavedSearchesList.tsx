@@ -17,8 +17,35 @@ import styles from './SavedSearches.module.scss';
 import { SavedSearchItem } from './SavedSearchItem';
 import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
-const dateToken = (prefix: string, from: unknown, to: unknown) =>
-  from || to ? [{ prefix, value: `${from ?? ''}/${to ?? ''}` }] : [];
+// Date math units the search field writes differently: month is `M` in date
+// math but `m` in the search field.
+const DATE_MATH_UNITS: Record<string, string> = {
+  M: 'm',
+  h: 'h',
+  d: 'd',
+  w: 'w',
+  y: 'y',
+};
+
+/**
+ * A saved date as the search field writes it: relative date math
+ * (`now-7d/d`) back to `-7d`, and a timestamp back to its date.
+ */
+function toSearchFieldDate(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  const relative = value.match(/^now-(\d+)([Mhdwy])(?:\/d)?$/);
+  if (relative) return `-${relative[1]}${DATE_MATH_UNITS[relative[2]]}`;
+  return value.slice(0, 10);
+}
+
+function dateToken(prefix: string, fromValue: unknown, toValue: unknown) {
+  const from = toSearchFieldDate(fromValue);
+  const to = toSearchFieldDate(toValue);
+  if (!from && !to) return [];
+  // A relative date is a preset, written without the range separator.
+  const value = from.startsWith('-') && !to ? from : `${from}/${to}`;
+  return [{ prefix, value }];
+}
 
 function savedSearchHref(searchPath: string, sp: SavedSearchParameters = {}) {
   const filters = tokensToSearchQuery([
