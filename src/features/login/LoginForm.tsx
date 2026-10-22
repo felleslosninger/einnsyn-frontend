@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
@@ -85,12 +86,6 @@ export default function LoginForm({
   // A message is gone once you leave its step, also when you come back.
   if (notice && notice.mode !== mode) {
     setNotice(undefined);
-  }
-
-  // The message box keeps its last message while it closes
-  const [shownNotice, setShownNotice] = useState<Notice>();
-  if (notice && notice !== shownNotice) {
-    setShownNotice(notice);
   }
 
   // Every submit returns a new state, so a repeated error shows again.
@@ -203,19 +198,13 @@ export default function LoginForm({
   return (
     <form action={formAction}>
       <fieldset className={cn('ds-fieldset', styles.loginFieldset)}>
-        <div className={cn(styles.collapsible, styles.notice)} inert={!notice}>
-          {/* The box that collapses: the alert's padding can't shrink away */}
-          <div>
-            {shownNotice && (
-              <Alert
-                data-color={shownNotice.color}
-                className={styles.formAlert}
-              >
-                {t(shownNotice.message)}
-              </Alert>
-            )}
-          </div>
-        </div>
+        <EinExpandable expanded={!!notice} className={styles.notice}>
+          {notice && (
+            <Alert data-color={notice.color} className={styles.formAlert}>
+              {t(notice.message)}
+            </Alert>
+          )}
+        </EinExpandable>
         <EinInput
           className={styles.username}
           name="username"
@@ -230,7 +219,7 @@ export default function LoginForm({
           fullWidth
         />
 
-        <div className={styles.collapsible} inert={!hasPassword}>
+        <EinExpandable expanded={hasPassword}>
           <EinInput
             ref={passwordInput}
             // Without a name it stays out of the reset request
@@ -252,8 +241,8 @@ export default function LoginForm({
             required={hasPassword}
             fullWidth
           />
-        </div>
-        <div className={styles.collapsible} inert={!isRegister}>
+        </EinExpandable>
+        <EinExpandable expanded={isRegister}>
           <EinInput
             ref={passwordRepeatInput}
             name={isRegister ? 'passwordRepeat' : undefined}
@@ -267,35 +256,33 @@ export default function LoginForm({
             required={isRegister}
             fullWidth
           />
-        </div>
-        <div
-          className={cn(styles.collapsible, styles.passwordHint)}
-          inert={!isRegister}
-        >
+        </EinExpandable>
+        <EinExpandable expanded={isRegister} className={styles.passwordHint}>
           <p id={passwordHintId}>
             <span aria-hidden>* </span>
             {t('site.passwordRequirements')}
           </p>
-        </div>
-        <div className={styles.collapsible} inert={!isLogin}>
-          <div className={styles.rememberForgottenWrapper}>
-            <Checkbox
-              name="stayLoggedIn"
-              value={stayLoggedIn ? 'checked' : undefined}
-              checked={stayLoggedIn}
-              onChange={onUpdateStayLoggedIn}
-              data-size="sm"
-              label={t('site.stayLoggedIn')}
-            />
-            <EinLink
-              ref={forgotPasswordLink}
-              href="/login/forgotten-password"
-              className={styles.forgotPasswordLink}
-            >
-              {t('site.forgottenPassword')}
-            </EinLink>
-          </div>
-        </div>
+        </EinExpandable>
+        <EinExpandable
+          expanded={isLogin}
+          contentClassName={styles.rememberForgottenWrapper}
+        >
+          <Checkbox
+            name="stayLoggedIn"
+            value={stayLoggedIn ? 'checked' : undefined}
+            checked={stayLoggedIn}
+            onChange={onUpdateStayLoggedIn}
+            data-size="sm"
+            label={t('site.stayLoggedIn')}
+          />
+          <EinLink
+            ref={forgotPasswordLink}
+            href="/login/forgotten-password"
+            className={styles.forgotPasswordLink}
+          >
+            {t('site.forgottenPassword')}
+          </EinLink>
+        </EinExpandable>
         <div className={styles.loginOptionsContainer}>
           <EinButton
             type="submit"
@@ -304,14 +291,15 @@ export default function LoginForm({
           >
             {t(stepNames[mode])}
           </EinButton>
-          <div
-            className={cn(styles.collapsible, styles.backToLogin)}
-            inert={isLogin}
+          <EinExpandable
+            expanded={!isLogin}
+            className={styles.backToLogin}
+            contentClassName={styles.backToLoginContent}
           >
             <EinLink ref={backToLoginLink} href="/login">
               {t('site.backToLogin')}
             </EinLink>
-          </div>
+          </EinExpandable>
         </div>
       </fieldset>
     </form>

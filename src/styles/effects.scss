@@ -8,35 +8,3 @@ $easeOutQuart: cubic-bezier(0.165, 0.84, 0.44, 1);
 $easeOutExpo: cubic-bezier(0.19, 1, 0.22, 1);
 $easeOutQuint: cubic-bezier(0.23, 1, 0.32, 1);
 $easeOut: $easeOutQuint;
-
-// Collapses (height and fade) while inert. Its one child is what shrinks, so
-// padding and borders must sit further in: those can't shrink away.
-@mixin collapsible {
-  // The focus ring sticks out by its width plus its offset
-  $focusRing: calc(-2 * var(--ds-border-width-focus));
-
-  display: grid;
-  grid-template-rows: 1fr;
-  // Content keeps its height and is cut off from below
-  align-items: start;
-  clip-path: inset($focusRing);
-  transition:
-    grid-template-rows $transitionDuration $easeOut,
-    margin-top $transitionDuration $easeOut,
-    margin-bottom $transitionDuration $easeOut,
-    opacity $transitionDuration linear;
-
-  &[inert] {
-    grid-template-rows: 0fr;
-    // Drops the spacing around it
-    margin-top: 0;
-    margin-bottom: 0;
-    opacity: 0;
-    // Nor does its content widen the modal
-    contain: inline-size;
-  }
-
-  > * {
-    min-height: 0;
-  }
-}

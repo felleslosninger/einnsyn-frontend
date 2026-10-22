@@ -1,9 +1,5 @@
-@use '~/styles/effects.scss' as fx;
-
-// The other ways in belong to the login step only
+// In the modal's column, it keeps its height while the body scrolls
 .footer {
-  @include fx.collapsible;
-  // In the modal's column, it keeps its height while the body scrolls
   flex-shrink: 0;
 }
 

@@ -1,5 +1,3 @@
-@use '~/styles/effects.scss' as fx;
-
 .loginOptionsContainer {
   display: flex;
   flex-direction: column;
@@ -30,9 +28,14 @@
 // row, as a collapsed one sized to its contained content would be 0 wide.
 .backToLogin {
   align-self: stretch;
-  justify-items: end;
   margin-top: var(--ds-size-4);
   font-weight: 500;
+}
+
+// As a grid item, the link is a block as tall as its line, like "Glemt passord?"
+.backToLoginContent {
+  display: grid;
+  justify-items: end;
 }
 
 // The message box spaces itself from the fields, so the space closes with it
@@ -55,9 +58,4 @@
 .formAlert,
 .passwordHint {
   contain: inline-size;
-}
-
-// Collapses (height and fade) on the step it isn't part of.
-.collapsible {
-  @include fx.collapsible;
 }

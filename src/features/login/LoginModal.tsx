@@ -2,6 +2,7 @@
 
 import { useSelectedLayoutSegments } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
 import {
   EinModalBody,
   EinModalFooter,
@@ -34,18 +35,15 @@ export default function LoginModal({ children }: { children: ReactNode }) {
         <LoginForm mode={mode} />
         {children}
       </EinModalBody>
-      <div className={styles.footer} inert={mode !== 'login'}>
-        {/* The box that collapses: the footer's padding and border can't */}
-        <div>
-          <EinModalFooter>
-            {/* The footer lines its children up in a row; these go in a column */}
-            <div className={styles.footerOptions}>
-              <CreateAccountLink />
-              <AnsattportenLogin />
-            </div>
-          </EinModalFooter>
-        </div>
-      </div>
+      <EinExpandable expanded={mode === 'login'} className={styles.footer}>
+        <EinModalFooter>
+          {/* The footer lines its children up in a row; these go in a column */}
+          <div className={styles.footerOptions}>
+            <CreateAccountLink />
+            <AnsattportenLogin />
+          </div>
+        </EinModalFooter>
+      </EinExpandable>
     </>
   );
 }
