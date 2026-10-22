@@ -1,41 +1,30 @@
-// The end height is measured in JS and published as `--expandable-height`,
-// so `height` animates between 0 and a concrete value. The duration comes
-// from `EXPAND_DURATION_MS` via `--expandable-duration`, so the component and
-// any scroll glide share one source. At rest no pose pins the height and the
-// content sizes itself.
-
 @use "../../styles/effects" as fx;
 
 .expandable {
-  overflow: hidden;
+  // Set `--ein-expandable-duration` on the panel or an ancestor to change it
+  $duration: var(--ein-expandable-duration, #{fx.$transitionDuration});
+  // The focus ring sticks out by its width plus its offset
+  $focusRing: calc(-2 * var(--ds-border-width-focus));
 
-  // Collapsed pose: the initial frame of an enter, and the target frame of an
-  // exit. The init-enter class is present alone during the prep frame and
-  // persists until `done`, so negate the enter class to match only that frame.
-  &:global(.ein-transition-init-enter-transition):not(:global(.ein-transition-enter-transition)),
-  &:global(.ein-transition-exit-transition) {
-    height: 0;
+  display: grid;
+  // Zero minimums: the row closes past the content's padding and borders, and
+  // the column stays as wide as the panel
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  // Content keeps its height and is cut off from below
+  align-items: start;
+  clip-path: inset($focusRing);
+  transition:
+    grid-template-rows $duration fx.$easeOut,
+    margin-block $duration fx.$easeOut,
+    opacity $duration linear;
+
+  &[inert] {
+    grid-template-rows: minmax(0, 0fr);
+    // Drops the spacing around it
+    margin-block: 0;
     opacity: 0;
+    // Nor does its content widen its container
+    contain: inline-size;
   }
-
-  // Expanded pose: the enter target, and the exit start (`height` can't
-  // animate from `auto`).
-  &:global(.ein-transition-enter-transition),
-  &:global(.ein-transition-init-exit-transition):not(:global(.ein-transition-exit-transition)) {
-    height: var(--expandable-height);
-  }
-
-  // Animate during the enter and exit transitions.
-  &:global(.ein-transition-enter-transition),
-  &:global(.ein-transition-exit-transition) {
-    transition:
-      height var(--expandable-duration) fx.$easeOut,
-      opacity var(--expandable-duration) fx.$easeOut;
-  }
-}
-
-.content {
-  // The measured box for `--expandable-height`; `flow-root` keeps a child's
-  // top/bottom margins inside it.
-  display: flow-root;
 }

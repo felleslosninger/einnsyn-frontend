@@ -1,8 +1,8 @@
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react';
-import { EXPAND_DURATION_MS } from '~/components/EinExpandable/EinExpandable';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { suspendScrollDirection } from '~/hooks/useScrollState';
 import { animationFrame } from '~/lib/utils/animationFrame';
+import { domTransitionDuration } from '~/lib/utils/domTransitionend';
 
 // User input cancels the scroll glide. The click that started the expansion
 // fired its pointerdown before the listener goes on.
@@ -84,13 +84,14 @@ function easeOutQuint(t: number): number {
 
 let stopActiveGlide: (() => void) | null = null;
 
-// Glide the window by `delta` over the expand duration. A new glide replaces
-// a running one, and user input cancels it.
-function smoothScrollBy(delta: number) {
+// Glide the window by `delta` over `duration` (ms). A new glide replaces a
+// running one, and user input cancels it.
+function smoothScrollBy(delta: number, duration: number) {
   stopActiveGlide?.();
   if (Math.abs(delta) < 1) return;
 
-  const start = performance.now();
+  // The first frame's time: a frame can start before the call that schedules it
+  let start: number | undefined;
   let applied = 0;
   let frame = 0;
   const releaseScrollDirection = suspendScrollDirection();
@@ -103,7 +104,8 @@ function smoothScrollBy(delta: number) {
     if (stopActiveGlide === stop) stopActiveGlide = null;
   };
   const step = (now: number) => {
-    const t = Math.min((now - start) / EXPAND_DURATION_MS, 1);
+    start ??= now;
+    const t = duration > 0 ? Math.min((now - start) / duration, 1) : 1;
     const target = delta * easeOutQuint(t);
     window.scrollBy(0, target - applied);
     applied = target;
@@ -280,7 +282,10 @@ export function useScrollToExpanded({
       const itemHeight = item.getBoundingClientRect().height + contentHeight;
       const bounds = restingBounds(item);
       const placement = placeExpanded(top, itemHeight, bounds);
-      smoothScrollBy(top - placementTop(placement, bounds));
+      smoothScrollBy(
+        top - placementTop(placement, bounds),
+        domTransitionDuration(expandable, 'grid-template-rows'),
+      );
     },
     [],
   );
