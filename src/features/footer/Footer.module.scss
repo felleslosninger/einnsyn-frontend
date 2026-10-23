@@ -1,6 +1,30 @@
+@use '../../styles/effects.scss' as fx;
+
 .footer {
+  // Sticky, not fixed: it keeps its place at the end of the page, so showing or
+  // hiding it never changes the page's height. Hidden by a negative inset, as a
+  // transform would add its height to the scrollable area.
+  position: sticky;
+  bottom: calc(-1 * var(--ein-footer-height, 100vh));
+  z-index: 10;
+  // The header's timing: slow to collapse, quick to come back
+  transition: bottom 0.4s fx.$easeInOutQuart;
+
   background: var(--ds-color-neutral-background-tinted);
   border-top: 1px solid var(--ds-color-neutral-border-subtle);
+
+  // Shown, and never hidden while in use
+  &.revealed,
+  &:has(:focus-visible),
+  &:has(:global(.ein-popup.open)) {
+    bottom: 0;
+    transition-duration: 0.2s;
+    transition-timing-function: fx.$easeOut;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   :global(.ein-link) {
     text-decoration: none;
@@ -16,15 +40,6 @@
     gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
     padding: var(--ds-size-4) 0;
   }
-
-  &.sticky {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    transform: translateY(0);
-  }
 }
 
 .githubLink:global(.ein-link) {
@@ -35,12 +50,4 @@
 .githubIcon {
   height: 1.7em;
   width: 1.7em;
-}
-
-.stickyPlaceholder {
-  display: none;
-
-  &.sticky {
-    display: block;
-  }
 }
