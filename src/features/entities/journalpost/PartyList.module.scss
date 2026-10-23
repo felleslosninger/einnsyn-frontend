@@ -1,0 +1,49 @@
+.row {
+  display: flex;
+  column-gap: var(--ds-size-1);
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+// Only cut when even the first name doesn't fit beside the button.
+.names {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more {
+  flex-shrink: 0;
+}
+
+// Laid out but clipped to nothing, so it can't widen anything.
+.measure {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+
+  > span {
+    display: block;
+    width: max-content;
+  }
+}
+
+.list {
+  margin: 0;
+  padding: var(--ds-size-3) var(--ds-size-5);
+  list-style: none;
+  width: max-content;
+  max-width: min(22rem, 80vw);
+  max-height: min(50vh, var(--ein-popup-max-height, 50vh));
+  overflow-y: auto;
+}
+
+.item {
+  padding: var(--ds-size-2) 0;
+
+  & + & {
+    border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  }
+}

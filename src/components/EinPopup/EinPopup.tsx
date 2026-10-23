@@ -13,7 +13,9 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import {
@@ -63,6 +65,10 @@ export type EinPopupProps = {
   // container is what `autoFocus` focuses, so this is where dialog/menu
   // semantics belong.
   contentProps?: HTMLAttributes<HTMLDivElement>;
+  // Render into <body>, out of ancestors that would clip the popup or throw off
+  // its position (`overflow`, virtua's transforms). The popup then comes last
+  // in the DOM, so pair with `autoFocus` and `restoreFocus`.
+  portal?: boolean;
 };
 
 export default function EinPopup(props: EinPopupProps) {
@@ -85,6 +91,7 @@ export default function EinPopup(props: EinPopupProps) {
     autoFocus = false,
     restoreFocus = false,
     contentProps,
+    portal = false,
     setOpen = () => undefined,
   } = props;
   const anchorRef = useRef<Element | null>(null);
@@ -351,8 +358,14 @@ export default function EinPopup(props: EinPopupProps) {
     </div>
   ) : null;
 
+  // Resolved in an effect, so the server and first client render agree.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPortalTarget(portal ? document.body : null);
+  }, [portal]);
+
   // Wrap in EinTransition if we're animating
-  return animate ? (
+  const popup = animate ? (
     <EinTransition
       dependencies={[open]}
       withClassNames
@@ -363,4 +376,9 @@ export default function EinPopup(props: EinPopupProps) {
   ) : (
     content
   );
+
+  if (!portal) {
+    return popup;
+  }
+  return portalTarget && createPortal(popup, portalTarget);
 }

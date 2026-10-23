@@ -1,0 +1,25 @@
+// Each from/to part keeps to one line, so a wrap only falls between them. A
+// name too long for its line gets an ellipsis; the "+ N more" stays visible.
+.korr {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--ds-size-3);
+
+  .part {
+    display: flex;
+    gap: var(--ds-size-1);
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .name {
+    overflow: hidden;
+    // Not inherited from `.part`: EinLink sets its own `white-space`.
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .direction {
+    font-weight: 600;
+  }
+}

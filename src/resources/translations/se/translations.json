@@ -100,7 +100,8 @@
       "UTVALG": "Lávdegoddi",
       "VIRKSOMHET": "Organisašuvdna"
     },
-    "searchingIn": "Ohcamin"
+    "searchingIn": "Ohcamin",
+    "backToResults": "Ruovttoluotta ohcanbohtosiidda"
   },
   "routing": {
     "root": {
@@ -151,16 +152,39 @@
     "yes": "Jo",
     "no": "Ii"
   },
+  "breadcrumbs": {
+    "label": "Láidestanbálggis"
+  },
   "saksmappe": {
     "label": "Ášši",
     "labelPlural": "Áššit",
-    "saksnummer": "Áššinummar"
+    "saksnummer": "Áššinummar",
+    "journalfoert": "Journalastojuvvon",
+    "follow": "Čuovo ášši",
+    "publishedBy": "Almmuhan"
   },
   "journalpost": {
     "label": "Journalapoasta",
     "labelPlural": "Journalapoasttat",
-    "from": "Eret",
-    "to": "Vuostáiváldi",
+    "labelPluralInCase": "Journalapoasttat áššis",
+    "from": "Geas",
+    "to": "Geasa",
+    "docDate": "Dokumeantadáhton",
+    "legalBasis": "Láhkavuođđu",
+    "attachmentPlural": "Mildosat",
+    "mainDocument": "Váldodokumeanta",
+    "orderAccess": "Diŋgo geahčadeami",
+    "downloadDocument": "Last ned dokument",
+    "recordType": "Dok.málle",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendere",
+      "mottaker": "$1 mottakere"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendere, alle $2",
+      "mottaker": "$1 mottakere, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",

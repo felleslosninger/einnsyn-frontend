@@ -1,19 +1,8 @@
-// "Freeze" a DOM node by cloning it and disabling all interactive elements.
+// "Freeze" a DOM node by cloning it and making the clone inert. React's
+// handlers don't survive the clone, so anything the browser does by default
+// (following a link, submitting a form) would bypass the router.
 export function domFreeze(element: HTMLElement): HTMLElement {
   const frozen = element.cloneNode(true) as HTMLElement;
-
-  // Disable all interactive elements
-  frozen
-    .querySelectorAll('input, button, a, select, textarea')
-    .forEach((el) => {
-      (el as HTMLInputElement).disabled = true;
-      (el as HTMLElement).style.pointerEvents = 'none';
-    });
-
-  // Prevent any form submissions
-  frozen.querySelectorAll('form').forEach((form) => {
-    form.addEventListener('submit', (e) => e.preventDefault());
-  });
-
+  frozen.inert = true;
   return frozen;
 }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { EinTransition } from '~/components/EinTransition/EinTransition';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
@@ -29,16 +30,16 @@ export default function SearchResultContainer({
     loadingSearchParamsString,
     searchParamsString,
     loading,
-    optimisticPathname,
-    optimisticSearchParams,
   } = useNavigation();
+  // The search's own selection, which holds still while navigating to a hit.
+  const { searchTarget } = useSearchField();
   const enhetIds = useMemo(
     () =>
       getEnhetSelection(
-        getPathEnhet(optimisticPathname),
-        optimisticSearchParams,
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
       ),
-    [optimisticPathname, optimisticSearchParams],
+    [searchTarget],
   );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);

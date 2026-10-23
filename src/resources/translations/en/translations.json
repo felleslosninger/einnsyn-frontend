@@ -100,7 +100,8 @@
       "UTVALG": "Committee",
       "VIRKSOMHET": "Organization"
     },
-    "searchingIn": "Searching in"
+    "searchingIn": "Searching in",
+    "backToResults": "Back to search results"
   },
   "routing": {
     "root": {
@@ -153,16 +154,39 @@
     "yes": "Yes",
     "no": "No"
   },
+  "breadcrumbs": {
+    "label": "Breadcrumb trail"
+  },
   "saksmappe": {
     "label": "Case",
     "labelPlural": "Cases",
-    "saksnummer": "Case number"
+    "saksnummer": "Case number",
+    "journalfoert": "Recorded",
+    "follow": "Follow case",
+    "publishedBy": "Published by"
   },
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
+    "labelPluralInCase": "Records in the case",
     "from": "From",
     "to": "To",
+    "docDate": "Document date",
+    "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "mainDocument": "Main document",
+    "orderAccess": "Request access",
+    "downloadDocument": "Download document",
+    "recordType": "Type",
+    "number": "Record no.",
+    "partyCount": {
+      "avsender": "$1 senders",
+      "mottaker": "$1 recipients"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 senders, all $2",
+      "mottaker": "$1 recipients, all $2"
+    },
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
