@@ -32,9 +32,10 @@ function removeFrozen(frozen: RefObject<HTMLElement | null>) {
 /**
  * A panel that animates open and closed through a grid row, so nothing is
  * measured. Closed, it is inert, and content the caller keeps passing stays
- * mounted. Content dropped as it closes (a list row's detail) leaves a frozen
- * copy for the closing transition. The root carries `data-expandable` so
- * `useScrollToExpanded` can account for sibling panels mid-transition. Its
+ * mounted. It clips only while closed or animating, so popups in an open panel
+ * are not cut off. Content dropped as it closes (a list row's detail) leaves a
+ * frozen copy for the closing transition. The root carries `data-expandable`
+ * so `useScrollToExpanded` can account for sibling panels mid-transition. Its
  * duration is `--ein-expandable-duration`, set in CSS.
  */
 export function EinExpandable({

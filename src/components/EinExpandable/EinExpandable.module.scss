@@ -3,8 +3,6 @@
 .expandable {
   // Set `--ein-expandable-duration` on the panel or an ancestor to change it
   $duration: var(--ein-expandable-duration, #{fx.$transitionDuration});
-  // The focus ring sticks out by its width plus its offset
-  $focusRing: calc(-2 * var(--ds-border-width-focus));
 
   display: grid;
   // Zero minimums: the row closes past the content's padding and borders, and
@@ -13,18 +11,19 @@
   grid-template-rows: minmax(0, 1fr);
   // Content keeps its height and is cut off from below
   align-items: start;
-  clip-path: inset($focusRing);
   transition:
     grid-template-rows $duration fx.$easeOut,
     margin-block $duration fx.$easeOut,
-    opacity $duration linear;
+    opacity $duration linear,
+    overflow 0s $duration allow-discrete;
 
   &[inert] {
     grid-template-rows: minmax(0, 0fr);
-    // Drops the spacing around it
     margin-block: 0;
     opacity: 0;
-    // Nor does its content widen its container
     contain: inline-size;
+    overflow: clip;
+    // Only "overflow" has a delay
+    transition-delay: 0s;
   }
 }
