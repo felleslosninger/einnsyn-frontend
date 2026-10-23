@@ -38,12 +38,6 @@ const SORT_MAP: Record<
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
-async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
-  return {
-    items: [],
-  };
-}
-
 /**
  * Get a PaginatedList of search results
  *
@@ -54,7 +48,7 @@ async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
 export const getSearchResults = async (
   enhetSlug: string,
   searchParams: URLSearchParams,
-) => {
+): Promise<PaginatedList<Base> | null> => {
   const api = await cachedApiClient();
   const apiQuery: SearchParameters = {};
 
@@ -177,7 +171,7 @@ export const getSearchResults = async (
     if (error instanceof EInnsynError) {
       logger.error('Error fetching search results', error);
     }
-    return getEmptySearchResults();
+    return null;
   }
 };
 
