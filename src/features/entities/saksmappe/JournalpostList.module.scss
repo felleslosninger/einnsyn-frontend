@@ -2,12 +2,12 @@
 @use "../../../styles/metaSeparator" as meta;
 @use "../../../styles/effects" as fx;
 
-// The open row's card, node and chevron animate alongside the expansion, so
-// this must match `EXPAND_DURATION_MS` in EinExpandable.
+// The expansion's, which the open row's card, node and chevron share
 $expandDuration: 350ms;
 $railWidth: 2px;
 
 .journalpostList {
+  --ein-expandable-duration: #{$expandDuration};
   // Resolved here because `[data-size]` rescales the size and font tokens, and
   // the open detail carries one.
   --jp-node-size: var(--ds-size-10);

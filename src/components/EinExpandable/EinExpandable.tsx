@@ -1,35 +1,29 @@
 'use client';
 
-import { useMemo } from 'react';
 import {
-  EinTransition,
-  type EinTransitionEvents,
-} from '~/components/EinTransition/EinTransition';
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import cn from '~/lib/utils/className';
+import { domFreeze } from '~/lib/utils/domFreeze';
+import { domTransitionend } from '~/lib/utils/domTransitionend';
 import styles from './EinExpandable.module.scss';
 
-// Duration of the expand/collapse, published to the stylesheet as
-// `--expandable-duration`. `useScrollToExpanded` glides the scroll over the
-// same interval.
-export const EXPAND_DURATION_MS = 350;
-
-// Measure the content's natural height and publish it as the pixel value the
-// stylesheet's `height` transition animates to. The content overflows the
-// clipped root, so its rect reports the full height even at `height: 0`.
-function publishHeight(expandable: HTMLElement): number {
-  // The wrapper this component renders, not a class lookup: a stylesheet
-  // rename must not silently zero the measurement.
-  const content = expandable.firstElementChild;
-  const height = content?.getBoundingClientRect().height ?? 0;
-  expandable.style.setProperty('--expandable-height', `${height}px`);
-  return height;
+function removeFrozen(frozen: RefObject<HTMLElement | null>) {
+  frozen.current?.remove();
+  frozen.current = null;
 }
 
 /**
- * A panel that animates open/closed as `expanded` mounts/unmounts its
- * children, by measuring the content's end height and transitioning `height`
- * to it. The root carries `data-expandable` so `useScrollToExpanded` can
- * account for sibling panels mid-transition.
+ * A panel that animates open and closed through a grid row, so nothing is
+ * measured. Closed, it is inert, and content the caller keeps passing stays
+ * mounted. Content dropped as it closes (a list row's detail) leaves a frozen
+ * copy for the closing transition. The root carries `data-expandable` so
+ * `useScrollToExpanded` can account for sibling panels mid-transition. Its
+ * duration is `--ein-expandable-duration`, set in CSS.
  */
 export function EinExpandable({
   expanded,
@@ -39,40 +33,63 @@ export function EinExpandable({
   children,
 }: {
   expanded: boolean;
-  // Fired as the opening transition starts, with the measured content height.
+  // Fired as the opening transition starts, with the content's height.
   onExpand?: (expandable: HTMLElement, contentHeight: number) => void;
   className?: string;
   contentClassName?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
-  const events = useMemo<EinTransitionEvents<boolean[]>>(
-    () => ({
-      // Exit needs a concrete start value — `height` can't animate from `auto`.
-      onInitExitTransition: (expandable) => {
-        publishHeight(expandable);
-      },
-      onEnterTransition: (expandable) => {
-        onExpand?.(expandable, publishHeight(expandable));
-      },
-    }),
-    [onExpand],
-  );
+  const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const frozenRef = useRef<HTMLElement>(null);
+  // Updated in a layout effect, so it still holds the last commit's value when
+  // React removes dropped content.
+  const wasExpanded = useRef(expanded);
+  const hasContent = children != null && typeof children !== 'boolean';
+
+  const attachContent = useCallback((content: HTMLDivElement) => {
+    removeFrozen(frozenRef);
+    contentRef.current = content;
+    // Runs while the content is still in place. When the whole panel goes,
+    // React has already cleared `rootRef`, and no copy is needed.
+    return () => {
+      contentRef.current = null;
+      const root = rootRef.current;
+      if (!root || !wasExpanded.current) return;
+      const frozen = domFreeze(content);
+      content.after(frozen);
+      frozenRef.current = frozen;
+      domTransitionend(root, 'grid-template-rows').then(() => {
+        if (frozenRef.current === frozen) removeFrozen(frozenRef);
+      });
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (expanded) {
+      removeFrozen(frozenRef);
+      const root = rootRef.current;
+      const content = contentRef.current;
+      if (!wasExpanded.current && onExpand && root && content) {
+        // The row is still closed, while the content has its full height
+        onExpand(root, content.getBoundingClientRect().height);
+      }
+    }
+    wasExpanded.current = expanded;
+  });
 
   return (
-    <EinTransition dependencies={[expanded]} withClassNames events={events}>
-      {expanded ? (
-        <div
-          className={cn(styles.expandable, className)}
-          data-expandable=""
-          style={
-            {
-              '--expandable-duration': `${EXPAND_DURATION_MS}ms`,
-            } as React.CSSProperties
-          }
-        >
-          <div className={cn(styles.content, contentClassName)}>{children}</div>
+    <div
+      ref={rootRef}
+      className={cn(styles.expandable, className)}
+      inert={!expanded}
+      data-expandable=""
+    >
+      {hasContent && (
+        <div ref={attachContent} className={contentClassName}>
+          {children}
         </div>
-      ) : null}
-    </EinTransition>
+      )}
+    </div>
   );
 }

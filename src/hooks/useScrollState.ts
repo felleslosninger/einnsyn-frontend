@@ -7,11 +7,16 @@ type Props = {
   threshold?: number; // Fallback threshold if direction thresholds are not set
   scrollDownThreshold?: number;
   scrollUpThreshold?: number;
+  // Where `suspendScrollDirection` settles this subscriber
+  suspendedDirection?: ScrollDirection;
+  // Reaching the bottom of a page that scrolls commits `up`
+  upAtBottom?: boolean;
   onScrollDown?: () => void; // Callback fired when direction changes to down
   onScrollUp?: () => void; // Callback fired when direction changes to up
 };
 
 type LastScrollDirection = 'up' | 'down' | 'none';
+type ScrollDirection = Exclude<LastScrollDirection, 'none'>;
 
 type Subscriber = {
   setScrollDirection: (direction: LastScrollDirection) => void;
@@ -20,6 +25,8 @@ type Subscriber = {
 
   scrollDownThreshold: number;
   scrollUpThreshold: number;
+  suspendedDirection: ScrollDirection;
+  upAtBottom: boolean;
 
   onScrollDown?: () => void;
   onScrollUp?: () => void;
@@ -72,20 +79,18 @@ const subscribers = new Set<Subscriber>();
 // to decide whether to compact. See `suspendScrollDirection`.
 let directionSuspensions = 0;
 
-// Adopt the current position and put every subscriber in `direction`, without
-// any accumulated distance behind it: the next real scroll is measured from
-// here, and needs its full threshold to change the direction again.
-const commitDirection = (direction: LastScrollDirection) => {
-  lastY = readScrollY();
+// Put the subscriber in `direction` without any accumulated distance behind it:
+// the next real scroll needs its full threshold to change the direction again.
+const commitDirection = (
+  subscriber: Subscriber,
+  direction: ScrollDirection,
+) => {
+  subscriber.currentDirection = null;
+  subscriber.accumulatedDistance = 0;
 
-  subscribers.forEach((subscriber) => {
-    subscriber.currentDirection = null;
-    subscriber.accumulatedDistance = 0;
-
-    if (subscriber.committedDirection === direction) return;
-    subscriber.committedDirection = direction;
-    subscriber.setScrollDirection(direction);
-  });
+  if (subscriber.committedDirection === direction) return;
+  subscriber.committedDirection = direction;
+  subscriber.setScrollDirection(direction);
 };
 
 /**
@@ -93,16 +98,21 @@ const commitDirection = (direction: LastScrollDirection) => {
  * the release for when it has finished. Position — `isAtTop`, `isAtBottom` —
  * keeps up to date throughout; only the direction is held.
  *
- * The direction is settled upwards at once, not on release: an auto-scroll
- * brings something into view, and a header that stays compacted until the
- * scrolling stops spends the whole of it covering what is being scrolled to.
- * Holding it there is then what keeps the scrolling itself from undoing it.
+ * The direction is settled at once, not on release — upwards, unless the
+ * subscriber asked for another `suspendedDirection`: an auto-scroll brings
+ * something into view, and a header that stays compacted until the scrolling
+ * stops spends the whole of it covering what is being scrolled to. Holding it
+ * there is then what keeps the scrolling itself from undoing it.
  *
  * Suspensions nest.
  */
 export const suspendScrollDirection = (): (() => void) => {
   directionSuspensions++;
-  commitDirection('up');
+  // The next real scroll is measured from here
+  lastY = readScrollY();
+  subscribers.forEach((subscriber) => {
+    commitDirection(subscriber, subscriber.suspendedDirection);
+  });
   let released = false;
 
   return () => {
@@ -127,14 +137,23 @@ const handleScroll = () => {
   }
 
   const absoluteDelta = Math.abs(delta);
-  const direction: Exclude<LastScrollDirection, 'none'> | null =
+  const direction: ScrollDirection | null =
     delta === 0 ? null : delta > 0 ? 'down' : 'up';
 
   subscribers.forEach((subscriber) => {
     if (newIsAtTop !== isAtTop) subscriber.setIsAtTop(newIsAtTop);
     if (newIsAtBottom !== isAtBottom) subscriber.setIsAtBottom(newIsAtBottom);
 
-    if (!direction || directionSuspensions > 0) return;
+    if (directionSuspensions > 0) return;
+
+    // Not at the top as well: a page too short to scroll is at its bottom
+    // without anyone having gone there.
+    if (subscriber.upAtBottom && newIsAtBottom && !newIsAtTop) {
+      commitDirection(subscriber, 'up');
+      return;
+    }
+
+    if (!direction) return;
 
     if (direction === subscriber.currentDirection) {
       subscriber.accumulatedDistance += absoluteDelta;
@@ -241,6 +260,8 @@ export const useScrollState = ({
   threshold = 50,
   scrollDownThreshold = threshold,
   scrollUpThreshold = threshold,
+  suspendedDirection = 'up',
+  upAtBottom = false,
   onScrollDown,
   onScrollUp,
 }: Props = {}) => {
@@ -258,6 +279,8 @@ export const useScrollState = ({
     setIsAtBottom: setIsAtBottomState,
     scrollDownThreshold,
     scrollUpThreshold,
+    suspendedDirection,
+    upAtBottom,
     onScrollDown,
     onScrollUp,
     committedDirection: 'none',
@@ -270,6 +293,8 @@ export const useScrollState = ({
     const sub = subscriberRef.current;
     sub.scrollDownThreshold = scrollDownThreshold;
     sub.scrollUpThreshold = scrollUpThreshold;
+    sub.suspendedDirection = suspendedDirection;
+    sub.upAtBottom = upAtBottom;
     sub.onScrollDown = onScrollDown;
     sub.onScrollUp = onScrollUp;
   });
