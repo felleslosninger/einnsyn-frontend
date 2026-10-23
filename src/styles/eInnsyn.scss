@@ -23,6 +23,9 @@ html {
   padding: 0;
   margin: 0;
   overflow-y: scroll;
+  // So focus never lands behind the footer while it is shown. Measured by the
+  // Footer component.
+  scroll-padding-bottom: var(--ein-footer-height, 0px);
 }
 
 body {
