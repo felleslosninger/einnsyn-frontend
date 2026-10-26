@@ -6,18 +6,21 @@ import { Buildings3Icon } from '@navikt/aksel-icons';
 import { useEffect, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import useBreakpoint from '~/hooks/useBreakpoint';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { getName } from '~/lib/enhet/enhet';
 import { getEnhet } from '~/lib/enhet/enhet.actions';
 import cn from '~/lib/utils/className';
 import styles from './SelectedEnhetPanel.module.scss';
 
 function EnhetCard({ enhet }: { enhet: Enhet }) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   const formattedAdresse = enhet.kontaktpunktAdresse?.replaceAll(', ', '\n');
 
   return (
     <div className={styles.enhetCard}>
-      <span className={styles.enhetName}>{enhet.navn}</span>
+      <span className={styles.enhetName}>{getName(enhet, languageCode)}</span>
       {enhet.kontaktpunktTelefon && (
         <span className={styles.enhetDetail}>
           <span className={styles.label}>{t('common.phone')}:</span>{' '}
