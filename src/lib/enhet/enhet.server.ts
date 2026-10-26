@@ -263,3 +263,20 @@ export async function isUnknownEnhet(identifier: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * The enhet an id or slug names, from the cached list, so one added since the
+ * last refresh is missing until the next.
+ */
+export async function findCachedEnhet(
+  identifier: string,
+): Promise<TrimmedEnhet | undefined> {
+  try {
+    const { trimmed } = await getEnhetList();
+    const identifiers = new Set([identifier]);
+    return trimmed.find((enhet) => matchesEnhetIdentifier(enhet, identifiers));
+  } catch {
+    // Already logged by the list
+    return undefined;
+  }
+}

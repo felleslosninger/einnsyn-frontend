@@ -8,6 +8,7 @@ import {
   updateCookie,
 } from '~/lib/cookies/cookies.server';
 import {
+  defaultLanguage,
   type LanguageCode,
   resolveLanguageCode,
   supportedLanguages,
@@ -25,11 +26,14 @@ const staticDefaults = {
  * Constrained to {@link supportedLanguages}: without that list
  * `resolveLanguageCode` returns whatever the header names, and an unknown code
  * has no translation bundle, so every lookup would fall back to printing the
- * raw key. Falls back to bokmål when the header names nothing we have.
+ * raw key. Falls back to {@link defaultLanguage} when the header names nothing
+ * we have.
  */
 const resolveDefaultLanguage = cache(async (): Promise<LanguageCode> => {
   const acceptLanguage = (await headers()).get('Accept-Language') || '';
-  return resolveLanguageCode(acceptLanguage, supportedLanguages) ?? 'nb';
+  return (
+    resolveLanguageCode(acceptLanguage, supportedLanguages) ?? defaultLanguage
+  );
 });
 
 /** Merges into the stored settings, rather than replacing them. */
