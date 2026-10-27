@@ -1,0 +1,27 @@
+@use '../../styles/headerRow.scss' as headerRow;
+
+.tabs {
+  display: flex;
+  gap: var(--ds-size-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  // `overflow-x: auto` clips vertically, so leave room on every side for
+  // focus rings. The negative margin keeps the tabs where they were.
+  padding: calc(2 * var(--ds-border-width-focus));
+  margin: calc(-2 * var(--ds-border-width-focus));
+}
+
+.tab {
+  @include headerRow.header-row-item;
+
+  padding-inline: var(--ds-size-4);
+
+  &[aria-current] {
+    border-bottom-color: currentColor;
+  }
+
+  // The focus ring is rounded; the underline's square ends would show through.
+  &:focus-visible {
+    border-bottom-color: transparent;
+  }
+}
