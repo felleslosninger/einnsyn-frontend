@@ -10,9 +10,19 @@ import {
   isSaksmappe,
   type PaginatedList,
 } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
-import { EinTransition } from '~/components/EinTransition/EinTransition';
+import {
+  EinTransition,
+  type EinTransitionEvents,
+} from '~/components/EinTransition/EinTransition';
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -56,6 +66,7 @@ export default function SearchResultContainer({
   const {
     loadingPathname,
     pathname,
+    searchParams,
     loadingSearchParamsString,
     searchParamsString,
     loading,
@@ -76,6 +87,29 @@ export default function SearchResultContainer({
     loading &&
     (loadingPathname !== pathname ||
       loadingSearchParamsString !== searchParamsString);
+
+  // While loading, only the transition's frozen copy of the page is visible,
+  // so the enhet panel can't fade its cards out itself. Flag the copy when
+  // the selection is what changed, and its styles fade them.
+  const enhetsChanging =
+    enhetIds.join('|') !==
+    getEnhetSelection(getPathEnhet(pathname), searchParams).join('|');
+  const enhetsChangingRef = useRef(enhetsChanging);
+  useLayoutEffect(() => {
+    enhetsChangingRef.current = enhetsChanging;
+  });
+  const transitionEvents = useMemo<EinTransitionEvents>(
+    () => ({
+      onInitTransition: (snapshot) => {
+        if (enhetsChangingRef.current) {
+          // Style the fresh copy first, or there is nothing to fade from.
+          snapshot.getBoundingClientRect();
+          snapshot.dataset.enhetsChanging = '';
+        }
+      },
+    }),
+    [],
+  );
 
   const searchSymbolRef = useRef<symbol>(Symbol());
 
@@ -108,7 +142,7 @@ export default function SearchResultContainer({
   }, [currentSearchResults]);
 
   return (
-    <EinTransition loading={isLoading} withClassNames>
+    <EinTransition loading={isLoading} withClassNames events={transitionEvents}>
       <div
         className={cn(
           'container-wrapper',

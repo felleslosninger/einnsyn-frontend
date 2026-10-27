@@ -1,41 +1,152 @@
+@use '../../styles/effects.scss' as fx;
+@use '../../styles/mediaQueries.scss' as mq;
+
+$stickyGap: var(--ein-horizontal-spacing);
+
 .panel {
-  flex-shrink: 1;
-  min-width: 250px;
-  max-width: 30%;
-  margin-left: var(--ds-size-2);
-  // border-left: 1px solid var(--ds-color-neutral-border-subtle);
   text-align: left;
+
+  @include mq.large {
+    flex: none;
+    // As tall as the results, for the sticky content to move along.
+    align-self: stretch;
+    width: 22rem;
+    margin-left: var(--ds-size-8);
+
+    // The content's place in the flow; a spacer, since sticky won't move it past
+    // its own margin. Capped by the column (definite, as it's stretched), so it
+    // never lengthens the page.
+    &::before {
+      content: '';
+      display: block;
+      height: min(var(--panel-offset, 0px), 100% - var(--panel-height, 0px));
+    }
+  }
+}
+
+// Held between its top under the header and its bottom in view, so content
+// taller than the viewport scrolls between the two. Content that fits stays
+// under the header.
+.sticky {
+  position: sticky;
+  top: min(var(--ein-header-height) + #{$stickyGap},
+    100vh - var(--panel-height, 0px) - #{$stickyGap});
+  bottom: calc(100vh - var(--ein-header-height) - #{$stickyGap} - var(--panel-height, 0px));
+}
+
+.appearing .enhetCard {
+  animation: appear fx.$transitionDuration fx.$easeOutQuart;
+}
+
+// The frozen copy of the page fades the old cards during the navigation, and
+// `.leaving` keeps them hidden after it until the new selection loads.
+.leaving .enhetCard,
+:global([data-enhets-changing]) .enhetCard {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+// Rendered until the breakpoint is known after hydration.
+.details {
+  // The chart's gaps and halos, in the colour Details paints.
+  --ein-chart-surface: var(--ds-color-surface-tinted);
+
+  @include mq.large {
+    display: none;
+  }
+}
+
+.detailsHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
 }
 
 .enhetCard {
+  padding: var(--ds-size-5) var(--ds-size-6) var(--ds-size-6);
+  border-radius: var(--ds-border-radius-xl);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-surface-hover);
+  transition:
+    opacity fx.$transitionDuration fx.$easeOutQuart,
+    transform fx.$transitionDuration fx.$easeOutQuart;
+
+  &+& {
+    margin-top: var(--ds-size-12);
+  }
+}
+
+.ancestors {
   display: flex;
-  flex-direction: column;
-  padding-left: var(--ds-size-8);
-  padding-bottom: var(--ds-size-3);
-  padding-top: var(--ds-size-2);
-  margin-bottom: var(--ds-size-12);
-  border-left: 1px solid var(--ds-color-neutral-border-subtle);
+  flex-wrap: wrap;
+  margin: 0 0 var(--ds-size-1);
+  font-size: var(--ds-font-size-2);
+  line-height: var(--ds-line-height-md);
+  // The chevrons, in the link colour like Designsystemet's breadcrumbs.
+  color: var(--ds-color-text-subtle);
+}
+
+.ancestor {
+  display: flex;
+  align-items: center;
+
+  svg {
+    flex: none;
+    margin-inline: var(--ds-size-1);
+  }
 }
 
 .enhetName {
-  font-size: var(--ds-font-size-4);
-  font-weight: 600;
-  padding-bottom: var(--ds-size-1);
-}
-
-.address {
-  white-space: pre-line;
-}
-
-.enhetDetail {
-  font-size: var(--ds-font-size-2);
-}
-
-.label {
-  font-weight: 600;
-}
-
-.link {
-  color: var(--ds-color-neutral-text-default);
+  margin: 0;
+  font-weight: var(--ds-font-weight-semibold);
   overflow-wrap: anywhere;
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+  margin-top: var(--ds-size-4);
+  font-size: var(--ds-font-size-3);
+  font-style: normal;
+  line-height: var(--ds-line-height-md);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-size-2);
+
+  // A line tall, so it stays on the first line when the text wraps.
+  svg {
+    flex: none;
+    width: 1.25em;
+    height: calc(var(--ds-line-height-md) * 1em);
+    color: var(--ds-color-neutral-text-subtle);
+  }
+}
+
+.email {
+  overflow-wrap: anywhere;
+}
+
+.statistics {
+  margin-top: var(--ds-size-5);
+  padding-top: var(--ds-size-5);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-surface-hover);
+}
+
+.statisticsSkeleton {
+  display: block;
+  height: 10.5rem;
 }

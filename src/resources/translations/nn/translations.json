@@ -103,6 +103,13 @@
     },
     "searchingIn": "Søkjer i"
   },
+  "statistics": {
+    "last12Months": "Siste 12 månader",
+    "documents": "dokument",
+    "fulltext": "med fulltekst",
+    "innsynskrav": "innsynskrav",
+    "month": "Månad"
+  },
   "routing": {
     "root": {
       "search": "søk",
@@ -125,7 +132,6 @@
     "number": "Nr",
     "andMore": "+ $1 fleire",
     "all": "Alle",
-    "phone": "Telefon",
     "email": "E-post",
     "address": "Adresse",
     "noResults": "Ingen treff",
