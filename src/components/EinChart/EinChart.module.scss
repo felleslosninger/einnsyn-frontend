@@ -1,0 +1,181 @@
+// Series take these in order. Each is 3:1 against the surfaces EinChart.test.ts
+// lists (WCAG 1.4.11), in full and as the paler bars. They don't contrast with
+// each other, so lines get a halo and overlays a gap of the surface colour.
+.chart {
+  --ein-chart-color-1: var(--ds-color-accent-base-default);
+  --ein-chart-color-2: var(--ds-color-danger-base-default);
+  --ein-chart-color-3: var(--ds-color-accent-text-default);
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    'legend legend legend'
+    'plot plot plot'
+    'start caption end';
+  column-gap: var(--ds-size-2);
+}
+
+// What the chart sits on; set `--ein-chart-surface` where that isn't the page.
+$surface: var(--ein-chart-surface, var(--ds-color-neutral-background-default));
+
+.caption,
+.axisStart,
+.axisEnd {
+  margin: var(--ds-size-2) 0 0;
+  font-size: var(--ds-font-size-2);
+  font-weight: var(--ds-font-weight-regular);
+  line-height: var(--ds-line-height-md);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+// First in the markup, so it names the totals. Shown below the plot only for
+// an active point.
+.caption {
+  grid-area: caption;
+  text-align: center;
+
+  // An active point's label may start in lower case, e.g. "november 2025".
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.axisStart {
+  grid-area: start;
+}
+
+.axisEnd {
+  grid-area: end;
+  text-align: end;
+}
+
+.legend {
+  grid-area: legend;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: var(--ds-size-2);
+  margin: 0;
+}
+
+.legendItem {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: var(--ds-size-1);
+
+  dd {
+    margin: 0;
+    font-size: var(--ds-font-size-6);
+    font-weight: var(--ds-font-weight-semibold);
+    line-height: var(--ds-line-height-sm);
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-2);
+    font-size: var(--ds-font-size-2);
+    line-height: var(--ds-line-height-md);
+    color: var(--ds-color-neutral-text-subtle);
+  }
+}
+
+.barKey,
+.lineKey {
+  flex: none;
+  border-radius: 1px;
+  background: var(--ein-chart-color);
+}
+
+.barKey {
+  width: 8px;
+  height: 8px;
+}
+
+.lineKey {
+  width: 12px;
+  height: 2px;
+}
+
+.plot {
+  grid-area: plot;
+  position: relative;
+  display: flex;
+  height: 4rem;
+  margin-top: var(--ds-size-5);
+  border-radius: var(--ds-border-radius-sm);
+}
+
+.column {
+  display: flex;
+  flex: 1 1 0;
+  gap: 1px;
+  align-items: flex-end;
+  justify-content: center;
+  // The gap between columns, kept inside them so each column stays centred
+  // on its point of the lines.
+  padding-inline: 2px;
+}
+
+.bar {
+  position: relative;
+  flex: 1 1 0;
+  max-width: var(--ds-size-6);
+  overflow: hidden;
+  border-radius: 2px 2px 0 0;
+  background: var(--ein-chart-color);
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  box-shadow: 0 -2px 0 #{$surface};
+  background: var(--ein-chart-color);
+}
+
+// While a point is active, the rest are paler, but still 3:1 against the
+// surface. Without color-mix they stay in full, since a value the browser
+// can't parse would leave them transparent.
+@supports (color: color-mix(in oklab, red, red)) {
+  .dimmed .bar,
+  .dimmed .overlay {
+    background: color-mix(in oklab, var(--ein-chart-color) 76%, #{$surface});
+  }
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+
+  polyline {
+    fill: none;
+    stroke: var(--ein-chart-color);
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  // Keeps the line apart from the bars it crosses.
+  .halo {
+    stroke: $surface;
+    stroke-width: 6px;
+  }
+}
+
+.marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ein-chart-color);
+  box-shadow: 0 0 0 2px #{$surface};
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
