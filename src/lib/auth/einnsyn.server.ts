@@ -38,43 +38,33 @@ const isApiTokenResponse = (
 };
 
 export const eInnsynLogin = async (
-  prevState: LoginState,
+  _prevState: LoginState,
   formData: FormData,
 ): Promise<LoginState> => {
-  const username = formData.get('username') as string;
-  const password = formData.get('password') as string;
+  const username = formData.get('username');
+  const password = formData.get('password');
   const stayLoggedIn = formData.get('stayLoggedIn') === 'checked';
-
-  const valid = {
-    username: !!username && validateUsername(username),
-    password: !!password,
-  };
-
-  // Return early if the form is invalid
-  if (!valid.username || !valid.password) {
-    return {
-      ...prevState,
-      valid,
-    };
+  if (!validateUsername(username)) {
+    return { error: 'invalidUsername' };
+  }
+  if (typeof password !== 'string' || !password) {
+    return { error: 'invalidPassword' };
   }
 
-  // Log in to backend
-  const authenticationResponse = await fetch(`${API_URL}/auth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      username,
-      password,
-    }),
-  });
-
   try {
+    const response = await fetch(`${API_URL}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
     const responseData: ApiErrorResponse | ApiTokenResponse =
-      await authenticationResponse.json();
+      await response.json();
 
-    // Successful login
     if (isApiTokenResponse(responseData)) {
       await updateSettings({
         stayLoggedIn,
@@ -85,38 +75,21 @@ export const eInnsynLogin = async (
         accessToken: responseData.token,
         refreshToken: responseData.refreshToken,
       });
-      return {
-        ...prevState,
-        success: true,
-        valid,
-      };
+      return { success: true };
     }
 
-    // Invalid username or password
-    if (isApiErrorResponse(responseData)) {
-      return {
-        ...prevState,
-        valid,
-        error: responseData.type,
-        message: responseData.message,
-      };
+    if (
+      isApiErrorResponse(responseData) &&
+      responseData.type === 'authenticationError'
+    ) {
+      return { error: 'authenticationError' };
     }
-
-    // Unknown response
-    return {
-      ...prevState,
-      valid,
-      error: 'UnknownError',
-      message: 'An unknown error occurred.',
-    };
-  } catch (_error) {
-    return {
-      ...prevState,
-      valid,
-      error: 'NetworkError',
-      message: 'A network error occurred. Please try again later.',
-    };
+    logger.error('Failed to log in', responseData);
+  } catch (error) {
+    logger.error('Failed to log in', error);
   }
+
+  return { error: 'unknownError' };
 };
 
 /**
@@ -140,7 +113,7 @@ export const requestPasswordReset = async (
   } catch (error) {
     if (!(error instanceof NotFoundError)) {
       logger.error('Failed to request a password reset', error);
-      return { error: 'UnknownError' };
+      return { error: 'unknownError' };
     }
   }
 
@@ -181,7 +154,7 @@ export const register = async (
   } catch (error) {
     if (!isTakenAddress(error)) {
       logger.error('Failed to register', error);
-      return { error: 'UnknownError' };
+      return { error: 'unknownError' };
     }
   }
 
