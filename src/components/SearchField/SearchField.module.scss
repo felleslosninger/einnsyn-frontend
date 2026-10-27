@@ -344,20 +344,7 @@
   top: var(--ds-size-1);
   right: var(--ds-size-2);
   z-index: 4;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ds-size-1);
-  min-width: var(--ds-size-9);
-  min-height: var(--ds-size-9);
   margin-right: calc(-1 * var(--ds-size-2)); // Negate padding
-  scale: 0.75;
-}
-
-.clearIcon {
-  height: 100%;
-  width: 100%;
 }
 
 .actionButtonContainer {
