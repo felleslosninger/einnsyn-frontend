@@ -24,6 +24,17 @@ export interface LinkProps
   unstyled?: boolean;
 }
 
+/** Whether the router can open `href`; mailto:, tel: and other sites can't. */
+function isRoutable(href: string): boolean {
+  try {
+    return (
+      new URL(href, window.location.href).origin === window.location.origin
+    );
+  } catch {
+    return false;
+  }
+}
+
 export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
   (
     {
@@ -54,7 +65,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
           return;
         }
 
-        if (e.defaultPrevented) {
+        if (e.defaultPrevented || !isRoutable(href)) {
           return;
         }
 
@@ -76,7 +87,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
 
     // Handle prefetching
     useEffect(() => {
-      if (prefetch && typeof href === 'string') {
+      if (prefetch && isRoutable(href)) {
         prefetchRoute(href);
       }
     }, [prefetch, href, prefetchRoute]);
