@@ -1,6 +1,7 @@
 // Series take these in order. Each is 3:1 against the surfaces EinChart.test.ts
-// lists (WCAG 1.4.11), in full and as the paler bars. They don't contrast with
-// each other, so lines get a halo and overlays a gap of the surface colour.
+// lists (WCAG 1.4.11), both in full and mixed into the bars below. They don't
+// contrast with each other, so lines get a halo and overlays a gap of the
+// surface colour.
 .chart {
   --ein-chart-color-1: var(--ds-color-accent-base-default);
   --ein-chart-color-2: var(--ds-color-danger-base-default);

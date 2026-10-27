@@ -16,8 +16,8 @@ export type EinChartSeries<T> = {
    */
   scale?: string;
   /**
-   * Draws the bars inside the previous bar series' bars, for a subset such as
-   * "of which with full text". Both should be on the same scale.
+   * Draws the bars inside those of the bar series before it in `series`, for a
+   * subset such as "of which with full text". Both should share a scale.
    */
   overlay?: boolean;
   /** Shown while no point is active. Defaults to the sum of the values. */

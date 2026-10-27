@@ -38,8 +38,8 @@ $stickyGap: var(--ein-horizontal-spacing);
   animation: appear fx.$transitionDuration fx.$easeOutQuart;
 }
 
-// The frozen copy of the page fades the old cards during the navigation, and
-// `.leaving` keeps them hidden after it until the new selection loads.
+// Hides the cards of a selection being replaced: in the frozen copy of the
+// page during the navigation, then in the panel until the replacement loads.
 .leaving .enhetCard,
 :global([data-enhets-changing]) .enhetCard {
   opacity: 0;
