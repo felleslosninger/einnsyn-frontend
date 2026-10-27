@@ -7,3 +7,30 @@
 .footerOptions {
   flex: 1;
 }
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-4);
+
+  // Spaced like the footer's padding
+  & + & {
+    padding-top: var(--ein-modal-footer-padding);
+    margin-top: var(--ein-modal-footer-padding);
+    border-top: var(--ds-border-width-default) solid
+      var(--ds-color-neutral-border-subtle);
+  }
+}
+
+.optionIcon {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  color: var(--ds-color-neutral-text-default);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}

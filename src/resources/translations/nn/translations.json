@@ -16,6 +16,8 @@
     "backToLogin": "Tilbake til innlogging",
     "noAccount": "Har du ikkje konto?",
     "createAccount": "Opprett konto",
+    "managesOrganization": "Forvaltar du ei verksemd?",
+    "ansattportenLogin": "Logg inn gjennom Ansattporten",
     "registerSent": "Viss e-postadressa ikkje allereie har ein konto hos oss, har vi sendt deg ei lenke for å aktivere kontoen.",
     "repeatPassword": "Gjenta passord",
     "passwordRequirements": "Minst 8 teikn, med store og små bokstavar og minst eitt tal eller spesialteikn",

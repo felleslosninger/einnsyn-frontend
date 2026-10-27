@@ -16,6 +16,8 @@
     "backToLogin": "Back to login",
     "noAccount": "Don't have an account?",
     "createAccount": "Create account",
+    "managesOrganization": "Do you manage an organization?",
+    "ansattportenLogin": "Log in with Ansattporten",
     "registerSent": "If the email address doesn't already have an account with us, we have sent you a link to activate your new account.",
     "repeatPassword": "Repeat password",
     "passwordRequirements": "At least 8 characters, with upper and lower case letters and at least one number or special character",

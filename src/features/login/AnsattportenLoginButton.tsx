@@ -1,33 +1,34 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
-import DigdirIcon from '~/components/DigdirIcon';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useTranslation } from '~/hooks/useTranslation';
 import { ansattportenAuthAction } from '~/lib/auth/auth.actions';
-import styles from './AnsattportenLogin.module.scss';
 
-export function AnsattportenLogin() {
+export function AnsattportenLoginButton() {
+  const t = useTranslation();
   const { href } = useNavigation();
   const { origin } = useSessionData();
-  const { pending } = useFormStatus();
   const originUrl = new URL(href, origin).href;
 
   return (
-    <form
-      action={ansattportenAuthAction}
-      data-size="sm"
-      className={styles.ansattportenLogin}
-    >
+    <form action={ansattportenAuthAction}>
       <input type="hidden" name="originUrl" value={originUrl} />
-      <DigdirIcon aria-hidden className={styles.digdirIcon} />
-      <div>
-        Forvalter du en virksomhet? <br />
-        <EinButton type="submit" style="link" disabled={pending}>
-          Logg inn gjennom Ansattporten
-        </EinButton>
-      </div>
+      <SubmitButton>{t('site.ansattportenLogin')}</SubmitButton>
     </form>
+  );
+}
+
+// useFormStatus only sees a form rendered by a parent component
+function SubmitButton({ children }: { children: ReactNode }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <EinButton type="submit" style="link" disabled={pending}>
+      {children}
+    </EinButton>
   );
 }
