@@ -91,18 +91,18 @@ function loadingTarget(href: string) {
  * opened over) and how many entries back that page is: 0 for a page, null
  * when the page has no entry (a direct link, or a modal that replaced it).
  */
-type Entry = { href: string; page: string; depth: number | null };
+type HistoryEntry = { href: string; pageHref: string; depth: number | null };
 
 // With no page known behind it, a modal opens over the front page.
-function entryOf(href: string, modal: boolean): Entry {
+function entryOf(href: string, modal: boolean): HistoryEntry {
   return modal
-    ? { href, page: '/', depth: null }
-    : { href, page: href, depth: 0 };
+    ? { href, pageHref: '/', depth: null }
+    : { href, pageHref: href, depth: 0 };
 }
 
 // A modal's page and depth go into its `history.state`, so back/forward finds
 // them, also after a reload.
-const MODAL_STATE = '__einModal';
+const MODAL_STAMP_KEY = '__einModal';
 
 export function NavigationProvider({ children }: NavigationProviderProps) {
   const router = useRouter();
@@ -110,22 +110,25 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   // Modal pages live in the `(modal)` route group. Next puts an internal
   // `(__SLOT__)` segment first, so look for the group anywhere.
   const modalOpen = useSelectedLayoutSegments('modal').includes('(modal)');
-  const [entry, setEntry] = useState(() => entryOf(browserHref, modalOpen));
+  const [historyEntry, setHistoryEntry] = useState(() =>
+    entryOf(browserHref, modalOpen),
+  );
   const [isPending, startTransition] = useTransition();
   const [navigationState, setNavigationState] = useState<NavigationState>({
     state: 'idle',
   });
   const navigationStartedRef = useRef(false);
   const pendingTypeRef = useRef<'push' | 'replace' | undefined>(undefined);
-  const closingRef = useRef(false);
+  const closingModalRef = useRef(false);
 
-  // Until a push or replace is recorded, the entry is the one it left, and a
-  // modal opened from it stays over the same page.
-  const href = modalOpen ? entry.page : browserHref;
-  const { pathname, searchParamsString } = splitHref(href);
-  const searchParams = useMemo(
-    () => new URLSearchParams(searchParamsString),
-    [searchParamsString],
+  // In the render that opens a modal, `historyEntry` is still the page's
+  // own, so `historyEntry.pageHref` is the page it opens over.
+  const pageHref = modalOpen ? historyEntry.pageHref : browserHref;
+  const { pathname: pagePathname, searchParamsString: pageSearchParamsString } =
+    splitHref(pageHref);
+  const pageSearchParams = useMemo(
+    () => new URLSearchParams(pageSearchParamsString),
+    [pageSearchParamsString],
   );
 
   const loadingSearchParams = useMemo(() => {
@@ -134,54 +137,65 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       : undefined;
   }, [navigationState.loadingSearchParamsString]);
 
-  const optimisticPathname = navigationState.loadingPathname ?? pathname;
+  const optimisticPathname = navigationState.loadingPathname ?? pagePathname;
   const optimisticSearchParams = useMemo(
-    () => loadingSearchParams ?? new URLSearchParams(searchParamsString),
-    [loadingSearchParams, searchParamsString],
+    () => loadingSearchParams ?? new URLSearchParams(pageSearchParamsString),
+    [loadingSearchParams, pageSearchParamsString],
   );
 
   // Keep the latest values in a ref to make callbacks stable
-  const latestRef = useRef({ browserHref, href, entry });
+  const latestRef = useRef({ browserHref, pageHref, historyEntry });
   useLayoutEffect(() => {
-    latestRef.current = { browserHref, href, entry };
+    latestRef.current = { browserHref, pageHref, historyEntry };
   });
 
   // Record each committed URL. Back/forward already moved to its entry.
   useLayoutEffect(() => {
     const type = pendingTypeRef.current;
     pendingTypeRef.current = undefined;
-    closingRef.current = false;
+    closingModalRef.current = false;
 
-    const previous = latestRef.current.entry;
+    const previous = latestRef.current.historyEntry;
     if (previous.href === browserHref) {
       return;
     }
 
     let entry = entryOf(browserHref, false);
     if (modalOpen) {
-      const { page, depth } = previous;
+      const { depth } = previous;
       if (type === 'replace') {
         // Replacing the page itself leaves no entry to go back to
-        entry = { href: browserHref, page, depth: depth === 0 ? null : depth };
+        entry = {
+          href: browserHref,
+          pageHref: previous.pageHref,
+          depth: depth === 0 ? null : depth,
+        };
       } else {
         entry = {
           href: browserHref,
-          page,
+          pageHref: previous.pageHref,
           depth: depth === null ? null : depth + 1,
         };
       }
     }
-    latestRef.current.entry = entry;
-    setEntry(entry);
+    latestRef.current.historyEntry = entry;
+    setHistoryEntry(entry);
   }, [browserHref, modalOpen]);
 
   // Stamp a modal's entry, again whenever Next has replaced the state.
   useLayoutEffect(() => {
-    const { href, page, depth } = latestRef.current.entry;
-    const stamp = window.history.state?.[MODAL_STATE];
-    if (href !== page && (stamp?.page !== page || stamp?.depth !== depth)) {
+    const entry = latestRef.current.historyEntry;
+    const stamp = window.history.state?.[MODAL_STAMP_KEY];
+    if (
+      entry.href !== entry.pageHref && // Modal is open
+      (stamp?.pageHref !== entry.pageHref || // New page behind it
+        stamp?.depth !== entry.depth) // New depth
+    ) {
       window.history.replaceState(
-        { ...window.history.state, [MODAL_STATE]: { page, depth } },
+        {
+          ...window.history.state,
+          [MODAL_STAMP_KEY]: { pageHref: entry.pageHref, depth: entry.depth },
+        },
         '',
       );
     }
@@ -191,19 +205,23 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       const { pathname, search } = window.location;
-      const target = toHref(pathname, new URLSearchParams(search).toString());
-      const stamp = event.state?.[MODAL_STATE];
-      const entry: Entry = stamp
-        ? { href: target, page: stamp.page, depth: stamp.depth }
-        : entryOf(target, isModalSection(getSection(pathname)));
-      latestRef.current.entry = entry;
-      setEntry(entry);
+      const href = toHref(pathname, new URLSearchParams(search).toString());
+      const stamp = event.state?.[MODAL_STAMP_KEY];
+      const entry: HistoryEntry = stamp
+        ? { href, pageHref: stamp.pageHref, depth: stamp.depth }
+        : entryOf(href, isModalSection(getSection(pathname)));
+      latestRef.current.historyEntry = entry;
+      setHistoryEntry(entry);
 
       // Going back or forward to a modal leaves the page behind it in place.
       setNavigationState(
-        entry.page === latestRef.current.href
+        entry.pageHref === latestRef.current.pageHref
           ? { state: 'idle' }
-          : { state: 'loading', type: 'native', ...loadingTarget(entry.page) },
+          : {
+              state: 'loading',
+              type: 'native',
+              ...loadingTarget(entry.pageHref),
+            },
       );
     };
 
@@ -258,8 +276,8 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       navigationState.loadingSearchParamsString ?? '';
     const reachedTargetUrl =
       navigationState.loadingPathname !== undefined &&
-      pathname === navigationState.loadingPathname &&
-      searchParamsString === targetSearchParamsString;
+      pagePathname === navigationState.loadingPathname &&
+      pageSearchParamsString === targetSearchParamsString;
 
     if (
       (navigationState.type === 'push' ||
@@ -282,7 +300,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
         state: 'idle',
       });
     }
-  }, [navigationState, pathname, searchParamsString, isPending]);
+  }, [navigationState, pagePathname, pageSearchParamsString, isPending]);
 
   const callPushOrReplace = useCallback(
     (type: 'replace' | 'push', href: string, options?: NavigateOptions) => {
@@ -347,7 +365,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     setNavigationState({
       state: 'loading',
       type: 'refresh',
-      ...loadingTarget(latestRef.current.href),
+      ...loadingTarget(latestRef.current.pageHref),
     });
     startTransition(() => {
       router.refresh();
@@ -362,15 +380,15 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   );
 
   const closeModal = useCallback(() => {
-    const { entry } = latestRef.current;
+    const entry = latestRef.current.historyEntry;
     // Only from a modal's entry, and once: going back twice would go too far.
-    if (entry.href === entry.page || closingRef.current) {
+    if (entry.href === entry.pageHref || closingModalRef.current) {
       return;
     }
-    closingRef.current = true;
+    closingModalRef.current = true;
 
     if (entry.depth === null) {
-      callPushOrReplace('replace', entry.page, { scroll: false });
+      callPushOrReplace('replace', entry.pageHref, { scroll: false });
     } else {
       // Going back restores the page from the client cache, without a request.
       window.history.go(-entry.depth);
@@ -380,17 +398,17 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const value = useMemo(
     () => ({
       state: navigationState.state,
-      href,
-      pathname,
-      searchParams,
-      searchParamsString,
+      href: pageHref,
+      pathname: pagePathname,
+      searchParams: pageSearchParams,
+      searchParamsString: pageSearchParamsString,
       loadingPathname: navigationState.loadingPathname,
       loadingSearchParams,
       loadingSearchParamsString: navigationState.loadingSearchParamsString,
       optimisticPathname,
       optimisticSearchParams,
       optimisticSearchParamsString:
-        navigationState.loadingSearchParamsString ?? searchParamsString,
+        navigationState.loadingSearchParamsString ?? pageSearchParamsString,
       loading: navigationState.state === 'loading',
       modalOpen,
       push,
@@ -404,10 +422,10 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     [
       navigationState.state,
       navigationState.loadingSearchParamsString,
-      href,
-      pathname,
-      searchParams,
-      searchParamsString,
+      pageHref,
+      pagePathname,
+      pageSearchParams,
+      pageSearchParamsString,
       navigationState.loadingPathname,
       loadingSearchParams,
       optimisticPathname,
