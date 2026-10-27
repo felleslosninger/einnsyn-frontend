@@ -75,6 +75,7 @@
     "button": "Search",
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
+    "clearEnhetSelection": "Clear selected organizations",
     "sortedBy": "Sorted by",
     "orderAccess": "Request access",
     "openDocument": "Open document",

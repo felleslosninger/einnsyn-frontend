@@ -75,6 +75,7 @@
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
+    "clearEnhetSelection": "Fjern valgte virksomheter",
     "sortedBy": "Sortert etter",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Åpne dokument",
