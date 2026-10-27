@@ -57,8 +57,14 @@ const translateFunction = (
   return current.trim();
 };
 
+/** The translate function returned by getTranslateFunction / useTranslation. */
+export type TranslateFunction = (
+  fullKey: string,
+  ...replacements: (string | undefined)[]
+) => string;
+
 export const getTranslateFunction =
-  (languageCode: LanguageCode) =>
+  (languageCode: LanguageCode): TranslateFunction =>
   (fullKey: string, ...replacements: (string | undefined)[]) =>
     translateFunction(fullKey, languageCode, ...replacements);
 
