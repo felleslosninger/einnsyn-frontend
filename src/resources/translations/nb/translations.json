@@ -122,6 +122,13 @@
     "saveSearchMissingLabel": "Gi søket et navn",
     "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
+  "statistics": {
+    "last12Months": "Siste 12 måneder",
+    "documents": "dokumenter",
+    "fulltext": "med fulltekst",
+    "innsynskrav": "innsynskrav",
+    "month": "Måned"
+  },
   "routing": {
     "root": {
       "search": "søk",
@@ -144,7 +151,6 @@
     "number": "Nr",
     "andMore": "+ $1 flere",
     "all": "Alle",
-    "phone": "Telefon",
     "email": "E-post",
     "address": "Adresse",
     "noResults": "Ingen treff",
