@@ -197,8 +197,7 @@ export default function EinChart<T>({
           <div
             key={label}
             className={cn(styles.column, {
-              [styles.dimmed]:
-                activeIndex !== undefined && index !== activeIndex,
+              [styles.active]: index === activeIndex,
             })}
             onPointerEnter={() => setSelectedIndex(index)}
           >
