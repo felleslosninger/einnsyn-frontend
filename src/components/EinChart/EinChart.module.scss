@@ -136,14 +136,19 @@ $surface: var(--ein-chart-surface, var(--ds-color-neutral-background-default));
   background: var(--ein-chart-color);
 }
 
-// While a point is active, the rest are paler, but still 3:1 against the
-// surface. Without color-mix they stay in full, since a value the browser
-// can't parse would leave them transparent.
+// Every bar but the active point's is mixed with the surface. Without
+// color-mix they use the series colour, since a value the browser can't parse
+// would leave them transparent.
 @supports (color: color-mix(in oklab, red, red)) {
-  .dimmed .bar,
-  .dimmed .overlay {
+  .bar,
+  .overlay {
     background: color-mix(in oklab, var(--ein-chart-color) 76%, #{$surface});
   }
+}
+
+.active .bar,
+.active .overlay {
+  background: var(--ein-chart-color);
 }
 
 .lines {
