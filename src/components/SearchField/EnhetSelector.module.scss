@@ -22,8 +22,17 @@
 
 .selectorField {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   max-width: 100%;
+}
+
+.desktopClearSelectionButton {
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--ds-size-3));
+  translate: 0 -50%;
 }
 
 //
@@ -38,6 +47,7 @@
   align-items: center;
   gap: var(--ds-size-3);
   width: 100%;
+  min-width: 0;
   max-width: 100%;
   min-height: var(--styled-input-min-height);
   padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
@@ -65,6 +75,12 @@
   &:focus-visible {
     outline: none;
   }
+}
+
+// Room for .desktopClearSelectionButton.
+.summaryButtonClearable {
+  // X's padding left + X's width - X's negative offset.
+  padding-right: calc(var(--ds-size-1) + var(--ds-size-9) - var(--ds-size-3));
 }
 
 .summaryButtonActive {
@@ -117,6 +133,7 @@
   align-items: center;
   gap: var(--ds-size-3);
   width: 100%;
+  min-width: 0;
   padding: var(--ds-size-2) 0;
   background: transparent;
   border: none;

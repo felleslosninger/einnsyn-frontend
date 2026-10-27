@@ -149,8 +149,6 @@ export function createEnhetListCache(
       }
       return snapshot;
     },
-    /** The current version, or null on a cold cache. Never blocks. */
-    peekVersion: () => snapshot?.version ?? null,
     warm: refreshInBackground,
   };
 }
@@ -167,9 +165,6 @@ const cache = globalWithCache[CACHE_KEY] ?? createEnhetListCache();
 globalWithCache[CACHE_KEY] = cache;
 
 export const getEnhetList = cache.get;
-
-/** The current list version without blocking on a cold cache. */
-export const peekEnhetListVersion = cache.peekVersion;
 
 /**
  * Called from `instrumentation.ts`, the only hook that runs before the first
@@ -207,48 +202,28 @@ export async function getEnhets(
   return enhets;
 }
 
-/**
- * What the browser stamps its cached copy with; see {@link EnhetListSnapshot}.
- *
- * Only readers that decline to block on a cold list can report a null version.
- */
-export type VersionedEnhetList<V extends string | null = string> = {
-  enhets: TrimmedEnhet[];
-  version: V;
-};
-
-/**
- * The enhets the selector has to render on first paint, plus the current
- * version — sent on every render so a browser holding a stale full list finds
- * out without spending a request on it.
- */
+/** The enhets the selector has to render on first paint. */
 export async function getInitialEnhets({
   enhetIdentifiers,
 }: {
   enhetIdentifiers: string[];
-}): Promise<VersionedEnhetList<string | null>> {
-  // A collapsed selector with nothing selected needs no preload, and peeking
-  // keeps it that way: a cold list must not make every route transition wait
-  // on a walk just to carry a version.
+}): Promise<TrimmedEnhet[]> {
+  // A collapsed selector with nothing selected needs no preload, and a cold
+  // list must not make the render wait on a walk for nothing.
   const selectedEnhetSet = new Set(normalizeParamList(enhetIdentifiers));
   if (selectedEnhetSet.size === 0) {
-    return { enhets: [], version: peekEnhetListVersion() };
+    return [];
   }
 
   try {
-    const { trimmed, version } = await getEnhetList();
+    const { trimmed } = await getEnhetList();
     const selected = trimmed.filter((enhet) =>
       matchesEnhetIdentifier(enhet, selectedEnhetSet),
     );
-    const selectedWithAncestors = expandAncestorsInEnhetList(selected, trimmed);
-
-    return {
-      enhets: selectedWithAncestors,
-      version,
-    };
+    return expandAncestorsInEnhetList(selected, trimmed);
   } catch (error) {
     logger.error('Failed to build initial enhet list for request', error);
-    return { enhets: [], version: null };
+    return [];
   }
 }
 

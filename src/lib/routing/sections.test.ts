@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import nb from '../../resources/translations/nb/translations.json';
-import { getSection, isModalSection, type Section } from './sections';
+import {
+  getSection,
+  isModalSection,
+  type Section,
+  showsSearchField,
+  showsSearchResults,
+} from './sections';
 
 describe('getSection', () => {
   it('names root pages in any language', () => {
@@ -31,6 +37,39 @@ describe('getSection', () => {
     assert.equal(getSection('/oslo'), 'enhet');
     assert.equal(getSection('/serach'), 'enhet');
     assert.equal(getSection('/oslo/search'), 'enhet');
+  });
+});
+
+describe('showsSearchResults', () => {
+  it('is true for the sections that list results', () => {
+    assert.equal(showsSearchResults('/'), true);
+    assert.equal(showsSearchResults('/søk'), true);
+    assert.equal(showsSearchResults('/oslo'), true);
+  });
+
+  it('is false for entity and static pages', () => {
+    assert.equal(showsSearchResults('/oslo/sak/abc'), false);
+    assert.equal(showsSearchResults('/oslo/moete/abc'), false);
+    assert.equal(showsSearchResults('/login'), false);
+    assert.equal(showsSearchResults('/om'), false);
+  });
+});
+
+describe('showsSearchField', () => {
+  it('adds the entity detail pages to the sections showing results', () => {
+    assert.equal(showsSearchField('/'), true);
+    assert.equal(showsSearchField('/søk'), true);
+    assert.equal(showsSearchField('/oslo'), true);
+    assert.equal(showsSearchField('/oslo/sak/abc'), true);
+    assert.equal(showsSearchField('/oslo/moete/abc'), true);
+  });
+
+  it('is false where the header has no relationship to search', () => {
+    assert.equal(showsSearchField('/login'), false);
+    assert.equal(showsSearchField('/admin'), false);
+    assert.equal(showsSearchField('/bruker/profile'), false);
+    assert.equal(showsSearchField('/om'), false);
+    assert.equal(showsSearchField('/personvern'), false);
   });
 });
 
