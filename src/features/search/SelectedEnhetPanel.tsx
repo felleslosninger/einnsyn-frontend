@@ -211,8 +211,8 @@ export default function SelectedEnhetPanel({
   const [continuesRequest] = useState(() => requests.has(enhetIdsKey));
 
   // The sticky offsets depend on the content's height, which CSS can't read.
-  // When the scroll direction flips, its place in the flow moves to where it is
-  // shown, so it scrolls with the page instead of staying pinned.
+  // When the scroll direction flips, the spacer moves the content's place in
+  // the flow to where it is shown, so tall content scrolls with the page.
   const trackSticky = useCallback((sticky: HTMLElement | null) => {
     const column = sticky?.parentElement;
     if (!sticky || !column) {
