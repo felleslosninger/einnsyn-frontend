@@ -28,7 +28,6 @@ export type EinDropdownProps = {
   showChevronRight?: boolean;
   showChevronDown?: boolean;
   preferredPosition?: PopupPosition[];
-  onOpenChange?: (open: boolean) => void;
 };
 
 export default function EinDropdown({
@@ -44,18 +43,11 @@ export default function EinDropdown({
   showChevronRight = false,
   showChevronDown = !showChevronRight && showChevron,
   preferredPosition,
-  onOpenChange,
 }: EinDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const onOpenChangeRef = useRef(onOpenChange);
-  onOpenChangeRef.current = onOpenChange;
-
-  useEffect(() => {
-    onOpenChangeRef.current?.(isOpen);
-  }, [isOpen]);
 
   const handleToggle = useCallback(
     (e: React.MouseEvent<Element>) => {

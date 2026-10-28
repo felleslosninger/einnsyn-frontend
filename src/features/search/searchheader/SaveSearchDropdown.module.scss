@@ -25,22 +25,6 @@
   }
 }
 
-.saveSearchCheckbox {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-size-2);
-
-  :global(ds-field) {
-    flex: 0 0 auto;
-  }
-}
-
-.saveSearchCheckboxLabel {
-  cursor: pointer;
-  font-size: var(--ds-font-size-md);
-  line-height: var(--ds-line-height-md);
-}
-
 .saveSearchLoginPrompt {
   display: flex;
   flex-direction: column;

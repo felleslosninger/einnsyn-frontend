@@ -23,17 +23,17 @@
 .header-tab.ein-link,
 .header-tab.ein-button {
   display: inline-block;
-  padding: var(--ds-size-4) var(--ds-size-4) var(--ds-size-3);
+  padding: var(--ds-size-2) var(--ds-size-4) var(--ds-size-3);
   margin: 0 var(--ds-size-2);
   color: var(--ds-color-neutral-text-subtle);
   text-decoration: none;
-  border-bottom: 3px solid transparent;
+  border-bottom: 2px solid transparent;
   line-height: var(--ds-line-height-sm);
   white-space: nowrap;
 
   &.active {
     color: var(--ds-color-neutral-text-default);
-    border-bottom: 3px solid var(--ds-color-neutral-text-default);
+    border-bottom-color: var(--ds-color-neutral-border-default);
   }
 
   &:hover {

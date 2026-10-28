@@ -45,17 +45,16 @@ async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
 }
 
 /**
- * Get a PaginatedList of search results
+ * Get the search API query for a search
  *
  * @param enhetSlug
  * @param searchParams
  * @returns
  */
-export const getSearchResults = async (
-  enhetSlug: string,
+export const getSearchParameters = (
+  enhetSlug: string | undefined,
   searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
+): SearchParameters => {
   const apiQuery: SearchParameters = {};
 
   // Combine Entity filter from path and searchParams
@@ -154,6 +153,23 @@ export const getSearchResults = async (
 
     logger.debug('Search API query', apiQuery);
   }
+
+  return apiQuery;
+};
+
+/**
+ * Get a PaginatedList of search results
+ *
+ * @param enhetSlug
+ * @param searchParams
+ * @returns
+ */
+export const getSearchResults = async (
+  enhetSlug: string,
+  searchParams: URLSearchParams,
+) => {
+  const api = await cachedApiClient();
+  const apiQuery = getSearchParameters(enhetSlug, searchParams);
 
   const sortParam = searchParams.get('sort');
   const sortConfig = isSortOption(sortParam) ? SORT_MAP[sortParam] : null;
