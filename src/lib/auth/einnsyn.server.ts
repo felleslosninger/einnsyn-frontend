@@ -1,9 +1,10 @@
 import 'server-only';
 
 import { updateSettings } from '~/lib/settings/settings.server';
+import { logger } from '~/lib/utils/logger';
 import { validateUsername } from '~/lib/utils/validators';
 import type { LoginState } from './auth';
-import { updateAuth } from './authCookie.server';
+import { deleteAuth, getAuth, updateAuth } from './authCookie.server';
 
 const API_URL = process.env.API_URL;
 
@@ -29,6 +30,10 @@ const isApiTokenResponse = (
 ): response is ApiTokenResponse => {
   return (response as ApiTokenResponse).token !== undefined;
 };
+
+/** `expiresIn` is in seconds, as is `Auth.expiresAt`. */
+const toExpiresAt = (expiresIn: number) =>
+  Math.round(Date.now() / 1000) + expiresIn;
 
 export const eInnsynLogin = async (
   prevState: LoginState,
@@ -77,6 +82,7 @@ export const eInnsynLogin = async (
         authTimestamp: Date.now(),
         accessToken: responseData.token,
         refreshToken: responseData.refreshToken,
+        expiresAt: toExpiresAt(responseData.expiresIn),
       });
       return {
         ...prevState,
@@ -110,4 +116,45 @@ export const eInnsynLogin = async (
       message: 'A network error occurred. Please try again later.',
     };
   }
+};
+
+/**
+ * Trade the refresh token for a new token pair. Only the API rejecting it ends
+ * the session; on any other failure the next request tries again.
+ */
+export const attemptTokenRefresh = async (
+  refreshToken: string,
+): Promise<void> => {
+  let responseData: ApiErrorResponse | ApiTokenResponse;
+  try {
+    const response = await fetch(`${API_URL}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+    responseData = await response.json();
+  } catch (error) {
+    logger.error('Failed to refresh eInnsyn token', error);
+    return;
+  }
+
+  if (isApiTokenResponse(responseData)) {
+    await updateAuth({
+      authProvider: 'eInnsyn',
+      authTimestamp: (await getAuth()).authTimestamp,
+      accessToken: responseData.token,
+      refreshToken: responseData.refreshToken,
+      expiresAt: toExpiresAt(responseData.expiresIn),
+    });
+    return;
+  }
+
+  if (responseData.type === 'authenticationError') {
+    logger.debug('eInnsyn refresh token rejected, ending the session');
+    await deleteAuth();
+    return;
+  }
+  logger.error('Failed to refresh eInnsyn token', responseData);
 };

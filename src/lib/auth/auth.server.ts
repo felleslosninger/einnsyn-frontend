@@ -6,6 +6,7 @@ import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './ansattporten.server';
 import type { ExtendedAuthInfo } from './auth';
 import { deleteAuth, getAuth } from './authCookie.server';
+import * as einnsyn from './einnsyn.server';
 
 export const cachedAuthInfo = cache(getAuthInfo);
 export async function getAuthInfo() {
@@ -74,7 +75,7 @@ export const maybeRefreshToken = async (): Promise<void> => {
       // so we keep going and use the existing token if it is still valid.
     }
   } else if (authSession.authProvider === 'eInnsyn') {
-    // await
+    await einnsyn.attemptTokenRefresh(authSession.refreshToken);
   }
 };
 
