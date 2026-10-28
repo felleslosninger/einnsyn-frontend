@@ -1,117 +1,68 @@
 'use client';
 
-import { EinLink } from '~/components/EinLink/EinLink';
-import {
-  useOptimisticPathname,
-  useOptimisticSearchParams,
-} from '~/components/NavigationProvider/NavigationProvider';
+import { useOptimisticSearchParams } from '~/components/NavigationProvider/NavigationProvider';
+import { HeaderTab, HeaderTabs } from '~/features/header/HeaderTabs';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
+import type { SearchableEntity } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
-import { buildSearchHref } from '~/lib/utils/searchHref';
 import resultStyles from '../searchresult/searchResultStyles.module.scss';
-import SearchFilterDropdown from './filter/SearchFilterDropdown';
-import styles from './SearchTabs.module.scss';
 
-export default function SearchTabs({ className }: { className?: string }) {
+const ENTITY_TABS: {
+  entity: SearchableEntity;
+  labelKey: string;
+  dotClassName: string;
+}[] = [
+  {
+    entity: 'Saksmappe',
+    labelKey: 'saksmappe.labelPlural',
+    dotClassName: resultStyles.searchResultDotSaksmappe,
+  },
+  {
+    entity: 'Journalpost',
+    labelKey: 'journalpost.labelPlural',
+    dotClassName: resultStyles.searchResultDotJournalpost,
+  },
+  {
+    entity: 'Moetemappe',
+    labelKey: 'moetemappe.labelPlural',
+    dotClassName: resultStyles.searchResultDotMoetemappe,
+  },
+  {
+    entity: 'Moetesak',
+    labelKey: 'moetesak.labelPlural',
+    dotClassName: resultStyles.searchResultDotMoetesak,
+  },
+];
+
+export default function SearchTabs() {
   const searchParams = useOptimisticSearchParams();
-  const pathname = useOptimisticPathname();
+  const searchHref = useSearchHref();
   const t = useTranslation();
-
-  // The "all" tab is the absence of an `entity` param, which `buildSearchHref`
-  // handles as the empty string.
-  const getTabHref = (entityName: string) =>
-    buildSearchHref({
-      pathname,
-      searchParams,
-      updates: { entity: entityName },
-    });
-
-  const getLinkClassName = (tabName: string) => {
-    const classes: string[] = [styles.searchTab, 'header-tab'];
-    const activeTab = searchParams?.get('entity') || '';
-    if (activeTab === tabName) {
-      classes.push('active');
-    }
-    return classes.join(' ');
-  };
+  const activeEntity = searchParams?.get('entity') || undefined;
 
   return (
-    <div
-      className={cn(styles.tabsContainer, className, 'header-tabs')}
-      data-size="sm"
-      data-color="neutral"
-    >
-      <div className={styles.searchTabsScroll}>
-        <div className={cn(styles.searchTabs)}>
-          <EinLink className={getLinkClassName('')} href={getTabHref('')}>
-            {t('common.all')}
-          </EinLink>
-          <EinLink
-            className={getLinkClassName('Saksmappe')}
-            href={getTabHref('Saksmappe')}
-          >
-            <span className={styles.tabInner}>
-              <span
-                className={cn(
-                  resultStyles.searchResultDot,
-                  resultStyles.searchResultDotSaksmappe,
-                )}
-                aria-hidden="true"
-              />
-              {t('saksmappe.labelPlural')}
-            </span>
-          </EinLink>
-          <EinLink
-            className={getLinkClassName('Journalpost')}
-            href={getTabHref('Journalpost')}
-          >
-            <span className={styles.tabInner}>
-              <span
-                className={cn(
-                  resultStyles.searchResultDot,
-                  resultStyles.searchResultDotJournalpost,
-                )}
-                aria-hidden="true"
-              />
-              {t('journalpost.labelPlural')}
-            </span>
-          </EinLink>
-          <EinLink
-            className={getLinkClassName('Moetemappe')}
-            href={getTabHref('Moetemappe')}
-          >
-            <span className={styles.tabInner}>
-              <span
-                className={cn(
-                  resultStyles.searchResultDot,
-                  resultStyles.searchResultDotMoetemappe,
-                )}
-                aria-hidden="true"
-              />
-              {t('moetemappe.labelPlural')}
-            </span>
-          </EinLink>
-          <EinLink
-            className={getLinkClassName('Moetesak')}
-            href={getTabHref('Moetesak')}
-          >
-            <span className={styles.tabInner}>
-              <span
-                className={cn(
-                  resultStyles.searchResultDot,
-                  resultStyles.searchResultDotMoetesak,
-                )}
-                aria-hidden="true"
-              />
-              {t('moetesak.labelPlural')}
-            </span>
-          </EinLink>
-        </div>
-      </div>
-
-      <div className={cn(styles.searchFilter, 'search-filter')}>
-        <SearchFilterDropdown className="header-dropdown" />
-      </div>
-    </div>
+    <HeaderTabs>
+      {/* The "all" tab is the absence of an `entity` param. */}
+      <HeaderTab
+        href={searchHref({ entity: undefined })}
+        active={activeEntity === undefined}
+      >
+        {t('common.all')}
+      </HeaderTab>
+      {ENTITY_TABS.map(({ entity, labelKey, dotClassName }) => (
+        <HeaderTab
+          key={entity}
+          href={searchHref({ entity })}
+          active={activeEntity === entity}
+        >
+          <span
+            className={cn(resultStyles.searchResultDot, dotClassName)}
+            aria-hidden="true"
+          />
+          {t(labelKey)}
+        </HeaderTab>
+      ))}
+    </HeaderTabs>
   );
 }

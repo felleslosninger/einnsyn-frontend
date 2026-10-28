@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
-import { buildSearchHref } from '~/lib/utils/searchHref';
+import { useSearchHref } from '~/hooks/useSearchHref';
 import {
   type SearchToken,
   searchQueryToTokens,
@@ -35,19 +35,17 @@ const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 
 export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const navigation = useNavigation();
-  const optimisticPathname = navigation.optimisticPathname;
-  const optimisticSearchParams = navigation.optimisticSearchParams;
-  const [searchQuery, _setSearchQuery] = useState(
-    () => optimisticSearchParams.get('q') ?? '',
-  );
+  const searchHref = useSearchHref();
+  const urlSearchQuery = navigation.optimisticSearchParams.get('q') ?? '';
+  const [searchQuery, _setSearchQuery] = useState(urlSearchQuery);
 
   const searchTokens = useMemo(
     () => searchQueryToTokens(searchQuery),
     [searchQuery],
   );
   useEffect(() => {
-    _setSearchQuery(optimisticSearchParams.get('q') ?? '');
-  }, [optimisticSearchParams]);
+    _setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
   useEffect(() => {
@@ -56,21 +54,9 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
 
   const pushSearchQuery = useCallback(
     (queryToPush: string) => {
-      // TODO: decide whether the search path should be localized. The enhet
-      // selector uses `routing.searchPath` here, which makes the URL depend on
-      // the viewer's session language; localized spellings already resolve via
-      // the rewrites in next.config.ts.
-      const pathname =
-        optimisticPathname === '/' ? '/search' : optimisticPathname;
-      navigation.push(
-        buildSearchHref({
-          pathname,
-          searchParams: optimisticSearchParams,
-          updates: { q: queryToPush },
-        }),
-      );
+      navigation.push(searchHref({ q: queryToPush }));
     },
-    [navigation, optimisticPathname, optimisticSearchParams],
+    [navigation, searchHref],
   );
 
   const setSearchQuery = useCallback(

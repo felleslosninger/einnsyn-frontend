@@ -5,7 +5,6 @@ import type { Enhet } from '@digdir/einnsyn-sdk';
 import {
   expandAncestorsInEnhetList,
   getAncestors,
-  getEnhetHref,
   getEnhetIdentifier,
   matchesEnhetIdentifier,
   type TrimmedEnhet,
@@ -105,7 +104,6 @@ describe('getEnhetIdentifier', () => {
 
   test('treats an empty slug as no slug', () => {
     assert.equal(getEnhetIdentifier({ id: 'enh_1', slug: '' }), 'enh_1');
-    assert.equal(getEnhetHref({ id: 'enh_1', slug: '' }), '/enh_1');
   });
 });
 

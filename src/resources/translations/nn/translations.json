@@ -75,6 +75,7 @@
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
+    "clearEnhetSelection": "Fjern valde verksemder",
     "sortedBy": "Sortert etter",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Opne dokument",
@@ -103,10 +104,19 @@
     "searchingIn": "Søkjer i"
   },
   "routing": {
-    "searchPath": "søk",
-    "saksmappePath": "sak",
-    "calendarPath": "kalender",
-    "statisticsPath": "statistikk"
+    "root": {
+      "search": "søk",
+      "about": "om",
+      "privacy": "personvern",
+      "admin": "admin",
+      "login": "login",
+      "bruker": "bruker"
+    },
+    "enhet": {},
+    "mappe": {
+      "saksmappe": "sak",
+      "moetemappe": "moete"
+    }
   },
   "common": {
     "publishedAt": "Publisert",
@@ -152,7 +162,6 @@
   "journalpost": {
     "label": "Journalpost",
     "labelPlural": "Journalpostar",
-    "pathName": "journalpost",
     "from": "Frå",
     "to": "Til",
     "type": {
@@ -231,6 +240,37 @@
     "savedCases": "Lagra saker",
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "profilePage": {
+      "title": "Profilinformasjon",
+      "description": "Administrer innlogginga og kontoen din.",
+      "login": "Innlogging",
+      "newEmail": "Ny e-post",
+      "changeEmailSuccess": "E-postadressa er oppdatert",
+      "saveEmailChanges": "Lagre ny e-post",
+      "currentPassword": "Noverande passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "savePasswordChanges": "Lagre nytt passord",
+      "deleteAccount": "Slett konto",
+      "deleteAccountDescription": "Dette slettar kontoen din permanent. Alle innsynskrav, lagra saker og lagra søk vert sletta og kan ikkje gjenopprettast.",
+      "deleteAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikkje angrast.",
+      "deleteAccountSubmit": "Slett kontoen min",
+      "deleteAccountCancel": "Behald kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressa er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 teikn og innehalde store og små bokstavar samt tal eller spesialtegn",
+        "wrongPassword": "Noverande passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikkje tilgang",
+        "badRequest": "Ugyldig førespurnad",
+        "notFound": "Brukaren vart ikkje funnen",
+        "internalServerError": "Det oppstod ein serverfeil. Prøv igjen seinare",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om ei lita stund",
+        "passwordMismatch": "Passorda er ikkje like",
+        "missingFields": "Fyll ut alle felta"
+      }
+    }
   }
 }
