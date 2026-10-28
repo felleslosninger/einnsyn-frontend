@@ -14,27 +14,28 @@ function dedupeById<T extends Base>(items: T[]): T[] {
 }
 
 // Reconcile a freshly fetched server window with the list the client has
-// already accumulated (via pagination or preload).
+// already accumulated (via pagination or preload). The server window replaces
+// the span it overlaps; only the loaded items beyond it are kept.
 export function mergeWindow<T extends Base>(
   current: PaginatedList<T>,
   incoming: PaginatedList<T>,
 ): PaginatedList<T> {
-  const currentIds = new Set(current.items.map((item) => item.id));
-  const firstOverlap = incoming.items.findIndex((item) =>
-    currentIds.has(item.id),
+  const incomingIds = new Set(incoming.items.map((item) => item.id));
+  const firstOverlap = current.items.findIndex((item) =>
+    incomingIds.has(item.id),
   );
   if (firstOverlap === -1) {
     return incoming;
   }
-  const lastOverlap = incoming.items.findLastIndex((item) =>
-    currentIds.has(item.id),
+  const lastOverlap = current.items.findLastIndex((item) =>
+    incomingIds.has(item.id),
   );
-  const above = incoming.items.slice(0, firstOverlap);
-  const below = incoming.items.slice(lastOverlap + 1);
+  const above = current.items.slice(0, firstOverlap);
+  const below = current.items.slice(lastOverlap + 1);
   return {
-    items: dedupeById([...above, ...current.items, ...below]),
-    previous: above.length > 0 ? incoming.previous : current.previous,
-    next: below.length > 0 ? incoming.next : current.next,
+    items: [...above, ...incoming.items, ...below],
+    previous: above.length > 0 ? current.previous : incoming.previous,
+    next: below.length > 0 ? current.next : incoming.next,
   };
 }
 
