@@ -9,9 +9,8 @@ import type {
 
 const apiUrl = pathToFileURL('src/lib/api/api.server.ts').href;
 
-let currentSearch: (
-  query: SearchParameters,
-) => Promise<PaginatedList<Base>> = async () => ({ items: [] });
+let currentSearch: (query: SearchParameters) => Promise<PaginatedList<Base>> =
+  async () => ({ items: [] });
 
 mock.module(apiUrl, {
   namedExports: {
