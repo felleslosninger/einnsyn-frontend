@@ -1,3 +1,4 @@
+@use '../../styles/effects.scss' as fx;
 @use '../../styles/headerRow.scss' as headerRow;
 @use '../../styles/mediaQueries.scss' as mq;
 
@@ -7,9 +8,14 @@
   display: flex;
   align-items: flex-end;
   height: headerRow.$bar-height;
-  // Pull the end action out towards the search field's edge, which also
-  // reaches past the container.
+  // Subtract padding from the right, to align with the content of the row.
   margin-right: calc(-1 * var(--ds-size-4));
+  // The reveal; the collapse has its own in Header.module.scss. Stays clipped
+  // until fully open, or the content spills over the search field.
+  transition:
+    height 0.2s fx.$easeOut,
+    opacity 0.2s fx.$easeOut,
+    overflow 0s 0.2s allow-discrete;
 
   @include mq.small {
     margin-right: 0;

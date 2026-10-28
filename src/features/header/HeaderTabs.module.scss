@@ -5,6 +5,10 @@
   gap: var(--ds-size-4);
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  // `overflow-x: auto` clips vertically, so leave room on every side for
+  // focus rings. The negative margin keeps the tabs where they were.
+  padding: calc(2 * var(--ds-border-width-focus));
+  margin: calc(-2 * var(--ds-border-width-focus));
 }
 
 .tab {

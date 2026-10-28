@@ -16,11 +16,7 @@ export default async function HeaderWithEnhets({
   enhetIdentifiers: string[];
   children: React.ReactNode;
 }) {
-  const { enhets, version } = await getInitialEnhets({ enhetIdentifiers });
+  const enhets = await getInitialEnhets({ enhetIdentifiers });
 
-  return (
-    <Header initialEnhets={enhets} enhetListVersion={version}>
-      {children}
-    </Header>
-  );
+  return <Header initialEnhets={enhets}>{children}</Header>;
 }

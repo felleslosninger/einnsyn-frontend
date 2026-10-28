@@ -171,11 +171,12 @@ export function useEnhetSelectorState({
   //
   const [filterValue, setFilterValue] = useState('');
 
+  // The server's list may have changed since it was loaded, so every open asks.
   useEffect(() => {
-    if (active && !enhetListLoaded) {
+    if (active) {
       ensureEnhetListLoaded();
     }
-  }, [active, enhetListLoaded, ensureEnhetListLoaded]);
+  }, [active, ensureEnhetListLoaded]);
 
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,8 +233,11 @@ export function useEnhetSelectorState({
     if (selectedEnhetIdentifiers.length === 0) return;
     setSelectedEnhetIdentifiers([]);
     setFocus(null);
-    focusInput();
+    if (active) {
+      focusInput();
+    }
   }, [
+    active,
     focusInput,
     selectedEnhetIdentifiers.length,
     setSelectedEnhetIdentifiers,
