@@ -86,9 +86,7 @@ export default function SearchResultContainer({
   useEffect(() => {
     const sameSearch = searchKeyRef.current === searchKey;
     searchKeyRef.current = searchKey;
-    if (!sameSearch) {
-      searchSymbolRef.current = Symbol();
-    }
+    searchSymbolRef.current = Symbol();
     setCurrentSearchResults((current) => {
       if (current === searchResults) {
         return current;
