@@ -1,0 +1,90 @@
+.profileContent {
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+
+  >p {
+    color: var(--ds-color-neutral-text-subtle);
+  }
+
+  >h3 {
+    margin-block-start: var(--ds-size-6);
+  }
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-size-5);
+  color: var(--ds-color-neutral-text-default);
+}
+
+.profileSection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-4);
+  color: var(--ds-color-neutral-text-default);
+  --dsc-card-padding: var(--ds-size-5) var(--ds-size-6);
+  --dsc-card-content-margin-block: 0;
+  --dsc-card-block-border-color: var(--ds-color-neutral-border-subtle);
+
+  &:has(form) {
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--ds-color-neutral-surface-tinted);
+  }
+
+  > :first-child {
+    width: 11rem;
+  }
+
+  >[role='status'] {
+    flex-basis: 100%;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+  margin-inline-start: calc(1.5rem + var(--ds-size-5));
+  margin-inline-end: calc(1.5rem + var(--ds-size-5));
+
+  >.formActions {
+    margin-block-start: var(--ds-size-2);
+  }
+}
+
+.headingWithIcon {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-5);
+  // Button height, so the title stays put when the Endre button is swapped out
+  min-height: var(--ds-size-12);
+
+  // Centred on the line box the icon sits low, so lift it to the text
+  >svg {
+    translate: 0 -0.1rem;
+  }
+}
+
+.viewRow {
+  flex: 1 1 15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-size-4);
+
+  p {
+    overflow-wrap: anywhere;
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: var(--ds-size-4);
+  flex-wrap: wrap;
+}

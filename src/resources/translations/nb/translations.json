@@ -75,6 +75,7 @@
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
+    "clearEnhetSelection": "Fjern valgte virksomheter",
     "sortedBy": "Sortert etter",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Åpne dokument",
@@ -249,6 +250,37 @@
     "savedCases": "Lagrede saker",
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "profilePage": {
+      "title": "Profilinformasjon",
+      "description": "Administrer innloggingen og kontoen din.",
+      "login": "Innlogging",
+      "newEmail": "Ny e-post",
+      "changeEmailSuccess": "E-postadressen er oppdatert",
+      "saveEmailChanges": "Lagre ny e-post",
+      "currentPassword": "Nåværende passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "savePasswordChanges": "Lagre nytt passord",
+      "deleteAccount": "Slett konto",
+      "deleteAccountDescription": "Dette sletter kontoen din permanent. Alle innsynskrav, lagrede saker og lagrede søk vil bli slettet og kan ikke gjenopprettes.",
+      "deleteAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.",
+      "deleteAccountSubmit": "Slett kontoen min",
+      "deleteAccountCancel": "Behold kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressen er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 tegn og inneholde store og små bokstaver samt tall eller spesialtegn",
+        "wrongPassword": "Nåværende passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikke tilgang",
+        "badRequest": "Ugyldig forespørsel",
+        "notFound": "Brukeren ble ikke funnet",
+        "internalServerError": "Det oppstod en serverfeil. Prøv igjen senere",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om en liten stund",
+        "passwordMismatch": "Passordene er ikke like",
+        "missingFields": "Fyll ut alle feltene"
+      }
+    }
   }
 }

@@ -19,24 +19,30 @@ function enhet(id: string, navn = id): TrimmedEnhet {
   };
 }
 
-type ListResult = { enhets: TrimmedEnhet[]; version: string };
+type ListResult = { enhets?: TrimmedEnhet[]; version: string };
 
 let storeSeq = 0;
-let currentGetList: () => Promise<ListResult> = async () => {
-  throw new Error('no list stubbed');
-};
+let currentGetList: (knownVersion?: string) => Promise<ListResult> =
+  async () => {
+    throw new Error('no list stubbed');
+  };
 
 // One mock for the whole file — a module cannot be mocked twice — delegating to
 // whatever the running test set.
 mock.module(actionsUrl, {
-  namedExports: { getTrimmedEnhetList: () => currentGetList() },
+  namedExports: {
+    getTrimmedEnhetList: (knownVersion?: string) =>
+      currentGetList(knownVersion),
+  },
 });
 
 /**
  * A store with its own module state, so each test starts empty. The list fetch
  * is mocked at the server-action boundary the store imports.
  */
-async function freshStore(getList: () => Promise<ListResult>) {
+async function freshStore(
+  getList: (knownVersion?: string) => Promise<ListResult>,
+) {
   currentGetList = getList;
   storeSeq += 1;
   return import(`./enhetStore.ts?store=${storeSeq}`);
@@ -81,180 +87,66 @@ describe('enhet client store', () => {
     assert.equal(snapshot.enhetMap.get('a')?.id, 'a');
   });
 
-  test('a seed carrying a new version invalidates but keeps the entries', async () => {
-    const store = await freshStore(async () => ({
-      enhets: [enhet('a')],
-      version: 'v1',
-    }));
-    await store.ensureEnhetListLoaded();
-
-    store.seedEnhets([], 'v2');
-
-    const snapshot = store.getEnhetStoreSnapshot();
-    assert.equal(snapshot.loadedVersion, null, 'no longer complete');
-    assert.equal(
-      snapshot.enhetMap.get('a')?.id,
-      'a',
-      'stale names beat blank ones',
-    );
-  });
-
-  test('an unchanged version leaves the full list alone', async () => {
-    const store = await freshStore(async () => ({
-      enhets: [enhet('a')],
-      version: 'v1',
-    }));
-    await store.ensureEnhetListLoaded();
-
-    store.seedEnhets([enhet('a')], 'v1');
-
-    assert.equal(store.getEnhetStoreSnapshot().loadedVersion, 'v1');
-  });
-
-  test('the next ensureEnhetListLoaded refetches after an invalidation', async () => {
-    let calls = 0;
-    const store = await freshStore(async () => {
-      calls += 1;
-      return { enhets: [enhet('a')], version: `v${calls}` };
+  test('a list the server finds current is kept', async () => {
+    const asked: (string | undefined)[] = [];
+    const store = await freshStore(async (knownVersion) => {
+      asked.push(knownVersion);
+      return knownVersion === 'v1'
+        ? { version: 'v1' }
+        : { enhets: [enhet('a')], version: 'v1' };
     });
+    await store.ensureEnhetListLoaded();
 
     await store.ensureEnhetListLoaded();
-    assert.equal(calls, 1);
 
-    // Nothing more to fetch while the version holds.
-    await store.ensureEnhetListLoaded();
-    assert.equal(calls, 1);
-
-    store.seedEnhets([], 'moved');
-    await store.ensureEnhetListLoaded();
-    assert.equal(calls, 2, 'the resolved in-flight promise must not be reused');
+    assert.deepEqual(asked, [undefined, 'v1'], 'it sends the version it holds');
+    const snapshot = store.getEnhetStoreSnapshot();
+    assert.equal(snapshot.loadedVersion, 'v1');
+    assert.equal(snapshot.enhetMap.get('a')?.id, 'a');
   });
 
-  test('a moved version lets a seed overwrite a stored enhet', async () => {
-    const store = await freshStore(async () => ({
-      enhets: [enhet('a', 'Old name')],
-      version: 'v1',
-    }));
-    await store.ensureEnhetListLoaded();
-
-    store.seedEnhets([enhet('a', 'New name')], 'v2');
-
-    assert.equal(
-      store.getEnhetStoreSnapshot().enhetMap.get('a')?.navn,
-      'New name',
-    );
-  });
-
-  test('a re-slugged enhet drops its old slug alias', async () => {
-    const store = await freshStore(async () => ({
-      enhets: [{ ...enhet('a', 'Old name'), slug: 'old-slug' }],
-      version: 'v1',
-    }));
-    await store.ensureEnhetListLoaded();
-
-    store.seedEnhets([{ ...enhet('a', 'New name'), slug: 'new-slug' }], 'v2');
-
-    const { enhetMap } = store.getEnhetStoreSnapshot();
-    assert.equal(enhetMap.get('new-slug')?.navn, 'New name');
-    assert.equal(enhetMap.get('a')?.navn, 'New name');
-    assert.equal(
-      enhetMap.has('old-slug'),
-      false,
-      'the old alias would resolve to the stale copy',
-    );
-  });
-
-  test('a refreshed list drops enhets the API no longer returns', async () => {
+  test('a moved version replaces the list', async () => {
     const removed = { ...enhet('b'), slug: 'b-slug' };
-    let list: ListResult = { enhets: [enhet('a'), removed], version: 'v1' };
+    let list: ListResult = {
+      enhets: [enhet('a', 'Old name'), removed],
+      version: 'v1',
+    };
     const store = await freshStore(async () => list);
     await store.ensureEnhetListLoaded();
 
-    list = { enhets: [enhet('a')], version: 'v2' };
-    store.seedEnhets([], 'v2');
+    list = { enhets: [enhet('a', 'New name')], version: 'v2' };
     await store.ensureEnhetListLoaded();
 
     const { enhetMap, loadedVersion } = store.getEnhetStoreSnapshot();
     assert.equal(loadedVersion, 'v2');
-    assert.equal(enhetMap.get('a')?.id, 'a');
+    assert.equal(enhetMap.get('a')?.navn, 'New name');
     assert.equal(enhetMap.has('b'), false, 'the removed enhet is gone');
     assert.equal(enhetMap.has('b-slug'), false, 'and so is its alias');
   });
 
-  test('an invalidated fetch keeps entries its list omits', async () => {
-    const gate = gatedList(() => ({ enhets: [], version: 'v1' }));
-    const store = await freshStore(gate.getList);
-    store.seedEnhets([enhet('a')], 'v1');
-
-    const inflight = store.ensureEnhetListLoaded();
-    store.seedEnhets([], 'v2');
-    gate.release();
-    await inflight;
-
-    assert.equal(
-      store.getEnhetStoreSnapshot().enhetMap.get('a')?.id,
-      'a',
-      'a stale list must not blank out what is on screen',
-    );
-  });
-
-  test('a version that moves mid-fetch leaves the list invalid', async () => {
-    const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
-    const store = await freshStore(gate.getList);
-
-    const inflight = store.ensureEnhetListLoaded();
-    store.seedEnhets([], 'v2');
-    gate.release();
-    await inflight;
-
-    // The retry this kicks off is still gated, so the store is observed
-    // exactly as the invalidated fetch left it.
-    const snapshot = store.getEnhetStoreSnapshot();
-    assert.equal(
-      snapshot.loadedVersion,
-      null,
-      'the fetched list is already out of date',
-    );
-    assert.equal(snapshot.enhetMap.get('a')?.id, 'a', 'its entries are kept');
-  });
-
-  test('a seed mid-fetch does not start a second fetch', async () => {
-    const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
-    const store = await freshStore(gate.getList);
-
-    const inflight = store.ensureEnhetListLoaded();
-    // The seed invalidates, but the fetch it would restart is still running.
-    store.seedEnhets([], 'v2');
-    const reentrant = store.ensureEnhetListLoaded();
-    assert.equal(gate.started(), 1, 'the in-flight fetch is reused');
-
-    gate.release();
-    await Promise.all([inflight, reentrant]);
-  });
-
-  test('an invalidated fetch restarts itself once it settles', async () => {
-    const gate = gatedList((call) => ({
-      enhets: [enhet('a')],
-      version: call === 1 ? 'v1' : 'v2',
+  test('a seed keeps the entries the store holds', async () => {
+    const store = await freshStore(async () => ({
+      enhets: [enhet('a', 'Listed')],
+      version: 'v1',
     }));
-    const store = await freshStore(gate.getList);
-
-    const inflight = store.ensureEnhetListLoaded();
-    store.seedEnhets([], 'v2');
-    gate.release();
-    await inflight;
-
-    // Nobody calls `ensureEnhetListLoaded` again: the selector's effect only re-runs
-    // when `enhetListLoaded` flips, which an invalidated fetch never does.
-    assert.equal(gate.started(), 2, 'the stale fetch restarts on its own');
-
-    gate.release();
     await store.ensureEnhetListLoaded();
 
-    assert.equal(
-      store.getEnhetStoreSnapshot().loadedVersion,
-      'v2',
-      'the retry loads under the version the seed announced',
-    );
+    store.seedEnhets([enhet('a', 'Seeded'), enhet('b')]);
+
+    const { enhetMap } = store.getEnhetStoreSnapshot();
+    assert.equal(enhetMap.get('a')?.navn, 'Listed');
+    assert.equal(enhetMap.get('b')?.id, 'b');
+  });
+
+  test('concurrent calls share one request', async () => {
+    const gate = gatedList(() => ({ enhets: [enhet('a')], version: 'v1' }));
+    const store = await freshStore(gate.getList);
+
+    const first = store.ensureEnhetListLoaded();
+    const second = store.ensureEnhetListLoaded();
+    assert.equal(gate.started(), 1, 'the in-flight request is reused');
+
+    gate.release();
+    await Promise.all([first, second]);
   });
 });

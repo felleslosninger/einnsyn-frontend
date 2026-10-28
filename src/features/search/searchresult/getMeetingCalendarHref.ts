@@ -1,7 +1,10 @@
-import { createEvent } from 'ics';
 import type { Moetemappe } from '@digdir/einnsyn-sdk';
+import { createEvent } from 'ics';
 
-type CalendarMeeting = Pick<Moetemappe, 'moetedato' | 'moetested' | 'offentligTittel'>;
+type CalendarMeeting = Pick<
+  Moetemappe,
+  'moetedato' | 'moetested' | 'offentligTittel'
+>;
 
 export function getMeetingCalendarHref(
   meeting: CalendarMeeting,

@@ -12,7 +12,8 @@ test('creates a calendar file with the meeting title, date, time, and place', ()
 
   const href = getMeetingCalendarHref(meeting);
 
-  assert.ok(href?.startsWith('data:text/calendar;charset=utf-8,'));
+  assert.ok(href);
+  assert.ok(href.startsWith('data:text/calendar;charset=utf-8,'));
   const calendar = decodeURIComponent(href.slice(href.indexOf(',') + 1));
   assert.match(calendar, /SUMMARY:Board meeting/);
   assert.match(calendar, /DTSTART:20261015T073000Z/);
