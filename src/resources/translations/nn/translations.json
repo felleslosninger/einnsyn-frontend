@@ -128,6 +128,7 @@
     "email": "E-post",
     "address": "Adresse",
     "noResults": "Ingen treff",
+    "searchFailed": "Søket mislukkast. Prøv igjen seinare.",
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Slettar...",

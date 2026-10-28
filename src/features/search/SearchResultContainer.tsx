@@ -89,8 +89,11 @@ export default function SearchResultContainer({
               aria-busy={isLoading}
               aria-live="polite"
             >
-              {currentSearchResults === null ? null : currentSearchResults.items
-                  .length ? (
+              {currentSearchResults === null ? (
+                <div className={styles.searchResult} role="alert">
+                  <p>{t('common.searchFailed')}</p>
+                </div>
+              ) : currentSearchResults.items.length ? (
                 currentSearchResults.items.map((item) => (
                   <SearchResult
                     className={styles.searchResult}

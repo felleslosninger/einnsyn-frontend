@@ -1,11 +1,10 @@
 import 'server-only';
 
-import {
-  type Base,
-  EInnsynError,
-  type FilterParameters,
-  type PaginatedList,
-  type SearchParameters,
+import type {
+  Base,
+  FilterParameters,
+  PaginatedList,
+  SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/lib/api/api.server';
 import {
@@ -49,7 +48,6 @@ export const getSearchResults = async (
   enhetSlug: string,
   searchParams: URLSearchParams,
 ): Promise<PaginatedList<Base> | null> => {
-  const api = await cachedApiClient();
   const apiQuery: SearchParameters = {};
 
   // Combine Entity filter from path and searchParams
@@ -157,6 +155,7 @@ export const getSearchResults = async (
   }
 
   try {
+    const api = await cachedApiClient();
     apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent.parent.parent',
       'utvalgObjekt.parent.parent.parent.parent',
@@ -167,10 +166,7 @@ export const getSearchResults = async (
     const searchResults = await api.search.search(apiQuery);
     return searchResults;
   } catch (error) {
-    // TODO: Handle the error
-    if (error instanceof EInnsynError) {
-      logger.error('Error fetching search results', error);
-    }
+    logger.error('Error fetching search results', error);
     return null;
   }
 };
