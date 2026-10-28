@@ -34,7 +34,7 @@ export const updateAuth = async (
     },
     {
       httpOnly: false, // This should be accessible from the frontend
-      maxAge: cookieSettings.maxAge,
+      maxAge,
     },
   );
 
