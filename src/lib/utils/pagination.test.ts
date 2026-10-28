@@ -56,13 +56,38 @@ describe('mergeWindow', () => {
     assert.strictEqual(merged.next, 'after-d');
   });
 
-  test('drops an item that is gone from the window', () => {
+  test('starts over when an item is gone from the window', () => {
     const merged = mergeWindow(
       current,
       paginatedList('a c', { next: 'after-c' }),
     );
-    assert.strictEqual(joinIds(merged), 'a c d');
-    assert.strictEqual(merged.next, 'after-d');
+    assert.strictEqual(joinIds(merged), 'a c');
+    assert.strictEqual(merged.next, 'after-c');
+  });
+
+  test('starts over when an item above a first page is gone', () => {
+    const merged = mergeWindow(
+      current,
+      paginatedList('b c', { next: 'after-c' }),
+    );
+    assert.strictEqual(joinIds(merged), 'b c');
+    assert.strictEqual(merged.previous, undefined);
+    assert.strictEqual(merged.next, 'after-c');
+  });
+
+  test('starts over when a loaded item moves up into the window', () => {
+    const merged = mergeWindow(
+      current,
+      paginatedList('d a', { next: 'after-a' }),
+    );
+    assert.strictEqual(joinIds(merged), 'd a');
+    assert.strictEqual(merged.next, 'after-a');
+  });
+
+  test('drops loaded items and the cursor below a last page', () => {
+    const merged = mergeWindow(current, paginatedList('a b c'));
+    assert.strictEqual(joinIds(merged), 'a b c');
+    assert.strictEqual(merged.next, undefined);
   });
 
   test('takes the cursors of a window that reaches past the loaded items', () => {
@@ -78,12 +103,25 @@ describe('mergeWindow', () => {
   test('keeps loaded items on both sides of a window in the middle', () => {
     const merged = mergeWindow(
       paginatedList('a b c d e', { previous: 'before-a', next: 'after-e' }),
-      paginatedList('b:changed d', { previous: 'before-b', next: 'after-d' }),
+      paginatedList('b:changed c d', {
+        previous: 'before-b',
+        next: 'after-d',
+      }),
     );
-    assert.strictEqual(joinIds(merged), 'a b d e');
+    assert.strictEqual(joinIds(merged), 'a b c d e');
     assert.strictEqual(merged.items[1].title, 'changed');
     assert.strictEqual(merged.previous, 'before-a');
     assert.strictEqual(merged.next, 'after-e');
+  });
+
+  test('starts over from a window in the middle that lost an item', () => {
+    const merged = mergeWindow(
+      paginatedList('a b c d e', { previous: 'before-a', next: 'after-e' }),
+      paginatedList('b d', { previous: 'before-b', next: 'after-d' }),
+    );
+    assert.strictEqual(joinIds(merged), 'b d');
+    assert.strictEqual(merged.previous, 'before-b');
+    assert.strictEqual(merged.next, 'after-d');
   });
 
   test('returns the incoming window when nothing overlaps', () => {
