@@ -1,0 +1,85 @@
+@use '../../../styles/mediaQueries.scss' as mq;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  margin-bottom: var(--ds-size-10);
+
+  h1 {
+    margin-bottom: var(--ds-size-4);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.header,
+.content {
+  max-width: 800px; //half of container max width 1400
+}
+
+.variants {
+  margin-top: var(--ds-size-5);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  padding: var(--ds-size-7) 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-size-8);
+
+  @include mq.small {
+    flex-direction: column;
+    gap: var(--ds-size-3);
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--ds-font-size-5);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.meta {
+  font-size: var(--ds-font-size-2);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.metaStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+  font-size: var(--ds-font-size-2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  flex-shrink: 0;
+}

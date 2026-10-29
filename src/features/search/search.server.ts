@@ -3,11 +3,11 @@ import 'server-only';
 import {
   type Base,
   EInnsynError,
-  type FilterParameters,
   type PaginatedList,
   type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/lib/api/api.server';
+import { toApiJournalposttypes } from '~/lib/routing/journalposttype';
 import {
   getEnhetSelection,
   isSearchableEntity,
@@ -20,8 +20,6 @@ import {
   searchQueryToTokens,
   tokensToSearchQuery,
 } from '~/lib/utils/searchStringTokenizer';
-
-type Journalposttype = FilterParameters['journalposttype'];
 
 const SORT_MAP: Record<
   SortOption,
@@ -131,25 +129,9 @@ export const getSearchResults = async (
       (token) => token.prefix === 'journalposttype',
     );
     if (journalposttype) {
-      const wantedTypes = parseParamList(journalposttype.value);
-      const queryTypes: Journalposttype = [];
-      if (wantedTypes.includes('inngaaende')) {
-        queryTypes.push('inngaaende_dokument');
-      }
-      if (wantedTypes.includes('utgaaende')) {
-        queryTypes.push('utgaaende_dokument');
-      }
-      if (
-        wantedTypes.includes('organinternt') ||
-        wantedTypes.includes('internt')
-      ) {
-        queryTypes.push('organinternt_dokument_for_oppfoelging');
-        queryTypes.push('organinternt_dokument_uten_oppfoelging');
-      }
-      if (wantedTypes.includes('saksframlegg')) {
-        queryTypes.push('saksframlegg');
-      }
-      apiQuery.journalposttype = queryTypes;
+      apiQuery.journalposttype = toApiJournalposttypes(
+        parseParamList(journalposttype.value),
+      );
     }
 
     logger.debug('Search API query', apiQuery);

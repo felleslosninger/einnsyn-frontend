@@ -1,3 +1,1 @@
-export default function SavedMeetingsPage() {
-  return null;
-}
+export { default } from '~/features/bruker/saved-meetings/SavedMeetings';

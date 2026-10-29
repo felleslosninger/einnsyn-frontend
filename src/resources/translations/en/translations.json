@@ -256,6 +256,39 @@
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
     "profile": "Profile",
+    "savedMeetingsPage": {
+      "description": "Here you find the meetings you have saved. Subscribe to a meeting to get an email when something new is published in it.",
+      "subscribe": "Notify",
+      "empty": "You have no saved meetings yet.",
+      "deleteError": "Could not delete the meeting. Please try again.",
+      "subscribeError": "Could not change the subscription. Please try again.",
+      "loadError": "Could not load your saved meetings. Please try again later."
+    },
+    "savedSearchesPage": {
+      "description": "Here you find the searches you have saved. Subscribe to a search to be notified of new results.",
+      "notificationInfo": "Notifications are sent by email once a day, at 06:00.",
+      "subscribe": "Notify",
+      "empty": "You have no saved searches yet.",
+      "deleteError": "Could not delete the search. Please try again.",
+      "subscribeError": "Could not change the subscription. Please try again.",
+      "loadError": "Could not load your saved searches. Please try again later."
+    },
+    "accessRequestsPage": {
+      "description": "Here you find the access requests you have sent.",
+      "sentAt": "Sent to organisation",
+      "notSent": "Not sent yet",
+      "empty": "You have no access requests. You can order documents from the search page or from document views.",
+      "deleteError": "Could not delete the access request. Please try again.",
+      "loadError": "Could not load your access requests. Please try again later."
+    },
+    "savedCasesPage": {
+      "description": "Here you find the cases you have saved. Subscribe to a case to get an email when something new is published in it.",
+      "subscribe": "Notify",
+      "empty": "You have no saved cases yet.",
+      "deleteError": "Could not delete the case. Please try again.",
+      "subscribeError": "Could not change the subscription. Please try again.",
+      "loadError": "Could not load your saved cases. Please try again later."
+    },
     "profilePage": {
       "title": "Profile information",
       "description": "Manage your login and account.",

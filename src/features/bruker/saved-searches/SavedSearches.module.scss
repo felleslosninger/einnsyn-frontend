@@ -1,0 +1,85 @@
+@use '../../../styles/mediaQueries.scss' as mq;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  margin-bottom: var(--ds-size-10);
+
+  h1 {
+    margin-bottom: var(--ds-size-4);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.header,
+.content {
+  max-width: 800px; //half of container max width 1400
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  padding: var(--ds-size-7) 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-size-8);
+
+  @include mq.small {
+    flex-direction: column;
+    gap: var(--ds-size-3);
+  }
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--ds-font-size-5);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  flex-shrink: 0;
+}
+
+.skeletonTitle {
+  pointer-events: none;
+}
+
+.skeletonSwitch {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-1);
+  margin-right: var(--ds-size-1);
+}
+
+// Matches the track of a data-size="sm" Switch.
+.skeletonSwitchTrack {
+  width: 40.5px;
+  height: 1.5rem;
+}
+
+.skeletonDelete {
+  margin: 0 var(--ds-size-1);
+  padding-left: var(--ds-size-9);
+}

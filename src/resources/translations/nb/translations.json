@@ -251,6 +251,39 @@
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
     "profile": "Profil",
+    "savedMeetingsPage": {
+      "description": "Her finner du møtene du har lagret. Abonnerer du på et møte, får du varsel på e-post når har skjedd en endring.",
+      "subscribe": "Varsle",
+      "empty": "Du har ingen lagrede møter ennå.",
+      "deleteError": "Kunne ikke slette møtet. Prøv igjen.",
+      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
+      "loadError": "Kunne ikke hente lagrede møter. Prøv igjen senere."
+    },
+    "savedSearchesPage": {
+      "description": "Her finner du søkene du har lagret. Du kan abonnere på et søk for å få varsel om nye treff.",
+      "notificationInfo": "Varsler sendes på e-post én gang i døgnet, kl. 06:00.",
+      "subscribe": "Varsle",
+      "empty": "Du har ingen lagrede søk ennå.",
+      "deleteError": "Kunne ikke slette søket. Prøv igjen.",
+      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
+      "loadError": "Kunne ikke hente lagrede søk. Prøv igjen senere."
+    },
+    "accessRequestsPage": {
+      "description": "Her finner du innsynskravene du har sendt.",
+      "sentAt": "Sendt til virksomhet",
+      "notSent": "Ikke sendt ennå",
+      "empty": "Du har ingen innsynskrav. Du kan bestille dokumenter fra søkesiden eller dokumentvisningene.",
+      "deleteError": "Kunne ikke slette innsynskravet. Prøv igjen.",
+      "loadError": "Kunne ikke hente innsynskravene dine. Prøv igjen senere."
+    },
+    "savedCasesPage": {
+      "description": "Her finner du sakene du har lagret. Abonnerer du på en sak, får du varsel på e-post når det har skjedd en endring.",
+      "subscribe": "Varsle",
+      "empty": "Du har ingen lagrede saker ennå.",
+      "deleteError": "Kunne ikke slette saken. Prøv igjen.",
+      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
+      "loadError": "Kunne ikke hente lagrede saker. Prøv igjen senere."
+    },
     "profilePage": {
       "title": "Profilinformasjon",
       "description": "Administrer innloggingen og kontoen din.",

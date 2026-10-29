@@ -1,3 +1,1 @@
-export default function AccessRequestsPage() {
-  return null;
-}
+export { default } from '~/features/bruker/access-requests/AccessRequests';

@@ -239,6 +239,39 @@
     "savedMeetings": "Vurkon čoahkkimiid",
     "savedSearches": "Vurkon ohcanat",
     "profile": "Profila",
+    "savedMeetingsPage": {
+      "description": "Dás gávnnat čoahkkimiid maid leat vurken. Go diŋgot čoahkkima, de oaččut dieđu e-poasttain go dasa almmuhuvvo juoga ođđa.",
+      "subscribe": "Diŋgo čoahkkima",
+      "empty": "Dus eai leat vurkon čoahkkimat.",
+      "deleteError": "Ii lihkostuvvan sihkkut čoahkkima. Geahččal ođđasit.",
+      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
+      "loadError": "Ii lihkostuvvan viežžat vurkon čoahkkimiid. Geahččal ođđasit maŋŋelaš."
+    },
+    "savedSearchesPage": {
+      "description": "Dás gávnnat ohcamiid maid leat vurken. Sáhtát diŋgot ohcama vai oaččut dieđu ođđa bohtosiin.",
+      "notificationInfo": "Dieđáhusat sáddejuvvojit e-poasttain oktii beaivái, dii. 06:00.",
+      "subscribe": "Diŋgo ohcama",
+      "empty": "Dus eai leat vurkon ohcanat.",
+      "deleteError": "Ii lihkostuvvan sihkkut ohcama. Geahččal ođđasit.",
+      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
+      "loadError": "Ii lihkostuvvan viežžat vurkon ohcamiid. Geahččal ođđasit maŋŋelaš."
+    },
+    "accessRequestsPage": {
+      "description": "Dás gávnnat geahčadangáibádusaid maid leat sádden.",
+      "sentAt": "Sáddejuvvon doibmii",
+      "notSent": "Ii leat vel sáddejuvvon",
+      "empty": "Dus eai leat geahčadangáibádusat. Sáhtát diŋgot dokumeanttaid ohcansiiddus dahje dokumeantačájeheamis.",
+      "deleteError": "Ii lihkostuvvan sihkkut geahčadangáibádusa. Geahččal ođđasit.",
+      "loadError": "Ii lihkostuvvan viežžat du geahčadangáibádusaid. Geahččal ođđasit maŋŋelaš."
+    },
+    "savedCasesPage": {
+      "description": "Dás gávnnat áššiid maid leat vurken. Go diŋgot ášši, de oaččut dieđu e-poasttain go dasa almmuhuvvo juoga ođđa.",
+      "subscribe": "Diŋgo ášši",
+      "empty": "Dus eai leat vurkon áššit.",
+      "deleteError": "Ii lihkostuvvan sihkkut ášši. Geahččal ođđasit.",
+      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
+      "loadError": "Ii lihkostuvvan viežžat vurkon áššiid. Geahččal ođđasit maŋŋelaš."
+    },
     "profilePage": {
       "title": "Profiladieđut",
       "description": "Hálddaš sisačálgama ja kontoat.",

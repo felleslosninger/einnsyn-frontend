@@ -1,3 +1,1 @@
-export default function SavedCasesPage() {
-  return null;
-}
+export { default } from '~/features/bruker/saved-cases/SavedCases';
