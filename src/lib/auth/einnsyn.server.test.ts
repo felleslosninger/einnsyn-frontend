@@ -44,8 +44,19 @@ function respondWith(response: () => Promise<Response>) {
   };
 }
 
-const tokens = (expiresIn = 3600) =>
-  Response.json({ token: 'access-2', refreshToken: 'refresh-2', expiresIn });
+// Unsigned: the frontend only reads the claims.
+const jwt = (claims: object) =>
+  `header.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.signature`;
+
+const refreshExpiresAt = 2_000_000_000;
+const refreshToken = jwt({ exp: refreshExpiresAt });
+
+const tokens = (expiresIn = 3600, refreshTokenValue = refreshToken) =>
+  Response.json({
+    token: 'access-2',
+    refreshToken: refreshTokenValue,
+    expiresIn,
+  });
 
 const nowInSeconds = () => Math.round(Date.now() / 1000);
 
@@ -78,9 +89,19 @@ describe('attemptTokenRefresh', () => {
       authProvider: 'eInnsyn',
       authTimestamp: 1234,
       accessToken: 'access-2',
-      refreshToken: 'refresh-2',
+      refreshToken,
+      refreshExpiresAt,
     });
     assert.ok(Math.abs((expiresAt ?? 0) - (nowInSeconds() + 1800)) <= 1);
+  });
+
+  test('a refresh token without a readable expiry leaves it unknown', async () => {
+    respondWith(async () => tokens(1800, 'opaque'));
+
+    await einnsyn.attemptTokenRefresh('refresh-1');
+
+    assert.equal(storedAuth.refreshToken, 'opaque');
+    assert.equal(storedAuth.refreshExpiresAt, undefined);
   });
 
   test('a rejected refresh token ends the session', async () => {
@@ -124,7 +145,7 @@ describe('attemptTokenRefresh', () => {
 });
 
 describe('eInnsynLogin', () => {
-  test('stores when the access token expires', async () => {
+  test('stores when both tokens expire', async () => {
     storedAuth = {};
     respondWith(async () => tokens(3600));
     const formData = new FormData();
@@ -137,5 +158,6 @@ describe('eInnsynLogin', () => {
     assert.ok(
       Math.abs((storedAuth.expiresAt ?? 0) - (nowInSeconds() + 3600)) <= 1,
     );
+    assert.equal(storedAuth.refreshExpiresAt, refreshExpiresAt);
   });
 });

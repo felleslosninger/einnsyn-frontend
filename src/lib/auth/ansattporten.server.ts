@@ -3,7 +3,6 @@ import 'server-only';
 import { redirect } from 'next/navigation';
 import * as oidc from 'openid-client';
 import {
-  type CookieSettings,
   deleteCookie,
   getCookie,
   updateCookie,
@@ -271,28 +270,23 @@ async function updateAuthWithTokens(
     throw new Error('Authentication failed: No access_token received.');
   }
 
-  // Set cookie's maxAge to the refresh token's expires_in value
-  const cookieSettings: Partial<CookieSettings> = {};
   const refreshTokenExpiresIn =
     typeof tokens.refresh_token_expires_in === 'number'
       ? tokens.refresh_token_expires_in
       : undefined;
-  if (refreshTokenExpiresIn) {
-    cookieSettings.maxAge = refreshTokenExpiresIn;
-  }
 
   // Update auth cookie with the new tokens
-  await updateAuth(
-    {
-      authTimestamp: timestamp ?? (await getAuth()).authTimestamp,
-      authProvider: 'ansattporten',
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt:
-        tokens.expires_in === undefined
-          ? undefined
-          : Math.round((Date.now() + tokens.expires_in * 1000) / 1000),
-    },
-    cookieSettings,
-  );
+  await updateAuth({
+    authTimestamp: timestamp ?? (await getAuth()).authTimestamp,
+    authProvider: 'ansattporten',
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresAt:
+      tokens.expires_in === undefined
+        ? undefined
+        : Math.round((Date.now() + tokens.expires_in * 1000) / 1000),
+    refreshExpiresAt: refreshTokenExpiresIn
+      ? Math.round(Date.now() / 1000) + refreshTokenExpiresIn
+      : undefined,
+  });
 }

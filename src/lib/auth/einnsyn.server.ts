@@ -35,6 +35,21 @@ const isApiTokenResponse = (
 const toExpiresAt = (expiresIn: number) =>
   Math.round(Date.now() / 1000) + expiresIn;
 
+/**
+ * The token response doesn't say when the refresh token expires, so read its
+ * `exp` claim. Unverified, which is fine for setting our own cookie's lifetime.
+ */
+const readJwtExpiry = (jwt: string): number | undefined => {
+  try {
+    const { exp } = JSON.parse(
+      Buffer.from(jwt.split('.')[1] ?? '', 'base64url').toString(),
+    );
+    return typeof exp === 'number' ? exp : undefined;
+  } catch (_error) {
+    return undefined;
+  }
+};
+
 export const eInnsynLogin = async (
   prevState: LoginState,
   formData: FormData,
@@ -83,6 +98,7 @@ export const eInnsynLogin = async (
         accessToken: responseData.token,
         refreshToken: responseData.refreshToken,
         expiresAt: toExpiresAt(responseData.expiresIn),
+        refreshExpiresAt: readJwtExpiry(responseData.refreshToken),
       });
       return {
         ...prevState,
@@ -147,6 +163,7 @@ export const attemptTokenRefresh = async (
       accessToken: responseData.token,
       refreshToken: responseData.refreshToken,
       expiresAt: toExpiresAt(responseData.expiresIn),
+      refreshExpiresAt: readJwtExpiry(responseData.refreshToken),
     });
     return;
   }

@@ -5,7 +5,7 @@ import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './ansattporten.server';
 import type { ExtendedAuthInfo } from './auth';
-import { deleteAuth, getAuth } from './authCookie.server';
+import { deleteAuth, getAuth, maybeRenewAuth } from './authCookie.server';
 import * as einnsyn from './einnsyn.server';
 
 export const cachedAuthInfo = cache(getAuthInfo);
@@ -35,7 +35,8 @@ export async function getAuthInfo() {
 }
 
 /**
- * Update the access token if it is expired or nearing expiry.
+ * Update the access token if it is expired or nearing expiry, and renew the
+ * auth cookie while the session is in use.
  */
 export const maybeRefreshToken = async (): Promise<void> => {
   const authSession = await getAuth();
@@ -51,6 +52,7 @@ export const maybeRefreshToken = async (): Promise<void> => {
     authSession.expiresAt &&
     authSession.expiresAt > nowInSeconds + 10 // 10 seconds buffer
   ) {
+    await maybeRenewAuth(authSession);
     return;
   }
 
