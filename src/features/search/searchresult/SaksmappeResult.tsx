@@ -32,9 +32,11 @@ export const getSaksmappeHref = (
 export default function SaksmappeResult({
   className,
   item,
+  titleId,
 }: {
   className?: string;
   item: Saksmappe;
+  titleId?: string;
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
@@ -44,7 +46,7 @@ export default function SaksmappeResult({
   return (
     <div className={cn(className, styles.searchResult, 'saksmappe-result')}>
       <EinLink href={saksmappeHref}>
-        <h2 className="ds-heading" data-size="sm">
+        <h2 id={titleId} className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>

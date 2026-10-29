@@ -9,7 +9,6 @@ import {
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import { usePaginatedList } from '~/features/bruker/usePaginatedList';
 import { useTranslation } from '~/hooks/useTranslation';
-import type { LagretSakVariant } from './LagretSakVariantToggle';
 import { SavedCaseItem } from './SavedCaseItem';
 import { SavedCasesListSkeleton } from './SavedCaseItemSkeleton';
 import styles from './SavedCases.module.scss';
@@ -21,7 +20,6 @@ export default function SavedCasesList({
 }) {
   const t = useTranslation();
   const { page, loadNextPage, removeItem } = usePaginatedList(initialPage);
-  const variant: LagretSakVariant = 'search';
 
   // Saved meetings come from the same list, and are shown on their own page.
   const savedCases = page.items.filter((item) => isSaksmappe(item.saksmappe));
@@ -37,7 +35,6 @@ export default function SavedCasesList({
           <SavedCaseItem
             key={savedCase.id}
             savedCase={savedCase}
-            variant={variant}
             onDelete={removeItem}
           />
         ))}

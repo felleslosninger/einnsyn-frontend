@@ -21,9 +21,9 @@ export async function listInnsynskrav(): Promise<PaginatedList<Innsynskrav> | nu
     // bruker id is already part of the path.
     return await api.bruker.listInnsynskrav(authInfo.id, {
       expand: [
-        'enhet',
         'journalpost.saksmappe',
         'journalpost.administrativEnhetObjekt',
+        'journalpost.korrespondansepart',
       ],
       sortOrder: 'desc',
     } as ListByBrukerParameters);

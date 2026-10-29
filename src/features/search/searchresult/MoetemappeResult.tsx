@@ -12,9 +12,11 @@ import styles from './searchResultStyles.module.scss';
 export default function MoetemappeResult({
   className,
   item,
+  titleId,
 }: {
   className?: string;
   item: Moetemappe;
+  titleId?: string;
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
@@ -26,7 +28,7 @@ export default function MoetemappeResult({
   return (
     <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
       <EinLink href="">
-        <h2 className="ds-heading" data-size="sm">
+        <h2 id={titleId} className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
       </EinLink>

@@ -22,9 +22,11 @@ function getSaksnummer(item: Journalpost): string | null {
 export default function JournalpostResult({
   className,
   item,
+  titleId,
 }: {
   className?: string;
   item: Journalpost;
+  titleId?: string;
 }) {
   const translate = useTranslation();
   const languageCode = useLanguageCode();
@@ -36,7 +38,9 @@ export default function JournalpostResult({
   return (
     <div className={cn(className, styles.searchResult, 'journalpost-result')}>
       <EinLink href="">
-        <h2 className="ds-heading">{item.offentligTittel}</h2>
+        <h2 id={titleId} className="ds-heading">
+          {item.offentligTittel}
+        </h2>
       </EinLink>
       <div className={cn('ds-paragraph', styles.searchResultBody)}>
         <SearchResultSubheader

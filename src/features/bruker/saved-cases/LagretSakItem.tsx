@@ -3,31 +3,26 @@
 import { Switch, ValidationMessage } from '@digdir/designsystemet-react';
 import type { LagretSak } from '@digdir/einnsyn-sdk';
 import { TrashIcon } from '@navikt/aksel-icons';
-import { useId, useRef, useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
-import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
 import { deleteLagretSak, setLagretSakSubscription } from './lagretSak.actions';
 import styles from './SavedCases.module.scss';
 
 export function LagretSakItem({
   lagretSak,
-  href,
-  title,
+  titleId,
   translationKey,
   onDelete,
   children,
 }: {
   lagretSak: LagretSak;
-  href: string;
-  title: string;
+  titleId: string;
   translationKey: 'savedCasesPage' | 'savedMeetingsPage';
   onDelete: (id: string) => void;
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }) {
   const t = useTranslation();
-  const titleId = useId();
   const [subscribe, setSubscribe] = useState(lagretSak.subscribe ?? false);
   const [error, setError] = useState<string>();
   const [, startSubscribeTransition] = useTransition();
@@ -74,16 +69,7 @@ export function LagretSakItem({
   return (
     <li className={styles.item}>
       <div className={styles.row}>
-        <div className={styles.main}>
-          <EinLink
-            id={titleId}
-            href={href}
-            className={cn('ds-heading', styles.title)}
-          >
-            {title}
-          </EinLink>
-          {children}
-        </div>
+        <div className={styles.main}>{children}</div>
         <div className={styles.actions}>
           <Switch
             data-size="sm"

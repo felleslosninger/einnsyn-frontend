@@ -13,7 +13,7 @@ import SavedMeetingsList from './SavedMeetingsList';
 
 async function SavedMeetingsContent() {
   const [initialPage, t] = await Promise.all([
-    listLagretSak(['moetemappe.utvalgObjekt.parent.parent.parent.parent']),
+    listLagretSak(['moetemappe.utvalgObjekt']),
     getTranslator(),
   ]);
 
