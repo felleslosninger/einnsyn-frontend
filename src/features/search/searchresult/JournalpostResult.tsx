@@ -1,9 +1,4 @@
-import {
-  isDokumentbeskrivelse,
-  isDokumentobjekt,
-  isEnhet,
-  type Journalpost,
-} from '@digdir/einnsyn-sdk';
+import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useSearchHref } from '~/hooks/useSearchHref';
