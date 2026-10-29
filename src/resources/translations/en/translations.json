@@ -75,6 +75,7 @@
     "button": "Search",
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
+    "clearEnhetSelection": "Clear selected organizations",
     "sortedBy": "Sorted by",
     "orderAccess": "Request access",
     "openDocument": "Open document",
@@ -262,6 +263,37 @@
     "savedCases": "Saved cases",
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
-    "profile": "Profile"
+    "profile": "Profile",
+    "profilePage": {
+      "title": "Profile information",
+      "description": "Manage your login and account.",
+      "login": "Login",
+      "newEmail": "New email",
+      "changeEmailSuccess": "Email address updated",
+      "saveEmailChanges": "Save new email",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "changePasswordSuccess": "Password updated",
+      "savePasswordChanges": "Save new password",
+      "deleteAccount": "Delete account",
+      "deleteAccountDescription": "This permanently deletes your account. All access requests, saved cases, and saved searches will be deleted and cannot be recovered.",
+      "deleteAccountConfirm": "Are you sure you want to delete your account? This cannot be undone.",
+      "deleteAccountSubmit": "Delete my account",
+      "deleteAccountCancel": "Keep my account",
+      "errors": {
+        "invalidEmail": "Email address is invalid",
+        "invalidPassword": "Password must be at least 8 characters and contain uppercase and lowercase letters plus a number or special character",
+        "wrongPassword": "Current password is incorrect",
+        "authenticationError": "Your session has expired. Please log in again",
+        "authorizationError": "You do not have access",
+        "badRequest": "Invalid request",
+        "notFound": "User not found",
+        "internalServerError": "A server error occurred. Please try again later",
+        "tooManyRequests": "Too many attempts. Please try again in a moment",
+        "passwordMismatch": "Passwords do not match",
+        "missingFields": "Please fill in all fields"
+      }
+    }
   }
 }

@@ -1,0 +1,29 @@
+@use "../../styles/effects" as fx;
+
+.expandable {
+  // Set `--ein-expandable-duration` on the panel or an ancestor to change it
+  $duration: var(--ein-expandable-duration, #{fx.$transitionDuration});
+
+  display: grid;
+  // Zero minimums: the row closes past the content's padding and borders, and
+  // the column stays as wide as the panel
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  // Content keeps its height and is cut off from below
+  align-items: start;
+  transition:
+    grid-template-rows $duration fx.$easeOut,
+    margin-block $duration fx.$easeOut,
+    opacity $duration linear,
+    overflow 0s $duration allow-discrete;
+
+  &[inert] {
+    grid-template-rows: minmax(0, 0fr);
+    margin-block: 0;
+    opacity: 0;
+    contain: inline-size;
+    overflow: clip;
+    // Only "overflow" has a delay
+    transition-delay: 0s;
+  }
+}
