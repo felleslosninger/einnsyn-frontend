@@ -115,10 +115,10 @@ function SaveSearchForm() {
         label={t('search.saveSearchName')}
         maxLength={255}
         autoComplete="off"
+        autoFocus
         required
         defaultValue={state.label}
         errorMessage={labelError}
-        aria-invalid={labelError ? true : undefined}
         fullWidth
       />
       <Checkbox

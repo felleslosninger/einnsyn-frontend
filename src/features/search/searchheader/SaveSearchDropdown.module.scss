@@ -19,10 +19,6 @@
   flex-direction: column;
   gap: var(--ein-half-vertical-spacing);
   padding: var(--ein-half-vertical-spacing) var(--ein-half-horizontal-spacing);
-
-  :global(.ein-button[type='submit']:hover) {
-    background-color: var(--ds-color-accent-base-hover);
-  }
 }
 
 .saveSearchLoginPrompt {
