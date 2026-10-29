@@ -112,7 +112,7 @@ describe('updateAuth', () => {
   });
 });
 
-describe('maybeRenewAuth', () => {
+describe('maybeRenewAuthCookie', () => {
   for (const [name, renewedAt] of [
     ['over a minute ago', now - 61],
     ['at an unknown time', undefined],
@@ -120,7 +120,7 @@ describe('maybeRenewAuth', () => {
     test(`renews a session with an idle timeout written ${name}`, async () => {
       settings = { stayLoggedIn: false };
 
-      await authCookie.maybeRenewAuth(session('eInnsyn', { renewedAt }));
+      await authCookie.maybeRenewAuthCookie(session('eInnsyn', { renewedAt }));
 
       assert.deepEqual(
         written.map((cookie) => [cookie.name, cookie.maxAge]),
@@ -135,7 +135,7 @@ describe('maybeRenewAuth', () => {
   test('leaves a session written within the last minute', async () => {
     settings = { stayLoggedIn: false };
 
-    await authCookie.maybeRenewAuth(
+    await authCookie.maybeRenewAuthCookie(
       session('eInnsyn', { renewedAt: now - 30 }),
     );
 
@@ -149,7 +149,7 @@ describe('maybeRenewAuth', () => {
     test(`leaves ${name}, which only a refresh extends`, async () => {
       settings = { stayLoggedIn };
 
-      await authCookie.maybeRenewAuth(
+      await authCookie.maybeRenewAuthCookie(
         session(provider, {
           refreshExpiresAt: inTwoHours,
           renewedAt: now - 61,

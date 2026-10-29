@@ -5,7 +5,7 @@ import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 import * as ansattporten from './ansattporten.server';
 import type { ExtendedAuthInfo } from './auth';
-import { deleteAuth, getAuth, maybeRenewAuth } from './authCookie.server';
+import { deleteAuth, getAuth, maybeRenewAuthCookie } from './authCookie.server';
 import * as einnsyn from './einnsyn.server';
 
 export const cachedAuthInfo = cache(getAuthInfo);
@@ -52,7 +52,7 @@ export const maybeRefreshToken = async (): Promise<void> => {
     authSession.expiresAt &&
     authSession.expiresAt > nowInSeconds + 10 // 10 seconds buffer
   ) {
-    await maybeRenewAuth(authSession);
+    await maybeRenewAuthCookie(authSession);
     return;
   }
 

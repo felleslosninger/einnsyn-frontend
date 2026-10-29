@@ -69,7 +69,7 @@ export const updateAuth = async (authContent: Auth) => {
  * Restart the lifetime of a session with an idle timeout while it is in use,
  * so it runs from the last request rather than from login.
  */
-export const maybeRenewAuth = async (auth: Auth): Promise<void> => {
+export const maybeRenewAuthCookie = async (auth: Auth): Promise<void> => {
   const nowInSeconds = Math.round(Date.now() / 1000);
   if (auth.renewedAt && auth.renewedAt > nowInSeconds - RENEWAL_INTERVAL) {
     return;
