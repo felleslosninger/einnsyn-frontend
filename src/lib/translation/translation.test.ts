@@ -7,7 +7,7 @@ describe('translation', () => {
   describe('resolveLanguageCode', () => {
     test('*', () => {
       const result = resolveLanguageCode('*', ['en', 'nb', 'nn', 'se']);
-      assert.strictEqual(result, 'en');
+      assert.strictEqual(result, undefined);
     });
 
     test('without q, no supported languages list', () => {
@@ -66,12 +66,15 @@ describe('translation', () => {
     test('never returns an unsupported language', () => {
       assert.strictEqual(
         resolveLanguageCode('de-DE,de;q=0.9', supportedLanguages),
-        'nb',
+        undefined,
       );
     });
 
-    test('falls back to bokmål for an empty header', () => {
-      assert.strictEqual(resolveLanguageCode('', supportedLanguages), 'nb');
+    test('names no language for an empty header', () => {
+      assert.strictEqual(
+        resolveLanguageCode('', supportedLanguages),
+        undefined,
+      );
     });
   });
 });

@@ -1,3 +1,9 @@
+import { translatedTitleMetadata } from '~/lib/utils/translatedTitleMetadata.server';
+
+export const generateMetadata = translatedTitleMetadata(
+  'admin.organization.labelPlural',
+);
+
 export default function OrganizationHierarchy() {
   return <></>;
 }

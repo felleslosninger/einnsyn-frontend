@@ -9,6 +9,7 @@ import {
   parsePathname,
   type Route,
   routeRewrites,
+  translatePathname,
 } from './pathname';
 
 describe('parsePathname', () => {
@@ -168,6 +169,81 @@ describe('buildPathname', () => {
       for (const route of routes) {
         const href = buildPathname(route, languageCode);
         assert.deepEqual(parsePathname(href), route, `${languageCode} ${href}`);
+      }
+    }
+  });
+});
+
+describe('translatePathname', () => {
+  it('respells a root page from any language, encoding or case', () => {
+    for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
+      assert.equal(translatePathname(path, 'nb'), '/s%C3%B8k', path);
+    }
+    assert.equal(translatePathname('/about', 'nb'), '/om');
+    assert.equal(translatePathname('/om', 'en'), '/about');
+  });
+
+  it('keeps everything below a root page', () => {
+    assert.equal(
+      translatePathname('/bruker/saved-cases', 'nb'),
+      '/bruker/saved-cases',
+    );
+    assert.equal(translatePathname('/search/a/b', 'nb'), '/s%C3%B8k/a/b');
+  });
+
+  it('respells a mappe and keeps its identifiers as they are', () => {
+    assert.equal(
+      translatePathname('/oslo/case/sm_1/jp_1', 'nb'),
+      '/oslo/sak/sm_1/jp_1',
+    );
+    assert.equal(
+      translatePathname('/OSLO/%C3%A1%C5%A1%C5%A1i/SM_1', 'nb'),
+      '/OSLO/sak/SM_1',
+    );
+    assert.equal(
+      translatePathname('/oslo/moete/mm_1', 'en'),
+      '/oslo/meeting/mm_1',
+    );
+  });
+
+  it('keeps paths without a fixed segment', () => {
+    assert.equal(translatePathname('/', 'nb'), '/');
+    assert.equal(translatePathname('', 'nb'), '/');
+    assert.equal(translatePathname('/oslo', 'nb'), '/oslo');
+    assert.equal(translatePathname('/oslo/unknown/x', 'en'), '/oslo/unknown/x');
+  });
+
+  it('encodes like buildPathname', () => {
+    assert.equal(translatePathname('/trøndelag', 'nb'), '/tr%C3%B8ndelag');
+    assert.equal(translatePathname('/tr%c3%b8ndelag', 'nb'), '/tr%C3%B8ndelag');
+    assert.equal(
+      translatePathname('/oslo/sak/A%2FB', 'en'),
+      '/oslo/case/A%2FB',
+    );
+  });
+
+  it('agrees with buildPathname between every pair of languages', () => {
+    const routes: Route[] = [
+      { page: 'home' },
+      { page: 'search' },
+      { page: 'privacy' },
+      { enhetIdentifier: 'trøndelag' },
+      { enhetIdentifier: 'oslo', saksmappeIdentifier: 'a/b' },
+      {
+        enhetIdentifier: 'oslo',
+        moetemappeIdentifier: 'mm_1',
+        moetesakIdentifier: 'ms_1',
+      },
+    ];
+    for (const from of supportedLanguages) {
+      for (const to of supportedLanguages) {
+        for (const route of routes) {
+          assert.equal(
+            translatePathname(buildPathname(route, from), to),
+            buildPathname(route, to),
+            `${from} → ${to} ${buildPathname(route, from)}`,
+          );
+        }
       }
     }
   });

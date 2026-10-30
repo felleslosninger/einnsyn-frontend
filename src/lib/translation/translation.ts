@@ -16,6 +16,9 @@ const languageData: LanguageData = {
 export const supportedLanguages = ['nb', 'nn', 'en', 'se'] as const;
 export type LanguageCode = (typeof supportedLanguages)[number];
 
+/** For browsers that ask for no supported language, and canonical URLs. */
+export const defaultLanguage: LanguageCode = 'nn';
+
 /**
  *
  * @param fullKey Colon- or dot-separated key
@@ -66,12 +69,12 @@ export const getTranslateFunction =
  *
  * @param s Accept-Language string
  * @param acceptedLanguages optional array of accepted languages
- * @returns the preferred language code
+ * @returns the preferred language code, or undefined if none is accepted
  */
 export function resolveLanguageCode<
   T extends readonly string[] = LanguageCode[],
 >(s = '', acceptedLanguages: readonly T[number][] = []): T[number] | undefined {
-  let bestLanguage = acceptedLanguages?.[0];
+  let bestLanguage: T[number] | undefined;
   let bestQuality = 0;
   const languages = s.split(',');
   for (const language of languages) {

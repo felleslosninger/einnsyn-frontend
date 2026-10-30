@@ -186,6 +186,39 @@ export function buildPathname(
 }
 
 /**
+ * The pathname with its fixed segment in the given language, encoded like
+ * `buildPathname`. Identifiers, and anything below a root page or an unknown
+ * segment, keep their spelling and case.
+ */
+export function translatePathname(
+  pathname: string,
+  languageCode: LanguageCode,
+): string {
+  const segments = pathSegments(pathname);
+  const [first] = segments;
+
+  // Root pages are spelled by the first segment, enhet and mappe pages by the
+  // second.
+  const isRootPage =
+    first !== undefined && ROOT_FOLDERS.has(normalizeSegment(first));
+  const index = isRootPage ? 0 : 1;
+  const match =
+    segments[index] === undefined
+      ? undefined
+      : (isRootPage ? ROOT_FOLDERS : ENHET_FOLDERS).get(
+          normalizeSegment(segments[index]),
+        );
+
+  const decoded = segments.map(decodeSegment);
+  if (match !== undefined) {
+    decoded[index] =
+      ROUTING[languageCode][match.level][match.folder] ?? match.folder;
+  }
+
+  return `/${decoded.map(encodeURIComponent).join('/')}`;
+}
+
+/**
  * Rewrites from every translated spelling to the route folder, for
  * next.config.ts. Without them a translated path falls through to `[enhet]`.
  */

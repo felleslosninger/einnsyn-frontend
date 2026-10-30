@@ -14,6 +14,8 @@
     "invalidUsernameOrPassword": "Invalid username or password",
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
+    "notFound": "Page not found",
+    "description": "Search public mail records and meeting documents from state, municipal and county bodies, and request access to the documents.",
     "closeModal": "Close modal",
     "done": "Done",
     "language": "Language",
