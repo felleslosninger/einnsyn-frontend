@@ -32,7 +32,8 @@ const refreshTokenLifetime = (auth: Auth) => ({
 });
 
 const getLifetime = (auth: Auth, stayLoggedIn: boolean) => {
-  // "Stay logged in" is only offered for eInnsyn logins
+  // Ansattporten always lasts as long as its refresh token: the "stay logged
+  // in" setting comes from the eInnsyn login form and doesn't apply here
   if (auth.authProvider === 'ansattporten') {
     return refreshTokenLifetime(auth);
   }

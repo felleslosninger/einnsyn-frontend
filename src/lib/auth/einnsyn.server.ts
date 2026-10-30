@@ -37,7 +37,8 @@ const toExpiresAt = (expiresIn: number) =>
 
 /**
  * The token response doesn't say when the refresh token expires, so read its
- * `exp` claim. Unverified, which is fine for setting our own cookie's lifetime.
+ * `exp` claim. No need to verify the JWT signature, since we only use it to set
+ * our own cookie's lifetime.
  */
 const readJwtExpiry = (jwt: string): number | undefined => {
   try {
