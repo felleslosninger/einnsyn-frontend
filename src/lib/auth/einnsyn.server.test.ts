@@ -3,122 +3,135 @@ import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import type { Auth } from './auth';
 
-const moduleUrl = (path: string) => pathToFileURL(path).href;
+const toModuleUrl = (modulePath: string) => pathToFileURL(modulePath).href;
 
-let storedAuth: Partial<Auth> = {};
-const updateAuth = mock.fn(async (auth: Auth) => {
-  storedAuth = auth;
+let storedAuthSession: Partial<Auth> = {};
+const updateAuthMock = mock.fn(async (authSession: Auth) => {
+  storedAuthSession = authSession;
 });
-const deleteAuth = mock.fn(async () => {
-  storedAuth = {};
+const deleteAuthMock = mock.fn(async () => {
+  storedAuthSession = {};
 });
 
 // The real cookie helpers need a Next.js request scope.
-mock.module(moduleUrl('src/lib/auth/authCookie.server.ts'), {
-  namedExports: { getAuth: async () => storedAuth, updateAuth, deleteAuth },
+mock.module(toModuleUrl('src/lib/auth/authCookie.server.ts'), {
+  namedExports: {
+    getAuth: async () => storedAuthSession,
+    updateAuth: updateAuthMock,
+    deleteAuth: deleteAuthMock,
+  },
 });
-mock.module(moduleUrl('src/lib/settings/settings.server.ts'), {
+mock.module(toModuleUrl('src/lib/settings/settings.server.ts'), {
   namedExports: {
     getSettings: async () => ({}),
     updateSettings: async () => {},
   },
 });
-mock.module(moduleUrl('src/lib/utils/logger.ts'), {
+mock.module(toModuleUrl('src/lib/utils/logger.ts'), {
   namedExports: {
     logger: { debug: () => {}, error: () => {}, warn: () => {} },
   },
 });
 
-let einnsyn: typeof import('./einnsyn.server');
+let einnsynAuth: typeof import('./einnsyn.server');
 before(async () => {
-  einnsyn = await import('./einnsyn.server');
+  einnsynAuth = await import('./einnsyn.server');
 });
 
-const realFetch = globalThis.fetch;
-let requests: unknown[] = [];
+const originalFetch = globalThis.fetch;
+let requestBodies: unknown[] = [];
 
-function respondWith(response: () => Promise<Response>) {
-  globalThis.fetch = async (_url, init) => {
-    requests.push(JSON.parse(String(init?.body)));
-    return response();
+function mockFetchResponse(createResponse: () => Promise<Response>) {
+  globalThis.fetch = async (_requestUrl, requestOptions) => {
+    requestBodies.push(JSON.parse(String(requestOptions?.body)));
+    return createResponse();
   };
 }
 
 // Unsigned: the frontend only reads the claims.
-const jwt = (claims: object) =>
+const createUnsignedJwt = (claims: object) =>
   `header.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.signature`;
 
-const refreshExpiresAt = 2_000_000_000;
-const refreshToken = jwt({ exp: refreshExpiresAt });
+const refreshTokenExpiresAt = 2_000_000_000;
+const issuedRefreshToken = createUnsignedJwt({ exp: refreshTokenExpiresAt });
 
-const tokens = (expiresIn = 3600, refreshTokenValue = refreshToken) =>
+const createTokenResponse = (
+  accessTokenLifetimeSeconds = 3600,
+  responseRefreshToken = issuedRefreshToken,
+) =>
   Response.json({
     token: 'access-2',
-    refreshToken: refreshTokenValue,
-    expiresIn,
+    refreshToken: responseRefreshToken,
+    expiresIn: accessTokenLifetimeSeconds,
   });
 
-const nowInSeconds = () => Math.round(Date.now() / 1000);
+const currentTimeInSeconds = () => Math.round(Date.now() / 1000);
 
 beforeEach(() => {
-  storedAuth = {
+  storedAuthSession = {
     authProvider: 'eInnsyn',
     authTimestamp: 1234,
     accessToken: 'access-1',
     refreshToken: 'refresh-1',
   };
-  requests = [];
-  updateAuth.mock.resetCalls();
-  deleteAuth.mock.resetCalls();
+  requestBodies = [];
+  updateAuthMock.mock.resetCalls();
+  deleteAuthMock.mock.resetCalls();
 });
 
 afterEach(() => {
-  globalThis.fetch = realFetch;
+  globalThis.fetch = originalFetch;
 });
 
 describe('attemptTokenRefresh', () => {
   test('stores the new pair and keeps the login timestamp', async () => {
-    respondWith(async () => tokens(1800));
+    mockFetchResponse(async () => createTokenResponse(1800));
 
-    await einnsyn.attemptTokenRefresh('refresh-1');
+    await einnsynAuth.attemptTokenRefresh('refresh-1');
 
-    assert.deepEqual(requests, [{ refreshToken: 'refresh-1' }]);
-    assert.equal(deleteAuth.mock.callCount(), 0);
-    const { expiresAt, ...rest } = storedAuth;
-    assert.deepEqual(rest, {
+    assert.deepEqual(requestBodies, [{ refreshToken: 'refresh-1' }]);
+    assert.equal(deleteAuthMock.mock.callCount(), 0);
+    const {
+      expiresAt: accessTokenExpiresAt,
+      ...authSessionWithoutAccessExpiry
+    } = storedAuthSession;
+    assert.deepEqual(authSessionWithoutAccessExpiry, {
       authProvider: 'eInnsyn',
       authTimestamp: 1234,
       accessToken: 'access-2',
-      refreshToken,
-      refreshExpiresAt,
+      refreshToken: issuedRefreshToken,
+      refreshExpiresAt: refreshTokenExpiresAt,
     });
-    assert.ok(Math.abs((expiresAt ?? 0) - (nowInSeconds() + 1800)) <= 1);
+    assert.ok(
+      Math.abs((accessTokenExpiresAt ?? 0) - (currentTimeInSeconds() + 1800)) <=
+        1,
+    );
   });
 
   test('a refresh token without a readable expiry leaves it unknown', async () => {
-    respondWith(async () => tokens(1800, 'opaque'));
+    mockFetchResponse(async () => createTokenResponse(1800, 'opaque'));
 
-    await einnsyn.attemptTokenRefresh('refresh-1');
+    await einnsynAuth.attemptTokenRefresh('refresh-1');
 
-    assert.equal(storedAuth.refreshToken, 'opaque');
-    assert.equal(storedAuth.refreshExpiresAt, undefined);
+    assert.equal(storedAuthSession.refreshToken, 'opaque');
+    assert.equal(storedAuthSession.refreshExpiresAt, undefined);
   });
 
   test('a rejected refresh token ends the session', async () => {
-    respondWith(async () =>
+    mockFetchResponse(async () =>
       Response.json(
         { type: 'authenticationError', message: 'Invalid refresh token' },
         { status: 401 },
       ),
     );
 
-    await einnsyn.attemptTokenRefresh('refresh-1');
+    await einnsynAuth.attemptTokenRefresh('refresh-1');
 
-    assert.equal(deleteAuth.mock.callCount(), 1);
-    assert.equal(updateAuth.mock.callCount(), 0);
+    assert.equal(deleteAuthMock.mock.callCount(), 1);
+    assert.equal(updateAuthMock.mock.callCount(), 0);
   });
 
-  for (const [name, response] of [
+  for (const [failureDescription, createResponse] of [
     [
       'an unreachable API',
       async () => Promise.reject(new TypeError('fetch failed')),
@@ -133,31 +146,33 @@ describe('attemptTokenRefresh', () => {
         Response.json({ type: 'internalServerError' }, { status: 500 }),
     ],
   ] as const) {
-    test(`${name} keeps the session for the next request to retry`, async () => {
-      respondWith(response);
+    test(`${failureDescription} keeps the session for the next request to retry`, async () => {
+      mockFetchResponse(createResponse);
 
-      await einnsyn.attemptTokenRefresh('refresh-1');
+      await einnsynAuth.attemptTokenRefresh('refresh-1');
 
-      assert.equal(deleteAuth.mock.callCount(), 0);
-      assert.equal(updateAuth.mock.callCount(), 0);
+      assert.equal(deleteAuthMock.mock.callCount(), 0);
+      assert.equal(updateAuthMock.mock.callCount(), 0);
     });
   }
 });
 
 describe('eInnsynLogin', () => {
   test('stores when both tokens expire', async () => {
-    storedAuth = {};
-    respondWith(async () => tokens(3600));
-    const formData = new FormData();
-    formData.set('username', 'user@example.no');
-    formData.set('password', 'secret');
+    storedAuthSession = {};
+    mockFetchResponse(async () => createTokenResponse(3600));
+    const loginFormData = new FormData();
+    loginFormData.set('username', 'user@example.no');
+    loginFormData.set('password', 'secret');
 
-    const { success } = await einnsyn.eInnsynLogin({}, formData);
+    const { success } = await einnsynAuth.eInnsynLogin({}, loginFormData);
     assert.equal(success, true);
 
     assert.ok(
-      Math.abs((storedAuth.expiresAt ?? 0) - (nowInSeconds() + 3600)) <= 1,
+      Math.abs(
+        (storedAuthSession.expiresAt ?? 0) - (currentTimeInSeconds() + 3600),
+      ) <= 1,
     );
-    assert.equal(storedAuth.refreshExpiresAt, refreshExpiresAt);
+    assert.equal(storedAuthSession.refreshExpiresAt, refreshTokenExpiresAt);
   });
 });
