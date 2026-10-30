@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
 import {
+  needsQuotes,
   type SearchToken,
   searchQueryToTokens,
   tokensToSearchQuery,
@@ -235,6 +236,37 @@ describe('tokensToSearchQuery', () => {
       { value: 'bar"baz', quoted: true },
     ]);
     assert.strictEqual(result, 'foo "bar\\"baz"');
+  });
+});
+
+describe('needsQuotes', () => {
+  test('values with spaces need quotes', () => {
+    assert.strictEqual(needsQuotes('Oslo kommune'), true);
+  });
+
+  test('values without spaces do not need quotes', () => {
+    assert.strictEqual(needsQuotes('Oslo'), false);
+  });
+
+  test('a quoted value with spaces stays one token', () => {
+    const query = tokensToSearchQuery([
+      {
+        prefix: 'enhet',
+        value: 'Oslo kommune',
+        quoted: needsQuotes('Oslo kommune'),
+      },
+    ]);
+    assert.strictEqual(query, 'enhet:"Oslo kommune"');
+    assert.deepStrictEqual(searchQueryToTokens(query), [
+      t({ prefix: 'enhet', value: 'Oslo kommune', quoted: true }),
+    ]);
+  });
+
+  test('a value without spaces stays unquoted', () => {
+    const query = tokensToSearchQuery([
+      { prefix: 'enhet', value: 'Oslo', quoted: needsQuotes('Oslo') },
+    ]);
+    assert.strictEqual(query, 'enhet:Oslo');
   });
 });
 

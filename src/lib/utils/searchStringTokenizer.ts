@@ -139,6 +139,11 @@ export function searchQueryToTokens(
   return tokens;
 }
 
+/** Values with spaces must be quoted, or they are split into several tokens. */
+export function needsQuotes(value: string): boolean {
+  return value.includes(' ');
+}
+
 /**
  * Convert a list of tokens to a query string.
  * @param tokens List of tokens

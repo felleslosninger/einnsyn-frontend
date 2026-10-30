@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSearchHref } from '~/hooks/useSearchHref';
 import {
+  needsQuotes,
   type SearchToken,
   searchQueryToTokens,
   tokensToSearchQuery,
@@ -87,13 +88,17 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         if (value === undefined || value === null) {
           newTokens.splice(tokenIndex, 1);
         } else {
-          newTokens[tokenIndex] = { ...newTokens[tokenIndex], value };
+          newTokens[tokenIndex] = {
+            ...newTokens[tokenIndex],
+            value,
+            quoted: newTokens[tokenIndex].quoted || needsQuotes(value),
+          };
         }
       } else if (value !== undefined && value !== null) {
         newTokens.push({
           prefix: property,
           value,
-          quoted: false, // TODO: Determine if quoting is needed
+          quoted: needsQuotes(value),
           sign: undefined,
           focused: false,
         });
