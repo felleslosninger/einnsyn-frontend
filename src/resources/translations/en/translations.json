@@ -264,6 +264,15 @@
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
     "profile": "Profile",
+    "savedSearchesPage": {
+      "description": "Here you find the searches you have saved. Subscribe to a search to be notified of new results.",
+      "notificationInfo": "Notifications are sent by email once a day, at 06:00.",
+      "subscribe": "Subscribe to search",
+      "empty": "You have no saved searches yet.",
+      "deleteError": "Could not delete the search. Please try again.",
+      "subscribeError": "Could not change the subscription. Please try again.",
+      "loadError": "Could not load your saved searches. Please try again later."
+    },
     "profilePage": {
       "title": "Profile information",
       "description": "Manage your login and account.",
