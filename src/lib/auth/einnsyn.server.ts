@@ -28,7 +28,7 @@ const isApiErrorResponse = (
 const isApiTokenResponse = (
   response: ApiErrorResponse | ApiTokenResponse,
 ): response is ApiTokenResponse => {
-  return (response as ApiTokenResponse).token !== undefined;
+  return (response as ApiTokenResponse)?.token !== undefined;
 };
 
 /** `expiresIn` is in seconds, as is `Auth.expiresAt`. */
