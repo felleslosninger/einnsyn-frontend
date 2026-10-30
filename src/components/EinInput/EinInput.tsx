@@ -3,6 +3,7 @@ import {
   Input,
   type InputProps,
   Label,
+  ValidationMessage,
 } from '@digdir/designsystemet-react';
 import {
   CheckmarkIcon,
@@ -105,7 +106,7 @@ export const EinInput = ({
         </Label>
       )}
       <Input {...props} ref={mergedRef} />
-      {errorMessage && <span>{errorMessage}</span>}
+      {errorMessage && <ValidationMessage>{errorMessage}</ValidationMessage>}
     </Field>
   );
 };
