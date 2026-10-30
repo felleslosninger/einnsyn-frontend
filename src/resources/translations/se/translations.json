@@ -75,6 +75,7 @@
     "button": "Oza",
     "placeholder": "Oza eInnsynas...",
     "clear": "Guoros ohcan",
+    "clearEnhetSelection": "Váldde eret válljejuvvon organisašuvnnaid",
     "sortedBy": "Lágiduvvon maŋŋil",
     "orderAccess": "Diŋgo geahčču",
     "openDocument": "Rahpat dokumeantta",
@@ -100,7 +101,15 @@
       "UTVALG": "Lávdegoddi",
       "VIRKSOMHET": "Organisašuvdna"
     },
-    "searchingIn": "Ohcamin"
+    "searchingIn": "Ohcamin",
+    "saveSearch": "Vurke ohcama",
+    "saveSearchName": "Ohcama namma",
+    "saveSearchSubscribe": "Dieđit munnje ođđa bohtosiid birra",
+    "saveSearchSubscribeDescription": "Mii sáddet dutnje e-poastta juohke iđit dii. 06:00 jos ohcamis leat ođđa bohtosat.",
+    "saveSearchSuccess": "Ohcan lea vurkejuvvon",
+    "saveSearchError": "Ii sáhttán vurket ohcama",
+    "saveSearchMissingLabel": "Atte ohcamii nama",
+    "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
   "routing": {
     "root": {
@@ -246,6 +255,37 @@
       "deleteError": "Ii lihkostuvvan sihkkut ohcama. Geahččal ođđasit.",
       "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
       "loadError": "Ii lihkostuvvan viežžat vurkon ohcamiid. Geahččal ođđasit maŋŋelaš."
+    },
+    "profilePage": {
+      "title": "Profiladieđut",
+      "description": "Hálddaš sisačálgama ja kontoat.",
+      "login": "Sisačálgan",
+      "newEmail": "Ođas e-poasta",
+      "changeEmailSuccess": "E-poastačujuhus lea ođastiuvvon",
+      "saveEmailChanges": "Vurket ođas e-poastačujuhusa",
+      "currentPassword": "Dálá sátnevuloš",
+      "newPassword": "Ođas sátnevuloš",
+      "confirmNewPassword": "Duođaš ođas sátnevuloš",
+      "changePasswordSuccess": "Sátnevuloš lea ođastiuvvon",
+      "savePasswordChanges": "Vurket ođas sátnevuloša",
+      "deleteAccount": "Sihko kontoa",
+      "deleteAccountDescription": "Dát sihkkut kontoain bissovaččat. Buot vuhtiiváldágoahtimat, vurkon ásaid ja vurkon ohcanat sihkkujuvvojit eikge sáhte máhcahuvvot.",
+      "deleteAccountConfirm": "Leat go sihkar go sihkkut kontoain? Dán ii sáhte rievdadit.",
+      "deleteAccountSubmit": "Sihko mu kontoa",
+      "deleteAccountCancel": "Doalat kontoain",
+      "errors": {
+        "invalidEmail": "E-poastačujuhus ii leat valid",
+        "invalidPassword": "Sátnevuloš ferte leat unnimus 8 mearka ja sisttisdoallat stuorra ja unna bustávaid ja lohkosa dahje specialmearkka",
+        "wrongPassword": "Dálá sátnevuloš ii leat riekta",
+        "authenticationError": "Seassun lea nohkan. Mana sisselogaide",
+        "authorizationError": "Dus ii leat vuoigatvuohta",
+        "badRequest": "Ii valid bivddu",
+        "notFound": "Geavaheaddji ii gávdno",
+        "internalServerError": "Serverfeapmi dáhpáhuvai. Geahččal fas maŋŋil",
+        "tooManyRequests": "Liiga máŋga geardde geahččalan. Geahččal fas veaháš maŋŋil",
+        "passwordMismatch": "Sátnevulošat eai leat seammaláganat",
+        "missingFields": "Deavt buot gáibáduvvon siidduid"
+      }
     }
   }
 }

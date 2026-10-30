@@ -36,18 +36,16 @@ const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
 export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const navigation = useNavigation();
   const searchHref = useSearchHref();
-  const optimisticSearchParams = navigation.optimisticSearchParams;
-  const [searchQuery, _setSearchQuery] = useState(
-    () => optimisticSearchParams.get('q') ?? '',
-  );
+  const urlSearchQuery = navigation.optimisticSearchParams.get('q') ?? '';
+  const [searchQuery, _setSearchQuery] = useState(urlSearchQuery);
 
   const searchTokens = useMemo(
     () => searchQueryToTokens(searchQuery),
     [searchQuery],
   );
   useEffect(() => {
-    _setSearchQuery(optimisticSearchParams.get('q') ?? '');
-  }, [optimisticSearchParams]);
+    _setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
   useEffect(() => {

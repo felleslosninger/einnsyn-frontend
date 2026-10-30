@@ -1,3 +1,1 @@
-export default function ProfilePage() {
-  return null;
-}
+export { default } from '~/features/bruker/profile/Profile';

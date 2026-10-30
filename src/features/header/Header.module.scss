@@ -1,5 +1,18 @@
 @use '../../styles/mediaQueries.scss' as mq;
 @use '../../styles/effects.scss' as fx;
+@use '../../styles/headerRow.scss' as headerRow;
+
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+
+  >.header {
+    pointer-events: auto;
+    clip-path: inset(0 -100vw -100vh);
+  }
+}
 
 .header {
   --header-primary-row-offset: calc(var(--ds-size-1) + var(--ds-border-width-default));
@@ -28,16 +41,11 @@
   z-index: 10;
 
   border-bottom: 1px solid var(--ds-color-neutral-surface-tinted);
-  box-shadow: 0 0 0 rgba(0 0 0 / 20%);
   transition: box-shadow 0.2s fx.$easeOut;
 
-  position: sticky;
-  top: 0;
+  position: relative;
 
-  &.fixed {
-    position: fixed;
-    box-shadow: 0 0 1rem rgba(0 0 0 / 20%);
-    border-bottom: 0px;
+  &.stuck {
     transition: all 0.2s fx.$easeOut;
   }
 
@@ -58,13 +66,17 @@
       }
     }
 
-    :global(.header-tabs) {
+    :global(.header-bar) {
       opacity: 0;
       height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
       overflow: hidden;
-      transition: all 0.2s fx.$easeOut;
+      transition: all .4s fx.$easeInOutQuart;
+    }
+
+    // Release the row's reserved height too, or the header would keep it while
+    // the row inside collapses.
+    .secondRow {
+      min-height: 0;
     }
   }
 
@@ -75,8 +87,6 @@
   &:global(.section-home) {
     height: 80vh;
     border-bottom: none;
-    position: relative;
-    top: auto;
 
     :global(.container-wrapper) {
       height: 100%;
@@ -96,10 +106,83 @@
       }
     }
 
-    :global(.header-tabs) {
+    :global(.header-bar) {
       display: none;
     }
+
+    // No second row on the landing page, so it must not reserve height — the
+    // form is centred in the container and would be pushed off-centre.
+    .secondRow {
+      min-height: 0;
+    }
   }
+}
+
+.searchForm {
+  margin-inline: calc(-1 * var(--ds-size-4));
+
+  @include mq.medium {
+    margin-inline: calc(-1 * var(--ds-size-2));
+  }
+
+  @include mq.small {
+    margin-inline: 0;
+  }
+}
+
+// The header's second row, normally a `HeaderBar`. It is the only part that
+// changes between routes, so it is what EinTransition snapshots and swaps.
+//
+// Don't declare a font size here: `data-size` rescales the `--ds-font-size-*`
+// tokens. It is there for the spacing tokens. Height is reserved because
+// mid-swap the row briefly has no children.
+.secondRow {
+  min-height: headerRow.$bar-height;
+
+  line-height: var(--ds-line-height-sm);
+  transition: min-height 0.2s fx.$easeOut;
+}
+
+// The motion is entirely CSS; EinTransition only adds these classes as it walks
+// its steps (`withClassNames`).
+//
+// Every step ends with `await domTransitionend(element)`, whose fallback timer
+// is the element's *computed* transition-duration — so a step with no motion of
+// its own still waits out whatever the base rule declares (here, min-height's
+// 200ms). Steps that should be instant therefore set `transition: none`; only
+// the two that actually move declare a duration.
+//
+// These rules are all single-class, so equal specificity: source order decides
+// which wins where several are applied at once. Keep them in step order.
+.secondRow:global(.ein-transition-init-transition),
+.secondRow:global(.ein-transition-init-exit-transition) {
+  transition: none;
+}
+
+// Fades out as soon as navigation starts, in parallel with loading.
+.secondRow:global(.ein-transition-exit-transition) {
+  opacity: 0;
+  transition: opacity 150ms fx.$easeOut;
+}
+
+// Held here while the new row loads — the fade above has already finished.
+.secondRow:global(.ein-transition-wait) {
+  transition: none;
+}
+
+// Initial pose for the incoming row, applied while it is still hidden. It is
+// posed, not animated — and this step is what the gap between the two rows is
+// waiting on, so it must be instant.
+.secondRow:global(.ein-transition-init-enter-transition) {
+  opacity: 0;
+  transition: none;
+}
+
+// Must stay after the init-enter rule above — both classes are present during
+// the enter step and have equal specificity, so source order decides.
+.secondRow:global(.ein-transition-enter-transition) {
+  opacity: 1;
+  transition: opacity 200ms fx.$easeOut;
 }
 
 .logoLink {

@@ -75,6 +75,7 @@
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
+    "clearEnhetSelection": "Fjern valde verksemder",
     "sortedBy": "Sortert etter",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Opne dokument",
@@ -100,7 +101,15 @@
       "UTVALG": "Utval",
       "VIRKSOMHET": "Verksemd"
     },
-    "searchingIn": "Søkjer i"
+    "searchingIn": "Søkjer i",
+    "saveSearch": "Lagre søk",
+    "saveSearchName": "Namn på søket",
+    "saveSearchSubscribe": "Varsle meg om nye treff",
+    "saveSearchSubscribeDescription": "Vi sender deg ein e-post kvar morgon klokka 06:00 dersom søket har nye treff.",
+    "saveSearchSuccess": "Søket er lagra",
+    "saveSearchError": "Kunne ikkje lagre søket",
+    "saveSearchMissingLabel": "Gi søket eit namn",
+    "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
   "routing": {
     "root": {
@@ -248,6 +257,37 @@
       "deleteError": "Kunne ikkje slette søket. Prøv igjen.",
       "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
       "loadError": "Kunne ikkje hente lagra søk. Prøv igjen seinare."
+    },
+    "profilePage": {
+      "title": "Profilinformasjon",
+      "description": "Administrer innlogginga og kontoen din.",
+      "login": "Innlogging",
+      "newEmail": "Ny e-post",
+      "changeEmailSuccess": "E-postadressa er oppdatert",
+      "saveEmailChanges": "Lagre ny e-post",
+      "currentPassword": "Noverande passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "savePasswordChanges": "Lagre nytt passord",
+      "deleteAccount": "Slett konto",
+      "deleteAccountDescription": "Dette slettar kontoen din permanent. Alle innsynskrav, lagra saker og lagra søk vert sletta og kan ikkje gjenopprettast.",
+      "deleteAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikkje angrast.",
+      "deleteAccountSubmit": "Slett kontoen min",
+      "deleteAccountCancel": "Behald kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressa er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 teikn og innehalde store og små bokstavar samt tal eller spesialtegn",
+        "wrongPassword": "Noverande passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikkje tilgang",
+        "badRequest": "Ugyldig førespurnad",
+        "notFound": "Brukaren vart ikkje funnen",
+        "internalServerError": "Det oppstod ein serverfeil. Prøv igjen seinare",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om ei lita stund",
+        "passwordMismatch": "Passorda er ikkje like",
+        "missingFields": "Fyll ut alle felta"
+      }
     }
   }
 }
