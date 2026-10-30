@@ -10,7 +10,7 @@ import { getSettings, updateSettings } from '~/lib/settings/settings.server';
 import { logger } from '~/lib/utils/logger';
 import { validatePassword, validateUsername } from '~/lib/utils/validators';
 import type { LoginState, PasswordResetState, RegisterState } from './auth';
-import { updateAuth } from './authCookie.server';
+import { deleteAuth, getAuth, updateAuth } from './authCookie.server';
 
 const API_URL = process.env.API_URL;
 
@@ -34,7 +34,27 @@ const isApiErrorResponse = (
 const isApiTokenResponse = (
   response: ApiErrorResponse | ApiTokenResponse,
 ): response is ApiTokenResponse => {
-  return (response as ApiTokenResponse).token !== undefined;
+  return (response as ApiTokenResponse)?.token !== undefined;
+};
+
+/** `expiresIn` is in seconds, as is `Auth.expiresAt`. */
+const toExpiresAt = (expiresIn: number) =>
+  Math.round(Date.now() / 1000) + expiresIn;
+
+/**
+ * The token response doesn't say when the refresh token expires, so read its
+ * `exp` claim. No need to verify the JWT signature, since we only use it to set
+ * our own cookie's lifetime.
+ */
+const readJwtExpiry = (jwt: string): number | undefined => {
+  try {
+    const { exp } = JSON.parse(
+      Buffer.from(jwt.split('.')[1] ?? '', 'base64url').toString(),
+    );
+    return typeof exp === 'number' ? exp : undefined;
+  } catch (_error) {
+    return undefined;
+  }
 };
 
 export const eInnsynLogin = async (
@@ -74,6 +94,8 @@ export const eInnsynLogin = async (
         authTimestamp: Date.now(),
         accessToken: responseData.token,
         refreshToken: responseData.refreshToken,
+        expiresAt: toExpiresAt(responseData.expiresIn),
+        refreshExpiresAt: readJwtExpiry(responseData.refreshToken),
       });
       return { success: true };
     }
@@ -159,4 +181,46 @@ export const register = async (
   }
 
   return { sent: true };
+};
+
+/**
+ * Trade the refresh token for a new token pair. Only the API rejecting it ends
+ * the session; on any other failure the next request tries again.
+ */
+export const attemptTokenRefresh = async (
+  refreshToken: string,
+): Promise<void> => {
+  let responseData: ApiErrorResponse | ApiTokenResponse;
+  try {
+    const response = await fetch(`${API_URL}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+    responseData = await response.json();
+  } catch (error) {
+    logger.error('Failed to refresh eInnsyn token', error);
+    return;
+  }
+
+  if (isApiTokenResponse(responseData)) {
+    await updateAuth({
+      authProvider: 'eInnsyn',
+      authTimestamp: (await getAuth()).authTimestamp,
+      accessToken: responseData.token,
+      refreshToken: responseData.refreshToken,
+      expiresAt: toExpiresAt(responseData.expiresIn),
+      refreshExpiresAt: readJwtExpiry(responseData.refreshToken),
+    });
+    return;
+  }
+
+  if (responseData.type === 'authenticationError') {
+    logger.debug('eInnsyn refresh token rejected, ending the session');
+    await deleteAuth();
+    return;
+  }
+  logger.error('Failed to refresh eInnsyn token', responseData);
 };

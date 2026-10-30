@@ -15,6 +15,8 @@ export type Auth = {
   accessToken?: string;
   refreshToken?: string;
   expiresAt?: number;
+  refreshExpiresAt?: number;
+  renewedAt?: number;
 };
 
 export type AuthTimestamp = {
