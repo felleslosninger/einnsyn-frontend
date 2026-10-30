@@ -50,7 +50,7 @@ function getLinkedEnhets(items: readonly Base[]): TrimmedEnhet[] {
 export default function SearchResultContainer({
   searchResults,
 }: {
-  searchResults: PaginatedList<Base>;
+  searchResults: PaginatedList<Base> | null;
 }) {
   const t = useTranslation();
   const {
@@ -71,7 +71,7 @@ export default function SearchResultContainer({
     [optimisticPathname, optimisticSearchParams],
   );
   const [currentSearchResults, setCurrentSearchResults] =
-    useState<PaginatedList<Base>>(searchResults);
+    useState<PaginatedList<Base> | null>(searchResults);
   const isLoading =
     loading &&
     (loadingPathname !== pathname ||
@@ -92,7 +92,7 @@ export default function SearchResultContainer({
   }, [currentSearchResults]);
 
   const scrollTriggerHandler = useCallback(async () => {
-    if (!currentSearchResults.next) {
+    if (!currentSearchResults?.next) {
       return; // No next page to fetch
     }
     const newSearchSymbol = Symbol();
@@ -125,7 +125,11 @@ export default function SearchResultContainer({
               aria-busy={isLoading}
               aria-live="polite"
             >
-              {currentSearchResults.items.length ? (
+              {currentSearchResults === null ? (
+                <div className={styles.searchResult} role="alert">
+                  <p>{t('common.searchFailed')}</p>
+                </div>
+              ) : currentSearchResults.items.length ? (
                 currentSearchResults.items.map((item) => (
                   <SearchResult
                     className={styles.searchResult}
@@ -138,7 +142,7 @@ export default function SearchResultContainer({
                   <p>{t('common.noResults')}</p>
                 </div>
               )}
-              {currentSearchResults.next && (
+              {currentSearchResults?.next && (
                 <EinScrollTrigger onEnter={scrollTriggerHandler}>
                   <SearchResultSkeleton
                     className={styles.searchResult}

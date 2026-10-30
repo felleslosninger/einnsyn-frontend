@@ -1,11 +1,10 @@
 import 'server-only';
 
-import {
-  type Base,
-  EInnsynError,
-  type FilterParameters,
-  type PaginatedList,
-  type SearchParameters,
+import type {
+  Base,
+  FilterParameters,
+  PaginatedList,
+  SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cachedApiClient } from '~/lib/api/api.server';
 import {
@@ -38,12 +37,6 @@ const SORT_MAP: Record<
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
 
-async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
-  return {
-    items: [],
-  };
-}
-
 /**
  * Get a PaginatedList of search results
  *
@@ -54,8 +47,7 @@ async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
 export const getSearchResults = async (
   enhetSlug: string,
   searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
+): Promise<PaginatedList<Base> | null> => {
   const apiQuery: SearchParameters = {};
 
   // Combine Entity filter from path and searchParams
@@ -163,6 +155,7 @@ export const getSearchResults = async (
   }
 
   try {
+    const api = await cachedApiClient();
     apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent.parent.parent',
       'utvalgObjekt.parent.parent.parent.parent',
@@ -173,11 +166,8 @@ export const getSearchResults = async (
     const searchResults = await api.search.search(apiQuery);
     return searchResults;
   } catch (error) {
-    // TODO: Handle the error
-    if (error instanceof EInnsynError) {
-      logger.error('Error fetching search results', error);
-    }
-    return getEmptySearchResults();
+    logger.error('Error fetching search results', error);
+    return null;
   }
 };
 
