@@ -30,13 +30,11 @@ export function getSection(pathname: string): Section {
   return 'enhet';
 }
 
-// Sections that also exist as an intercepted modal route (`@modal/(.)login`).
-// Navigating to one client-side puts its URL in the address bar while leaving
-// the page beneath it mounted, so the section the URL names is not the section
-// on screen.
+// Sections with a page in `@modal/(modal)`, which opens over the page beneath
+// it. Only a hint before a navigation lands; the router tree decides after.
 const MODAL_SECTIONS: ReadonlySet<Section> = new Set(['login']);
 
-/** Whether this section can be shown as a modal over the page beneath it. */
+/** Whether this section opens as a modal over the page beneath it. */
 export function isModalSection(section: Section): boolean {
   return MODAL_SECTIONS.has(section);
 }

@@ -1,5 +1,2 @@
-import { LoginForm } from '~/features/login';
-
-export default function Login() {
-  return <LoginForm />;
-}
+// Login is a modal (app/@modal); behind a direct link it covers the front page.
+export { default } from '../page';

@@ -1,9 +1,13 @@
-.loginButton.loginButton {
-  margin-left: var(--ds-size-2);
-  border: 1px solid transparent;
+@use '../../../styles/effects.scss' as fx;
 
-  span {
+.loginButton.loginButton {
+  border-radius: var(--ds-border-radius-full);
+  padding-inline: var(--ds-size-4) var(--ds-size-5);
+  white-space: nowrap;
+  transition: color .2s fx.$easeOut;
+
+  &:hover {
     background: transparent;
-    border: none;
+    color: var(--ds-color-text-default);
   }
 }

@@ -1,9 +1,9 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -19,7 +19,7 @@ import styles from './Footer.module.scss';
 export default function Footer() {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-  const pathname = usePathname();
+  const { pathname } = useNavigation();
   const footerRef = useRef<HTMLDivElement>(null);
   const footerPlaceholderRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(false);

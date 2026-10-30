@@ -19,22 +19,34 @@ export function mergeWindow<T extends Base>(
   current: PaginatedList<T>,
   incoming: PaginatedList<T>,
 ): PaginatedList<T> {
-  const currentIds = new Set(current.items.map((item) => item.id));
-  const firstOverlap = incoming.items.findIndex((item) =>
-    currentIds.has(item.id),
+  const incomingIds = new Set(incoming.items.map((item) => item.id));
+  const firstOverlap = current.items.findIndex((item) =>
+    incomingIds.has(item.id),
   );
   if (firstOverlap === -1) {
     return incoming;
   }
-  const lastOverlap = incoming.items.findLastIndex((item) =>
-    currentIds.has(item.id),
+  const lastOverlap = current.items.findLastIndex((item) =>
+    incomingIds.has(item.id),
   );
-  const above = incoming.items.slice(0, firstOverlap);
-  const below = incoming.items.slice(lastOverlap + 1);
+
+  // The window spans its overlap, out to the end on a side without a cursor.
+  const start = incoming.previous ? firstOverlap : 0;
+  const end = incoming.next ? lastOverlap + 1 : current.items.length;
+  // A loaded item missing from the span may have moved past a cursor we keep,
+  // where it would never load again, so start over from the window.
+  if (
+    current.items.slice(start, end).some((item) => !incomingIds.has(item.id))
+  ) {
+    return incoming;
+  }
+
+  const above = current.items.slice(0, start);
+  const below = current.items.slice(end);
   return {
-    items: dedupeById([...above, ...current.items, ...below]),
-    previous: above.length > 0 ? incoming.previous : current.previous,
-    next: below.length > 0 ? incoming.next : current.next,
+    items: [...above, ...incoming.items, ...below],
+    previous: above.length > 0 ? current.previous : incoming.previous,
+    next: below.length > 0 ? current.next : incoming.next,
   };
 }
 
