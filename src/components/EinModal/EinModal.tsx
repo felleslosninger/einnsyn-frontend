@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -24,7 +25,7 @@ import type { EinTransitionEvents } from '../EinTransition/EinTransition';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 import styles from './EinModal.module.scss';
 
-type EinModalContextValue = { close: () => void };
+type EinModalContextValue = { close: () => void; titleId: string };
 const EinModalContext = createContext<EinModalContextValue | null>(null);
 
 type EinModalProps = Readonly<{
@@ -83,7 +84,11 @@ export default function EinModal({
     }
   }, [onClose, setOpen, navigation]);
 
-  const contextValue = useMemo(() => ({ close: closeModal }), [closeModal]);
+  const titleId = useId();
+  const contextValue = useMemo(
+    () => ({ close: closeModal, titleId }),
+    [closeModal, titleId],
+  );
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = containerRefProp ?? backupContainerRef;
@@ -221,11 +226,36 @@ export default function EinModal({
     };
   }, [open, containerRef]);
 
+  // Make the page behind the modal inert. A layout effect, so the cleanup runs
+  // before EinPopup's restoreFocus, which can't focus an inert trigger.
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!open || !portalTarget || !container) {
+      return;
+    }
+    const background = Array.from(portalTarget.children).filter(
+      (el): el is HTMLElement =>
+        el instanceof HTMLElement && el !== container && !el.inert,
+    );
+    for (const el of background) el.inert = true;
+    return () => {
+      for (const el of background) el.inert = false;
+    };
+  }, [open, portalTarget, containerRef]);
+
   const popup = (
     <EinPopup
       open={open}
       setOpen={(value) => !value && closeModal()}
       animate
+      autoFocus
+      restoreFocus
+      trapFocus={false}
+      contentProps={{
+        role: 'dialog',
+        'aria-modal': true,
+        'aria-labelledby': titleId,
+      }}
       unstyled
       arrow={false}
       className={cn(className, styles.einModalContainer, 'ein-modal-container')}
@@ -275,7 +305,7 @@ export function EinModalHeader({
   return (
     <div className={cn(className, styles.einModalHeader, 'ein-modal-header')}>
       {children ?? (
-        <h1 className="ds-heading" data-size="md">
+        <h1 id={einModal?.titleId} className="ds-heading" data-size="md">
           {title}
         </h1>
       )}
