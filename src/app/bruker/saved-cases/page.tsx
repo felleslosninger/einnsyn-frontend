@@ -1,1 +1,5 @@
-export { default } from '~/features/bruker/saved-cases/SavedCases';
+import BrukerList from '~/features/bruker/BrukerList';
+
+export default function SavedCasesPage() {
+  return <BrukerList type="savedCases" />;
+}

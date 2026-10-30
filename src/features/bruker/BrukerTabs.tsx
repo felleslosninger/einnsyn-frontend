@@ -3,6 +3,7 @@
 import { useOptimisticPathname } from '~/components/NavigationProvider/NavigationProvider';
 import { HeaderTab, HeaderTabs } from '~/features/header/HeaderTabs';
 import { useTranslation } from '~/hooks/useTranslation';
+import styles from './BrukerHeader.module.scss';
 import { brukerRoutes } from './brukerRoutes';
 
 export default function BrukerTabs() {
@@ -10,7 +11,7 @@ export default function BrukerTabs() {
   const t = useTranslation();
 
   return (
-    <nav aria-label={t('bruker.title')}>
+    <nav className={styles.tabs} aria-label={t('bruker.title')}>
       <HeaderTabs>
         {brukerRoutes.map(({ href, translationKey }) => (
           <HeaderTab key={href} href={href} active={pathname === href}>

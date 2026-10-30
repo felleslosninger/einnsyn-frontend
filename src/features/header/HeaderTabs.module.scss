@@ -2,7 +2,7 @@
 
 .tabs {
   display: flex;
-  gap: var(--ds-size-4);
+  gap: var(--ds-size-10);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   // `overflow-x: auto` clips vertically, so leave room on every side for
@@ -14,7 +14,7 @@
 .tab {
   @include headerRow.header-row-item;
 
-  padding-inline: var(--ds-size-4);
+  padding-inline: var(--ds-size-1);
 
   &[aria-current] {
     border-bottom-color: currentColor;

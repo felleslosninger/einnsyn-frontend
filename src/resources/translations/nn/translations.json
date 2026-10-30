@@ -241,13 +241,13 @@
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
     "profile": "Profil",
+    "loadError": "Kunne ikkje hente lista. Prøv igjen seinare.",
+    "deleteError": "Kunne ikkje slette. Prøv igjen.",
+    "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
     "savedMeetingsPage": {
       "description": "Her finn du møta du har lagra. Abonnerer du på eit møte, får du varsel på e-post når det vert publisert noko nytt i det.",
       "subscribe": "Abonner på møte",
-      "empty": "Du har ingen lagra møte enno.",
-      "deleteError": "Kunne ikkje slette møtet. Prøv igjen.",
-      "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
-      "loadError": "Kunne ikkje hente lagra møte. Prøv igjen seinare."
+      "empty": "Du har ingen lagra møte enno."
     },
     "savedSearchesPage": {
       "description": "Her finn du søka du har lagra. Du kan abonnere på eit søk for å få varsel om nye treff.",
@@ -262,17 +262,12 @@
       "description": "Her finn du innsynskrava du har sendt.",
       "sentAt": "Sendt til verksemd",
       "notSent": "Ikkje sendt enno",
-      "empty": "Du har ingen innsynskrav. Du kan bestille dokument frå søkesida eller dokumentvisningane.",
-      "deleteError": "Kunne ikkje slette innsynskravet. Prøv igjen.",
-      "loadError": "Kunne ikkje hente innsynskrava dine. Prøv igjen seinare."
+      "empty": "Du har ingen innsynskrav. Du kan bestille dokument frå søkesida eller dokumentvisningane."
     },
     "savedCasesPage": {
       "description": "Her finn du sakene du har lagra. Abonnerer du på ei sak, får du varsel på e-post når det vert publisert noko nytt i ho.",
       "subscribe": "Abonner på sak",
-      "empty": "Du har ingen lagra saker enno.",
-      "deleteError": "Kunne ikkje slette saka. Prøv igjen.",
-      "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
-      "loadError": "Kunne ikkje hente lagra saker. Prøv igjen seinare."
+      "empty": "Du har ingen lagra saker enno."
     },
     "profilePage": {
       "title": "Profilinformasjon",

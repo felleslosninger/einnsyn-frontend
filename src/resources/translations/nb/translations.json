@@ -251,13 +251,13 @@
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
     "profile": "Profil",
+    "loadError": "Kunne ikke hente listen. Prøv igjen senere.",
+    "deleteError": "Kunne ikke slette. Prøv igjen.",
+    "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
     "savedMeetingsPage": {
       "description": "Her finner du møtene du har lagret. Abonnerer du på et møte, får du varsel på e-post når har skjedd en endring.",
       "subscribe": "Varsle",
-      "empty": "Du har ingen lagrede møter ennå.",
-      "deleteError": "Kunne ikke slette møtet. Prøv igjen.",
-      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
-      "loadError": "Kunne ikke hente lagrede møter. Prøv igjen senere."
+      "empty": "Du har ingen lagrede møter ennå."
     },
     "savedSearchesPage": {
       "description": "Her finner du søkene du har lagret. Du kan abonnere på et søk for å få varsel om nye treff.",
@@ -272,17 +272,12 @@
       "description": "Her finner du innsynskravene du har sendt.",
       "sentAt": "Sendt til virksomhet",
       "notSent": "Ikke sendt ennå",
-      "empty": "Du har ingen innsynskrav. Du kan bestille dokumenter fra søkesiden eller dokumentvisningene.",
-      "deleteError": "Kunne ikke slette innsynskravet. Prøv igjen.",
-      "loadError": "Kunne ikke hente innsynskravene dine. Prøv igjen senere."
+      "empty": "Du har ingen innsynskrav. Du kan bestille dokumenter fra søkesiden eller dokumentvisningene."
     },
     "savedCasesPage": {
       "description": "Her finner du sakene du har lagret. Abonnerer du på en sak, får du varsel på e-post når det har skjedd en endring.",
       "subscribe": "Varsle",
-      "empty": "Du har ingen lagrede saker ennå.",
-      "deleteError": "Kunne ikke slette saken. Prøv igjen.",
-      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
-      "loadError": "Kunne ikke hente lagrede saker. Prøv igjen senere."
+      "empty": "Du har ingen lagrede saker ennå."
     },
     "profilePage": {
       "title": "Profilinformasjon",

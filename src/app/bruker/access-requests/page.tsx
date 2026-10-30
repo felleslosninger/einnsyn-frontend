@@ -1,1 +1,5 @@
-export { default } from '~/features/bruker/access-requests/AccessRequests';
+import BrukerList from '~/features/bruker/BrukerList';
+
+export default function AccessRequestsPage() {
+  return <BrukerList type="accessRequests" />;
+}
