@@ -103,6 +103,13 @@
     },
     "searchingIn": "Ohcamin"
   },
+  "statistics": {
+    "last12Months": "Siste 12 måneder",
+    "documents": "dokumenter",
+    "fulltext": "med fulltekst",
+    "innsynskrav": "innsynskrav",
+    "month": "Måned"
+  },
   "routing": {
     "root": {
       "search": "oza",
@@ -123,7 +130,6 @@
     "number": "Nr",
     "andMore": "+ $1 eanet",
     "all": "Buot",
-    "phone": "Telefovdna",
     "email": "Siidu",
     "address": "Čujuhus",
     "noResults": "Bohtosat eai gávdnon",

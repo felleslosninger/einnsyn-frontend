@@ -103,6 +103,13 @@
     },
     "searchingIn": "Searching in"
   },
+  "statistics": {
+    "last12Months": "Last 12 months",
+    "documents": "documents",
+    "fulltext": "with full text",
+    "innsynskrav": "access requests",
+    "month": "Month"
+  },
   "routing": {
     "root": {
       "search": "search",
@@ -125,7 +132,6 @@
     "number": "No.",
     "andMore": "+ $1 more",
     "all": "All",
-    "phone": "Phone",
     "email": "Email",
     "address": "Address",
     "noResults": "No results found",

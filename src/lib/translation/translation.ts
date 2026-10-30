@@ -96,3 +96,7 @@ export function resolveLanguageCode<
 
 export const isLanguageCode = (lc: unknown): lc is LanguageCode =>
   supportedLanguages.includes(lc as LanguageCode);
+
+/** The locale dates and numbers are formatted in. */
+export const getIntlLocale = (languageCode: LanguageCode) =>
+  languageCode === 'en' ? 'en-GB' : 'nb-NO';
