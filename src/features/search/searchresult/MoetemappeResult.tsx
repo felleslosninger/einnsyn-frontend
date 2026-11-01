@@ -7,6 +7,7 @@ import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import { getMeetingCalendarHref } from './getMeetingCalendarHref';
 import styles from './searchResultStyles.module.scss';
 
 export default function MoetemappeResult({
@@ -21,6 +22,7 @@ export default function MoetemappeResult({
   const meetingDate = item.moetedato
     ? dateFormat(item.moetedato, languageCode)
     : undefined;
+  const calendarHref = getMeetingCalendarHref(item);
   const utvalg = item.utvalgObjekt;
 
   return (
@@ -54,10 +56,15 @@ export default function MoetemappeResult({
             </EinLink>
           </div>
         )}
-        {/* TODO: implement add to calendar functionality
-        <EinLink href="" className={styles.searchResultAction}>
-          {translate('search.addToCalendar')}
-        </EinLink> */}
+        {calendarHref && (
+          <a
+            href={calendarHref}
+            download="meeting.ics"
+            className={styles.searchResultAction}
+          >
+            {translate('search.addToCalendar')}
+          </a>
+        )}
       </div>
     </div>
   );
