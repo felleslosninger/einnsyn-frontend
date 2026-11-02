@@ -132,6 +132,14 @@ describe('searchQueryToTokens', () => {
       t({ value: 'bar"baz', quoted: true }),
     ]);
   });
+
+  test('backslashes are literal', () => {
+    const result = searchQueryToTokens('"C:\\dir x" "a\\\\b c"');
+    assert.deepStrictEqual(result, [
+      t({ value: 'C:\\dir x', quoted: true }),
+      t({ value: 'a\\\\b c', quoted: true }),
+    ]);
+  });
 });
 
 describe('tokensToSearchQuery', () => {
@@ -254,6 +262,8 @@ describe('search string tokenizer round trip', () => {
     'test ',
     'foo "bar\\"baz"',
     'a:b "c\\"d" e',
+    'foo "a\\\\b c"',
+    'foo "C:\\dir x"',
     '',
   ];
 
@@ -262,6 +272,21 @@ describe('search string tokenizer round trip', () => {
       const tokens = searchQueryToTokens(str);
       const result = tokensToSearchQuery(tokens);
       assert.strictEqual(result, str);
+    });
+  }
+
+  const values = ['a\\b c', 'a\\\\b c', 'say "hi" there', 'ends with "'];
+
+  for (const value of values) {
+    test(`should keep a quoted value over repeated round trips: ${value}`, () => {
+      let current = value;
+      for (let n = 0; n < 3; n += 1) {
+        const query = tokensToSearchQuery([
+          { prefix: 'x', value: current, quoted: true },
+        ]);
+        current = searchQueryToTokens(query)[0].value;
+      }
+      assert.strictEqual(current, value);
     });
   }
 });
