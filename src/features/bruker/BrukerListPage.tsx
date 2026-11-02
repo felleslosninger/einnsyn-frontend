@@ -6,12 +6,14 @@ import {
 } from '@digdir/designsystemet-react';
 import type { ListByBrukerParameters } from '@digdir/einnsyn-sdk';
 import { Suspense } from 'react';
-import { SearchResultSkeleton } from '~/features/search/searchresult/SearchResultSkeleton';
 import { cachedApiClient } from '~/lib/api/api.server';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
 import { getTranslator } from '~/lib/translation/translation.server';
 import { logger } from '~/lib/utils/logger';
-import BrukerList, { type BrukerListType } from './BrukerList';
+import BrukerList, {
+  BrukerListSkeleton,
+  type BrukerListType,
+} from './BrukerList';
 import styles from './BrukerList.module.scss';
 
 async function listItems(type: BrukerListType) {
@@ -83,7 +85,7 @@ export default async function BrukerListPage({
         </div>
         <div className={styles.content}>
           <Divider />
-          <Suspense fallback={<SearchResultSkeleton index={0} />}>
+          <Suspense fallback={<BrukerListSkeleton type={type} />}>
             <BrukerListContent type={type} />
           </Suspense>
         </div>

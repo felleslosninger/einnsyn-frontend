@@ -2,6 +2,7 @@
 
 import {
   Paragraph,
+  Skeleton,
   Switch,
   ValidationMessage,
 } from '@digdir/designsystemet-react';
@@ -87,10 +88,33 @@ export default function BrukerList({
       </ul>
       {page.next && (
         <EinScrollTrigger onEnter={scrollTriggerHandler}>
-          <SearchResultSkeleton index={0} />
+          <BrukerListSkeleton type={type} />
         </EinScrollTrigger>
       )}
     </>
+  );
+}
+
+/**
+ * Placeholder items, laid out like the real ones so the list does not shift
+ * when they load.
+ */
+export function BrukerListSkeleton({ type }: { type: BrukerListType }) {
+  return (
+    <ul className={styles.list}>
+      {[0, 1].map((index) => (
+        <li key={index} className={styles.item}>
+          <div className={styles.main}>
+            <SearchResultSkeleton className={styles.result} index={index} />
+            {type === 'accessRequests' && (
+              <Paragraph data-size="sm" className={styles.meta}>
+                <Skeleton variant="text" width={30} />
+              </Paragraph>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
