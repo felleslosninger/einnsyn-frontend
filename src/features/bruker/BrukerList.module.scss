@@ -52,9 +52,18 @@
   min-width: 0;
 }
 
-.main > .result {
+.main>.result {
   // The list items are spaced by their own padding.
   padding-bottom: 0;
+}
+
+.title {
+  font-size: var(--ds-font-size-5);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .meta {

@@ -251,10 +251,7 @@
       "description": "Vállje «Oaččo dieđu» ohcamis vai oaččut e-poastta go ohcamis leat ođđa bohtosat.",
       "notificationInfo": "Dieđáhusat sáddejuvvojit oktii beaivái, dii. 06.00.",
       "subscribe": "Oaččo dieđu",
-      "empty": "Dus eai leat vurkon ohcanat.",
-      "deleteError": "Ii lihkostuvvan sihkkut ohcama. Geahččal ođđasit.",
-      "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
-      "loadError": "Ii lihkostuvvan viežžat vurkon ohcamiid. Geahččal ođđasit maŋŋelaš."
+      "empty": "Dus eai leat vurkon ohcanat."
     },
     "accessRequestsPage": {
       "description": "Vástádus geahčadangáibádussii boahtá e-poasttain doaimmas mii gieđahallá dan. Jus sihkut gáibádusa listtus, de dat gieđahallojuvvo goittotge.",

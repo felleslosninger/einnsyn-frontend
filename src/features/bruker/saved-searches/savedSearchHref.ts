@@ -1,21 +1,7 @@
-'use client';
-
-import { Paragraph } from '@digdir/designsystemet-react';
-import type {
-  LagretSoek,
-  PaginatedList,
-  SavedSearchParameters,
-} from '@digdir/einnsyn-sdk';
-import { useCallback, useRef, useState } from 'react';
-import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
-import { useTranslation } from '~/hooks/useTranslation';
+import type { SavedSearchParameters } from '@digdir/einnsyn-sdk';
 import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
-import { fetchNextPage } from '~/lib/utils/pagination';
 import { serializeParamList } from '~/lib/utils/paramList';
 import { tokensToSearchQuery } from '~/lib/utils/searchStringTokenizer';
-import styles from './SavedSearches.module.scss';
-import { SavedSearchItem } from './SavedSearchItem';
-import { SavedSearchesListSkeleton } from './SavedSearchItemSkeleton';
 
 // Date math units the search field writes differently: month is `M` in date
 // math but `m` in the search field.
@@ -47,7 +33,13 @@ function dateToken(prefix: string, fromValue: unknown, toValue: unknown) {
   return [{ prefix, value }];
 }
 
-function savedSearchHref(searchPath: string, sp: SavedSearchParameters = {}) {
+/**
+ * The search page URL that runs a saved search again.
+ */
+export function savedSearchHref(
+  searchPath: string,
+  sp: SavedSearchParameters = {},
+) {
   const filters = tokensToSearchQuery([
     ...(sp.fulltext ? [{ prefix: 'fulltext', value: 'true' }] : []),
     ...dateToken('publisert', sp.publisertDatoFrom, sp.publisertDatoTo),
@@ -77,58 +69,4 @@ function savedSearchHref(searchPath: string, sp: SavedSearchParameters = {}) {
 
   const queryString = params.toString();
   return queryString ? `${searchPath}?${queryString}` : searchPath;
-}
-
-export default function SavedSearchesList({
-  initialPage,
-  searchPath,
-}: {
-  initialPage: PaginatedList<LagretSoek>;
-  searchPath: string;
-}) {
-  const t = useTranslation();
-  const [page, setPage] = useState(initialPage);
-  // A page request started before a delete finished still contains the
-  // deleted item, so it is filtered out again when the page arrives.
-  const deletedIds = useRef(new Set<string>());
-
-  const handleScrollTrigger = useCallback(async () => {
-    const next = await fetchNextPage(page);
-    setPage({
-      ...next,
-      items: next.items.filter((item) => !deletedIds.current.has(item.id)),
-    });
-  }, [page]);
-
-  const handleDelete = useCallback((id: string) => {
-    deletedIds.current.add(id);
-    setPage((prev) => ({
-      ...prev,
-      items: prev.items.filter((item) => item.id !== id),
-    }));
-  }, []);
-
-  if (!page.items.length && !page.next) {
-    return <Paragraph>{t('bruker.savedSearchesPage.empty')}</Paragraph>;
-  }
-
-  return (
-    <>
-      <ul className={styles.list}>
-        {page.items.map((savedSearch) => (
-          <SavedSearchItem
-            key={savedSearch.id}
-            savedSearch={savedSearch}
-            href={savedSearchHref(searchPath, savedSearch.searchParameters)}
-            onDelete={handleDelete}
-          />
-        ))}
-      </ul>
-      {page.next && (
-        <EinScrollTrigger onEnter={handleScrollTrigger}>
-          <SavedSearchesListSkeleton />
-        </EinScrollTrigger>
-      )}
-    </>
-  );
 }

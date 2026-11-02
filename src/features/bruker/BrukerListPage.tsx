@@ -27,6 +27,9 @@ async function listItems(type: BrukerListType) {
   const query = { sortOrder: 'desc' } as ListByBrukerParameters;
   try {
     const api = await cachedApiClient();
+    if (type === 'savedSearches') {
+      return await api.bruker.listLagretSoek(authInfo.id, query);
+    }
     return type === 'accessRequests'
       ? await api.bruker.listInnsynskrav(authInfo.id, {
           ...query,
@@ -63,8 +66,9 @@ async function BrukerListContent({ type }: { type: BrukerListType }) {
 }
 
 /**
- * A page under Mitt eInnsyn listing the user's saved cases, saved meetings or
- * access requests. `type` is also the translation key for the page's texts.
+ * A page under Mitt eInnsyn listing the user's saved searches, saved cases,
+ * saved meetings or access requests. `type` is also the translation key for the
+ * page's texts.
  */
 export default async function BrukerListPage({
   type,
@@ -82,6 +86,11 @@ export default async function BrukerListPage({
             {t(`bruker.${type}`)}
           </Heading>
           <Paragraph>{t(`bruker.${type}Page.description`)}</Paragraph>
+          {type === 'savedSearches' && (
+            <Paragraph>
+              {t('bruker.savedSearchesPage.notificationInfo')}
+            </Paragraph>
+          )}
         </div>
         <div className={styles.content}>
           <Divider />

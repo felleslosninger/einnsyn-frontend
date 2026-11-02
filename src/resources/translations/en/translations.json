@@ -268,10 +268,7 @@
       "description": "Turn on “Get notified” for a search to get an email when it has new results.",
       "notificationInfo": "Notifications are sent once a day, at 06:00.",
       "subscribe": "Get notified",
-      "empty": "You have no saved searches yet.",
-      "deleteError": "Could not delete the search. Please try again.",
-      "subscribeError": "Could not change the subscription. Please try again.",
-      "loadError": "Could not load your saved searches. Please try again later."
+      "empty": "You have no saved searches yet."
     },
     "accessRequestsPage": {
       "description": "The answer to an access request comes by email from the organisation handling it. If you delete a request from the list, it will still be processed.",

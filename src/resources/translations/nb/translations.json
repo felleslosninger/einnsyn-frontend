@@ -263,10 +263,7 @@
       "description": "Slå på «Få varsel» på et søk for å få e-post når det kommer nye treff.",
       "notificationInfo": "Varslene sendes én gang i døgnet, kl. 06.00.",
       "subscribe": "Få varsel",
-      "empty": "Du har ingen lagrede søk ennå.",
-      "deleteError": "Kunne ikke slette søket. Prøv igjen.",
-      "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
-      "loadError": "Kunne ikke hente lagrede søk. Prøv igjen senere."
+      "empty": "Du har ingen lagrede søk ennå."
     },
     "accessRequestsPage": {
       "description": "Svaret på et innsynskrav kommer på e-post fra virksomheten som behandler det. Sletter du et krav fra listen, blir det likevel behandlet.",
