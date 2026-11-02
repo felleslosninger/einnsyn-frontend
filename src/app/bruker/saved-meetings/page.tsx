@@ -1,5 +1,5 @@
-import BrukerList from '~/features/bruker/BrukerList';
+import BrukerListPage from '~/features/bruker/BrukerListPage';
 
 export default function SavedMeetingsPage() {
-  return <BrukerList type="savedMeetings" />;
+  return <BrukerListPage type="savedMeetings" />;
 }

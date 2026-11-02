@@ -2,7 +2,7 @@
 
 .tabs {
   display: flex;
-  gap: var(--ds-size-10);
+  gap: var(--ds-size-7);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   // `overflow-x: auto` clips vertically, so leave room on every side for

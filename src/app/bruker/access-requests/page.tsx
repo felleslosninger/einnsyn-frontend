@@ -1,5 +1,5 @@
-import BrukerList from '~/features/bruker/BrukerList';
+import BrukerListPage from '~/features/bruker/BrukerListPage';
 
 export default function AccessRequestsPage() {
-  return <BrukerList type="accessRequests" />;
+  return <BrukerListPage type="accessRequests" />;
 }

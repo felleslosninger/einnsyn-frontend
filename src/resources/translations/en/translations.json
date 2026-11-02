@@ -260,28 +260,28 @@
     "deleteError": "Could not delete. Please try again.",
     "subscribeError": "Could not change the subscription. Please try again.",
     "savedMeetingsPage": {
-      "description": "Here you find the meetings you have saved. Subscribe to a meeting to get an email when something new is published in it.",
-      "subscribe": "Notify",
+      "description": "Turn on “Get notified” for a meeting to get an email when it is updated.",
+      "subscribe": "Get notified",
       "empty": "You have no saved meetings yet."
     },
     "savedSearchesPage": {
-      "description": "Here you find the searches you have saved. Subscribe to a search to be notified of new results.",
-      "notificationInfo": "Notifications are sent by email once a day, at 06:00.",
-      "subscribe": "Notify",
+      "description": "Turn on “Get notified” for a search to get an email when it has new results.",
+      "notificationInfo": "Notifications are sent once a day, at 06:00.",
+      "subscribe": "Get notified",
       "empty": "You have no saved searches yet.",
       "deleteError": "Could not delete the search. Please try again.",
       "subscribeError": "Could not change the subscription. Please try again.",
       "loadError": "Could not load your saved searches. Please try again later."
     },
     "accessRequestsPage": {
-      "description": "Here you find the access requests you have sent.",
+      "description": "The answer to an access request comes by email from the organisation handling it. If you delete a request from the list, it will still be processed.",
       "sentAt": "Sent to organisation",
       "notSent": "Not sent yet",
       "empty": "You have no access requests. You can order documents from the search page or from document views."
     },
     "savedCasesPage": {
-      "description": "Here you find the cases you have saved. Subscribe to a case to get an email when something new is published in it.",
-      "subscribe": "Notify",
+      "description": "Turn on “Get notified” for a case to get an email when it is updated.",
+      "subscribe": "Get notified",
       "empty": "You have no saved cases yet."
     },
     "profilePage": {

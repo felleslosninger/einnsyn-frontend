@@ -1,70 +1,193 @@
-import { Divider, Heading, Paragraph } from '@digdir/designsystemet-react';
-import type { ListByBrukerParameters } from '@digdir/einnsyn-sdk';
-import { Suspense } from 'react';
+'use client';
+
+import {
+  Paragraph,
+  Switch,
+  ValidationMessage,
+} from '@digdir/designsystemet-react';
+import {
+  type Innsynskrav,
+  isInnsynskrav,
+  isJournalpost,
+  isLagretSak,
+  isMoetemappe,
+  isSaksmappe,
+  type LagretSak,
+  type PaginatedList,
+} from '@digdir/einnsyn-sdk';
+import { TrashIcon } from '@navikt/aksel-icons';
+import {
+  startTransition,
+  useCallback,
+  useId,
+  useOptimistic,
+  useState,
+  useTransition,
+} from 'react';
+import { EinButton } from '~/components/EinButton/EinButton';
+import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import JournalpostResult from '~/features/search/searchresult/JournalpostResult';
+import MoetemappeResult from '~/features/search/searchresult/MoetemappeResult';
+import SaksmappeResult from '~/features/search/searchresult/SaksmappeResult';
 import { SearchResultSkeleton } from '~/features/search/searchresult/SearchResultSkeleton';
-import { cachedApiClient } from '~/lib/api/api.server';
-import { cachedAuthInfo } from '~/lib/auth/auth.server';
-import { getTranslator } from '~/lib/translation/translation.server';
-import { logger } from '~/lib/utils/logger';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useTranslation } from '~/hooks/useTranslation';
+import { dateFormat } from '~/lib/utils/dateFormat';
+import { fetchNextPage } from '~/lib/utils/pagination';
 import styles from './BrukerList.module.scss';
-import BrukerListItems, { type BrukerListType } from './BrukerListItems';
+import {
+  deleteBrukerItemAction,
+  setLagretSakSubscriptionAction,
+} from './bruker.actions';
 
-async function listItems(type: BrukerListType) {
-  const [authInfo, api] = await Promise.all([
-    cachedAuthInfo(),
-    cachedApiClient(),
-  ]);
-  if (!authInfo?.id) {
-    return null;
+export type BrukerListType = 'savedCases' | 'savedMeetings' | 'accessRequests';
+
+type Item = LagretSak | Innsynskrav;
+
+export default function BrukerList({
+  type,
+  initialPage,
+}: {
+  type: BrukerListType;
+  initialPage: PaginatedList<Item>;
+}) {
+  const t = useTranslation();
+  const [page, setPage] = useState(initialPage);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+
+  const scrollTriggerHandler = useCallback(async () => {
+    setPage(await fetchNextPage(page));
+  }, [page]);
+
+  // Saved cases and saved meetings are listed together by the API.
+  const items = page.items.filter(
+    (item) =>
+      !deletedIds.includes(item.id) &&
+      (!isLagretSak(item) ||
+        (type === 'savedCases'
+          ? isSaksmappe(item.saksmappe)
+          : isMoetemappe(item.moetemappe))),
+  );
+
+  if (!items.length && !page.next) {
+    return <Paragraph>{t(`bruker.${type}Page.empty`)}</Paragraph>;
   }
-
-  // The SDK types `id` and `brukerId` as required query parameters, but the
-  // bruker id is already part of the path.
-  const query = { sortOrder: 'desc' } as ListByBrukerParameters;
-  try {
-    return type === 'accessRequests'
-      ? await api.bruker.listInnsynskrav(authInfo.id, {
-          ...query,
-          expand: [
-            'journalpost.saksmappe',
-            'journalpost.administrativEnhetObjekt',
-            'journalpost.korrespondansepart',
-          ],
-        })
-      : await api.bruker.listLagretSak(authInfo.id, {
-          ...query,
-          expand: [
-            'saksmappe.administrativEnhetObjekt',
-            'moetemappe.utvalgObjekt',
-          ],
-        });
-  } catch (error) {
-    logger.error(`Failed to list ${type}`, error);
-    return null;
-  }
-}
-
-export default async function BrukerList({ type }: { type: BrukerListType }) {
-  const t = await getTranslator();
 
   return (
-    <div className="container-wrapper main-content">
-      <div className="container-pre collapsible" />
-      <div className="container">
-        <div className={styles.header}>
-          <Heading level={1} data-size="md">
-            {t(`bruker.${type}`)}
-          </Heading>
-          <Paragraph>{t(`bruker.${type}Page.description`)}</Paragraph>
+    <>
+      <ul className={styles.list}>
+        {items.map((item) => (
+          <BrukerListItem
+            key={item.id}
+            type={type}
+            item={item}
+            onDelete={() => setDeletedIds((ids) => [...ids, item.id])}
+          />
+        ))}
+      </ul>
+      {page.next && (
+        <EinScrollTrigger onEnter={scrollTriggerHandler}>
+          <SearchResultSkeleton index={0} />
+        </EinScrollTrigger>
+      )}
+    </>
+  );
+}
+
+function BrukerListItem({
+  type,
+  item,
+  onDelete,
+}: {
+  type: BrukerListType;
+  item: Item;
+  onDelete: () => void;
+}) {
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
+  const titleId = useId();
+  const [error, setError] = useState<string>();
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const [subscribe, setSubscribe] = useState(
+    isLagretSak(item) && item.subscribe === true,
+  );
+  const [optimisticSubscribe, setOptimisticSubscribe] =
+    useOptimistic(subscribe);
+
+  const handleSubscribeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setError(undefined);
+    startTransition(async () => {
+      setOptimisticSubscribe(checked);
+      if (await setLagretSakSubscriptionAction(item.id, checked)) {
+        setSubscribe(checked);
+      } else {
+        setError(t('bruker.subscribeError'));
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    setError(undefined);
+    startDeleteTransition(async () => {
+      if (await deleteBrukerItemAction(item.entity, item.id)) {
+        onDelete();
+      } else {
+        setError(t('bruker.deleteError'));
+      }
+    });
+  };
+
+  const resultProps = { className: styles.result, titleId };
+
+  return (
+    <li className={styles.item}>
+      <div className={styles.row}>
+        <div className={styles.main}>
+          {isLagretSak(item) && isSaksmappe(item.saksmappe) && (
+            <SaksmappeResult {...resultProps} item={item.saksmappe} />
+          )}
+          {isLagretSak(item) && isMoetemappe(item.moetemappe) && (
+            <MoetemappeResult {...resultProps} item={item.moetemappe} />
+          )}
+          {isInnsynskrav(item) && isJournalpost(item.journalpost) && (
+            <JournalpostResult {...resultProps} item={item.journalpost} />
+          )}
+          {isInnsynskrav(item) && (
+            <Paragraph data-size="sm" className={styles.meta}>
+              {item.sent
+                ? `${t('bruker.accessRequestsPage.sentAt')} ${dateFormat(item.sent, languageCode)}`
+                : t('bruker.accessRequestsPage.notSent')}
+            </Paragraph>
+          )}
         </div>
-        <div className={styles.content}>
-          <Divider />
-          <Suspense fallback={<SearchResultSkeleton index={0} />}>
-            <BrukerListItems type={type} initialPage={listItems(type)} />
-          </Suspense>
+        <div className={styles.actions}>
+          {isLagretSak(item) && (
+            <Switch
+              data-size="sm"
+              checked={optimisticSubscribe}
+              onChange={handleSubscribeChange}
+              label={t(`bruker.${type}Page.subscribe`)}
+              aria-describedby={titleId}
+            />
+          )}
+          <EinButton
+            variant="tertiary"
+            data-size="sm"
+            disabled={isDeleting}
+            aria-describedby={titleId}
+            onClick={handleDelete}
+          >
+            <TrashIcon aria-hidden="true" />
+            {t('common.delete')}
+          </EinButton>
         </div>
       </div>
-      <div className="container-post" />
-    </div>
+      {error && (
+        <ValidationMessage data-size="sm" role="alert">
+          {error}
+        </ValidationMessage>
+      )}
+    </li>
   );
 }

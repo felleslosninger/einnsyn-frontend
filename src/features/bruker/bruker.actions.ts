@@ -3,21 +3,24 @@
 import { cachedApiClient } from '~/lib/api/api.server';
 import { logger } from '~/lib/utils/logger';
 
-export async function setLagretSakSubscription(id: string, subscribe: boolean) {
+export async function setLagretSakSubscriptionAction(
+  id: string,
+  subscribe: boolean,
+): Promise<boolean> {
   try {
     const api = await cachedApiClient();
     await api.lagretsak.update(id, { subscribe });
     return true;
   } catch (error) {
-    logger.error('Failed to update subscription', error);
+    logger.error('Failed to update saved case subscription', error);
     return false;
   }
 }
 
-export async function deleteBrukerItem(
+export async function deleteBrukerItemAction(
   entity: 'LagretSak' | 'Innsynskrav',
   id: string,
-) {
+): Promise<boolean> {
   try {
     const api = await cachedApiClient();
     await (entity === 'LagretSak' ? api.lagretsak : api.innsynskrav).delete(id);
