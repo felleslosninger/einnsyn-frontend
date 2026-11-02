@@ -39,9 +39,9 @@ export default function ApiKeyItem({
   };
 
   const handleDelete = (form: FormData) => {
-    startDeleteTransition(() => {
+    startDeleteTransition(async () => {
+      await deleteApiKeyAction(form);
       removeApiKeyHandler(form.get('keyId') as string);
-      deleteApiKeyAction(form);
       setShowDeletePopup(false);
     });
   };
