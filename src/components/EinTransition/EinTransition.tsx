@@ -200,12 +200,14 @@ export function EinTransition<T extends unknown[] = [number]>(
       transitionIdRef.current = transitionId;
 
       // Loaded but not revealed yet, so nothing new is on screen to exit: wait
-      // for the newer content behind whatever snapshot is still there.
+      // for the newer content behind whatever snapshot is still there. Read off
+      // the clone, since `hideNew` may already hold a reveal this render brings.
       if (
         (transitionStep === 'merge' || transitionStep === 'enterInit') &&
-        hideNew
+        snapshot?.element.style.display === 'none'
       ) {
         childRef.current?.classList.remove(...stepClassNames);
+        setHideNew(true);
         setTransitionStep('waitForLoad');
         return;
       }
@@ -242,7 +244,7 @@ export function EinTransition<T extends unknown[] = [number]>(
       setHideNew(true);
       setTransitionStep('init');
     }
-  }, [changedDeps, snapshot, shouldTransition, transitionStep, hideNew]);
+  }, [changedDeps, snapshot, shouldTransition, transitionStep]);
 
   // Read during render: a restart in this commit replaces the ref before the
   // step effect runs, and the step it superseded must not carry on as the new
