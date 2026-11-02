@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Fragment,
+  isValidElement,
   type ReactNode,
   type RefObject,
   useCallback,
@@ -12,6 +14,16 @@ import { domFreeze } from '~/lib/utils/domFreeze';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import styles from './EinExpandable.module.scss';
 
+function isEmpty(node: ReactNode): boolean {
+  if (node == null || typeof node === 'boolean' || node === '') return true;
+  if (Array.isArray(node)) return node.every(isEmpty);
+  return (
+    isValidElement<{ children?: ReactNode }>(node) &&
+    node.type === Fragment &&
+    isEmpty(node.props.children)
+  );
+}
+
 function removeFrozen(frozen: RefObject<HTMLElement | null>) {
   frozen.current?.remove();
   frozen.current = null;
@@ -20,9 +32,10 @@ function removeFrozen(frozen: RefObject<HTMLElement | null>) {
 /**
  * A panel that animates open and closed through a grid row, so nothing is
  * measured. Closed, it is inert, and content the caller keeps passing stays
- * mounted. Content dropped as it closes (a list row's detail) leaves a frozen
- * copy for the closing transition. The root carries `data-expandable` so
- * `useScrollToExpanded` can account for sibling panels mid-transition. Its
+ * mounted. It clips only while closed or animating, so popups in an open panel
+ * are not cut off. Content dropped as it closes (a list row's detail) leaves a
+ * frozen copy for the closing transition. The root carries `data-expandable`
+ * so `useScrollToExpanded` can account for sibling panels mid-transition. Its
  * duration is `--ein-expandable-duration`, set in CSS.
  */
 export function EinExpandable({
@@ -45,7 +58,9 @@ export function EinExpandable({
   // Updated in a layout effect, so it still holds the last commit's value when
   // React removes dropped content.
   const wasExpanded = useRef(expanded);
-  const hasContent = children != null && typeof children !== 'boolean';
+  // Content that renders nothing has to unmount the wrapper: its ref cleanup
+  // is what leaves the frozen copy
+  const hasContent = !isEmpty(children);
 
   const attachContent = useCallback((content: HTMLDivElement) => {
     removeFrozen(frozenRef);

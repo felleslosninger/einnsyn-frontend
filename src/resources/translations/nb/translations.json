@@ -11,6 +11,17 @@
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Forbli innlogget",
     "forgottenPassword": "Glemt passord?",
+    "resetPassword": "Tilbakestill passord",
+    "resetPasswordSent": "Hvis e-postadressen har en konto hos oss, har vi sendt deg en lenke for å tilbakestille passordet.",
+    "backToLogin": "Tilbake til innlogging",
+    "noAccount": "Har du ikke konto?",
+    "createAccount": "Opprett konto",
+    "managesOrganization": "Forvalter du en virksomhet?",
+    "ansattportenLogin": "Logg inn gjennom Ansattporten",
+    "registerSent": "Hvis e-postadressen ikke allerede har en konto hos oss, har vi sendt deg en lenke for å aktivere kontoen.",
+    "repeatPassword": "Gjenta passord",
+    "passwordRequirements": "Minst 8 tegn, med store og små bokstaver og minst ett tall eller spesialtegn",
+    "passwordsDoNotMatch": "Passordene er ikke like",
     "invalidUsernameOrPassword": "Ugyldig brukernavn eller passord",
     "loggedInAs": "Innlogget som $1",
     "unknownError": "En ukjent feil oppstod",
@@ -102,7 +113,15 @@
       "VIRKSOMHET": "Virksomhet"
     },
     "searchingIn": "Søker i",
-    "backToResults": "Tilbake til søkeresultat"
+    "backToResults": "Tilbake til søkeresultat",
+    "saveSearch": "Lagre søk",
+    "saveSearchName": "Navn på søket",
+    "saveSearchSubscribe": "Varsle meg om nye treff",
+    "saveSearchSubscribeDescription": "Vi sender deg en e-post hver morgen klokken 06:00 hvis søket har nye treff.",
+    "saveSearchSuccess": "Søket er lagret",
+    "saveSearchError": "Kunne ikke lagre søket",
+    "saveSearchMissingLabel": "Gi søket et navn",
+    "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
   "routing": {
     "root": {

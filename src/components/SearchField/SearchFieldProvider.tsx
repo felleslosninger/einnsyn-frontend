@@ -171,7 +171,7 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
         newTokens.push({
           prefix: property,
           value,
-          quoted: false, // TODO: Determine if quoting is needed
+          quoted: false,
           sign: undefined,
           focused: false,
         });

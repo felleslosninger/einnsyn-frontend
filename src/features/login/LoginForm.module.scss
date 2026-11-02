@@ -1,45 +1,13 @@
-@use '~/styles/mediaQueries.scss' as *;
-
-.loginContainer {
-  display: flex;
-  align-items: center;
-  //width: px(400);
-
-  @include small {
-    width: 100%;
-  }
-}
-
 .loginOptionsContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 2rem;
 }
 
+// On a `ds-fieldset`, which resets it and spaces the fields
 .loginFieldset {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  gap: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
-}
-
-.loginInputContainer {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 1.5rem;
-}
-
-.updatePasswordContainer {
-  display: flex;
-  align-items: center;
-  width: 100%;
+  --dsc-fieldset-gap: var(--ein-horizontal-spacing);
 }
 
 .rememberForgottenWrapper {
@@ -48,31 +16,46 @@
   flex-flow: row nowrap;
   justify-content: space-between !important;
   align-items: center;
-  //gap: px(16);
-
-  > button {
-    width: fit-content;
-  }
 }
 
-.forgotPasswordLink,
-.createUserAccountBtn {
+.forgotPasswordLink {
   width: fit-content;
   height: max-content;
   font-weight: 500;
+}
 
-  &:visited {
-    color: var(--fds-semantic-text-action-primary-default);
-    text-decoration-color: var(--fds-semantic-text-action-primary-default);
-  }
+// Under the button, on the steps that lead back to the login. It spans the
+// row, as a collapsed one sized to its contained content would be 0 wide.
+.backToLogin {
+  align-self: stretch;
+  margin-top: var(--ds-size-4);
+  font-weight: 500;
+}
 
-  &:active {
-    color: var(--fds-semantic-text-action-primary-active);
-    text-decoration-color: var(--fds-semantic-text-action-primary-active);
-  }
+// As a grid item, the link is a block as tall as its line, like "Glemt passord?"
+.backToLoginContent {
+  display: grid;
+  justify-items: end;
+}
 
-  &:hover {
-    color: var(--fds-semantic-text-action-primary-hover);
-    text-decoration-color: var(--fds-semantic-text-action-primary-hover);
-  }
+// The message box spaces itself from the fields, so the space closes with it
+.notice {
+  margin-bottom: var(--dsc-fieldset-gap);
+}
+
+.username {
+  margin-top: 0;
+}
+
+// The password rules, as a footnote to the form
+.passwordHint p {
+  margin: 0;
+  font-size: var(--ds-font-size-minus-1);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+// A message wraps within the form's width instead of widening the modal.
+.formAlert,
+.passwordHint {
+  contain: inline-size;
 }
