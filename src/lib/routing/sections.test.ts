@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
-import nb from '../../resources/translations/nb/translations.json';
+import { ROUTES } from './routes';
 import {
   getSection,
   isModalSection,
@@ -108,7 +108,10 @@ describe('isModalSection', () => {
     for (const section of sections) {
       assert.equal(isModalSection(section), true, section);
     }
-    for (const page of Object.keys(nb.routing.root) as Section[]) {
+    const rootPages = Object.keys(ROUTES).filter(
+      (folder) => !/^\[/.test(folder),
+    );
+    for (const page of rootPages as Section[]) {
       assert.equal(isModalSection(page), sections.has(page), page);
     }
   });

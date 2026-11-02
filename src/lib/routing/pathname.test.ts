@@ -24,10 +24,53 @@ describe('parsePathname', () => {
     assert.deepEqual(parsePathname('/om'), { page: 'about' });
     assert.deepEqual(parsePathname('/personvern'), { page: 'privacy' });
     assert.deepEqual(parsePathname('/login'), { page: 'login' });
+    assert.deepEqual(parsePathname('/logg-inn'), { page: 'login' });
   });
 
   it('reads a root page with segments below it', () => {
     assert.deepEqual(parsePathname('/admin/abc/api-keys'), { page: 'admin' });
+  });
+
+  it('reads a login step in any language, encoding or case', () => {
+    for (const path of [
+      '/login/register',
+      '/logg-inn/opprett-konto',
+      '/login/create-account',
+    ]) {
+      assert.deepEqual(
+        parsePathname(path),
+        { page: 'login', step: 'register' },
+        path,
+      );
+    }
+    for (const path of [
+      '/LOGIN/Forgotten-Password?x=1',
+      '/logg-inn/glemt-passord',
+      '/logg-inn/gl%C3%B8ymt-passord',
+    ]) {
+      assert.deepEqual(
+        parsePathname(path),
+        { page: 'login', step: 'forgotten-password' },
+        path,
+      );
+    }
+    assert.deepEqual(parsePathname('/login/unknown'), { page: 'login' });
+    assert.deepEqual(parsePathname('/admin/register'), { page: 'admin' });
+  });
+
+  it('reads every login route folder as a step', async () => {
+    const folders = (
+      await readdir(new URL('../../app/login', import.meta.url), {
+        withFileTypes: true,
+      })
+    )
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+
+    assert.ok(folders.length > 0);
+    for (const folder of folders) {
+      assert.equal(parsePathname(`/login/${folder}`)?.step, folder, folder);
+    }
   });
 
   it('reads an enhet, normalized', () => {
@@ -126,6 +169,18 @@ describe('buildPathname', () => {
     assert.equal(buildPathname({ page: 'search' }, 'nb'), '/s%C3%B8k');
     assert.equal(buildPathname({ page: 'search' }, 'en'), '/search');
     assert.equal(
+      buildPathname({ page: 'login', step: 'register' }, 'nb'),
+      '/logg-inn/opprett-konto',
+    );
+    assert.equal(
+      buildPathname({ page: 'login', step: 'register' }, 'en'),
+      '/login/create-account',
+    );
+    assert.equal(
+      buildPathname({ page: 'login', step: 'register' }, 'se'),
+      '/login/register',
+    );
+    assert.equal(
       buildPathname(
         { enhetIdentifier: 'oslo', saksmappeIdentifier: 'sm_1' },
         'en',
@@ -151,6 +206,8 @@ describe('buildPathname', () => {
       { page: 'search' },
       { page: 'about' },
       { page: 'admin' },
+      { page: 'login' },
+      { page: 'login', step: 'forgotten-password' },
       { enhetIdentifier: 'trøndelag' },
       { enhetIdentifier: 'oslo', saksmappeIdentifier: 'a/b' },
       {
@@ -175,14 +232,36 @@ describe('buildPathname', () => {
 
 describe('routeRewrites', () => {
   const withParams = (pattern: string) =>
-    pattern
-      .replace(':enhet', 'oslo')
-      .replace(':rest*', 'a/b')
-      .replace(':mappe', 'sm_1')
-      .replace(':child', 'jp_1');
+    pattern.replace(':enhet', 'oslo').replace(':rest*', 'a/b');
+
+  // As Next applies `beforeFiles` rewrites: in order, each to the last result.
+  const applyRewrites = (pathname: string) =>
+    routeRewrites().reduce((path, { source, destination }) => {
+      const token = /\/:rest\*|:\w+/g;
+      const pattern = source.replace(token, (param) =>
+        param === '/:rest*' ? '(/.+)' : '([^/]+)',
+      );
+      const match = new RegExp(`^${pattern}$`).exec(path);
+      let group = 1;
+      return match ? destination.replace(token, () => match[group++]) : path;
+    }, pathname);
 
   it('is what next.config.ts serves', async () => {
-    assert.deepEqual(await nextConfig.rewrites?.(), routeRewrites());
+    assert.deepEqual(await nextConfig.rewrites?.(), {
+      beforeFiles: routeRewrites(),
+    });
+  });
+
+  it('resolves a path translated at every level', () => {
+    for (const [path, folders] of [
+      ['/logg-inn/opprett-konto', '/login/register'],
+      ['/logg-inn/gl%C3%B8ymt-passord', '/login/forgotten-password'],
+      ['/s%C3%B8k/a', '/search/a'],
+      ['/oslo/%C3%A1%C5%A1%C5%A1i/sm_1/jp_1', '/oslo/saksmappe/sm_1/jp_1'],
+      ['/oslo/meeting/mm_1', '/oslo/moetemappe/mm_1'],
+    ]) {
+      assert.equal(applyRewrites(path), folders, path);
+    }
   });
 
   it('reads each source exactly as its destination', () => {
