@@ -12,7 +12,8 @@
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --import=tsx --conditions=react-server --experimental-test-module-mocks"
+    "test": "node --test --import=tsx --conditions=react-server --experimental-test-module-mocks",
+    "test:playwright": "playwright test"
   },
   "dependencies": {
     "@digdir/designsystemet-css": "^1.23.0",
@@ -31,10 +32,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.4",
+    "@playwright/test": "1.64.1",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "8.3.5"
   }
 }

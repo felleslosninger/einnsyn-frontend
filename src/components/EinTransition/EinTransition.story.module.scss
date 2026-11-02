@@ -1,0 +1,37 @@
+// Step rules shaped like a page transition's: equal specificity in step order,
+// so the entry rules win over the exit rules wherever both apply, and an entry
+// that ends on the resting values.
+.page {
+  height: 120px;
+}
+
+.page:global(.ein-transition-init-transition),
+.page:global(.ein-transition-init-exit-transition) {
+  transition: none;
+}
+
+.page:global(.ein-transition-exit-transition) {
+  opacity: 0;
+  translate: -48px;
+  transition:
+    opacity 200ms linear,
+    translate 200ms linear;
+}
+
+.page:global(.ein-transition-wait) {
+  transition: none;
+}
+
+.page:global(.ein-transition-init-enter-transition) {
+  opacity: 0;
+  translate: 12px;
+  transition: none;
+}
+
+.page:global(.ein-transition-enter-transition) {
+  opacity: 1;
+  translate: none;
+  transition:
+    opacity 300ms linear,
+    translate 300ms linear;
+}
