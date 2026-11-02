@@ -39,6 +39,20 @@ export function serializeParamList(
   return normalizeParamList(values, options).join(',');
 }
 
+export function toggleParamListValue(
+  currentValue: string | undefined,
+  value: string,
+  isIncluded: boolean,
+): string | undefined {
+  const values = new Set(parseParamList(currentValue));
+  if (isIncluded) {
+    values.add(value);
+  } else {
+    values.delete(value);
+  }
+  return serializeParamList([...values], { sort: true }) || undefined;
+}
+
 export function addParamListValue(values: string[], value: string): string[] {
   const normalizedValue = value.trim();
   if (normalizedValue.length === 0 || values.includes(normalizedValue)) {

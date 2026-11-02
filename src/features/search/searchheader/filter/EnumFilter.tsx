@@ -1,8 +1,8 @@
 import { Checkbox, Fieldset } from '@digdir/designsystemet-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import cn from '~/lib/utils/className';
-import { parseParamList, serializeParamList } from '~/lib/utils/paramList';
+import { parseParamList, toggleParamListValue } from '~/lib/utils/paramList';
 import styles from './EnumFilter.module.scss';
 
 type Option = {
@@ -29,25 +29,16 @@ export function EnumFilter({
   initialValue?: string;
   setValue?: (value: string | undefined) => void;
 }) {
-  const [selectedValues, setSelectedValues] = useState(() => {
-    return new Set(parseParamList(initialValue));
-  });
+  const selectedValues = useMemo(
+    () => new Set(parseParamList(initialValue)),
+    [initialValue],
+  );
 
   const handleChange = useCallback(
     (toggledValue: string, isChecked: boolean) => {
-      const newSelectedValues = new Set(selectedValues);
-      if (isChecked) {
-        newSelectedValues.add(toggledValue);
-      } else {
-        newSelectedValues.delete(toggledValue);
-      }
-      setSelectedValues(newSelectedValues);
-      const valueString = serializeParamList(Array.from(newSelectedValues), {
-        sort: true,
-      });
-      setValue?.(valueString === '' ? undefined : valueString);
+      setValue?.(toggleParamListValue(initialValue, toggledValue, isChecked));
     },
-    [selectedValues, setValue],
+    [initialValue, setValue],
   );
 
   return (
