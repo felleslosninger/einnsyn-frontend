@@ -28,13 +28,27 @@ export type ExtendedAuthInfo = AuthInfo & {
   bruker?: Bruker;
 };
 
+export type AuthError =
+  | 'authenticationError'
+  | 'invalidPassword'
+  | 'invalidUsername'
+  | 'passwordMismatch'
+  | 'unknownError';
+
+/** The state `useActionState` carries between password reset requests. */
+export type PasswordResetState = {
+  sent?: boolean;
+  error?: AuthError;
+};
+
+/** The state `useActionState` carries between registration attempts. */
+export type RegisterState = {
+  sent?: boolean;
+  error?: AuthError;
+};
+
 /** The state `useActionState` carries between login attempts. */
 export type LoginState = {
   success?: boolean;
-  valid?: {
-    username: boolean;
-    password: boolean;
-  };
-  error?: string;
-  message?: string;
+  error?: AuthError;
 };
