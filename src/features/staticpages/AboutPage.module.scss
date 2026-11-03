@@ -1,0 +1,82 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-12);
+  max-width: 800px;
+  padding-block-end: var(--ein-vertical-spacing);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ds-size-4);
+
+  @include mq.small {
+    grid-template-columns: 1fr;
+  }
+
+  >:last-child {
+    grid-column: 1 / -1;
+  }
+
+  // Specific enough to beat Designsystemet's `.ds-card:not([hidden])`
+  >.featureCard:not([hidden]) {
+    --dsc-card-padding: var(--ds-size-5);
+    --dsc-card-content-margin-block: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-content: start;
+    gap: var(--ds-size-1) var(--ds-size-5);
+  }
+}
+
+.featureIcon {
+  grid-row: span 2;
+  display: inline-grid;
+  place-items: center;
+  width: var(--ds-size-12);
+  height: var(--ds-size-12);
+  border-radius: 50%;
+  background: var(--ds-color-accent-surface-tinted);
+  color: var(--ds-color-accent-text-subtle);
+  font-size: 1.75rem;
+}
+
+.headingWithIcon {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+
+  >svg {
+    flex-shrink: 0;
+    color: var(--ds-color-accent-text-subtle);
+  }
+}
+
+.detailsContent>*+* {
+  margin-block-start: var(--ds-size-3);
+}
+
+.contactList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-3) var(--ds-size-8);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+
+  >svg {
+    color: var(--ds-color-accent-text-subtle);
+  }
+}
