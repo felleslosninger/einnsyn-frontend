@@ -13,7 +13,7 @@ import {
 } from '~/components/EinModal/EinModal';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { matchesPath, toLocalizedPath } from '~/lib/routing/pathname';
+import { matchPath, toLocalizedPath } from '~/lib/routing/pathname';
 import { AnsattportenLoginButton } from './AnsattportenLoginButton';
 import LoginForm, { type LoginFormMode, stepNames } from './LoginForm';
 import styles from './LoginModal.module.scss';
@@ -27,9 +27,9 @@ export default function LoginModal({ children }: { children: ReactNode }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const pathname = usePathname();
-  const mode: LoginFormMode = matchesPath(pathname, '/login/register')
+  const mode: LoginFormMode = matchPath(pathname, '/login/register')
     ? 'register'
-    : matchesPath(pathname, '/login/forgotten-password')
+    : matchPath(pathname, '/login/forgotten-password')
       ? 'forgotten-password'
       : 'login';
 

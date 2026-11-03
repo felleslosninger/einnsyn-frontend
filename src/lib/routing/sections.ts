@@ -1,4 +1,4 @@
-import { matchesExactPath, matchesPath } from './pathname';
+import { matchExactPath, matchPath } from './pathname';
 
 /**
  * Whether this pathname opens as a modal over the page beneath it, from
@@ -6,7 +6,7 @@ import { matchesExactPath, matchesPath } from './pathname';
  * decides after.
  */
 export function isModal(pathname: string): boolean {
-  return !!matchesPath(pathname, '/login');
+  return !!matchPath(pathname, '/login');
 }
 
 /**
@@ -22,9 +22,9 @@ export function isModal(pathname: string): boolean {
 export function showsSearchResults(pathname: string): boolean {
   // The landing page carries the search field with an empty query.
   return !!(
-    matchesExactPath(pathname, '/') ||
-    matchesExactPath(pathname, '/search') ||
-    matchesExactPath(pathname, '/[enhet]')
+    matchExactPath(pathname, '/') ||
+    matchExactPath(pathname, '/search') ||
+    matchExactPath(pathname, '/[enhet]')
   );
 }
 
@@ -38,8 +38,8 @@ export function showsSearchResults(pathname: string): boolean {
  */
 export function showsSearchField(pathname: string): boolean {
   return !!(
-    matchesExactPath(pathname, '/') ||
-    matchesPath(pathname, '/search') ||
-    matchesPath(pathname, '/[enhet]')
+    matchExactPath(pathname, '/') ||
+    matchPath(pathname, '/search') ||
+    matchPath(pathname, '/[enhet]')
   );
 }

@@ -8,8 +8,8 @@ import {
 } from '../translation/translation';
 import {
   getPathEnhet,
-  matchesExactPath,
-  matchesPath,
+  matchExactPath,
+  matchPath,
   type Route,
   resolvePath,
   routeRewrites,
@@ -66,16 +66,16 @@ describe('resolvePath', () => {
   });
 });
 
-describe('matchesExactPath', () => {
+describe('matchExactPath', () => {
   it('matches home', () => {
-    assert.deepEqual(matchesExactPath('/', '/'), []);
-    assert.deepEqual(matchesExactPath('', '/'), []);
-    assert.equal(matchesExactPath('/search', '/'), undefined);
+    assert.deepEqual(matchExactPath('/', '/'), []);
+    assert.deepEqual(matchExactPath('', '/'), []);
+    assert.equal(matchExactPath('/search', '/'), undefined);
   });
 
   it('matches a root page in any language, encoding or case', () => {
     for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
-      assert.deepEqual(matchesExactPath(path, '/search'), [], path);
+      assert.deepEqual(matchExactPath(path, '/search'), [], path);
     }
   });
 
@@ -85,7 +85,7 @@ describe('matchesExactPath', () => {
       '/logg-inn/opprett-konto',
       '/login/create-account',
     ]) {
-      assert.deepEqual(matchesExactPath(path, '/login/register'), [], path);
+      assert.deepEqual(matchExactPath(path, '/login/register'), [], path);
     }
     for (const path of [
       '/LOGIN/Forgotten-Password?x=1',
@@ -93,7 +93,7 @@ describe('matchesExactPath', () => {
       '/logg-inn/gl%C3%B8ymt-passord',
     ]) {
       assert.deepEqual(
-        matchesExactPath(path, '/login/forgotten-password'),
+        matchExactPath(path, '/login/forgotten-password'),
         [],
         path,
       );
@@ -101,40 +101,40 @@ describe('matchesExactPath', () => {
   });
 
   it('matches an enhet, decoded but not case-folded', () => {
-    assert.deepEqual(matchesExactPath('/oslo', '/[enhet]'), ['oslo']);
-    assert.deepEqual(matchesExactPath('/OSLO', '/[enhet]'), ['OSLO']);
-    assert.deepEqual(matchesExactPath('/tr%C3%B8ndelag', '/[enhet]'), [
+    assert.deepEqual(matchExactPath('/oslo', '/[enhet]'), ['oslo']);
+    assert.deepEqual(matchExactPath('/OSLO', '/[enhet]'), ['OSLO']);
+    assert.deepEqual(matchExactPath('/tr%C3%B8ndelag', '/[enhet]'), [
       'trøndelag',
     ]);
     // A typo is indistinguishable from an enhet slug, by design.
-    assert.deepEqual(matchesExactPath('/serach', '/[enhet]'), ['serach']);
+    assert.deepEqual(matchExactPath('/serach', '/[enhet]'), ['serach']);
     // A malformed escape is kept as is.
-    assert.deepEqual(matchesExactPath('/100%', '/[enhet]'), ['100%']);
+    assert.deepEqual(matchExactPath('/100%', '/[enhet]'), ['100%']);
   });
 
   it('never reads a root page as an enhet', () => {
-    assert.equal(matchesExactPath('/search', '/[enhet]'), undefined);
-    assert.equal(matchesExactPath('/S%C3%B8K', '/[enhet]'), undefined);
+    assert.equal(matchExactPath('/search', '/[enhet]'), undefined);
+    assert.equal(matchExactPath('/S%C3%B8K', '/[enhet]'), undefined);
   });
 
   it('is undefined for any other route, including the paths below it', () => {
-    assert.equal(matchesExactPath('/login/register', '/login'), undefined);
-    assert.equal(matchesExactPath('/login/unknown', '/login'), undefined);
-    assert.equal(matchesExactPath('/admin/abc/api-keys', '/admin'), undefined);
+    assert.equal(matchExactPath('/login/register', '/login'), undefined);
+    assert.equal(matchExactPath('/login/unknown', '/login'), undefined);
+    assert.equal(matchExactPath('/admin/abc/api-keys', '/admin'), undefined);
     assert.equal(
-      matchesExactPath('/oslo/sak', '/[enhet]/saksmappe/[saksmappe]'),
+      matchExactPath('/oslo/sak', '/[enhet]/saksmappe/[saksmappe]'),
       undefined,
     );
     assert.equal(
-      matchesExactPath('/oslo/unknown/abc', '/[enhet]/saksmappe/[saksmappe]'),
+      matchExactPath('/oslo/unknown/abc', '/[enhet]/saksmappe/[saksmappe]'),
       undefined,
     );
     assert.equal(
-      matchesExactPath('/oslo/sak/sm_1', '/[enhet]/moetemappe/[moetemappe]'),
+      matchExactPath('/oslo/sak/sm_1', '/[enhet]/moetemappe/[moetemappe]'),
       undefined,
     );
     assert.equal(
-      matchesExactPath(
+      matchExactPath(
         '/oslo/sak/sm_1/jp_1/extra',
         '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
       ),
@@ -143,29 +143,29 @@ describe('matchesExactPath', () => {
   });
 });
 
-describe('matchesPath', () => {
+describe('matchPath', () => {
   it('matches a route and the paths below it', () => {
-    assert.deepEqual(matchesPath('/login', '/login'), []);
-    assert.deepEqual(matchesPath('/logg-inn/opprett-konto', '/login'), []);
-    assert.deepEqual(matchesPath('/login/unknown', '/login'), []);
-    assert.deepEqual(matchesPath('/admin/abc/api-keys', '/admin'), []);
+    assert.deepEqual(matchPath('/login', '/login'), []);
+    assert.deepEqual(matchPath('/logg-inn/opprett-konto', '/login'), []);
+    assert.deepEqual(matchPath('/login/unknown', '/login'), []);
+    assert.deepEqual(matchPath('/admin/abc/api-keys', '/admin'), []);
   });
 
   it("takes values from the route's own segments only", () => {
-    assert.deepEqual(matchesPath('/oslo/sak/sm_1/jp_1', '/[enhet]'), ['oslo']);
+    assert.deepEqual(matchPath('/oslo/sak/sm_1/jp_1', '/[enhet]'), ['oslo']);
     assert.deepEqual(
-      matchesPath('/oslo/sak/sm_1/jp_1', '/[enhet]/saksmappe/[saksmappe]'),
+      matchPath('/oslo/sak/sm_1/jp_1', '/[enhet]/saksmappe/[saksmappe]'),
       ['oslo', 'sm_1'],
     );
   });
 
   it('is undefined above or beside the route', () => {
-    assert.equal(matchesPath('/login', '/login/register'), undefined);
+    assert.equal(matchPath('/login', '/login/register'), undefined);
     assert.equal(
-      matchesPath('/oslo', '/[enhet]/saksmappe/[saksmappe]'),
+      matchPath('/oslo', '/[enhet]/saksmappe/[saksmappe]'),
       undefined,
     );
-    assert.equal(matchesPath('/admin/abc', '/[enhet]'), undefined);
+    assert.equal(matchPath('/admin/abc', '/[enhet]'), undefined);
   });
 });
 
@@ -235,7 +235,7 @@ describe('toLocalizedPath', () => {
     );
   });
 
-  it('round-trips every route through matchesExactPath in every language', () => {
+  it('round-trips every route through matchExactPath in every language', () => {
     // The routes are mixed, so their values can't be typed per route.
     const localize = toLocalizedPath as (
       languageCode: LanguageCode,
@@ -248,7 +248,7 @@ describe('toLocalizedPath', () => {
       for (const languageCode of supportedLanguages) {
         const href = localize(languageCode, route, ...values);
         assert.deepEqual(
-          matchesExactPath(href, route),
+          matchExactPath(href, route),
           values,
           `${languageCode} ${href}`,
         );
@@ -266,11 +266,13 @@ describe('routeRewrites', () => {
     routeRewrites().reduce((path, { source, destination }) => {
       const token = /\/:rest\*|:\w+/g;
       const pattern = source.replace(token, (param) =>
-        param === '/:rest*' ? '(/.+)' : '([^/]+)',
+        param === '/:rest*' ? '(/.+)?' : '([^/]+)',
       );
       const match = new RegExp(`^${pattern}$`).exec(path);
       let group = 1;
-      return match ? destination.replace(token, () => match[group++]) : path;
+      return match
+        ? destination.replace(token, () => match[group++] ?? '')
+        : path;
     }, pathname);
 
   it('is what next.config.ts serves', async () => {

@@ -8,7 +8,7 @@ import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
-  matchesExactPath,
+  matchExactPath,
   type Route,
   toLocalizedPath,
 } from '~/lib/routing/pathname';
@@ -85,7 +85,7 @@ export default function Footer() {
   }, [stick, isAtBottom]);
 
   const getLinkClassName = (route: Route) => {
-    return cn('ein-link', { active: !!matchesExactPath(pathname, route) });
+    return cn('ein-link', { active: !!matchExactPath(pathname, route) });
   };
 
   return (

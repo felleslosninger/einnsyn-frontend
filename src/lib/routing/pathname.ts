@@ -10,32 +10,31 @@ type Values<R extends string> = R extends `${string}[${string}]${infer Rest}`
   ? [string, ...Values<Rest>]
   : [];
 
-// `ROUTES`, indexable by any path.
-const TRANSLATIONS: Readonly<Record<string, Translations>> = ROUTES;
+type Subfolders = { bySpelling: Map<string, string>; dynamic?: string };
 
-type Children = { bySpelling: Map<string, string>; dynamic?: string };
+// The folders directly below each route ('' for the root): the static ones by
+// every normalized spelling, and the dynamic one.
+const SUBFOLDERS = indexSubfolders();
 
-const CHILDREN = indexChildren();
-
-// Below each route ('' for the root): its static children by every normalized
-// spelling, and its dynamic child.
-function indexChildren(): Map<string, Children> {
-  const index = new Map<string, Children>();
-  for (const [route, translations] of Object.entries(TRANSLATIONS)) {
-    const [parent, name] = splitLast(route);
-    const children: Children = index.get(parent) ?? { bySpelling: new Map() };
-    index.set(parent, children);
-    if (isDynamic(name)) {
-      children.dynamic = name;
+function indexSubfolders(): Map<string, Subfolders> {
+  const index = new Map<string, Subfolders>();
+  for (const [route, translations] of Object.entries(ROUTES)) {
+    const [parent, folder] = splitLast(route);
+    const subfolders: Subfolders = index.get(parent) ?? {
+      bySpelling: new Map(),
+    };
+    index.set(parent, subfolders);
+    if (isDynamic(folder)) {
+      subfolders.dynamic = folder;
       continue;
     }
-    for (const spelling of [name, ...Object.values(translations)]) {
+    for (const spelling of [folder, ...Object.values(translations)]) {
       const key = normalizeSegment(spelling);
-      const existing = children.bySpelling.get(key);
-      if (existing !== undefined && existing !== name) {
-        throw new Error(`"${spelling}" spells both ${existing} and ${name}`);
+      const existing = subfolders.bySpelling.get(key);
+      if (existing !== undefined && existing !== folder) {
+        throw new Error(`"${spelling}" spells both ${existing} and ${folder}`);
       }
-      children.bySpelling.set(key, name);
+      subfolders.bySpelling.set(key, folder);
     }
   }
   return index;
@@ -47,23 +46,37 @@ function indexChildren(): Map<string, Children> {
  * '[saksmappe]']`, and `/` gives `[]`.
  */
 export function resolvePath(pathname: string): string[] {
-  return walk(pathname).folders;
+  const folders: string[] = [];
+  let route = '';
+  for (const segment of pathSegments(pathname)) {
+    const subfolders = SUBFOLDERS.get(route);
+    // As in Next, a static segment wins over a dynamic one.
+    const folder =
+      subfolders?.bySpelling.get(normalizeSegment(segment)) ??
+      subfolders?.dynamic;
+    if (folder === undefined) {
+      break;
+    }
+    folders.push(folder);
+    route += `/${folder}`;
+  }
+  return folders;
 }
 
 /**
  * The values of `route`'s dynamic segments, in order, if `pathname`, spelled
  * in any language, is that route or below it; `undefined` if not. Every path
- * is below `/`, so home is checked with `matchesExactPath`.
+ * is below `/`, so home is checked with `matchExactPath`.
  */
-export function matchesPath<R extends Exclude<Route, '/'>>(
+export function matchPath<R extends Exclude<Route, '/'>>(
   pathname: string,
   route: R,
 ): Values<R> | undefined {
   return match(pathname, route, false) as Values<R> | undefined;
 }
 
-/** {@link matchesPath} for `route` itself, not the paths below it. */
-export function matchesExactPath<R extends Route>(
+/** {@link matchPath} for `route` itself, not the paths below it. */
+export function matchExactPath<R extends Route>(
   pathname: string,
   route: R,
 ): Values<R> | undefined {
@@ -75,39 +88,20 @@ function match(
   route: string,
   exact: boolean,
 ): string[] | undefined {
-  const { folders, values, isComplete } = walk(pathname);
+  const segments = pathSegments(pathname);
+  const folders = resolvePath(pathname);
   const routeFolders = pathSegments(route);
-  if (
-    routeFolders.some((folder, index) => folder !== folders[index]) ||
-    (exact && (folders.length > routeFolders.length || !isComplete))
-  ) {
+  const isAtOrBelow = routeFolders.every(
+    (folder, index) => folder === folders[index],
+  );
+  const isAt = isAtOrBelow && segments.length === routeFolders.length;
+  if (exact ? !isAt : !isAtOrBelow) {
     return undefined;
   }
-  return values.slice(0, routeFolders.filter(isDynamic).length);
-}
-
-// The folders `pathname`'s segments lead through, and the decoded values of the
-// dynamic ones, up to the first segment that matches none.
-function walk(pathname: string) {
-  const segments = pathSegments(pathname);
-  const folders: string[] = [];
-  const values: string[] = [];
-  let route = '';
-  for (const segment of segments) {
-    const children = CHILDREN.get(route);
-    // As in Next, a static segment wins over a dynamic one.
-    const folder =
-      children?.bySpelling.get(normalizeSegment(segment)) ?? children?.dynamic;
-    if (folder === undefined) {
-      break;
-    }
-    if (isDynamic(folder)) {
-      values.push(decodeSegment(segment));
-    }
-    folders.push(folder);
-    route += `/${folder}`;
-  }
-  return { folders, values, isComplete: folders.length === segments.length };
+  // `resolvePath` gives one folder per segment, so their indices line up.
+  return routeFolders.flatMap((folder, index) =>
+    isDynamic(folder) ? [decodeSegment(segments[index])] : [],
+  );
 }
 
 /** The href for `route`, its values filled in, spelled in the language. */
@@ -116,14 +110,15 @@ export function toLocalizedPath<R extends Route>(
   route: R,
   ...values: Values<R>
 ): string {
-  const filled: readonly string[] = values;
+  // `ROUTES`, indexable by the path built below.
+  const routes: Readonly<Record<string, Translations>> = ROUTES;
   let valueIndex = 0;
   let path = '';
-  const segments = pathSegments(route).map((name) => {
-    path += `/${name}`;
-    return isDynamic(name)
-      ? filled[valueIndex++]
-      : (TRANSLATIONS[path]?.[languageCode] ?? name);
+  const segments = pathSegments(route).map((folder) => {
+    path += `/${folder}`;
+    return isDynamic(folder)
+      ? values[valueIndex++]
+      : (routes[path]?.[languageCode] ?? folder);
   });
   return `/${segments.map(encodeURIComponent).join('/')}`;
 }
@@ -133,7 +128,7 @@ export function toLocalizedPath<R extends Route>(
  * lowercased, or `undefined` when the root segment is not an enhet.
  */
 export function getPathEnhet(pathname: string): string | undefined {
-  return matchesPath(pathname, '/[enhet]')?.[0].toLowerCase();
+  return matchPath(pathname, '/[enhet]')?.[0].toLowerCase();
 }
 
 type Rewrite = { source: string; destination: string };
@@ -145,19 +140,18 @@ type Rewrite = { source: string; destination: string };
  * the path its parent's rewrites wrote.
  */
 export function routeRewrites(): Rewrite[] {
-  return Object.entries(TRANSLATIONS).flatMap(([route, translations]) => {
+  return Object.entries(ROUTES).flatMap(([route, translations]) => {
     // Next spells a dynamic segment `:name`.
-    const [parent, name] = splitLast(route.replace(/\[(\w+)\]/g, ':$1'));
+    const [parent, folder] = splitLast(route.replace(/\[(\w+)\]/g, ':$1'));
     const translated = Object.values(translations)
-      .filter((spelling) => spelling !== name)
+      .filter((spelling) => spelling !== folder)
       // Browsers send non-ASCII segments percent-encoded: `ášši` as `%C3%A1…`.
       .flatMap((spelling) => [spelling, encodeURIComponent(spelling)]);
-    return [...new Set(translated)].flatMap((spelling) =>
-      ['', '/:rest*'].map((tail) => ({
-        source: `${parent}/${spelling}${tail}`,
-        destination: `${parent}/${name}${tail}`,
-      })),
-    );
+    // `:rest*` may be empty, so this covers the route and the paths below it.
+    return [...new Set(translated)].map((spelling) => ({
+      source: `${parent}/${spelling}/:rest*`,
+      destination: `${parent}/${folder}/:rest*`,
+    }));
   });
 }
 
@@ -167,8 +161,8 @@ function splitLast(path: string): [string, string] {
   return [path.slice(0, index), path.slice(index + 1)];
 }
 
-function isDynamic(name: string): boolean {
-  return name.startsWith('[');
+function isDynamic(folder: string): boolean {
+  return folder.startsWith('[');
 }
 
 /** Path segments, with any query/hash tail stripped. */
