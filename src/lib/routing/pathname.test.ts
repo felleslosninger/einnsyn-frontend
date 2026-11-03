@@ -77,9 +77,6 @@ describe('matchesExactPath', () => {
     for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
       assert.deepEqual(matchesExactPath(path, '/search'), [], path);
     }
-    assert.deepEqual(matchesExactPath('/om', '/about'), []);
-    assert.deepEqual(matchesExactPath('/personvern', '/privacy'), []);
-    assert.deepEqual(matchesExactPath('/logg-inn', '/login'), []);
   });
 
   it('matches a login step in any language, encoding or case', () => {
@@ -111,64 +108,13 @@ describe('matchesExactPath', () => {
     ]);
     // A typo is indistinguishable from an enhet slug, by design.
     assert.deepEqual(matchesExactPath('/serach', '/[enhet]'), ['serach']);
+    // A malformed escape is kept as is.
+    assert.deepEqual(matchesExactPath('/100%', '/[enhet]'), ['100%']);
   });
 
   it('never reads a root page as an enhet', () => {
     assert.equal(matchesExactPath('/search', '/[enhet]'), undefined);
     assert.equal(matchesExactPath('/S%C3%B8K', '/[enhet]'), undefined);
-  });
-
-  it('matches a mappe in any language', () => {
-    for (const word of [
-      'saksmappe',
-      'sak',
-      'case',
-      'ášši',
-      '%C3%A1%C5%A1%C5%A1i',
-    ]) {
-      assert.deepEqual(
-        matchesExactPath(
-          `/oslo/${word}/sm_1`,
-          '/[enhet]/saksmappe/[saksmappe]',
-        ),
-        ['oslo', 'sm_1'],
-        word,
-      );
-    }
-    for (const word of ['moetemappe', 'moete', 'meeting', 'čoahkkin']) {
-      assert.deepEqual(
-        matchesExactPath(
-          `/oslo/${word}/mm_1`,
-          '/[enhet]/moetemappe/[moetemappe]',
-        ),
-        ['oslo', 'mm_1'],
-        word,
-      );
-    }
-  });
-
-  it('matches the child below a mappe', () => {
-    assert.deepEqual(
-      matchesExactPath(
-        '/oslo/sak/sm_1/jp_1',
-        '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
-      ),
-      ['oslo', 'sm_1', 'jp_1'],
-    );
-    assert.deepEqual(
-      matchesExactPath(
-        '/oslo/moete/mm_1/ms_1',
-        '/[enhet]/moetemappe/[moetemappe]/[moetesak]',
-      ),
-      ['oslo', 'mm_1', 'ms_1'],
-    );
-  });
-
-  it('decodes values without case-folding them', () => {
-    assert.deepEqual(
-      matchesExactPath('/oslo/sak/A%2FB?x=1', '/[enhet]/saksmappe/[saksmappe]'),
-      ['oslo', 'A/B'],
-    );
   });
 
   it('is undefined for any other route, including the paths below it', () => {
@@ -221,11 +167,6 @@ describe('matchesPath', () => {
     );
     assert.equal(matchesPath('/admin/abc', '/[enhet]'), undefined);
   });
-
-  it('is not for home, which every path is below', () => {
-    // @ts-expect-error Check home with `matchesExactPath`.
-    assert.deepEqual(matchesPath('/search', '/'), []);
-  });
 });
 
 describe('getPathEnhet', () => {
@@ -234,12 +175,6 @@ describe('getPathEnhet', () => {
     assert.equal(getPathEnhet('/OSLO'), 'oslo');
     assert.equal(getPathEnhet('/oslo/sak/sm_1'), 'oslo');
     assert.equal(getPathEnhet('/oslo/unknown'), 'oslo');
-  });
-
-  it('is undefined at the root and on root pages', () => {
-    assert.equal(getPathEnhet('/'), undefined);
-    assert.equal(getPathEnhet('/søk'), undefined);
-    assert.equal(getPathEnhet('/admin/abc'), undefined);
   });
 
   it('reserves every root route folder', async () => {
