@@ -4,8 +4,8 @@
 // surface colour.
 .chart {
   --ein-chart-color-1: var(--ds-color-accent-base-default);
-  --ein-chart-color-2: var(--ds-color-danger-base-default);
-  --ein-chart-color-3: var(--ds-color-accent-text-default);
+  --ein-chart-color-2: var(--ds-color-accent-text-default);
+  --ein-chart-color-3: var(--ds-color-danger-base-default);
 
   display: grid;
   grid-template-columns: 1fr auto 1fr;

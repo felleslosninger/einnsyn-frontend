@@ -16,11 +16,21 @@ import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
+import type { UpcomingMeeting } from '~/lib/moetemappe/moetemappe.server';
+import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
-import { monthFormat } from '~/lib/utils/dateFormat';
+import {
+  getNorwegianDate,
+  meetingDateFormat,
+  monthFormat,
+} from '~/lib/utils/dateFormat';
 import { formatPhoneNumber } from '~/lib/utils/phoneNumber';
+import { capitalize } from '~/lib/utils/stringutils';
 import styles from './SelectedEnhetPanel.module.scss';
-import { getSelectedEnhets, type SelectedEnhet } from './search.actions';
+import {
+  getSelectedEnhetsAction,
+  type SelectedEnhet,
+} from './selectedEnhet.actions';
 
 type Selection = { key: string; enhets: SelectedEnhet[] };
 
@@ -37,7 +47,7 @@ const REUSE_LATEST_MS = 60 * 1000;
 function requestSelection(enhetIds: string[], key: string) {
   let request = requests.get(key);
   if (!request) {
-    request = getSelectedEnhets(enhetIds)
+    request = getSelectedEnhetsAction(enhetIds)
       .catch((): SelectedEnhet[] => [])
       .finally(() => requests.delete(key));
     requests.set(key, request);
@@ -45,7 +55,83 @@ function requestSelection(enhetIds: string[], key: string) {
   return request;
 }
 
-function EnhetCard({ enhet, statistics }: SelectedEnhet) {
+/** The meetings grouped by their day in Norway, in order. */
+function groupByDay(meetings: UpcomingMeeting[]) {
+  const days: { day: string; meetings: UpcomingMeeting[] }[] = [];
+  for (const meeting of meetings) {
+    const day = getNorwegianDate(meeting.moetedato);
+    const last = days.at(-1);
+    if (last?.day === day) {
+      last.meetings.push(meeting);
+    } else {
+      days.push({ day, meetings: [meeting] });
+    }
+  }
+  return days;
+}
+
+function UpcomingMeetings({ meetings }: { meetings: UpcomingMeeting[] }) {
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
+
+  return (
+    <section className={styles.meetings}>
+      <Heading level={3} data-size="2xs" className={styles.meetingsHeading}>
+        {t('moetemappe.upcoming')}
+      </Heading>
+      <ol className={styles.meetingDays}>
+        {groupByDay(meetings).map(({ day, meetings }) => {
+          const date = meetingDateFormat(meetings[0].moetedato, languageCode);
+          return (
+            <li key={day}>
+              <h4 className={styles.meetingDayHeading}>
+                <strong>{capitalize(date.fromToday)}</strong> ·{' '}
+                <time dateTime={day}>{date.date}</time>
+              </h4>
+              <ol className={styles.meetingList}>
+                {meetings.map(({ id, offentligTittel, moetedato, utvalg }) => {
+                  // An utvalg's meetings are titled with its name and the
+                  // date. A meeting held by a whole organisation keeps its
+                  // title, as the organisation's name wouldn't say which.
+                  const name =
+                    utvalg?.enhetstype === 'UTVALG'
+                      ? getName(utvalg, languageCode)
+                      : offentligTittel;
+                  return (
+                    <li key={id} className={styles.meeting}>
+                      <time dateTime={moetedato} className={styles.meetingTime}>
+                        {meetingDateFormat(moetedato, languageCode).time}
+                      </time>
+                      <p className={styles.meetingTitle}>
+                        {utvalg ? (
+                          <EinLink
+                            href={buildPathname(
+                              {
+                                enhetIdentifier: getEnhetIdentifier(utvalg),
+                                moetemappeIdentifier: id,
+                              },
+                              languageCode,
+                            )}
+                          >
+                            {name}
+                          </EinLink>
+                        ) : (
+                          name
+                        )}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ol>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const searchHref = useSearchHref();
@@ -128,6 +214,7 @@ function EnhetCard({ enhet, statistics }: SelectedEnhet) {
           ]}
         />
       )}
+      {meetings.length > 0 && <UpcomingMeetings meetings={meetings} />}
     </article>
   );
 }

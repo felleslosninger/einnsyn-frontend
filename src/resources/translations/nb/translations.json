@@ -203,7 +203,8 @@
   },
   "moetemappe": {
     "label": "Møte",
-    "labelPlural": "Møter"
+    "labelPlural": "Møter",
+    "upcoming": "Kommende møter"
   },
   "moetesak": {
     "label": "Møtesak",

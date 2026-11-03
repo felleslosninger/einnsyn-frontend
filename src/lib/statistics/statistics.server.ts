@@ -2,6 +2,7 @@ import 'server-only';
 
 import type EInnsynClient from '@digdir/einnsyn-sdk';
 import { getPublicApiClient } from '~/lib/api/api.server';
+import { createPeriodCache } from '~/lib/utils/periodCache';
 
 type StatisticsResponse = Awaited<
   ReturnType<EInnsynClient['statistics']['query']>
@@ -80,35 +81,16 @@ export function createStatisticsCache(
   fetchStatistics = queryStatistics,
   now: () => number = Date.now,
 ) {
-  // Keyed by id alone, so a new month replaces the entry instead of adding one.
-  const entries = new Map<
-    string,
-    { from: string; expiresAt: number; statistics: Promise<EnhetStatistics> }
-  >();
+  const cache = createPeriodCache<EnhetStatistics>(STATISTICS_TTL_MS, now);
 
   return (enhetId: string): Promise<EnhetStatistics> => {
     const months = getMonths(now());
     const [from] = months;
-    const entry = entries.get(enhetId);
-    if (entry?.from === from && now() < entry.expiresAt) {
-      return entry.statistics;
-    }
-
-    const statistics = fetchStatistics(enhetId, from).then((response) =>
-      toEnhetStatistics(response, months),
+    return cache(enhetId, from, () =>
+      fetchStatistics(enhetId, from).then((response) =>
+        toEnhetStatistics(response, months),
+      ),
     );
-    entries.set(enhetId, {
-      from,
-      expiresAt: now() + STATISTICS_TTL_MS,
-      statistics,
-    });
-    // A failure is not worth holding; the next caller retries.
-    statistics.catch(() => {
-      if (entries.get(enhetId)?.statistics === statistics) {
-        entries.delete(enhetId);
-      }
-    });
-    return statistics;
   };
 }
 

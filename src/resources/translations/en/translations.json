@@ -203,7 +203,8 @@
   },
   "moetemappe": {
     "label": "Meeting",
-    "labelPlural": "Meetings"
+    "labelPlural": "Meetings",
+    "upcoming": "Upcoming meetings"
   },
   "moetesak": {
     "label": "Meeting case",

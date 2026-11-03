@@ -140,10 +140,68 @@ $stickyGap: var(--ein-horizontal-spacing);
   overflow-wrap: anywhere;
 }
 
+.meetings,
 .statistics {
   margin-top: var(--ds-size-5);
   padding-top: var(--ds-size-5);
   border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-surface-hover);
+}
+
+.meetingsHeading {
+  margin: 0 0 var(--ds-size-3);
+}
+
+.meetingDays,
+.meetingList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meetingDays {
+  gap: var(--ds-size-5);
+}
+
+.meetingList {
+  gap: var(--ds-size-3);
+}
+
+.meetingDayHeading {
+  margin: 0 0 var(--ds-size-2);
+  font-size: var(--ds-font-size-2);
+  font-weight: var(--ds-font-weight-regular);
+  line-height: var(--ds-line-height-md);
+  color: var(--ds-color-neutral-text-subtle);
+
+  strong {
+    font-weight: var(--ds-font-weight-semibold);
+    color: var(--ds-color-neutral-text-default);
+  }
+}
+
+// The times form a column beside the meetings, level with their titles.
+.meeting {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--ds-size-3);
+  font-size: var(--ds-font-size-2);
+  line-height: var(--ds-line-height-md);
+
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.meetingTime {
+  font-variant-numeric: tabular-nums;
+}
+
+.meetingTitle {
+  font-size: var(--ds-font-size-3);
 }
 
 .statisticsSkeleton {
