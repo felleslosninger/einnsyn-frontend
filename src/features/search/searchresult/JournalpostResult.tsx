@@ -61,13 +61,21 @@ export default function JournalpostResult({
         </SearchResultSubheader>
         <JournalpostCorrespondence journalpost={item} />
         {/* TODO: implement open document functionality
-        <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
+        <a
+          href="http://localhost:3000"
+          className={styles.searchResultAction}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {translate('search.openDocument')}
         </a> */}
-        {/* TODO: implement order access functionality
-        <EinLink href="http://localhost:3000" className={styles.searchResultAction}>
+        {/* TODO: implement order access functionality */}
+        <EinLink
+          href="http://localhost:3000"
+          className={styles.searchResultAction}
+        >
           {translate('search.orderAccess')}
-        </EinLink> */}
+        </EinLink>
       </div>
     </div>
   );
