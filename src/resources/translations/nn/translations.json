@@ -2,6 +2,11 @@
   "site": {
     "settings": "Innstillingar",
     "login": "Logg inn",
+    "loginRequired": {
+      "title": "Du må logge inn",
+      "description": "Denne sida er berre tilgjengeleg når du er logga inn.",
+      "goToFrontPage": "Gå til framsida"
+    },
     "loggingIn": "Loggar inn",
     "logout": "Logg ut",
     "loggingOut": "Loggar ut",

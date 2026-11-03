@@ -2,6 +2,11 @@
   "site": {
     "settings": "Settings",
     "login": "Log in",
+    "loginRequired": {
+      "title": "You need to log in",
+      "description": "This page is only available when you are logged in.",
+      "goToFrontPage": "Go to front page"
+    },
     "loggingIn": "Logging in",
     "logout": "Log out",
     "loggingOut": "Logging out",

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { LoginRequired } from '~/features/login';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export default async function BrukerLayout({
@@ -7,7 +8,10 @@ export default async function BrukerLayout({
   children: React.ReactNode;
 }) {
   const authInfo = await cachedAuthInfo();
-  if (authInfo?.type !== 'Bruker') {
+  if (!authInfo) {
+    return <LoginRequired />;
+  }
+  if (authInfo.type !== 'Bruker') {
     notFound();
   }
 

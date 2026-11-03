@@ -4,7 +4,10 @@ import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export default async function BrukerHeaderLayout() {
   const authInfo = await cachedAuthInfo();
-  if (authInfo?.type !== 'Bruker') {
+  if (!authInfo) {
+    return null;
+  }
+  if (authInfo.type !== 'Bruker') {
     notFound();
   }
 
