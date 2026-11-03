@@ -67,6 +67,51 @@ let isQueued = false;
 let rafId: number | null = null;
 const subscribers = new Set<Subscriber>();
 
+// Scrolling the app does itself — a navigation, a row gliding into view — is
+// not the user changing direction, and the direction is what the header reads
+// to decide whether to compact. See `suspendScrollDirection`.
+let directionSuspensions = 0;
+
+// Adopt the current position and put every subscriber in `direction`, without
+// any accumulated distance behind it: the next real scroll is measured from
+// here, and needs its full threshold to change the direction again.
+const commitDirection = (direction: LastScrollDirection) => {
+  lastY = readScrollY();
+
+  subscribers.forEach((subscriber) => {
+    subscriber.currentDirection = null;
+    subscriber.accumulatedDistance = 0;
+
+    if (subscriber.committedDirection === direction) return;
+    subscriber.committedDirection = direction;
+    subscriber.setScrollDirection(direction);
+  });
+};
+
+/**
+ * Stop the scrolling that happens next from counting as the user's, and return
+ * the release for when it has finished. Position — `isAtTop`, `isAtBottom` —
+ * keeps up to date throughout; only the direction is held.
+ *
+ * The direction is settled upwards at once, not on release: an auto-scroll
+ * brings something into view, and a header that stays compacted until the
+ * scrolling stops spends the whole of it covering what is being scrolled to.
+ * Holding it there is then what keeps the scrolling itself from undoing it.
+ *
+ * Suspensions nest.
+ */
+export const suspendScrollDirection = (): (() => void) => {
+  directionSuspensions++;
+  commitDirection('up');
+  let released = false;
+
+  return () => {
+    if (released) return;
+    released = true;
+    directionSuspensions--;
+  };
+};
+
 const handleScroll = () => {
   isQueued = false;
   rafId = null;
@@ -89,7 +134,7 @@ const handleScroll = () => {
     if (newIsAtTop !== isAtTop) subscriber.setIsAtTop(newIsAtTop);
     if (newIsAtBottom !== isAtBottom) subscriber.setIsAtBottom(newIsAtBottom);
 
-    if (!direction) return;
+    if (!direction || directionSuspensions > 0) return;
 
     if (direction === subscriber.currentDirection) {
       subscriber.accumulatedDistance += absoluteDelta;
