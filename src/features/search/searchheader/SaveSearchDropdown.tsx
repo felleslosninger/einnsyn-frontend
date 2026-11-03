@@ -15,7 +15,7 @@ import { useSessionData } from '~/components/SessionDataProvider/SessionDataProv
 import { addLagretSoekAction } from '~/features/bruker/saved-searches/lagretSoek.actions';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import styles from './SaveSearchDropdown.module.scss';
 
@@ -61,10 +61,7 @@ export default function SaveSearchDropdown({
         <div className={styles.saveSearchLoginPrompt}>
           <span>{t('search.saveSearchLoginPrompt')}</span>
           <EinButton asChild fullWidth data-color="accent">
-            <EinLink
-              unstyled
-              href={buildPathname({ page: 'login' }, languageCode)}
-            >
+            <EinLink unstyled href={toLocalizedPath(languageCode, '/login')}>
               {t('site.login')}
             </EinLink>
           </EinButton>

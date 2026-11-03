@@ -2,63 +2,31 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import nextConfig from '../../../next.config';
-import { supportedLanguages } from '../translation/translation';
 import {
-  buildPathname,
+  type LanguageCode,
+  supportedLanguages,
+} from '../translation/translation';
+import {
   getPathEnhet,
-  parsePathname,
+  matchesExactPath,
+  matchesPath,
   type Route,
+  resolvePath,
   routeRewrites,
+  toLocalizedPath,
 } from './pathname';
+import { ROUTES } from './routes';
 
-describe('parsePathname', () => {
-  it('reads home', () => {
-    assert.deepEqual(parsePathname('/'), { page: 'home' });
-    assert.deepEqual(parsePathname(''), { page: 'home' });
-  });
-
-  it('reads a root page in any language, encoding or case', () => {
-    for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
-      assert.deepEqual(parsePathname(path), { page: 'search' }, path);
+describe('ROUTES', () => {
+  it('lists every route after its parent', () => {
+    const listed = new Set(['']);
+    for (const route of Object.keys(ROUTES)) {
+      assert.ok(listed.has(route.slice(0, route.lastIndexOf('/'))), route);
+      listed.add(route);
     }
-    assert.deepEqual(parsePathname('/om'), { page: 'about' });
-    assert.deepEqual(parsePathname('/personvern'), { page: 'privacy' });
-    assert.deepEqual(parsePathname('/login'), { page: 'login' });
-    assert.deepEqual(parsePathname('/logg-inn'), { page: 'login' });
   });
 
-  it('reads a root page with segments below it', () => {
-    assert.deepEqual(parsePathname('/admin/abc/api-keys'), { page: 'admin' });
-  });
-
-  it('reads a login step in any language, encoding or case', () => {
-    for (const path of [
-      '/login/register',
-      '/logg-inn/opprett-konto',
-      '/login/create-account',
-    ]) {
-      assert.deepEqual(
-        parsePathname(path),
-        { page: 'login', step: 'register' },
-        path,
-      );
-    }
-    for (const path of [
-      '/LOGIN/Forgotten-Password?x=1',
-      '/logg-inn/glemt-passord',
-      '/logg-inn/gl%C3%B8ymt-passord',
-    ]) {
-      assert.deepEqual(
-        parsePathname(path),
-        { page: 'login', step: 'forgotten-password' },
-        path,
-      );
-    }
-    assert.deepEqual(parsePathname('/login/unknown'), { page: 'login' });
-    assert.deepEqual(parsePathname('/admin/register'), { page: 'admin' });
-  });
-
-  it('reads every login route folder as a step', async () => {
+  it('lists every login route folder', async () => {
     const folders = (
       await readdir(new URL('../../app/login', import.meta.url), {
         withFileTypes: true,
@@ -69,21 +37,88 @@ describe('parsePathname', () => {
 
     assert.ok(folders.length > 0);
     for (const folder of folders) {
-      assert.equal(parsePathname(`/login/${folder}`)?.step, folder, folder);
+      assert.ok(`/login/${folder}` in ROUTES, folder);
+    }
+  });
+});
+
+describe('resolvePath', () => {
+  it('reads a path in any language as its folders', () => {
+    assert.deepEqual(resolvePath('/'), []);
+    assert.deepEqual(resolvePath(''), []);
+    assert.deepEqual(resolvePath('/s%C3%B8k'), ['search']);
+    assert.deepEqual(resolvePath('/logg-inn/opprett-konto'), [
+      'login',
+      'register',
+    ]);
+    assert.deepEqual(resolvePath('/oslo/%C3%A1%C5%A1%C5%A1i/sm_1/jp_1'), [
+      '[enhet]',
+      'saksmappe',
+      '[saksmappe]',
+      '[journalpost]',
+    ]);
+  });
+
+  it('stops at the first segment no route spells', () => {
+    assert.deepEqual(resolvePath('/admin/abc/api-keys'), ['admin']);
+    assert.deepEqual(resolvePath('/login/unknown'), ['login']);
+    assert.deepEqual(resolvePath('/oslo/unknown/sm_1'), ['[enhet]']);
+  });
+});
+
+describe('matchesExactPath', () => {
+  it('matches home', () => {
+    assert.deepEqual(matchesExactPath('/', '/'), []);
+    assert.deepEqual(matchesExactPath('', '/'), []);
+    assert.equal(matchesExactPath('/search', '/'), undefined);
+  });
+
+  it('matches a root page in any language, encoding or case', () => {
+    for (const path of ['/search', '/søk', '/s%C3%B8k', '/SØK', '/oza']) {
+      assert.deepEqual(matchesExactPath(path, '/search'), [], path);
+    }
+    assert.deepEqual(matchesExactPath('/om', '/about'), []);
+    assert.deepEqual(matchesExactPath('/personvern', '/privacy'), []);
+    assert.deepEqual(matchesExactPath('/logg-inn', '/login'), []);
+  });
+
+  it('matches a login step in any language, encoding or case', () => {
+    for (const path of [
+      '/login/register',
+      '/logg-inn/opprett-konto',
+      '/login/create-account',
+    ]) {
+      assert.deepEqual(matchesExactPath(path, '/login/register'), [], path);
+    }
+    for (const path of [
+      '/LOGIN/Forgotten-Password?x=1',
+      '/logg-inn/glemt-passord',
+      '/logg-inn/gl%C3%B8ymt-passord',
+    ]) {
+      assert.deepEqual(
+        matchesExactPath(path, '/login/forgotten-password'),
+        [],
+        path,
+      );
     }
   });
 
-  it('reads an enhet, normalized', () => {
-    assert.deepEqual(parsePathname('/oslo'), { enhetIdentifier: 'oslo' });
-    assert.deepEqual(parsePathname('/OSLO'), { enhetIdentifier: 'oslo' });
-    assert.deepEqual(parsePathname('/tr%C3%B8ndelag'), {
-      enhetIdentifier: 'trøndelag',
-    });
+  it('matches an enhet, decoded but not case-folded', () => {
+    assert.deepEqual(matchesExactPath('/oslo', '/[enhet]'), ['oslo']);
+    assert.deepEqual(matchesExactPath('/OSLO', '/[enhet]'), ['OSLO']);
+    assert.deepEqual(matchesExactPath('/tr%C3%B8ndelag', '/[enhet]'), [
+      'trøndelag',
+    ]);
     // A typo is indistinguishable from an enhet slug, by design.
-    assert.deepEqual(parsePathname('/serach'), { enhetIdentifier: 'serach' });
+    assert.deepEqual(matchesExactPath('/serach', '/[enhet]'), ['serach']);
   });
 
-  it('reads a mappe in any language', () => {
+  it('never reads a root page as an enhet', () => {
+    assert.equal(matchesExactPath('/search', '/[enhet]'), undefined);
+    assert.equal(matchesExactPath('/S%C3%B8K', '/[enhet]'), undefined);
+  });
+
+  it('matches a mappe in any language', () => {
     for (const word of [
       'saksmappe',
       'sak',
@@ -92,44 +127,104 @@ describe('parsePathname', () => {
       '%C3%A1%C5%A1%C5%A1i',
     ]) {
       assert.deepEqual(
-        parsePathname(`/oslo/${word}/sm_1`),
-        { enhetIdentifier: 'oslo', saksmappeIdentifier: 'sm_1' },
+        matchesExactPath(
+          `/oslo/${word}/sm_1`,
+          '/[enhet]/saksmappe/[saksmappe]',
+        ),
+        ['oslo', 'sm_1'],
         word,
       );
     }
     for (const word of ['moetemappe', 'moete', 'meeting', 'čoahkkin']) {
       assert.deepEqual(
-        parsePathname(`/oslo/${word}/mm_1`),
-        { enhetIdentifier: 'oslo', moetemappeIdentifier: 'mm_1' },
+        matchesExactPath(
+          `/oslo/${word}/mm_1`,
+          '/[enhet]/moetemappe/[moetemappe]',
+        ),
+        ['oslo', 'mm_1'],
         word,
       );
     }
   });
 
-  it('reads the child below a mappe', () => {
-    assert.deepEqual(parsePathname('/oslo/sak/sm_1/jp_1'), {
-      enhetIdentifier: 'oslo',
-      saksmappeIdentifier: 'sm_1',
-      journalpostIdentifier: 'jp_1',
-    });
-    assert.deepEqual(parsePathname('/oslo/moete/mm_1/ms_1'), {
-      enhetIdentifier: 'oslo',
-      moetemappeIdentifier: 'mm_1',
-      moetesakIdentifier: 'ms_1',
-    });
+  it('matches the child below a mappe', () => {
+    assert.deepEqual(
+      matchesExactPath(
+        '/oslo/sak/sm_1/jp_1',
+        '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
+      ),
+      ['oslo', 'sm_1', 'jp_1'],
+    );
+    assert.deepEqual(
+      matchesExactPath(
+        '/oslo/moete/mm_1/ms_1',
+        '/[enhet]/moetemappe/[moetemappe]/[moetesak]',
+      ),
+      ['oslo', 'mm_1', 'ms_1'],
+    );
   });
 
-  it('decodes identifiers without case-folding them', () => {
-    assert.deepEqual(parsePathname('/oslo/sak/A%2FB?x=1'), {
-      enhetIdentifier: 'oslo',
-      saksmappeIdentifier: 'A/B',
-    });
+  it('decodes values without case-folding them', () => {
+    assert.deepEqual(
+      matchesExactPath('/oslo/sak/A%2FB?x=1', '/[enhet]/saksmappe/[saksmappe]'),
+      ['oslo', 'A/B'],
+    );
   });
 
-  it('is undefined below an enhet where no route matches', () => {
-    assert.equal(parsePathname('/oslo/sak'), undefined);
-    assert.equal(parsePathname('/oslo/unknown/abc'), undefined);
-    assert.equal(parsePathname('/oslo/sak/sm_1/jp_1/extra'), undefined);
+  it('is undefined for any other route, including the paths below it', () => {
+    assert.equal(matchesExactPath('/login/register', '/login'), undefined);
+    assert.equal(matchesExactPath('/login/unknown', '/login'), undefined);
+    assert.equal(matchesExactPath('/admin/abc/api-keys', '/admin'), undefined);
+    assert.equal(
+      matchesExactPath('/oslo/sak', '/[enhet]/saksmappe/[saksmappe]'),
+      undefined,
+    );
+    assert.equal(
+      matchesExactPath('/oslo/unknown/abc', '/[enhet]/saksmappe/[saksmappe]'),
+      undefined,
+    );
+    assert.equal(
+      matchesExactPath('/oslo/sak/sm_1', '/[enhet]/moetemappe/[moetemappe]'),
+      undefined,
+    );
+    assert.equal(
+      matchesExactPath(
+        '/oslo/sak/sm_1/jp_1/extra',
+        '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
+      ),
+      undefined,
+    );
+  });
+});
+
+describe('matchesPath', () => {
+  it('matches a route and the paths below it', () => {
+    assert.deepEqual(matchesPath('/login', '/login'), []);
+    assert.deepEqual(matchesPath('/logg-inn/opprett-konto', '/login'), []);
+    assert.deepEqual(matchesPath('/login/unknown', '/login'), []);
+    assert.deepEqual(matchesPath('/admin/abc/api-keys', '/admin'), []);
+  });
+
+  it("takes values from the route's own segments only", () => {
+    assert.deepEqual(matchesPath('/oslo/sak/sm_1/jp_1', '/[enhet]'), ['oslo']);
+    assert.deepEqual(
+      matchesPath('/oslo/sak/sm_1/jp_1', '/[enhet]/saksmappe/[saksmappe]'),
+      ['oslo', 'sm_1'],
+    );
+  });
+
+  it('is undefined above or beside the route', () => {
+    assert.equal(matchesPath('/login', '/login/register'), undefined);
+    assert.equal(
+      matchesPath('/oslo', '/[enhet]/saksmappe/[saksmappe]'),
+      undefined,
+    );
+    assert.equal(matchesPath('/admin/abc', '/[enhet]'), undefined);
+  });
+
+  it('is not for home, which every path is below', () => {
+    // @ts-expect-error Check home with `matchesExactPath`.
+    assert.deepEqual(matchesPath('/search', '/'), []);
   });
 });
 
@@ -164,67 +259,64 @@ describe('getPathEnhet', () => {
   });
 });
 
-describe('buildPathname', () => {
+describe('toLocalizedPath', () => {
   it('writes fixed segments in the given language', () => {
-    assert.equal(buildPathname({ page: 'search' }, 'nb'), '/s%C3%B8k');
-    assert.equal(buildPathname({ page: 'search' }, 'en'), '/search');
+    assert.equal(toLocalizedPath('nb', '/search'), '/s%C3%B8k');
+    assert.equal(toLocalizedPath('en', '/search'), '/search');
     assert.equal(
-      buildPathname({ page: 'login', step: 'register' }, 'nb'),
+      toLocalizedPath('nb', '/login/register'),
       '/logg-inn/opprett-konto',
     );
     assert.equal(
-      buildPathname({ page: 'login', step: 'register' }, 'en'),
+      toLocalizedPath('en', '/login/register'),
       '/login/create-account',
     );
+    assert.equal(toLocalizedPath('se', '/login/register'), '/login/register');
     assert.equal(
-      buildPathname({ page: 'login', step: 'register' }, 'se'),
-      '/login/register',
-    );
-    assert.equal(
-      buildPathname(
-        { enhetIdentifier: 'oslo', saksmappeIdentifier: 'sm_1' },
-        'en',
-      ),
+      toLocalizedPath('en', '/[enhet]/saksmappe/[saksmappe]', 'oslo', 'sm_1'),
       '/oslo/case/sm_1',
     );
     assert.equal(
-      buildPathname(
-        {
-          enhetIdentifier: 'oslo',
-          moetemappeIdentifier: 'mm_1',
-          moetesakIdentifier: 'ms_1',
-        },
+      toLocalizedPath(
         'nn',
+        '/[enhet]/moetemappe/[moetemappe]/[moetesak]',
+        'oslo',
+        'mm_1',
+        'ms_1',
       ),
       '/oslo/moete/mm_1/ms_1',
     );
   });
 
-  it('round-trips through parsePathname in every language', () => {
-    const routes: Route[] = [
-      { page: 'home' },
-      { page: 'search' },
-      { page: 'about' },
-      { page: 'admin' },
-      { page: 'login' },
-      { page: 'login', step: 'forgotten-password' },
-      { enhetIdentifier: 'trøndelag' },
-      { enhetIdentifier: 'oslo', saksmappeIdentifier: 'a/b' },
-      {
-        enhetIdentifier: 'oslo',
-        saksmappeIdentifier: 'sm_1',
-        journalpostIdentifier: 'jp_1',
-      },
-      {
-        enhetIdentifier: 'oslo',
-        moetemappeIdentifier: 'mm_1',
-        moetesakIdentifier: 'ms_1',
-      },
-    ];
-    for (const languageCode of supportedLanguages) {
-      for (const route of routes) {
-        const href = buildPathname(route, languageCode);
-        assert.deepEqual(parsePathname(href), route, `${languageCode} ${href}`);
+  it('encodes the values', () => {
+    assert.equal(
+      toLocalizedPath(
+        'nb',
+        '/[enhet]/saksmappe/[saksmappe]',
+        'trøndelag',
+        'a/b',
+      ),
+      '/tr%C3%B8ndelag/sak/a%2Fb',
+    );
+  });
+
+  it('round-trips every route through matchesExactPath in every language', () => {
+    // The routes are mixed, so their values can't be typed per route.
+    const localize = toLocalizedPath as (
+      languageCode: LanguageCode,
+      route: Route,
+      ...values: string[]
+    ) => string;
+    for (const route of ['/', ...Object.keys(ROUTES)] as Route[]) {
+      // Values that need encoding: a non-ASCII letter and a slash.
+      const values = (route.match(/\[/g) ?? []).map((_, index) => `ø/${index}`);
+      for (const languageCode of supportedLanguages) {
+        const href = localize(languageCode, route, ...values);
+        assert.deepEqual(
+          matchesExactPath(href, route),
+          values,
+          `${languageCode} ${href}`,
+        );
       }
     }
   });
@@ -264,17 +356,15 @@ describe('routeRewrites', () => {
     }
   });
 
-  it('reads each source exactly as its destination', () => {
+  it('reads each source as the same folders as its destination', () => {
     const rewrites = routeRewrites();
     assert.ok(rewrites.length > 0);
 
     for (const { source, destination } of rewrites) {
       assert.notEqual(source, destination);
-      assert.deepEqual(
-        parsePathname(withParams(source)),
-        parsePathname(withParams(destination)),
-        source,
-      );
+      const folders = resolvePath(withParams(destination));
+      assert.ok(folders.length > 0, destination);
+      assert.deepEqual(resolvePath(withParams(source)), folders, source);
     }
   });
 });

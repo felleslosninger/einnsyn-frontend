@@ -22,14 +22,14 @@ import {
   registerAction,
   requestPasswordResetAction,
 } from '~/lib/auth/auth.actions';
-import { buildPathname, type LoginStep } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { validatePassword } from '~/lib/utils/validators';
 import styles from './LoginForm.module.scss';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
-export type LoginFormMode = 'login' | LoginStep;
+export type LoginFormMode = 'login' | 'register' | 'forgotten-password';
 
 /** Each step's name, on its submit button and as the modal's title. */
 export const stepNames: Record<LoginFormMode, string> = {
@@ -280,10 +280,7 @@ export default function LoginForm({
           />
           <EinLink
             ref={forgotPasswordLink}
-            href={buildPathname(
-              { page: 'login', step: 'forgotten-password' },
-              languageCode,
-            )}
+            href={toLocalizedPath(languageCode, '/login/forgotten-password')}
             className={styles.forgotPasswordLink}
           >
             {t('site.forgottenPassword')}
@@ -304,7 +301,7 @@ export default function LoginForm({
           >
             <EinLink
               ref={backToLoginLink}
-              href={buildPathname({ page: 'login' }, languageCode)}
+              href={toLocalizedPath(languageCode, '/login')}
             >
               {t('site.backToLogin')}
             </EinLink>

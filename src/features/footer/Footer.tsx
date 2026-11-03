@@ -8,9 +8,9 @@ import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
-  buildPathname,
-  parsePathname,
-  type RootPage,
+  matchesExactPath,
+  type Route,
+  toLocalizedPath,
 } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 
@@ -84,8 +84,8 @@ export default function Footer() {
     return () => observer.disconnect();
   }, [stick, isAtBottom]);
 
-  const getLinkClassName = (page: RootPage) => {
-    return cn('ein-link', { active: parsePathname(pathname)?.page === page });
+  const getLinkClassName = (route: Route) => {
+    return cn('ein-link', { active: !!matchesExactPath(pathname, route) });
   };
 
   return (
@@ -97,15 +97,15 @@ export default function Footer() {
               <SettingsMenu />
               <EinLink
                 data-color="neutral"
-                href={buildPathname({ page: 'about' }, languageCode)}
-                className={getLinkClassName('about')}
+                href={toLocalizedPath(languageCode, '/about')}
+                className={getLinkClassName('/about')}
               >
                 {t('footer.about')}
               </EinLink>
               <EinLink
                 data-color="neutral"
-                href={buildPathname({ page: 'privacy' }, languageCode)}
-                className={getLinkClassName('privacy')}
+                href={toLocalizedPath(languageCode, '/privacy')}
+                className={getLinkClassName('/privacy')}
               >
                 {t('footer.privacy')}
               </EinLink>

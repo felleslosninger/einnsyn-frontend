@@ -13,7 +13,7 @@ import {
 } from '~/components/EinModal/EinModal';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { buildPathname, parsePathname } from '~/lib/routing/pathname';
+import { matchesPath, toLocalizedPath } from '~/lib/routing/pathname';
 import { AnsattportenLoginButton } from './AnsattportenLoginButton';
 import LoginForm, { type LoginFormMode, stepNames } from './LoginForm';
 import styles from './LoginModal.module.scss';
@@ -27,7 +27,11 @@ export default function LoginModal({ children }: { children: ReactNode }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const pathname = usePathname();
-  const mode: LoginFormMode = parsePathname(pathname)?.step ?? 'login';
+  const mode: LoginFormMode = matchesPath(pathname, '/login/register')
+    ? 'register'
+    : matchesPath(pathname, '/login/forgotten-password')
+      ? 'forgotten-password'
+      : 'login';
 
   return (
     <>
@@ -41,12 +45,7 @@ export default function LoginModal({ children }: { children: ReactNode }) {
           {/* The footer lines its children up in a row; these go in a column */}
           <div className={styles.footerOptions}>
             <LoginOption icon={PersonPlusIcon} prompt={t('site.noAccount')}>
-              <EinLink
-                href={buildPathname(
-                  { page: 'login', step: 'register' },
-                  languageCode,
-                )}
-              >
+              <EinLink href={toLocalizedPath(languageCode, '/login/register')}>
                 {t('site.createAccount')}
               </EinLink>
             </LoginOption>
