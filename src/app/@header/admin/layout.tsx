@@ -10,6 +10,9 @@ export default async function AdminLayout({
 }) {
   const authInfo = await cachedAuthInfo();
   if (!authInfo) {
+    return null;
+  }
+  if (authInfo.type !== 'Enhet') {
     notFound();
   }
 
