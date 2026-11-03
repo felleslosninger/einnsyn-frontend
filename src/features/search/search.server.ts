@@ -43,17 +43,16 @@ async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
 }
 
 /**
- * Get a PaginatedList of search results
+ * Get the search API query for a search
  *
  * @param enhetSlug
  * @param searchParams
  * @returns
  */
-export const getSearchResults = async (
-  enhetSlug: string,
+export const getSearchParameters = (
+  enhetSlug: string | undefined,
   searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
+): SearchParameters => {
   const apiQuery: SearchParameters = {};
 
   // Combine Entity filter from path and searchParams
@@ -89,10 +88,10 @@ export const getSearchResults = async (
     if (publisertDato) {
       const [from, to] = publisertDato.value.split('/');
       if (from) {
-        apiQuery.publisertDatoFrom = toISOString(from);
+        apiQuery.publisertDatoFrom = toApiDate(from);
       }
       if (to) {
-        apiQuery.publisertDatoTo = toISOString(to, true);
+        apiQuery.publisertDatoTo = toApiDate(to, true);
       }
     }
 
@@ -103,10 +102,10 @@ export const getSearchResults = async (
     if (oppdatertDato) {
       const [from, to] = oppdatertDato.value.split('/');
       if (from) {
-        apiQuery.oppdatertDatoFrom = toISOString(from);
+        apiQuery.oppdatertDatoFrom = toApiDate(from);
       }
       if (to) {
-        apiQuery.oppdatertDatoTo = toISOString(to, true);
+        apiQuery.oppdatertDatoTo = toApiDate(to, true);
       }
     }
 
@@ -117,10 +116,10 @@ export const getSearchResults = async (
     if (moetedato) {
       const [from, to] = moetedato.value.split('/');
       if (from) {
-        apiQuery.moetedatoFrom = toISOString(from);
+        apiQuery.moetedatoFrom = toApiDate(from);
       }
       if (to) {
-        apiQuery.moetedatoTo = toISOString(to, true);
+        apiQuery.moetedatoTo = toApiDate(to, true);
       }
     }
 
@@ -136,6 +135,23 @@ export const getSearchResults = async (
 
     logger.debug('Search API query', apiQuery);
   }
+
+  return apiQuery;
+};
+
+/**
+ * Get a PaginatedList of search results
+ *
+ * @param enhetSlug
+ * @param searchParams
+ * @returns
+ */
+export const getSearchResults = async (
+  enhetSlug: string,
+  searchParams: URLSearchParams,
+) => {
+  const api = await cachedApiClient();
+  const apiQuery = getSearchParameters(enhetSlug, searchParams);
 
   const sortParam = searchParams.get('sort');
   const sortConfig = isSortOption(sortParam) ? SORT_MAP[sortParam] : null;
@@ -163,41 +179,42 @@ export const getSearchResults = async (
   }
 };
 
-const toISOString = (date: string, endOfDay = false): string => {
-  // Detect relative dates (-1D, -2W, -3M, -4Y)
+const DATE_MATH_UNITS: Record<string, string> = {
+  h: 'h',
+  d: 'd',
+  w: 'w',
+  m: 'M',
+  y: 'y',
+};
+
+/**
+ * Convert a relative date (-24h, -7d, -1m, -1y) to date math, so a saved
+ * search keeps moving with time. Hours are exact, other units are rounded to
+ * whole days. Elasticsearch rounds `/d` up to the end of the day when it is
+ * used as an upper bound.
+ */
+const toDateMath = (date: string): string | undefined => {
   const relativeDateMatch = date.match(/^-(\d+)([hHdDwWmMyY])$/);
-  if (relativeDateMatch) {
-    const value = parseInt(relativeDateMatch[1], 10);
-    const unit = relativeDateMatch[2];
-    const now = new Date();
-    switch (unit) {
-      case 'H':
-      case 'h':
-        now.setHours(now.getHours() - value);
-        break;
-      case 'D':
-      case 'd':
-        now.setDate(now.getDate() - value);
-        break;
-      case 'W':
-      case 'w':
-        now.setDate(now.getDate() - value * 7);
-        break;
-      case 'M':
-      case 'm':
-        now.setMonth(now.getMonth() - value);
-        break;
-      case 'Y':
-      case 'y':
-        now.setFullYear(now.getFullYear() - value);
-        break;
-    }
-    if (endOfDay) {
-      now.setUTCHours(23, 59, 59, 999);
-    } else {
-      now.setUTCHours(0, 0, 0, 0);
-    }
-    return now.toISOString();
+  if (!relativeDateMatch) {
+    return undefined;
+  }
+  const unit = DATE_MATH_UNITS[relativeDateMatch[2].toLowerCase()];
+  const rounding = unit === 'h' ? '' : '/d';
+  return `now-${relativeDateMatch[1]}${unit}${rounding}`;
+};
+
+/**
+ * Convert a date from the search query to a value the API accepts
+ *
+ * @param date A relative date (-7d) or an ISO date / date-time
+ * @param endOfDay Move a date-only ISO string to the end of the day. Has no
+ * effect on relative dates, see toDateMath.
+ * @returns
+ */
+const toApiDate = (date: string, endOfDay = false): string => {
+  const dateMath = toDateMath(date);
+  if (dateMath) {
+    return dateMath;
   }
 
   const d = new Date(date);

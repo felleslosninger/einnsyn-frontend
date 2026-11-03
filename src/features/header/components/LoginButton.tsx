@@ -1,16 +1,23 @@
-import { Chip } from '@digdir/designsystemet-react';
+import { EnterIcon } from '@navikt/aksel-icons';
+import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
 import styles from './LoginButton.module.scss';
 
 export default function LoginButton() {
   const t = useTranslation();
   return (
-    <EinLink href="/login" className={cn(styles.loginButton, 'header-button')}>
-      <Chip.Button data-color="brand2" asChild>
-        <span>{t('site.login')}</span>
-      </Chip.Button>
-    </EinLink>
+    <EinButton
+      asChild
+      variant="tertiary"
+      data-color="neutral"
+      data-size="sm"
+      className={styles.loginButton}
+    >
+      <EinLink unstyled href="/login">
+        <EnterIcon aria-hidden="true" />
+        {t('site.login')}
+      </EinLink>
+    </EinButton>
   );
 }

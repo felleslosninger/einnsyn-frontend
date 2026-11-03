@@ -11,6 +11,17 @@
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Stay logged in",
     "forgottenPassword": "Forgotten password?",
+    "resetPassword": "Reset password",
+    "resetPasswordSent": "If the email address has an account with us, we have sent you a link to reset your password.",
+    "backToLogin": "Back to login",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account",
+    "managesOrganization": "Do you manage an organization?",
+    "ansattportenLogin": "Log in with Ansattporten",
+    "registerSent": "If the email address doesn't already have an account with us, we have sent you a link to activate your new account.",
+    "repeatPassword": "Repeat password",
+    "passwordRequirements": "At least 8 characters, with upper and lower case letters and at least one number or special character",
+    "passwordsDoNotMatch": "The passwords do not match",
     "invalidUsernameOrPassword": "Invalid username or password",
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
@@ -101,7 +112,15 @@
       "UTVALG": "Committee",
       "VIRKSOMHET": "Organization"
     },
-    "searchingIn": "Searching in"
+    "searchingIn": "Searching in",
+    "saveSearch": "Save search",
+    "saveSearchName": "Search name",
+    "saveSearchSubscribe": "Notify me about new results",
+    "saveSearchSubscribeDescription": "We send you an email every morning at 06:00 if the search has new results.",
+    "saveSearchSuccess": "Search saved",
+    "saveSearchError": "Could not save the search",
+    "saveSearchMissingLabel": "Give the search a name",
+    "saveSearchLoginPrompt": "Log in to save the search."
   },
   "routing": {
     "root": {

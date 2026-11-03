@@ -245,10 +245,16 @@ export default function EinPopup(props: EinPopupProps) {
     }
   }, [open, popupRef, updatePopupPosition]);
 
-  // Update popup position when it becomes visible
+  // Update popup position when it becomes visible. updatePopupPosition skips
+  // non-absolute popups (EinModal), so don't hide those.
   useLayoutEffect(() => {
     const popupElement = popupRef.current;
-    if (open && popupElement && domIsHidden(popupElement)) {
+    if (
+      open &&
+      popupElement &&
+      domIsHidden(popupElement) &&
+      getComputedStyle(popupElement).position === 'absolute'
+    ) {
       popupElement.style.visibility = 'hidden';
       const observer = new IntersectionObserver(
         ([entry]) => {
@@ -272,8 +278,20 @@ export default function EinPopup(props: EinPopupProps) {
   const events: EinTransitionEvents = useMemo(
     () => ({
       onInitEnterTransition: () => updatePopupPosition(),
+      ...transitionEvents,
+      onEnterTransition: (element, toDeps, fromDeps) => {
+        // Fresh animated content was display:none when the opening effect ran.
+        // It is visible now, so autofocus can succeed.
+        if (
+          autoFocus &&
+          !contentRef.current?.contains(document.activeElement)
+        ) {
+          contentRef.current?.focus({ preventScroll: true });
+        }
+        return transitionEvents?.onEnterTransition?.(element, toDeps, fromDeps);
+      },
     }),
-    [updatePopupPosition],
+    [updatePopupPosition, autoFocus, transitionEvents],
   );
 
   // Close on esc
@@ -353,11 +371,7 @@ export default function EinPopup(props: EinPopupProps) {
 
   // Wrap in EinTransition if we're animating
   return animate ? (
-    <EinTransition
-      dependencies={[open]}
-      withClassNames
-      events={{ ...events, ...transitionEvents }}
-    >
+    <EinTransition dependencies={[open]} withClassNames events={events}>
       {content}
     </EinTransition>
   ) : (
