@@ -149,6 +149,7 @@
     "add": "Lasit",
     "delete": "Sihko",
     "deleting": "Sihkko...",
+    "deleted": "Sihkkojuvvon",
     "create": "Ráhkat",
     "creating": "Ráhkada...",
     "cancel": "Gaskkalduhte",
@@ -157,6 +158,7 @@
     "removeAll": "Váldde buot eret",
     "change": "Rievdat",
     "select": "Vállje",
+    "subscribe": "Oaččo dieđu",
     "unnamed": "Nama haga",
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",
@@ -263,13 +265,11 @@
     "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
     "savedMeetingsPage": {
       "description": "Vállje «Oaččo dieđu» čoahkkimis vai oaččut e-poastta go čoahkkin ođasmahttojuvvo.",
-      "subscribe": "Oaččo dieđu",
       "empty": "Dus eai leat vurkon čoahkkimat."
     },
     "savedSearchesPage": {
       "description": "Vállje «Oaččo dieđu» ohcamis vai oaččut e-poastta go ohcamis leat ođđa bohtosat.",
       "notificationInfo": "Dieđáhusat sáddejuvvojit oktii beaivái, dii. 06.00.",
-      "subscribe": "Oaččo dieđu",
       "empty": "Dus eai leat vurkon ohcanat."
     },
     "accessRequestsPage": {
@@ -280,7 +280,6 @@
     },
     "savedCasesPage": {
       "description": "Vállje «Oaččo dieđu» áššis vai oaččut e-poastta go ášši ođasmahttojuvvo.",
-      "subscribe": "Oaččo dieđu",
       "empty": "Dus eai leat vurkon áššit."
     },
     "profilePage": {

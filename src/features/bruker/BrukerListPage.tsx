@@ -41,9 +41,11 @@ async function listItems(type: BrukerListType) {
         })
       : await api.bruker.listLagretSak(authInfo.id, {
           ...query,
+          // The other kind stays an id and is filtered out by BrukerList.
           expand: [
-            'saksmappe.administrativEnhetObjekt',
-            'moetemappe.utvalgObjekt',
+            type === 'savedCases'
+              ? 'saksmappe.administrativEnhetObjekt'
+              : 'moetemappe.utvalgObjekt',
           ],
         });
   } catch (error) {

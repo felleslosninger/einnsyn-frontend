@@ -11,7 +11,7 @@ type Journalposttype = NonNullable<FilterParameters['journalposttype']>;
  * Order matters: it decides the order of the API filter and keeps the query
  * stable regardless of how the shorthands were written in the URL.
  */
-export const JOURNALPOSTTYPE_GROUPS: ReadonlyArray<{
+const JOURNALPOSTTYPE_GROUPS: ReadonlyArray<{
   shorthand: string;
   apiValues: Journalposttype;
 }> = [

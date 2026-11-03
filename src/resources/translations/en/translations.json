@@ -151,6 +151,7 @@
     "add": "Add",
     "delete": "Delete",
     "deleting": "Deleting...",
+    "deleted": "Deleted",
     "create": "Create",
     "creating": "Creating...",
     "cancel": "Cancel",
@@ -159,6 +160,7 @@
     "removeAll": "Remove all",
     "change": "Change",
     "select": "Select",
+    "subscribe": "Get notified",
     "unnamed": "Unnamed",
     "close": "Close",
     "copyToClipboard": "Copy to clipboard",
@@ -280,13 +282,11 @@
     "subscribeError": "Could not change the subscription. Please try again.",
     "savedMeetingsPage": {
       "description": "Turn on “Get notified” for a meeting to get an email when it is updated.",
-      "subscribe": "Get notified",
       "empty": "You have no saved meetings yet."
     },
     "savedSearchesPage": {
       "description": "Turn on “Get notified” for a search to get an email when it has new results.",
       "notificationInfo": "Notifications are sent once a day, at 06:00.",
-      "subscribe": "Get notified",
       "empty": "You have no saved searches yet."
     },
     "accessRequestsPage": {
@@ -297,7 +297,6 @@
     },
     "savedCasesPage": {
       "description": "Turn on “Get notified” for a case to get an email when it is updated.",
-      "subscribe": "Get notified",
       "empty": "You have no saved cases yet."
     },
     "profilePage": {

@@ -59,10 +59,13 @@
 
 .title {
   font-size: var(--ds-font-size-5);
-  text-decoration: none;
 
-  &:hover {
-    text-decoration: underline;
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 

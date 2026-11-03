@@ -3,16 +3,6 @@ import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
 import { serializeParamList } from '~/lib/utils/paramList';
 import { tokensToSearchQuery } from '~/lib/utils/searchStringTokenizer';
 
-// Date math units the search field writes differently: month is `M` in date
-// math but `m` in the search field.
-const DATE_MATH_UNITS: Record<string, string> = {
-  M: 'm',
-  h: 'h',
-  d: 'd',
-  w: 'w',
-  y: 'y',
-};
-
 /**
  * A saved date as the search field writes it: relative date math
  * (`now-7d/d`) back to `-7d`, and a timestamp back to its date.
@@ -20,7 +10,9 @@ const DATE_MATH_UNITS: Record<string, string> = {
 function toSearchFieldDate(value: unknown): string {
   if (typeof value !== 'string') return '';
   const relative = value.match(/^now-(\d+)([Mhdwy])(?:\/d)?$/);
-  if (relative) return `-${relative[1]}${DATE_MATH_UNITS[relative[2]]}`;
+  // Date math writes month as `M`; the search field writes every unit in
+  // lower case.
+  if (relative) return `-${relative[1]}${relative[2].toLowerCase()}`;
   return value.slice(0, 10);
 }
 

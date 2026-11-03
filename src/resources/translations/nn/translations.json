@@ -151,6 +151,7 @@
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Slettar...",
+    "deleted": "Sletta",
     "create": "Opprett",
     "creating": "Opprettar...",
     "cancel": "Avbryt",
@@ -159,6 +160,7 @@
     "removeAll": "Fjern alle",
     "change": "Endre",
     "select": "Vel",
+    "subscribe": "Få varsel",
     "unnamed": "Utan namn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavla",
@@ -265,13 +267,11 @@
     "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
     "savedMeetingsPage": {
       "description": "Slå på «Få varsel» på eit møte for å få e-post når det blir oppdatert.",
-      "subscribe": "Få varsel",
       "empty": "Du har ingen lagra møte enno."
     },
     "savedSearchesPage": {
       "description": "Slå på «Få varsel» på eit søk for å få e-post når det kjem nye treff.",
       "notificationInfo": "Varsla blir sende éin gong i døgnet, kl. 06.00.",
-      "subscribe": "Få varsel",
       "empty": "Du har ingen lagra søk enno."
     },
     "accessRequestsPage": {
@@ -282,7 +282,6 @@
     },
     "savedCasesPage": {
       "description": "Slå på «Få varsel» på ei sak for å få e-post når ho blir oppdatert.",
-      "subscribe": "Få varsel",
       "empty": "Du har ingen lagra saker enno."
     },
     "profilePage": {

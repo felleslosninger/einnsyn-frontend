@@ -19,14 +19,7 @@ import {
   type PaginatedList,
 } from '@digdir/einnsyn-sdk';
 import { TrashIcon } from '@navikt/aksel-icons';
-import {
-  startTransition,
-  useCallback,
-  useId,
-  useOptimistic,
-  useState,
-  useTransition,
-} from 'react';
+import { useCallback, useRef, useState, useTransition } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
@@ -56,6 +49,11 @@ export type BrukerListType =
 
 type Item = LagretSoek | LagretSak | Innsynskrav;
 
+// Defined once, so React calls it only when the element mounts.
+const focusElement = (element: HTMLElement | null) => {
+  element?.focus();
+};
+
 export default function BrukerList({
   type,
   initialPage,
@@ -80,28 +78,42 @@ export default function BrukerList({
           ? isSaksmappe(item.saksmappe)
           : isMoetemappe(item.moetemappe))),
   );
-
-  if (!items.length && !page.next) {
-    return <Paragraph>{t(`bruker.${type}Page.empty`)}</Paragraph>;
-  }
+  const isEmpty = !items.length && !page.next;
 
   return (
     <>
-      <ul className={styles.list}>
-        {items.map((item) => (
-          <BrukerListItem
-            key={item.id}
-            type={type}
-            item={item}
-            onDelete={() => setDeletedIds((ids) => [...ids, item.id])}
-          />
-        ))}
-      </ul>
-      {page.next && (
-        <EinScrollTrigger onEnter={scrollTriggerHandler}>
-          <BrukerListSkeleton type={type} />
-        </EinScrollTrigger>
+      {isEmpty ? (
+        // Takes focus when the last item is deleted.
+        <Paragraph
+          tabIndex={-1}
+          ref={deletedIds.length ? focusElement : undefined}
+        >
+          {t(`bruker.${type}Page.empty`)}
+        </Paragraph>
+      ) : (
+        <>
+          <ul className={styles.list}>
+            {items.map((item) => (
+              <BrukerListItem
+                key={item.id}
+                item={item}
+                onDelete={() => setDeletedIds((ids) => [...ids, item.id])}
+              />
+            ))}
+          </ul>
+          {page.next && (
+            <EinScrollTrigger onEnter={scrollTriggerHandler}>
+              <BrukerListSkeleton type={type} />
+            </EinScrollTrigger>
+          )}
+        </>
       )}
+      <div role="status" className="ds-sr-only">
+        {/* A new key per deletion, so each one is announced. */}
+        {deletedIds.length > 0 && (
+          <span key={deletedIds.length}>{t('common.deleted')}</span>
+        )}
+      </div>
     </>
   );
 }
@@ -112,14 +124,14 @@ export default function BrukerList({
  */
 export function BrukerListSkeleton({ type }: { type: BrukerListType }) {
   return (
-    <ul className={styles.list}>
+    <ul className={styles.list} aria-hidden="true">
       {[0, 1].map((index) => (
         <li key={index} className={styles.item}>
           <div className={styles.main}>
             {type === 'savedSearches' ? (
-              <span className={cn('ds-heading', styles.title)}>
+              <h2 className={cn('ds-heading', styles.title)}>
                 <Skeleton variant="text" width={skeletonLength(index, 3, 30)} />
-              </span>
+              </h2>
             ) : (
               <SearchResultSkeleton className={styles.result} index={index} />
             )}
@@ -135,44 +147,67 @@ export function BrukerListSkeleton({ type }: { type: BrukerListType }) {
   );
 }
 
+function getTitle(item: Item): string | undefined {
+  if (isLagretSoek(item)) {
+    return item.label;
+  }
+  if (isLagretSak(item) && isSaksmappe(item.saksmappe)) {
+    return item.saksmappe.offentligTittel;
+  }
+  if (isLagretSak(item) && isMoetemappe(item.moetemappe)) {
+    return item.moetemappe.offentligTittel;
+  }
+  if (isInnsynskrav(item) && isJournalpost(item.journalpost)) {
+    return item.journalpost.offentligTittel;
+  }
+  return undefined;
+}
+
 function BrukerListItem({
-  type,
   item,
   onDelete,
 }: {
-  type: BrukerListType;
   item: Item;
   onDelete: () => void;
 }) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-  const titleId = useId();
+  const itemRef = useRef<HTMLLIElement>(null);
   const [error, setError] = useState<string>();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [subscribe, setSubscribe] = useState(
     !isInnsynskrav(item) && item.subscribe === true,
   );
-  const [optimisticSubscribe, setOptimisticSubscribe] =
-    useOptimistic(subscribe);
 
-  const handleSubscribeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Every item has the same controls, so screen readers also get the title.
+  const hiddenTitle = <span className="ds-sr-only"> {getTitle(item)}</span>;
+
+  const handleSubscribeChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const checked = e.target.checked;
     setError(undefined);
-    startTransition(async () => {
-      setOptimisticSubscribe(checked);
-      const entity = isLagretSoek(item) ? 'LagretSoek' : 'LagretSak';
-      if (await setBrukerItemSubscriptionAction(entity, item.id, checked)) {
-        setSubscribe(checked);
-      } else {
-        setError(t('bruker.subscribeError'));
-      }
-    });
+    setSubscribe(checked);
+    const entity = isLagretSoek(item) ? 'LagretSoek' : 'LagretSak';
+    if (!(await setBrukerItemSubscriptionAction(entity, item.id, checked))) {
+      setSubscribe(!checked);
+      setError(t('bruker.subscribeError'));
+    }
   };
 
   const handleDelete = () => {
+    if (isDeleting) {
+      return;
+    }
     setError(undefined);
     startDeleteTransition(async () => {
       if (await deleteBrukerItemAction(item.entity, item.id)) {
+        // Keep keyboard focus in the list as this item's button disappears:
+        // on the next item, or the previous one if this was the last.
+        const neighbour =
+          itemRef.current?.nextElementSibling ??
+          itemRef.current?.previousElementSibling;
+        neighbour?.querySelector<HTMLElement>('a, button')?.focus();
         onDelete();
       } else {
         setError(t('bruker.deleteError'));
@@ -180,32 +215,36 @@ function BrukerListItem({
     });
   };
 
-  const resultProps = { className: styles.result, titleId };
-
   return (
-    <li className={styles.item}>
+    <li ref={itemRef} className={styles.item}>
       <div className={styles.row}>
         <div className={styles.main}>
           {isLagretSoek(item) && (
-            <EinLink
-              id={titleId}
-              href={savedSearchHref(
-                buildPathname({ page: 'search' }, languageCode),
-                item.searchParameters,
-              )}
-              className={cn('ds-heading', styles.title)}
-            >
-              {item.label}
-            </EinLink>
+            <h2 className={cn('ds-heading', styles.title)}>
+              <EinLink
+                href={savedSearchHref(
+                  buildPathname({ page: 'search' }, languageCode),
+                  item.searchParameters,
+                )}
+              >
+                {item.label}
+              </EinLink>
+            </h2>
           )}
           {isLagretSak(item) && isSaksmappe(item.saksmappe) && (
-            <SaksmappeResult {...resultProps} item={item.saksmappe} />
+            <SaksmappeResult className={styles.result} item={item.saksmappe} />
           )}
           {isLagretSak(item) && isMoetemappe(item.moetemappe) && (
-            <MoetemappeResult {...resultProps} item={item.moetemappe} />
+            <MoetemappeResult
+              className={styles.result}
+              item={item.moetemappe}
+            />
           )}
           {isInnsynskrav(item) && isJournalpost(item.journalpost) && (
-            <JournalpostResult {...resultProps} item={item.journalpost} />
+            <JournalpostResult
+              className={styles.result}
+              item={item.journalpost}
+            />
           )}
           {isInnsynskrav(item) && (
             <Paragraph data-size="sm" className={styles.meta}>
@@ -219,21 +258,25 @@ function BrukerListItem({
           {!isInnsynskrav(item) && (
             <Switch
               data-size="sm"
-              checked={optimisticSubscribe}
+              checked={subscribe}
               onChange={handleSubscribeChange}
-              label={t(`bruker.${type}Page.subscribe`)}
-              aria-describedby={titleId}
+              label={
+                <>
+                  {t('common.subscribe')}
+                  {hiddenTitle}
+                </>
+              }
             />
           )}
           <EinButton
             variant="tertiary"
             data-size="sm"
-            disabled={isDeleting}
-            aria-describedby={titleId}
+            loading={isDeleting}
             onClick={handleDelete}
           >
-            <TrashIcon aria-hidden="true" />
+            {!isDeleting && <TrashIcon aria-hidden="true" />}
             {t('common.delete')}
+            {hiddenTitle}
           </EinButton>
         </div>
       </div>
