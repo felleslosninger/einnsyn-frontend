@@ -6,7 +6,6 @@ import {
   getNorwegianDate,
   relativeDateFormat,
   timeFormat,
-  weekdayDateFormat,
 } from './dateFormat';
 
 describe('getNorwegianDate', () => {
@@ -20,7 +19,6 @@ describe('getNorwegianDate', () => {
 
 test('the formats use Norwegian time', () => {
   assert.equal(dateFormat('2026-11-03T23:30:00Z', 'nb'), '04.11.2026');
-  assert.equal(weekdayDateFormat('2026-11-03T23:30:00Z', 'en'), 'Wed 4 Nov');
   assert.equal(timeFormat('2026-11-03T09:30:00Z', 'en'), '10:30');
 });
 

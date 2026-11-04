@@ -18,6 +18,10 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import type { UpcomingMeeting } from '~/lib/moetemappe/moetemappe.server';
 import { buildPathname } from '~/lib/routing/pathname';
+import {
+  getIntlLocale,
+  type LanguageCode,
+} from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import {
   getNorwegianDate,
@@ -32,7 +36,6 @@ import {
   getSelectedEnhetsAction,
   type SelectedEnhet,
 } from './selectedEnhet.actions';
-import { getIntlLocale, LanguageCode } from '~/lib/translation/translation';
 
 type LoadedSelection = { enhetIdsKey: string; enhets: SelectedEnhet[] };
 
