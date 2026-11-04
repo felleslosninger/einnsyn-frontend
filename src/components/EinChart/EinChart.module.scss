@@ -34,11 +34,6 @@ $surface: var(--ein-chart-surface, var(--ds-color-neutral-background-default));
 .caption {
   grid-area: caption;
   text-align: center;
-
-  // An active point's label may start in lower case, e.g. "november 2025".
-  &::first-letter {
-    text-transform: uppercase;
-  }
 }
 
 .axisStart {
@@ -66,7 +61,7 @@ $surface: var(--ein-chart-surface, var(--ds-color-neutral-background-default));
 
   dd {
     margin: 0;
-    font-size: var(--ds-font-size-6);
+    font-size: var(--ds-font-size-5);
     font-weight: var(--ds-font-weight-semibold);
     line-height: var(--ds-line-height-sm);
     color: var(--ds-color-neutral-text-default);

@@ -21,36 +21,38 @@ import { buildPathname } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import {
   getNorwegianDate,
-  meetingDateFormat,
   monthFormat,
+  NORWEGIAN_TIME_ZONE,
+  relativeDateFormat,
+  timeFormat,
 } from '~/lib/utils/dateFormat';
 import { formatPhoneNumber } from '~/lib/utils/phoneNumber';
-import { capitalize } from '~/lib/utils/stringutils';
 import styles from './SelectedEnhetPanel.module.scss';
 import {
   getSelectedEnhetsAction,
   type SelectedEnhet,
 } from './selectedEnhet.actions';
+import { getIntlLocale, LanguageCode } from '~/lib/translation/translation';
 
-type Selection = { key: string; enhets: SelectedEnhet[] };
+type LoadedSelection = { enhetIdsKey: string; enhets: SelectedEnhet[] };
 
 // The page remounts when the selection moves an enhet in or out of the path,
-// so the latest selection, the request a change starts and the selection last
-// on screen outlive the panel.
-let latest: (Selection & { at: number }) | undefined;
-let shownKey: string | undefined;
-const requests = new Map<string, Promise<SelectedEnhet[]>>();
+// so the selection last loaded, the request a change starts and the selection
+// last on screen outlive the panel.
+let lastLoaded: (LoadedSelection & { loadedAt: number }) | undefined;
+let lastShownKey: string | undefined;
+const pendingRequests = new Map<string, Promise<SelectedEnhet[]>>();
 
 // Long enough to bridge a remount, short enough not to hold stale statistics.
-const REUSE_LATEST_MS = 60 * 1000;
+const REUSE_LAST_LOADED_MS = 60 * 1000;
 
-function requestSelection(enhetIds: string[], key: string) {
-  let request = requests.get(key);
+function fetchSelectedEnhets(enhetIds: string[], enhetIdsKey: string) {
+  let request = pendingRequests.get(enhetIdsKey);
   if (!request) {
     request = getSelectedEnhetsAction(enhetIds)
       .catch((): SelectedEnhet[] => [])
-      .finally(() => requests.delete(key));
-    requests.set(key, request);
+      .finally(() => pendingRequests.delete(enhetIdsKey));
+    pendingRequests.set(enhetIdsKey, request);
   }
   return request;
 }
@@ -60,9 +62,9 @@ function groupByDay(meetings: UpcomingMeeting[]) {
   const days: { day: string; meetings: UpcomingMeeting[] }[] = [];
   for (const meeting of meetings) {
     const day = getNorwegianDate(meeting.moetedato);
-    const last = days.at(-1);
-    if (last?.day === day) {
-      last.meetings.push(meeting);
+    const lastAdded = days.at(-1);
+    if (lastAdded?.day === day) {
+      lastAdded.meetings.push(meeting);
     } else {
       days.push({ day, meetings: [meeting] });
     }
@@ -70,9 +72,82 @@ function groupByDay(meetings: UpcomingMeeting[]) {
   return days;
 }
 
+/** "tir. 3. november", in Norwegian time wherever it is read. */
+function weekdayDateFormat(
+  timestamp: string | number,
+  languageCode: LanguageCode,
+) {
+  return new Intl.DateTimeFormat(getIntlLocale(languageCode), {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: NORWEGIAN_TIME_ZONE,
+  }).format(new Date(timestamp));
+}
+
+function Meeting({ id, offentligTittel, moetedato, utvalg }: UpcomingMeeting) {
+  const languageCode = useLanguageCode();
+  // An utvalg's meetings are titled with its name and the date. A meeting
+  // held by a whole organisation keeps its title, as the organisation's name
+  // wouldn't say which.
+  const title =
+    utvalg?.enhetstype === 'UTVALG'
+      ? getName(utvalg, languageCode)
+      : offentligTittel;
+
+  return (
+    <li className={styles.meeting}>
+      <time dateTime={moetedato} className={styles.meetingTime}>
+        {timeFormat(moetedato, languageCode)}
+      </time>
+      <p className={styles.meetingTitle}>
+        {utvalg ? (
+          <EinLink
+            href={buildPathname(
+              {
+                enhetIdentifier: getEnhetIdentifier(utvalg),
+                moetemappeIdentifier: id,
+              },
+              languageCode,
+            )}
+          >
+            {title}
+          </EinLink>
+        ) : (
+          title
+        )}
+      </p>
+    </li>
+  );
+}
+
+function MeetingDay({
+  day,
+  meetings,
+}: {
+  day: string;
+  meetings: UpcomingMeeting[];
+}) {
+  const languageCode = useLanguageCode();
+  const { moetedato } = meetings[0];
+
+  return (
+    <li>
+      <h4 className={styles.meetingDayHeading}>
+        <strong>{relativeDateFormat(moetedato, languageCode)}</strong> ·{' '}
+        <time dateTime={day}>{weekdayDateFormat(moetedato, languageCode)}</time>
+      </h4>
+      <ol className={styles.meetingList}>
+        {meetings.map((meeting) => (
+          <Meeting key={meeting.id} {...meeting} />
+        ))}
+      </ol>
+    </li>
+  );
+}
+
 function UpcomingMeetings({ meetings }: { meetings: UpcomingMeeting[] }) {
   const t = useTranslation();
-  const languageCode = useLanguageCode();
 
   return (
     <section className={styles.meetings}>
@@ -80,52 +155,9 @@ function UpcomingMeetings({ meetings }: { meetings: UpcomingMeeting[] }) {
         {t('moetemappe.upcoming')}
       </Heading>
       <ol className={styles.meetingDays}>
-        {groupByDay(meetings).map(({ day, meetings }) => {
-          const date = meetingDateFormat(meetings[0].moetedato, languageCode);
-          return (
-            <li key={day}>
-              <h4 className={styles.meetingDayHeading}>
-                <strong>{capitalize(date.fromToday)}</strong> ·{' '}
-                <time dateTime={day}>{date.date}</time>
-              </h4>
-              <ol className={styles.meetingList}>
-                {meetings.map(({ id, offentligTittel, moetedato, utvalg }) => {
-                  // An utvalg's meetings are titled with its name and the
-                  // date. A meeting held by a whole organisation keeps its
-                  // title, as the organisation's name wouldn't say which.
-                  const name =
-                    utvalg?.enhetstype === 'UTVALG'
-                      ? getName(utvalg, languageCode)
-                      : offentligTittel;
-                  return (
-                    <li key={id} className={styles.meeting}>
-                      <time dateTime={moetedato} className={styles.meetingTime}>
-                        {meetingDateFormat(moetedato, languageCode).time}
-                      </time>
-                      <p className={styles.meetingTitle}>
-                        {utvalg ? (
-                          <EinLink
-                            href={buildPathname(
-                              {
-                                enhetIdentifier: getEnhetIdentifier(utvalg),
-                                moetemappeIdentifier: id,
-                              },
-                              languageCode,
-                            )}
-                          >
-                            {name}
-                          </EinLink>
-                        ) : (
-                          name
-                        )}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ol>
-            </li>
-          );
-        })}
+        {groupByDay(meetings).map((meetingDay) => (
+          <MeetingDay key={meetingDay.day} {...meetingDay} />
+        ))}
       </ol>
     </section>
   );
@@ -197,19 +229,19 @@ function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
           pointName={t('statistics.month')}
           points={statistics}
           pointLabel={(month, length) =>
-            monthFormat(month.month, languageCode, length)
+            monthFormat(month.time, languageCode, length)
           }
           series={[
             {
               type: 'bar',
               label: t('statistics.documents'),
-              value: (month) => month.documents,
+              value: (month) => month.createdCount,
             },
             {
               type: 'line',
               scale: 'innsynskrav',
               label: t('statistics.innsynskrav'),
-              value: (month) => month.innsynskrav,
+              value: (month) => month.createdInnsynskravCount,
             },
           ]}
         />
@@ -251,25 +283,27 @@ function EnhetCardSkeleton() {
 /** The cards fade in, unless the selection was on screen just before. */
 function SelectionCards({
   selection,
-  leaving,
+  isLeaving,
 }: {
-  selection: Selection;
-  leaving: boolean;
+  selection: LoadedSelection;
+  isLeaving: boolean;
 }) {
-  const [appearing, setAppearing] = useState(() => selection.key !== shownKey);
+  const [isAppearing, setIsAppearing] = useState(
+    () => selection.enhetIdsKey !== lastShownKey,
+  );
 
   return (
     <div
       className={cn({
-        [styles.appearing]: appearing,
-        [styles.leaving]: leaving,
+        [styles.appearing]: isAppearing,
+        [styles.leaving]: isLeaving,
       })}
       onAnimationEnd={(event) => {
         // The cards animate together, and hidden content doesn't animate, so
         // one card's animation ending means they were all seen.
         if ((event.target as Element).parentElement === event.currentTarget) {
-          shownKey = selection.key;
-          setAppearing(false);
+          lastShownKey = selection.enhetIdsKey;
+          setIsAppearing(false);
         }
       }}
     >
@@ -288,14 +322,19 @@ export default function SelectedEnhetPanel({
   const t = useTranslation();
   const isLargeScreen = useBreakpoint('LG');
   const enhetIdsKey = enhetIds.join('|');
-  const [loaded, setLoaded] = useState<Selection | undefined>(() =>
-    latest?.key === enhetIdsKey && Date.now() - latest.at < REUSE_LATEST_MS
-      ? latest
+  const [loadedSelection, setLoadedSelection] = useState<
+    LoadedSelection | undefined
+  >(() =>
+    lastLoaded?.enhetIdsKey === enhetIdsKey &&
+    Date.now() - lastLoaded.loadedAt < REUSE_LAST_LOADED_MS
+      ? lastLoaded
       : undefined,
   );
   // A request already in flight was started by the panel before a remount,
   // whose cards have faded out; a skeleton would flash in between.
-  const [continuesRequest] = useState(() => requests.has(enhetIdsKey));
+  const [joinsPendingRequest] = useState(() =>
+    pendingRequests.has(enhetIdsKey),
+  );
 
   // The sticky offsets depend on the content's height, which CSS can't read.
   // When the scroll direction flips, the spacer moves the content's place in
@@ -336,19 +375,19 @@ export default function SelectedEnhetPanel({
     };
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey stands in for enhetIds, which is a new array on every render, and `loaded` only matters when it changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: enhetIdsKey stands in for enhetIds, which is a new array on every render, and `loadedSelection` only matters when it changes
   useEffect(() => {
-    if (loaded?.key === enhetIdsKey) {
+    if (loadedSelection?.enhetIdsKey === enhetIdsKey) {
       return;
     }
 
     let cancelled = false;
-    requestSelection(enhetIds, enhetIdsKey).then((enhets) => {
+    fetchSelectedEnhets(enhetIds, enhetIdsKey).then((enhets) => {
       if (enhets.length > 0) {
-        latest = { key: enhetIdsKey, enhets, at: Date.now() };
+        lastLoaded = { enhetIdsKey, enhets, loadedAt: Date.now() };
       }
       if (!cancelled) {
-        setLoaded({ key: enhetIdsKey, enhets });
+        setLoadedSelection({ enhetIdsKey, enhets });
       }
     });
 
@@ -357,17 +396,21 @@ export default function SelectedEnhetPanel({
     };
   }, [enhetIdsKey]);
 
-  if (loaded?.enhets.length === 0) {
+  if (loadedSelection?.enhets.length === 0) {
     return null;
   }
 
-  const isLoading = loaded?.key !== enhetIdsKey;
+  const isLoading = loadedSelection?.enhetIdsKey !== enhetIdsKey;
   let cards: React.ReactNode = null;
-  if (loaded) {
+  if (loadedSelection) {
     cards = (
-      <SelectionCards key={loaded.key} selection={loaded} leaving={isLoading} />
+      <SelectionCards
+        key={loadedSelection.enhetIdsKey}
+        selection={loadedSelection}
+        isLeaving={isLoading}
+      />
     );
-  } else if (!continuesRequest) {
+  } else if (!joinsPendingRequest) {
     cards = enhetIds.map((id) => <EnhetCardSkeleton key={id} />);
   }
 
