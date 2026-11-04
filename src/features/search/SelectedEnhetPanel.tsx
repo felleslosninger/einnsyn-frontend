@@ -287,6 +287,7 @@ function SelectionCards({
         [styles.appearing]: isAppearing,
         [styles.leaving]: isLeaving,
       })}
+      inert={isLeaving}
       onAnimationEnd={(event) => {
         // The cards animate together, and hidden content doesn't animate, so
         // one card's animation ending means they were all seen.
@@ -416,7 +417,7 @@ export default function SelectedEnhetPanel({
       ) : (
         <Details className={styles.details} data-color="neutral" data-size="sm">
           <Details.Summary>
-            <Heading level={4} data-size="sm" className={styles.detailsHeading}>
+            <Heading level={2} data-size="sm" className={styles.detailsHeading}>
               <Buildings3Icon />
               {t('search.selectedEnheter+')}
             </Heading>

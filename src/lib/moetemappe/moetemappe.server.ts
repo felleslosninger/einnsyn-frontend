@@ -60,8 +60,8 @@ export function createUpcomingMeetingsCache(
   );
 
   return (enhetId: string): Promise<UpcomingMeeting[]> => {
-    // The API reads a date as midnight UTC, an hour or two into the Norwegian
-    // day, when no meetings are held.
+    // The API reads a date as midnight in Norway, so all meetings on that day are
+    // included.
     const today = getNorwegianDate(now());
     return fetchMeetingsCache(enhetId, today, () =>
       fetchMeetings(enhetId, today),
