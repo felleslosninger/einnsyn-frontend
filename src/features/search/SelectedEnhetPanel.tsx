@@ -18,17 +18,13 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import type { UpcomingMeeting } from '~/lib/moetemappe/moetemappe.server';
 import { buildPathname } from '~/lib/routing/pathname';
-import {
-  getIntlLocale,
-  type LanguageCode,
-} from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import {
   getNorwegianDate,
   monthFormat,
-  NORWEGIAN_TIME_ZONE,
   relativeDateFormat,
   timeFormat,
+  weekdayDateFormat,
 } from '~/lib/utils/dateFormat';
 import { formatPhoneNumber } from '~/lib/utils/phoneNumber';
 import styles from './SelectedEnhetPanel.module.scss';
@@ -73,19 +69,6 @@ function groupByDay(meetings: UpcomingMeeting[]) {
     }
   }
   return days;
-}
-
-/** "tir. 3. november", in Norwegian time wherever it is read. */
-function weekdayDateFormat(
-  timestamp: string | number,
-  languageCode: LanguageCode,
-) {
-  return new Intl.DateTimeFormat(getIntlLocale(languageCode), {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    timeZone: NORWEGIAN_TIME_ZONE,
-  }).format(new Date(timestamp));
 }
 
 function Meeting({ id, offentligTittel, moetedato, utvalg }: UpcomingMeeting) {
@@ -200,6 +183,7 @@ function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
         {phone && (
           <span className={styles.contactItem}>
             <PhoneIcon aria-hidden="true" />
+            <span className="ds-sr-only">{t('common.phone')}: </span>
             {phone.href ? (
               <EinLink href={phone.href}>{phone.text}</EinLink>
             ) : (
@@ -210,6 +194,7 @@ function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
         {enhet.kontaktpunktEpost && (
           <span className={styles.contactItem}>
             <EnvelopeClosedIcon aria-hidden="true" />
+            <span className="ds-sr-only">{t('common.email')}: </span>
             <EinLink
               href={`mailto:${enhet.kontaktpunktEpost}`}
               className={styles.email}
@@ -221,6 +206,7 @@ function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
         {enhet.kontaktpunktAdresse && (
           <span className={styles.contactItem}>
             <LocationPinIcon aria-hidden="true" />
+            <span className="ds-sr-only">{t('common.address')}: </span>
             {enhet.kontaktpunktAdresse}
           </span>
         )}

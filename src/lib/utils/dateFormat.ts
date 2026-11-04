@@ -72,25 +72,35 @@ export function relativeDateFormat(
     : t('common.daysAgo', String(-days));
 }
 
-// A chart labels every point on each render, and a formatter is costly to build.
-const monthFormats = new Map<string, Intl.DateTimeFormat>();
-
 /** "nov. 2025" or "november 2025", in UTC like the API's monthly buckets. */
 export function monthFormat(
   timestamp: string | number,
   languageCode: LanguageCode,
   month: 'short' | 'long' = 'short',
 ) {
-  const locale = getIntlLocale(languageCode);
-  const key = `${locale}|${month}`;
-  let format = monthFormats.get(key);
-  if (!format) {
-    format = new Intl.DateTimeFormat(locale, {
-      year: 'numeric',
-      month,
-      timeZone: 'UTC',
-    });
-    monthFormats.set(key, format);
-  }
-  return format.format(new Date(timestamp));
+  const t = getTranslateFunction(languageCode);
+  const date = new Date(timestamp);
+  const names = month === 'short' ? 'date.monthsShort' : 'date.months';
+  return t(
+    'date.monthYear',
+    t(`${names}.${date.getUTCMonth() + 1}`),
+    String(date.getUTCFullYear()),
+  );
+}
+
+/** "lørdag 7. november", in Norwegian time wherever it is read. */
+export function weekdayDateFormat(
+  timestamp: string | number,
+  languageCode: LanguageCode,
+) {
+  const t = getTranslateFunction(languageCode);
+  const [year, month, day] = getNorwegianDate(timestamp).split('-').map(Number);
+  // Monday is 1, Sunday 7.
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay() || 7;
+  return t(
+    'date.weekdayDate',
+    t(`date.weekdays.${weekday}`),
+    String(day),
+    t(`date.months.${month}`),
+  );
 }

@@ -122,6 +122,47 @@
     "saveSearchMissingLabel": "Atte ohcamii nama",
     "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
+  "date": {
+    "weekdayDate": "$1 $2. $3",
+    "monthYear": "$1 $2",
+    "months": {
+      "1": "ođđajagemánnu",
+      "2": "guovvamánnu",
+      "3": "njukčamánnu",
+      "4": "cuoŋománnu",
+      "5": "miessemánnu",
+      "6": "geassemánnu",
+      "7": "suoidnemánnu",
+      "8": "borgemánnu",
+      "9": "čakčamánnu",
+      "10": "golggotmánnu",
+      "11": "skábmamánnu",
+      "12": "juovlamánnu"
+    },
+    "monthsShort": {
+      "1": "ođđj",
+      "2": "guov",
+      "3": "njuk",
+      "4": "cuo",
+      "5": "mies",
+      "6": "geas",
+      "7": "suoi",
+      "8": "borg",
+      "9": "čakč",
+      "10": "golg",
+      "11": "skáb",
+      "12": "juov"
+    },
+    "weekdays": {
+      "1": "vuossárga",
+      "2": "maŋŋebárga",
+      "3": "gaskavahkku",
+      "4": "duorasdat",
+      "5": "bearjadat",
+      "6": "lávvardat",
+      "7": "sotnabeaivi"
+    }
+  },
   "statistics": {
     "last12Months": "Siste 12 måneder",
     "documents": "dokumenter",
@@ -154,6 +195,7 @@
     "yesterday": "Ikte",
     "daysAgo": "$1 beaivvi áigi",
     "all": "Buot",
+    "phone": "Telefovdna",
     "email": "Siidu",
     "address": "Čujuhus",
     "noResults": "Bohtosat eai gávdnon",

@@ -2,11 +2,63 @@ import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
 import {
+  getTranslateFunction,
+  supportedLanguages,
+} from '~/lib/translation/translation';
+import {
   dateFormat,
   getNorwegianDate,
+  monthFormat,
   relativeDateFormat,
   timeFormat,
+  weekdayDateFormat,
 } from './dateFormat';
+
+test('every language names every month and weekday', () => {
+  for (const languageCode of supportedLanguages) {
+    const t = getTranslateFunction(languageCode);
+    for (const [names, count] of [
+      ['date.months', 12],
+      ['date.monthsShort', 12],
+      ['date.weekdays', 7],
+    ] as const) {
+      for (let i = 1; i <= count; i++) {
+        const key = `${names}.${i}`;
+        assert.notEqual(t(key), key, `${languageCode} lacks ${key}`);
+      }
+    }
+  }
+});
+
+describe('weekdayDateFormat', () => {
+  test('names the day in each language', () => {
+    const saturday = '2026-11-07T12:00:00Z';
+    assert.equal(weekdayDateFormat(saturday, 'nb'), 'lørdag 7. november');
+    assert.equal(weekdayDateFormat(saturday, 'nn'), 'laurdag 7. november');
+    assert.equal(weekdayDateFormat(saturday, 'en'), 'Saturday 7 November');
+    assert.equal(weekdayDateFormat(saturday, 'se'), 'lávvardat 7. skábmamánnu');
+  });
+
+  test('uses the Norwegian day', () => {
+    assert.equal(
+      weekdayDateFormat('2026-11-07T23:30:00Z', 'nb'),
+      'søndag 8. november',
+    );
+    assert.equal(
+      weekdayDateFormat('2026-12-31T23:30:00Z', 'en'),
+      'Friday 1 January',
+    );
+  });
+});
+
+test('monthFormat uses the UTC month', () => {
+  assert.equal(monthFormat('2025-11-30T23:30:00Z', 'nb'), 'nov. 2025');
+  assert.equal(
+    monthFormat('2025-12-01T00:00:00Z', 'nn', 'long'),
+    'desember 2025',
+  );
+  assert.equal(monthFormat('2025-09-15T00:00:00Z', 'en'), 'Sept 2025');
+});
 
 describe('getNorwegianDate', () => {
   test('turns at midnight in Norway, in winter and summer time', () => {
