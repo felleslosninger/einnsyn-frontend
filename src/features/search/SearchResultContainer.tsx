@@ -29,6 +29,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
+import { showsSearchResults } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
@@ -73,14 +74,15 @@ export default function SearchResultContainer({
     optimisticPathname,
     optimisticSearchParams,
   } = useNavigation();
-  const enhetIds = useMemo(
-    () =>
-      getEnhetSelection(
-        getPathEnhet(optimisticPathname),
-        optimisticSearchParams,
-      ),
-    [optimisticPathname, optimisticSearchParams],
-  );
+  const enhetIds = useMemo(() => {
+    // Don't reload enhets when moving away from search (e.g. to a Enhet's
+    // Saksmappe).
+    const isSearch = showsSearchResults(optimisticPathname);
+    return getEnhetSelection(
+      getPathEnhet(isSearch ? optimisticPathname : pathname),
+      isSearch ? optimisticSearchParams : searchParams,
+    );
+  }, [optimisticPathname, optimisticSearchParams, pathname, searchParams]);
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const isLoading =
