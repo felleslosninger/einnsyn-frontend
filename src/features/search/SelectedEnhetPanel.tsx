@@ -242,7 +242,7 @@ function EnhetCard({ enhet, statistics, meetings }: SelectedEnhet) {
 
 function EnhetCardSkeleton() {
   return (
-    <div className={styles.enhetCard}>
+    <div className={styles.enhetCard} aria-hidden="true">
       <p className={styles.ancestors}>
         <span>
           <Skeleton variant="text" width={24} />
