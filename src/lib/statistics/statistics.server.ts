@@ -2,7 +2,7 @@ import 'server-only';
 
 import type EInnsynClient from '@digdir/einnsyn-sdk';
 import { getPublicApiClient } from '~/lib/api/api.server';
-import { createPeriodCache } from '~/lib/utils/periodCache';
+import { createPromiseCache } from '~/lib/utils/promiseCache';
 
 type StatisticsResponse = Awaited<
   ReturnType<EInnsynClient['statistics']['query']>
@@ -81,7 +81,7 @@ export function createStatisticsCache(
   fetchStatistics = queryStatistics,
   now: () => number = Date.now,
 ) {
-  const cache = createPeriodCache<EnhetStatistics>(STATISTICS_TTL_MS, now);
+  const cache = createPromiseCache<EnhetStatistics>(STATISTICS_TTL_MS, now);
 
   return (enhetId: string): Promise<EnhetStatistics> => {
     const months = getMonths(now());

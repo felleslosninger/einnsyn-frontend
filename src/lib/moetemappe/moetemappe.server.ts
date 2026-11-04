@@ -4,7 +4,7 @@ import { isEnhet, isMoetemappe, type Moetemappe } from '@digdir/einnsyn-sdk';
 import { getPublicApiClient } from '~/lib/api/api.server';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getNorwegianDate } from '~/lib/utils/dateFormat';
-import { createPeriodCache } from '~/lib/utils/periodCache';
+import { createPromiseCache } from '~/lib/utils/promiseCache';
 
 const UPCOMING_MEETING_COUNT = 5;
 
@@ -54,7 +54,7 @@ export function createUpcomingMeetingsCache(
   fetchMeetings = queryUpcomingMeetings,
   now: () => number = Date.now,
 ) {
-  const cache = createPeriodCache<UpcomingMeeting[]>(
+  const fetchMeetingsCache = createPromiseCache<UpcomingMeeting[]>(
     UPCOMING_MEETINGS_TTL_MS,
     now,
   );
@@ -63,7 +63,9 @@ export function createUpcomingMeetingsCache(
     // The API reads a date as midnight UTC, an hour or two into the Norwegian
     // day, when no meetings are held.
     const today = getNorwegianDate(now());
-    return cache(enhetId, today, () => fetchMeetings(enhetId, today));
+    return fetchMeetingsCache(enhetId, today, () =>
+      fetchMeetings(enhetId, today),
+    );
   };
 }
 
