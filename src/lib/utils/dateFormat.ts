@@ -25,12 +25,21 @@ export function dateFormat(
   );
 }
 
+const norwegianDateParts = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  timeZone: NORWEGIAN_TIME_ZONE,
+});
+
 /** The day in Norway, `YYYY-MM-DD`. */
 export function getNorwegianDate(timestamp: string | number): string {
-  // en-CA writes dates as YYYY-MM-DD.
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: NORWEGIAN_TIME_ZONE,
-  }).format(new Date(timestamp));
+  const parts = Object.fromEntries(
+    norwegianDateParts
+      .formatToParts(new Date(timestamp))
+      .map(({ type, value }) => [type, value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 /** "10:30", in Norwegian time wherever it is read. */
