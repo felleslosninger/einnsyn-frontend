@@ -1,25 +1,25 @@
 /**
- * One promise per key, held for `ttlMs` while its period lasts and shared by
- * concurrent callers. A new period replaces the key's entry instead of adding
- * one, and a failure is not held, so the next caller retries.
+ * One promise per key, held for `ttlMs` and shared by concurrent callers. A
+ * different `version` replaces the key's entry, e.g. today's date for data
+ * that changes daily. A failure is not held, so the next caller retries.
  */
-export function createPeriodCache<T>(
+export function createPromiseCache<T>(
   ttlMs: number,
   now: () => number = Date.now,
 ) {
   const entries = new Map<
     string,
-    { period: string; expiresAt: number; value: Promise<T> }
+    { version: string; expiresAt: number; value: Promise<T> }
   >();
 
-  return (key: string, period: string, load: () => Promise<T>): Promise<T> => {
+  return (key: string, version: string, load: () => Promise<T>): Promise<T> => {
     const entry = entries.get(key);
-    if (entry?.period === period && now() < entry.expiresAt) {
+    if (entry?.version === version && now() < entry.expiresAt) {
       return entry.value;
     }
 
     const value = load();
-    entries.set(key, { period, expiresAt: now() + ttlMs, value });
+    entries.set(key, { version, expiresAt: now() + ttlMs, value });
     value.catch(() => {
       if (entries.get(key)?.value === value) {
         entries.delete(key);
