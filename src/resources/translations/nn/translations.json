@@ -122,6 +122,54 @@
     "saveSearchMissingLabel": "Gi søket eit namn",
     "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
+  "date": {
+    "weekdayDate": "$1 $2. $3",
+    "monthYear": "$1 $2",
+    "months": {
+      "1": "januar",
+      "2": "februar",
+      "3": "mars",
+      "4": "april",
+      "5": "mai",
+      "6": "juni",
+      "7": "juli",
+      "8": "august",
+      "9": "september",
+      "10": "oktober",
+      "11": "november",
+      "12": "desember"
+    },
+    "monthsShort": {
+      "1": "jan.",
+      "2": "feb.",
+      "3": "mars",
+      "4": "apr.",
+      "5": "mai",
+      "6": "juni",
+      "7": "juli",
+      "8": "aug.",
+      "9": "sep.",
+      "10": "okt.",
+      "11": "nov.",
+      "12": "des."
+    },
+    "weekdays": {
+      "1": "måndag",
+      "2": "tysdag",
+      "3": "onsdag",
+      "4": "torsdag",
+      "5": "fredag",
+      "6": "laurdag",
+      "7": "søndag"
+    }
+  },
+  "statistics": {
+    "last12Months": "Siste 12 månader",
+    "documents": "dokument",
+    "fulltext": "med fulltekst",
+    "innsynskrav": "innsynskrav",
+    "month": "Månad"
+  },
   "routing": {
     "root": {
       "search": "søk",
@@ -143,6 +191,11 @@
     "recordedAt": "Journalført",
     "number": "Nr",
     "andMore": "+ $1 fleire",
+    "today": "I dag",
+    "tomorrow": "I morgon",
+    "inDays": "Om $1 dagar",
+    "yesterday": "I går",
+    "daysAgo": "For $1 dagar sidan",
     "all": "Alle",
     "phone": "Telefon",
     "email": "E-post",
@@ -197,7 +250,8 @@
   },
   "moetemappe": {
     "label": "Møte",
-    "labelPlural": "Møte"
+    "labelPlural": "Møte",
+    "upcoming": "Komande møte"
   },
   "moetesak": {
     "label": "Møtesak",
