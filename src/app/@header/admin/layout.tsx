@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { AdminTabs } from '~/features/admin';
+import HeaderBar from '~/features/header/HeaderBar';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
 
 export default async function AdminLayout({
@@ -17,7 +18,9 @@ export default async function AdminLayout({
       <h1 className="ds-heading" data-size="md">
         {authInfo?.enhet?.navn}
       </h1>
-      <AdminTabs />
+      <HeaderBar>
+        <AdminTabs />
+      </HeaderBar>
     </>
   );
 }

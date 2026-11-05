@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Expose the request URL to server components, since a Layout can't read
-  // its child segment's params.
+  // its child segment's params or the search params.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', request.nextUrl.pathname);
   requestHeaders.set('x-search', request.nextUrl.search);

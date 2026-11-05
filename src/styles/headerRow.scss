@@ -1,0 +1,40 @@
+// The header's second row: one `HeaderBar` holding tabs or a breadcrumb trail,
+// plus an optional end action. Every item in it — tab, crumb, action — is the
+// same `header-row-item`, so they look alike and the row is equally tall
+// whichever is showing. Each adds only what is its own on top.
+
+// The bar's own space above its items.
+$bar-start: var(--ds-size-4);
+$block-start: var(--ds-size-4);
+$block-end: var(--ds-size-3);
+// The tabs' active-state underline, reserved as a transparent border so
+// selecting a tab does not shift the row.
+$underline-width: 3px;
+
+@mixin header-row-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  padding-block: $block-start $block-end;
+  border-bottom: $underline-width solid transparent;
+  color: var(--ds-color-neutral-text-subtle);
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover,
+  &[aria-current] {
+    color: var(--ds-color-neutral-text-default);
+  }
+
+  &:focus-visible {
+    outline: var(--dsc-focus-outline);
+    outline-offset: var(--ds-border-width-focus);
+    box-shadow: var(--dsc-focus-boxShadow);
+    border-radius: var(--ds-border-radius-default);
+  }
+}
+
+// A bar's full height, built from the values above so it cannot drift from them.
+$bar-height: calc(
+  1lh + #{$bar-start} + #{$block-start} + #{$block-end} + #{$underline-width}
+);

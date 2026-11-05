@@ -1,8 +1,8 @@
-import { LoginForm } from '~/features/login';
 import { translatedTitleMetadata } from '~/lib/utils/translatedTitleMetadata.server';
 
 export const generateMetadata = translatedTitleMetadata('site.login');
 
-export default async function LoginModal() {
-  return <LoginForm />;
+// LoginModal (in the layout) renders the form for every step.
+export default function LoginPage() {
+  return null;
 }

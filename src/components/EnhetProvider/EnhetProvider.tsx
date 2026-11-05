@@ -23,22 +23,17 @@ const EnhetContext = createContext<ContextValue>({ initialEnhets: [] });
 
 type Props = {
   initialEnhets?: readonly TrimmedEnhet[];
-  enhetListVersion?: string | null;
   children: ReactNode;
 };
 
-export function EnhetProvider({
-  initialEnhets = [],
-  enhetListVersion,
-  children,
-}: Props) {
+export function EnhetProvider({ initialEnhets = [], children }: Props) {
   const value = useMemo(() => ({ initialEnhets }), [initialEnhets]);
 
   // Sync into the module store on the client so it persists across
   // provider remounts (e.g. navigation between @header pages).
   useEffect(() => {
-    seedEnhets(initialEnhets, enhetListVersion);
-  }, [initialEnhets, enhetListVersion]);
+    seedEnhets(initialEnhets);
+  }, [initialEnhets]);
 
   return (
     <EnhetContext.Provider value={value}>{children}</EnhetContext.Provider>
