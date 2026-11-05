@@ -178,6 +178,7 @@ function BrukerListItem({
   const [subscribe, setSubscribe] = useState(
     !isInnsynskrav(item) && item.subscribe === true,
   );
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Every item has the same controls, so screen readers also get the title.
   const hiddenTitle = <span className="ds-sr-only"> {getTitle(item)}</span>;
@@ -185,11 +186,23 @@ function BrukerListItem({
   const handleSubscribeChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    // One update at a time, so `!checked` is always the last saved value.
+    if (isUpdating) {
+      return;
+    }
     const checked = e.target.checked;
     setError(undefined);
     setSubscribe(checked);
+    setIsUpdating(true);
     const entity = isLagretSoek(item) ? 'LagretSoek' : 'LagretSak';
-    if (!(await setBrukerItemSubscriptionAction(entity, item.id, checked))) {
+    // A failed API call returns false, but a failed request rejects.
+    const saved = await setBrukerItemSubscriptionAction(
+      entity,
+      item.id,
+      checked,
+    ).catch(() => false);
+    setIsUpdating(false);
+    if (!saved) {
       setSubscribe(!checked);
       setError(t('bruker.subscribeError'));
     }
@@ -201,7 +214,9 @@ function BrukerListItem({
     }
     setError(undefined);
     startDeleteTransition(async () => {
-      if (await deleteBrukerItemAction(item.entity, item.id)) {
+      if (
+        await deleteBrukerItemAction(item.entity, item.id).catch(() => false)
+      ) {
         // Keep keyboard focus in the list as this item's button disappears:
         // on the next item, or the previous one if this was the last.
         const neighbour =

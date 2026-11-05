@@ -55,16 +55,20 @@ async function listItems(type: BrukerListType) {
 }
 
 async function BrukerListContent({ type }: { type: BrukerListType }) {
-  const [initialPage, t] = await Promise.all([
+  const [initialPage, t, authInfo] = await Promise.all([
     listItems(type),
     getTranslator(),
+    cachedAuthInfo(),
   ]);
 
   if (!initialPage) {
     return <Alert data-color="danger">{t('bruker.loadError')}</Alert>;
   }
 
-  return <BrukerList type={type} initialPage={initialPage} />;
+  // The list keeps its items in state, so another user needs a new list.
+  return (
+    <BrukerList key={authInfo?.id} type={type} initialPage={initialPage} />
+  );
 }
 
 /**
