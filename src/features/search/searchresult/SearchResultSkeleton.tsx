@@ -13,23 +13,23 @@ export function SearchResultSkeleton({
   className?: string;
   index: number;
 }) {
-  // Three fields per result, so each row takes its own stretch of the cycle.
-  const field = index * 3;
+  // Four fields per result, so each row takes its own stretch of the cycle.
+  const field = index * 4;
 
   return (
     <div className={cn(className, styles.searchResult)}>
       <h2 className="ds-heading" data-size="lg">
         <Skeleton variant="text" width={skeletonLength(field, 30, 60)} />
       </h2>
-      <div
-        className={cn('ds-paragraph', styles.searchResultBody)}
-        data-size="sm"
-      >
+      <div className="ds-paragraph" data-size="sm">
         <div>
           <Skeleton variant="text" width={skeletonLength(field + 1, 20, 50)} />
         </div>
         <div>
           <Skeleton variant="text" width={skeletonLength(field + 2, 20, 50)} />
+        </div>
+        <div>
+          <Skeleton variant="text" width={skeletonLength(field + 3, 20, 50)} />
         </div>
       </div>
     </div>

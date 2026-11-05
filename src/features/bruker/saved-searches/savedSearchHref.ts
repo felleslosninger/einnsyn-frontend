@@ -1,7 +1,18 @@
 import type { SavedSearchParameters } from '@digdir/einnsyn-sdk';
-import { toJournalposttypeShorthand } from '~/lib/routing/journalposttype';
 import { serializeParamList } from '~/lib/utils/paramList';
 import { tokensToSearchQuery } from '~/lib/utils/searchStringTokenizer';
+
+/**
+ * The search field's shorthands for journalposttype API values, the reverse of
+ * the mapping in `search.server.ts`. Other values are kept as they are.
+ */
+const JOURNALPOSTTYPE_SHORTHANDS: Record<string, string> = {
+  inngaaende_dokument: 'inngaaende',
+  utgaaende_dokument: 'utgaaende',
+  organinternt_dokument_for_oppfoelging: 'organinternt',
+  organinternt_dokument_uten_oppfoelging: 'organinternt',
+  saksframlegg: 'saksframlegg',
+};
 
 /**
  * A saved date as the search field writes it: relative date math
@@ -42,7 +53,9 @@ export function savedSearchHref(
           {
             prefix: 'journalposttype',
             value: serializeParamList(
-              sp.journalposttype.map(toJournalposttypeShorthand),
+              sp.journalposttype.map(
+                (type) => JOURNALPOSTTYPE_SHORTHANDS[type] ?? type,
+              ),
             ),
           },
         ]
