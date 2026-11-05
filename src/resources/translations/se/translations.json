@@ -5,6 +5,7 @@
     "loginRequired": {
       "title": "Logga sisa",
       "description": "Logga sisa vai beasat dán siidui.",
+      "descriptionOrganization": "Logga sisa organisašuvnna beales vai beasat dán siidui.",
       "goToFrontPage": "Mana ovdasiidui"
     },
     "loggingIn": "Čállá sisa",

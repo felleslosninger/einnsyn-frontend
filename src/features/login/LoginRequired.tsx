@@ -2,13 +2,20 @@ import { Alert, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { getTranslator } from '~/lib/translation/translation.server';
+import { AnsattportenLoginButton } from './AnsattportenLoginButton';
 import styles from './LoginRequired.module.scss';
 
 /**
- * Shown in place of a page that needs a logged-in user. The login modal
- * returns to the same URL, so the page loads once the user has logged in.
+ * Shown in place of a page that needs a logged-in user. Both ways of logging
+ * in return to the same URL, so the page loads once the user has logged in.
+ * With `asOrganization`, a personal account gives no access to the page, so
+ * Ansattporten is the only way offered.
  */
-export default async function LoginRequired() {
+export default async function LoginRequired({
+  asOrganization = false,
+}: {
+  asOrganization?: boolean;
+}) {
   const t = await getTranslator();
 
   return (
@@ -18,14 +25,24 @@ export default async function LoginRequired() {
           {t('site.loginRequired.title')}
         </Heading>
         <div className={styles.content}>
-          <Paragraph>{t('site.loginRequired.description')}</Paragraph>
-          <div className={styles.actions}>
-            <EinButton asChild data-color="accent">
-              <EinLink unstyled href="/login">
-                {t('site.login')}
-              </EinLink>
-            </EinButton>
-            <EinButton asChild data-color="accent" variant="secondary">
+          <Paragraph>
+            {t(
+              asOrganization
+                ? 'site.loginRequired.descriptionOrganization'
+                : 'site.loginRequired.description',
+            )}
+          </Paragraph>
+          <div className={styles.actions} data-color="accent">
+            {asOrganization ? (
+              <AnsattportenLoginButton style="primary" />
+            ) : (
+              <EinButton asChild>
+                <EinLink unstyled href="/login">
+                  {t('site.login')}
+                </EinLink>
+              </EinButton>
+            )}
+            <EinButton asChild variant="secondary">
               <EinLink unstyled href="/">
                 {t('site.loginRequired.goToFrontPage')}
               </EinLink>

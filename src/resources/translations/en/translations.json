@@ -5,6 +5,7 @@
     "loginRequired": {
       "title": "You need to log in",
       "description": "This page is only available when you are logged in.",
+      "descriptionOrganization": "This page is only available when you are logged in on behalf of an organization.",
       "goToFrontPage": "Go to front page"
     },
     "loggingIn": "Logging in",

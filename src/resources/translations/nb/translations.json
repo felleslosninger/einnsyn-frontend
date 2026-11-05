@@ -5,6 +5,7 @@
     "loginRequired": {
       "title": "Du må logge inn",
       "description": "Denne siden er bare tilgjengelig når du er logget inn.",
+      "descriptionOrganization": "Denne siden er bare tilgjengelig når du er logget inn på vegne av en virksomhet.",
       "goToFrontPage": "Gå til forsiden"
     },
     "loggingIn": "Logger inn",
