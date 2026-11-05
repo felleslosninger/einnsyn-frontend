@@ -1,3 +1,5 @@
+import BrukerListPage from '~/features/bruker/BrukerListPage';
+
 export default function SavedSearchesPage() {
-  return null;
+  return <BrukerListPage type="savedSearches" />;
 }
