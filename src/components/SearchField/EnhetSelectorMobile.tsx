@@ -2,7 +2,7 @@
 
 import { Search, Skeleton } from '@digdir/designsystemet-react';
 import { Buildings3Icon, CheckmarkIcon } from '@navikt/aksel-icons';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { VList } from 'virtua';
 import EinModal, { EinModalHeader } from '~/components/EinModal/EinModal';
 import type { EinTransitionEvents } from '~/components/EinTransition/EinTransition';
@@ -12,6 +12,7 @@ import { getAncestorsAsString, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
+import { EnhetSelectorClearButton } from './EnhetSelectorClearButton';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
 
 type Props = {
@@ -23,6 +24,7 @@ type Props = {
 
 export function EnhetSelectorMobile({ state, active, activate, close }: Props) {
   const t = useTranslation();
+  const summaryButtonRef = useRef<HTMLButtonElement>(null);
   const { inputRef } = state;
 
   // See EnhetSelectorDesktop — focus the filter input once the sheet is
@@ -39,7 +41,19 @@ export function EnhetSelectorMobile({ state, active, activate, close }: Props) {
   return (
     <>
       <div className={styles.selectorField}>
-        <SummaryButton active={active} state={state} activate={activate} />
+        <SummaryButton
+          buttonRef={summaryButtonRef}
+          active={active}
+          state={state}
+          activate={activate}
+        />
+        {state.hasSelection && (
+          <EnhetSelectorClearButton
+            state={state}
+            active={active}
+            focusAfterClearRef={summaryButtonRef}
+          />
+        )}
       </div>
 
       <EinModal
@@ -66,9 +80,15 @@ type SummaryButtonProps = {
   active: boolean;
   state: EnhetSelectorState;
   activate: () => void;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
 };
 
-const SummaryButton = ({ active, state, activate }: SummaryButtonProps) => {
+const SummaryButton = ({
+  buttonRef,
+  active,
+  state,
+  activate,
+}: SummaryButtonProps) => {
   const t = useTranslation();
   const {
     summaryLabel,
@@ -106,6 +126,7 @@ const SummaryButton = ({ active, state, activate }: SummaryButtonProps) => {
 
   return (
     <button
+      ref={buttonRef}
       type="button"
       className={cn(styles.mobileSummaryButton, {
         [styles.summaryButtonActive]: active,

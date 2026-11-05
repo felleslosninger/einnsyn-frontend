@@ -1,63 +1,172 @@
 'use client';
 
 import { Alert, Checkbox } from '@digdir/designsystemet-react';
-import { useActionState, useEffect, useState } from 'react';
+import {
+  useActionState,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
+import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
 import { EinInput } from '~/components/EinInput/EinInput';
 import { EinLink } from '~/components/EinLink/EinLink';
-import {
-  EinModalBody,
-  EinModalFooter,
-  EinModalHeader,
-} from '~/components/EinModal/EinModal';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
-import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useTranslation } from '~/hooks/useTranslation';
-import { eInnsynLoginAction } from '~/lib/auth/auth.actions';
+import {
+  eInnsynLoginAction,
+  registerAction,
+  requestPasswordResetAction,
+} from '~/lib/auth/auth.actions';
 import cn from '~/lib/utils/className';
-import { AnsattportenLogin } from './AnsattportenLogin';
+import { validatePassword } from '~/lib/utils/validators';
 import styles from './LoginForm.module.scss';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
-export default function LoginForm() {
+export type LoginFormMode = 'login' | 'forgottenPassword' | 'register';
+
+/** Each step's name, on its submit button and as the modal's title. */
+export const stepNames: Record<LoginFormMode, string> = {
+  login: 'site.login',
+  forgottenPassword: 'site.resetPassword',
+  register: 'site.createAccount',
+};
+
+type Notice = {
+  mode: LoginFormMode;
+  color: 'danger' | 'success';
+  message: string;
+};
+
+/**
+ * Logs in, asks for a password reset link, or registers an account. One form
+ * serves all three, so the email field stays put while the rest changes
+ * around it.
+ */
+export default function LoginForm({
+  mode = 'login',
+}: {
+  mode?: LoginFormMode;
+}) {
   const t = useTranslation();
   const { settings } = useSessionData();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordRepeat, setPasswordRepeat] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(!!settings?.stayLoggedIn);
-  const [displayedError, setDisplayedError] = useState<string | undefined>();
+  const [notice, setNotice] = useState<Notice>();
   const navigation = useNavigation();
-  const basepath = useModalBasepath();
+  const isLogin = mode === 'login';
+  const isRegister = mode === 'register';
+  const hasPassword = isLogin || isRegister;
+  const passwordHintId = useId();
+  const passwordInput = useRef<HTMLInputElement>(null);
+  const passwordRepeatInput = useRef<HTMLInputElement>(null);
+  const forgotPasswordLink = useRef<HTMLAnchorElement>(null);
+  const backToLoginLink = useRef<HTMLAnchorElement>(null);
+  const focusOnLogin = useRef<HTMLElement>(null);
 
-  const [loginState, formAction, isPending] = useActionState(
+  const [loginState, loginAction, isLoggingIn] = useActionState(
     eInnsynLoginAction,
     {},
   );
+  const [resetState, resetAction, isResetting] = useActionState(
+    requestPasswordResetAction,
+    {},
+  );
+  const [registerState, registerFormAction, isRegistering] = useActionState(
+    registerAction,
+    {},
+  );
 
-  // Update displayed error message
+  // A message is gone once you leave its step, also when you come back.
+  if (notice && notice.mode !== mode) {
+    setNotice(undefined);
+  }
+
+  // Every submit returns a new state, so a repeated error shows again.
   useEffect(() => {
-    if (!isPending) {
-      if (loginState.error === 'authenticationError') {
-        setDisplayedError(t('site.invalidUsernameOrPassword'));
-      } else if (loginState.error) {
-        setDisplayedError(t('site.unknownError'));
-      } else {
-        setDisplayedError(undefined);
-      }
+    if (loginState.error) {
+      setNotice({
+        mode: 'login',
+        color: 'danger',
+        message:
+          loginState.error === 'authenticationError'
+            ? 'site.invalidUsernameOrPassword'
+            : 'site.unknownError',
+      });
     }
-  }, [isPending, loginState.error, t]);
+  }, [loginState]);
 
-  // Redirect to basepath if login is successful
+  useEffect(() => {
+    if (resetState.sent || resetState.error) {
+      setNotice({
+        mode: 'forgottenPassword',
+        color: resetState.sent ? 'success' : 'danger',
+        message: resetState.sent
+          ? 'site.resetPasswordSent'
+          : 'site.unknownError',
+      });
+    }
+  }, [resetState]);
+
+  useEffect(() => {
+    if (registerState.sent || registerState.error) {
+      setNotice({
+        mode: 'register',
+        color: registerState.sent ? 'success' : 'danger',
+        message: registerState.sent ? 'site.registerSent' : 'site.unknownError',
+      });
+    }
+  }, [registerState]);
+
+  // Close the modal if login is successful
   useEffect(() => {
     if (loginState.success) {
-      navigation.push(basepath);
+      navigation.closeModal();
     }
-  }, [loginState.success, navigation, basepath]);
+  }, [loginState.success, navigation]);
+
+  // The browser holds back the submit with these messages. Only a new password
+  // has to follow the rules.
+  useEffect(() => {
+    passwordInput.current?.setCustomValidity(
+      isRegister && password && !validatePassword(password)
+        ? t('site.passwordRequirements')
+        : '',
+    );
+    passwordRepeatInput.current?.setCustomValidity(
+      isRegister && passwordRepeat !== password
+        ? t('site.passwordsDoNotMatch')
+        : '',
+    );
+  }, [isRegister, password, passwordRepeat, t]);
+
+  // Focus that leaves with the login step (also from the footer) goes to
+  // "Tilbake til innlogging", and from there back to where it was. Before
+  // paint, while the browser still reports the inert element as focused.
+  // Without scrolling: the target is still collapsed, and scrolling to it
+  // would shift the whole modal while it opens.
+  useLayoutEffect(() => {
+    const focused = document.activeElement;
+    if (!(focused instanceof HTMLElement) || !focused.closest('[inert]')) {
+      return;
+    }
+    const target = isLogin
+      ? (focusOnLogin.current ?? forgotPasswordLink.current)
+      : backToLoginLink.current;
+    if (!isLogin) {
+      focusOnLogin.current = focused;
+    }
+    target?.focus({ preventScroll: true });
+  }, [isLogin]);
 
   const onKeyDown = (_event: React.KeyboardEvent<HTMLInputElement>) => {
-    setDisplayedError(undefined);
+    setNotice(undefined);
   };
 
   // Update username
@@ -70,71 +179,129 @@ export default function LoginForm() {
     setPassword(event.target.value);
   };
 
+  const onUpdatePasswordRepeat = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setPasswordRepeat(event.target.value);
+  };
+
   const onUpdateStayLoggedIn = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStayLoggedIn(event.target.checked);
   };
 
-  return (
-    <>
-      <EinModalHeader title={t('site.login')} />
-      <EinModalBody>
-        <form className={cn(styles.loginContainer)} action={formAction}>
-          <fieldset className={cn(styles.loginFieldset)}>
-            {displayedError && (
-              <Alert data-color="danger">{displayedError}</Alert>
-            )}
-            <EinInput
-              name="username"
-              type="email"
-              autoComplete="email"
-              label={t('site.username')}
-              placeholder={t('site.usernamePlaceholder')}
-              onChange={onUpdateUsername}
-              onKeyDown={onKeyDown}
-              value={username}
-              required
-              fullWidth
-            />
+  const formAction = {
+    login: loginAction,
+    forgottenPassword: resetAction,
+    register: registerFormAction,
+  }[mode];
 
-            <EinInput
-              name="password"
-              type="password"
-              label={t('site.password')}
-              placeholder={t('site.passwordPlaceholder')}
-              autoComplete="current-password"
-              onChange={onUpdatePassword}
-              onKeyDown={onKeyDown}
-              value={password}
-              required
-              fullWidth
-            />
-            <div className={styles.loginOptionsContainer}>
-              <div className={styles.rememberForgottenWrapper}>
-                <Checkbox
-                  name="stayLoggedIn"
-                  value={stayLoggedIn ? 'checked' : undefined}
-                  checked={stayLoggedIn}
-                  onChange={onUpdateStayLoggedIn}
-                  data-size="sm"
-                  label={t('site.stayLoggedIn')}
-                />
-                <EinLink
-                  href="/login/forgotten-password"
-                  className={styles.forgotPasswordLink}
-                >
-                  {t('site.forgottenPassword')}
-                </EinLink>
-              </div>
-              <EinButton type="submit" fullWidth disabled={isPending}>
-                {t('site.login')}
-              </EinButton>
-            </div>
-          </fieldset>
-        </form>
-      </EinModalBody>
-      <EinModalFooter>
-        <AnsattportenLogin />
-      </EinModalFooter>
-    </>
+  return (
+    <form action={formAction}>
+      <fieldset className={cn('ds-fieldset', styles.loginFieldset)}>
+        <EinExpandable expanded={!!notice} className={styles.notice}>
+          {notice && (
+            <Alert data-color={notice.color} className={styles.formAlert}>
+              {t(notice.message)}
+            </Alert>
+          )}
+        </EinExpandable>
+        <EinInput
+          className={styles.username}
+          name="username"
+          type="email"
+          autoComplete="email"
+          label={t('site.username')}
+          placeholder={t('site.usernamePlaceholder')}
+          onChange={onUpdateUsername}
+          onKeyDown={onKeyDown}
+          value={username}
+          required
+          fullWidth
+        />
+
+        <EinExpandable expanded={hasPassword}>
+          <EinInput
+            ref={passwordInput}
+            // Without a name it stays out of the reset request
+            name={hasPassword ? 'password' : undefined}
+            type="password"
+            label={
+              <>
+                {t('site.password')}
+                {/* Points to the rules below, which the field reads out */}
+                {isRegister && <span aria-hidden>*</span>}
+              </>
+            }
+            placeholder={t('site.passwordPlaceholder')}
+            autoComplete={isRegister ? 'new-password' : 'current-password'}
+            aria-describedby={isRegister ? passwordHintId : undefined}
+            onChange={onUpdatePassword}
+            onKeyDown={onKeyDown}
+            value={password}
+            required={hasPassword}
+            fullWidth
+          />
+        </EinExpandable>
+        <EinExpandable expanded={isRegister}>
+          <EinInput
+            ref={passwordRepeatInput}
+            name={isRegister ? 'passwordRepeat' : undefined}
+            type="password"
+            label={t('site.repeatPassword')}
+            placeholder={t('site.passwordPlaceholder')}
+            autoComplete="new-password"
+            onChange={onUpdatePasswordRepeat}
+            onKeyDown={onKeyDown}
+            value={passwordRepeat}
+            required={isRegister}
+            fullWidth
+          />
+        </EinExpandable>
+        <EinExpandable expanded={isRegister} className={styles.passwordHint}>
+          <p id={passwordHintId}>
+            <span aria-hidden>* </span>
+            {t('site.passwordRequirements')}
+          </p>
+        </EinExpandable>
+        <EinExpandable
+          expanded={isLogin}
+          contentClassName={styles.rememberForgottenWrapper}
+        >
+          <Checkbox
+            name="stayLoggedIn"
+            value={stayLoggedIn ? 'checked' : undefined}
+            checked={stayLoggedIn}
+            onChange={onUpdateStayLoggedIn}
+            data-size="sm"
+            label={t('site.stayLoggedIn')}
+          />
+          <EinLink
+            ref={forgotPasswordLink}
+            href="/login/forgotten-password"
+            className={styles.forgotPasswordLink}
+          >
+            {t('site.forgottenPassword')}
+          </EinLink>
+        </EinExpandable>
+        <div className={styles.loginOptionsContainer}>
+          <EinButton
+            type="submit"
+            fullWidth
+            disabled={isLoggingIn || isResetting || isRegistering}
+          >
+            {t(stepNames[mode])}
+          </EinButton>
+          <EinExpandable
+            expanded={!isLogin}
+            className={styles.backToLogin}
+            contentClassName={styles.backToLoginContent}
+          >
+            <EinLink ref={backToLoginLink} href="/login">
+              {t('site.backToLogin')}
+            </EinLink>
+          </EinExpandable>
+        </div>
+      </fieldset>
+    </form>
   );
 }

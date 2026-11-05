@@ -148,6 +148,8 @@ export function tokensToSearchQuery(tokens: Partial<SearchToken>[]): string {
   const tokenStrings: string[] = [];
   for (const token of tokens) {
     const { value = '', quoted = false } = token;
+    const shouldQuote =
+      quoted || (token.prefix !== undefined && /\s/.test(value));
     let result = '';
     if (token.sign) {
       result += token.sign;
@@ -155,11 +157,10 @@ export function tokensToSearchQuery(tokens: Partial<SearchToken>[]): string {
     if (token.prefix) {
       result += `${token.prefix}:`;
     }
-    if (quoted) {
-      // Escape backslashes, then quotes within the value before wrapping it in quotes
-      const escapedValue = value
-        .replaceAll('\\', '\\\\')
-        .replaceAll('"', '\\"');
+    if (shouldQuote) {
+      // Only quotes are escaped: the parser reads backslashes literally, so
+      // escaping them would double them on every round trip
+      const escapedValue = value.replaceAll('"', '\\"');
       result += `"${escapedValue}"`;
     } else {
       result += value;

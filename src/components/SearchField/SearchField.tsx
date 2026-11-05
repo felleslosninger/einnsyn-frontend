@@ -1,7 +1,6 @@
 'use client';
 
-import { Button } from '@digdir/designsystemet-react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
+import { MagnifyingGlassIcon } from '@navikt/aksel-icons';
 import { useCallback, useRef, useState } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
@@ -10,6 +9,7 @@ import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
+import { SearchFieldClearButton } from './SearchFieldClearButton';
 import { useSearchField } from './SearchFieldProvider';
 import { StyledInput } from './StyledInput';
 
@@ -116,18 +116,11 @@ export const SearchField = ({ className }: SearchFieldProps) => {
             />
 
             {showClearButton && (
-              <Button
-                className={cn(styles.clearButton)}
-                type="button"
+              <SearchFieldClearButton
+                className={styles.clearButton}
+                label={t('search.clear')}
                 onClick={handleClear}
-                aria-label={t('search.clear')}
-                variant="tertiary"
-              >
-                <XMarkIcon
-                  className={cn(styles.clearIcon)}
-                  aria-hidden="true"
-                />
-              </Button>
+              />
             )}
           </div>
         </div>

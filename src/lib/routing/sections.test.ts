@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
+import nb from '../../resources/translations/nb/translations.json';
 import {
   getSection,
   isModalSection,
+  type Section,
   showsSearchField,
   showsSearchResults,
 } from './sections';
@@ -72,20 +74,42 @@ describe('showsSearchField', () => {
 });
 
 describe('isModalSection', () => {
-  it('marks the sections that are shown over the page beneath them', () => {
+  it('marks the sections that open over the page beneath them', () => {
     assert.equal(isModalSection('login'), true);
+    assert.equal(isModalSection(getSection('/login/forgotten-password')), true);
+    assert.equal(isModalSection(getSection('/login/register')), true);
     assert.equal(isModalSection('saksmappe'), false);
     assert.equal(isModalSection('home'), false);
+    assert.equal(isModalSection(getSection('/oslo/login')), false);
   });
 
-  it('agrees with the intercepted routes in app/@modal', async () => {
-    const intercepted = (
-      await readdir(new URL('../../app/@modal', import.meta.url))
-    )
-      // `(.)login` intercepts `/login`; the catch-all and default render null.
-      .filter((entry) => entry.startsWith('(.)'))
-      .map((entry) => getSection(`/${entry.slice('(.)'.length)}`));
+  it('agrees with the pages in app/@modal/(modal)', async () => {
+    const sections = new Set(
+      (
+        await readdir(new URL('../../app/@modal/(modal)', import.meta.url), {
+          recursive: true,
+        })
+      )
+        .filter((file) => file.endsWith('page.tsx'))
+        // `(auth)/(.)login/page.tsx` intercepts `/login`: drop route groups
+        // and interception markers.
+        .map((file) =>
+          getSection(
+            `/${file
+              .split('/')
+              .filter((segment) => !/^\(.*\)$/.test(segment))
+              .map((segment) => segment.replace(/^\(\.+\)/, ''))
+              .join('/')}`,
+          ),
+        ),
+    );
 
-    assert.deepEqual(intercepted.filter(isModalSection), intercepted);
+    assert.ok(sections.size > 0);
+    for (const section of sections) {
+      assert.equal(isModalSection(section), true, section);
+    }
+    for (const page of Object.keys(nb.routing.root) as Section[]) {
+      assert.equal(isModalSection(page), sections.has(page), page);
+    }
   });
 });
