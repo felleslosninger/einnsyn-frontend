@@ -122,21 +122,6 @@
     "saveSearchMissingLabel": "Gi søket eit namn",
     "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
-  "routing": {
-    "root": {
-      "search": "søk",
-      "about": "om",
-      "privacy": "personvern",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "sak",
-      "moetemappe": "moete"
-    }
-  },
   "common": {
     "publishedAt": "Publisert",
     "updatedAt": "Oppdatert",

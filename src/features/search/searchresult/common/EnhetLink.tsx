@@ -3,7 +3,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 
 export default function EnhetLink({
@@ -30,9 +30,10 @@ export default function EnhetLink({
     <Fragment key={enhet.id}>
       <EinLink
         data-color="neutral"
-        href={buildPathname(
-          { enhetIdentifier: getEnhetIdentifier(enhet) },
+        href={toLocalizedPath(
           languageCode,
+          '/[enhet]',
+          getEnhetIdentifier(enhet),
         )}
         className={cn('enhet-link', className)}
         {...props}
