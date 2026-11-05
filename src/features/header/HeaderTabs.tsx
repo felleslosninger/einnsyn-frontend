@@ -37,21 +37,25 @@ export function HeaderTabs({ children }: { children: React.ReactNode }) {
 
 // Sets the underline's target box and color; CSS transitions it there.
 function placeUnderline(tabs: HTMLElement) {
-  const active = tabs.querySelector<HTMLElement>(':scope > [aria-current]');
+  const active = tabs.querySelector(':scope > [aria-current]');
   if (!active) {
     return;
   }
   const rect = active.getBoundingClientRect();
-  const { paddingLeft, paddingRight } = getComputedStyle(active);
+  const { paddingLeft, paddingRight, columnGap } = getComputedStyle(active);
+  // Same overhang as $underline-inset in HeaderTabs.module.scss.
+  const overhang = Number.parseFloat(columnGap) / 2;
   const left =
     rect.left -
     tabs.getBoundingClientRect().left +
     tabs.scrollLeft +
-    Number.parseFloat(paddingLeft);
+    Number.parseFloat(paddingLeft) -
+    overhang;
   const width =
     rect.width -
     Number.parseFloat(paddingLeft) -
-    Number.parseFloat(paddingRight);
+    Number.parseFloat(paddingRight) +
+    2 * overhang;
   tabs.style.setProperty('--underline-left', `${left}px`);
   tabs.style.setProperty('--underline-width', `${width}px`);
   const dot = active.querySelector(':scope > [data-dot]');

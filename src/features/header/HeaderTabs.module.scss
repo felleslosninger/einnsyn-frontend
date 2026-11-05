@@ -3,6 +3,9 @@
 
 $padding-inline: var(--ds-size-4);
 $active-weight: var(--ds-font-weight-semibold);
+// The underline reaches half the dot–label gap past the tab's content.
+$underline-inset: calc(#{$padding-inline} - #{headerRow.$item-gap} / 2);
+
 // The active tab's dot color, set by HeaderTabs, toned towards the text color.
 // A tab without a dot gets the text color.
 $underline-color: color-mix(in oklab,
@@ -33,9 +36,8 @@ $underline-color: color-mix(in oklab,
   }
 }
 
-// As wide as the label in the active weight, so tabs don't shift when it
-// changes, and centred so it grows evenly. The invisible copy is skipped by
-// screen readers.
+// We render an invisible "active"-version of the label in :after, so that each
+// tab get the same width when it's active and inactive.
 .label {
   display: inline-flex;
   flex-direction: column;
@@ -50,9 +52,7 @@ $underline-color: color-mix(in oklab,
   }
 }
 
-// One underline for the row, so it can slide between tabs. HeaderTabs measures
-// the active tab's content; the bottom offset is the row's padding, so it
-// covers the item's reserved border.
+// One underline for the row, so it can slide between tabs.
 .underline {
   position: absolute;
   left: var(--underline-left);
@@ -82,8 +82,8 @@ $underline-color: color-mix(in oklab,
     &::after {
       content: '';
       position: absolute;
-      left: $padding-inline;
-      right: $padding-inline;
+      left: $underline-inset;
+      right: $underline-inset;
       bottom: calc(-1 * #{headerRow.$underline-width});
       height: headerRow.$underline-width;
       background-color: $underline-color;
