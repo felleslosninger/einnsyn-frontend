@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Alert,
   Paragraph,
   Skeleton,
   Switch,
@@ -64,9 +65,15 @@ export default function BrukerList({
   const t = useTranslation();
   const [page, setPage] = useState(initialPage);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const scrollTriggerHandler = useCallback(async () => {
-    setPage(await fetchNextPage(page));
+    // A failed request rejects. Scrolling back to the trigger tries again.
+    const nextPage = await fetchNextPage(page).catch(() => null);
+    setLoadFailed(!nextPage);
+    if (nextPage) {
+      setPage(nextPage);
+    }
   }, [page]);
 
   // Saved cases and saved meetings are listed together by the API.
@@ -103,7 +110,11 @@ export default function BrukerList({
           </ul>
           {page.next && (
             <EinScrollTrigger onEnter={scrollTriggerHandler}>
-              <BrukerListSkeleton type={type} />
+              {loadFailed ? (
+                <Alert data-color="danger">{t('bruker.loadError')}</Alert>
+              ) : (
+                <BrukerListSkeleton type={type} />
+              )}
             </EinScrollTrigger>
           )}
         </>
