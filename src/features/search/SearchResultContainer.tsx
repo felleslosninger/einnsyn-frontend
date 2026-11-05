@@ -25,15 +25,17 @@ import {
 } from '~/components/EinTransition/EinTransition';
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
 import { showsSearchResults } from '~/lib/routing/sections';
+import { getIntlLocale } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
+import SaveSearchDropdown from './SaveSearchDropdown';
 import styles from './SearchResultContainer.module.scss';
-import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
 import SearchResult from './searchresult/SearchResult';
 import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
@@ -56,6 +58,48 @@ function getLinkedEnhets(items: readonly Base[]): TrimmedEnhet[] {
     }
   }
   return Array.from(enhetsById.values());
+}
+
+function getResultCountKey(capped: boolean, enhetCount: number) {
+  if (enhetCount === 0) {
+    return capped ? 'search.resultCountCappedAll' : 'search.resultCountAll';
+  }
+  if (enhetCount === 1) {
+    return capped
+      ? 'search.resultCountCappedEnhetSingular'
+      : 'search.resultCountEnhetSingular';
+  }
+  return capped
+    ? 'search.resultCountCappedEnhetPlural'
+    : 'search.resultCountEnhetPlural';
+}
+
+function SearchResultCount({
+  total,
+  enhetCount,
+}: {
+  total: PaginatedList<Base>['total'];
+  enhetCount: number;
+}) {
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
+  if (!total) {
+    return null;
+  }
+  const count = new Intl.NumberFormat(getIntlLocale(languageCode)).format(
+    total.value,
+  );
+  const [before, strong, after] = t(
+    getResultCountKey(total.capped, enhetCount),
+    count,
+  ).split(/<\/?strong>/);
+  return (
+    <p className={styles.resultCount}>
+      {before}
+      <strong>{strong}</strong>
+      {after}
+    </p>
+  );
 }
 
 export default function SearchResultContainer({
@@ -164,38 +208,50 @@ export default function SearchResultContainer({
       >
         <div className="container-pre collapsible" />
         <div className="container">
-          <SearchSortDropdown />
           <div className={styles.resultsLayout}>
-            <div
-              className={cn(styles.results, resultStyles.searchResults)}
-              aria-busy={isLoading}
-              aria-live="polite"
-            >
-              {currentSearchResults.items.length ? (
-                currentSearchResults.items.map((item) => (
-                  <SearchResult
-                    className={styles.searchResult}
-                    key={item.id}
-                    item={item}
-                  />
-                ))
-              ) : (
-                <div className={cn(styles.searchResult, 'no-results')}>
-                  <p>{t('common.noResults')}</p>
-                </div>
-              )}
-              {currentSearchResults.next && (
-                <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                  <SearchResultSkeleton
-                    className={styles.searchResult}
-                    index={0}
-                  />
-                  <SearchResultSkeleton
-                    className={styles.searchResult}
-                    index={1}
-                  />
-                </EinScrollTrigger>
-              )}
+            <div className={styles.results}>
+              <div
+                className={styles.toolbar}
+                data-size="sm"
+                data-color="neutral"
+              >
+                <SearchResultCount
+                  total={currentSearchResults.total}
+                  enhetCount={enhetIds.length}
+                />
+                <SaveSearchDropdown className={styles.saveSearch} />
+              </div>
+              <div
+                className={resultStyles.searchResults}
+                aria-busy={isLoading}
+                aria-live="polite"
+              >
+                {currentSearchResults.items.length ? (
+                  currentSearchResults.items.map((item) => (
+                    <SearchResult
+                      className={styles.searchResult}
+                      key={item.id}
+                      item={item}
+                    />
+                  ))
+                ) : (
+                  <div className={cn(styles.searchResult, 'no-results')}>
+                    <p>{t('common.noResults')}</p>
+                  </div>
+                )}
+                {currentSearchResults.next && (
+                  <EinScrollTrigger onEnter={scrollTriggerHandler}>
+                    <SearchResultSkeleton
+                      className={styles.searchResult}
+                      index={0}
+                    />
+                    <SearchResultSkeleton
+                      className={styles.searchResult}
+                      index={1}
+                    />
+                  </EinScrollTrigger>
+                )}
+              </div>
             </div>
             {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
           </div>

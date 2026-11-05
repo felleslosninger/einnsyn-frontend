@@ -47,6 +47,7 @@ export function mergeWindow<T extends Base>(
     items: [...above, ...incoming.items, ...below],
     previous: above.length > 0 ? current.previous : incoming.previous,
     next: below.length > 0 ? current.next : incoming.next,
+    total: incoming.total,
   };
 }
 
@@ -68,6 +69,7 @@ export async function fetchNextPage<T extends Base>(
     items: dedupeById([...currentPage.items, ...nextPage.items]),
     previous: currentPage.previous,
     next: nextPage.next,
+    total: currentPage.total,
   };
 }
 
@@ -89,5 +91,6 @@ export async function fetchPreviousPage<T extends Base>(
     items: dedupeById([...previousPage.items, ...currentPage.items]),
     previous: previousPage.previous,
     next: currentPage.next,
+    total: currentPage.total,
   };
 }

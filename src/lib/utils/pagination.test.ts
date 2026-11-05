@@ -124,6 +124,18 @@ describe('mergeWindow', () => {
     assert.strictEqual(merged.next, 'after-d');
   });
 
+  test('takes the total of the incoming window', () => {
+    const merged = mergeWindow(
+      { ...current, total: { value: 4, capped: false } },
+      {
+        ...paginatedList('a z b', { next: 'after-b' }),
+        total: { value: 5, capped: false },
+      },
+    );
+    assert.strictEqual(joinIds(merged), 'a z b c d');
+    assert.deepStrictEqual(merged.total, { value: 5, capped: false });
+  });
+
   test('returns the incoming window when nothing overlaps', () => {
     const incoming = paginatedList('x y', { next: 'after-y' });
     assert.strictEqual(mergeWindow(current, incoming), incoming);
