@@ -151,6 +151,7 @@
     "add": "Add",
     "delete": "Delete",
     "deleting": "Deleting...",
+    "deleted": "Deleted",
     "create": "Create",
     "creating": "Creating...",
     "cancel": "Cancel",
@@ -159,6 +160,7 @@
     "removeAll": "Remove all",
     "change": "Change",
     "select": "Select",
+    "subscribe": "Get notified",
     "unnamed": "Unnamed",
     "close": "Close",
     "copyToClipboard": "Copy to clipboard",
@@ -275,6 +277,28 @@
     "savedMeetings": "Saved meetings",
     "savedSearches": "Saved searches",
     "profile": "Profile",
+    "loadError": "Could not load the list. Please try again later.",
+    "deleteError": "Could not delete. Please try again.",
+    "subscribeError": "Could not change the subscription. Please try again.",
+    "savedMeetingsPage": {
+      "description": "Turn on “Get notified” for a meeting to get an email when it is updated.",
+      "empty": "You have no saved meetings yet."
+    },
+    "savedSearchesPage": {
+      "description": "Turn on “Get notified” for a search to get an email when it has new results.",
+      "notificationInfo": "Notifications are sent once a day, at 06:00.",
+      "empty": "You have no saved searches yet."
+    },
+    "accessRequestsPage": {
+      "description": "The answer to an access request comes by email from the organisation handling it. If you delete a request from the list, it will still be processed.",
+      "sentAt": "Sent to organisation",
+      "notSent": "Not sent yet",
+      "empty": "You have no access requests. You can order documents from the search page or from document views."
+    },
+    "savedCasesPage": {
+      "description": "Turn on “Get notified” for a case to get an email when it is updated.",
+      "empty": "You have no saved cases yet."
+    },
     "profilePage": {
       "title": "Profile information",
       "description": "Manage your login and account.",
