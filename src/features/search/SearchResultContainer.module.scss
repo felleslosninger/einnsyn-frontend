@@ -2,6 +2,31 @@
 @use '../../styles/mediaQueries.scss' as mq;
 
 .searchContainer {
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-size-4);
+    min-height: var(--ds-size-11);
+    // Lines the button label up with the column's edge, as HeaderBar does.
+    margin-right: calc(-1 * var(--ds-size-4));
+
+    @include mq.small {
+      margin-right: 0;
+    }
+  }
+
+  .resultCount {
+    min-width: 0;
+    margin: 0;
+    color: var(--ds-color-neutral-text-subtle);
+  }
+
+  // Pushed right even when there is no count to its left.
+  .saveSearch {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+  }
+
   .resultsLayout {
     @include mq.large {
       display: flex;
@@ -30,6 +55,12 @@
     opacity: .99;
     transition: transform .5s fx.$easeOut;
 
+    // The count is the old search's, and the frozen copy's button is inert.
+    .toolbar {
+      opacity: 0;
+      transition: opacity 0.25s fx.$easeOut;
+    }
+
     .searchResult {
       opacity: 0;
       transform: scale(0.96);
@@ -46,6 +77,10 @@
   &:global(.ein-transition-init-enter-transition) {
     opacity: .99;
 
+    .toolbar {
+      opacity: 0;
+    }
+
     .searchResult {
       opacity: 0;
       transform: scale(0.96);
@@ -55,6 +90,11 @@
   &:global(.ein-transition-enter-transition) {
     opacity: 1;
     transition: transform .3s fx.$easeOut;
+
+    .toolbar {
+      opacity: 1;
+      transition: opacity 0.15s fx.$easeOut;
+    }
 
     .searchResult {
       opacity: 1;

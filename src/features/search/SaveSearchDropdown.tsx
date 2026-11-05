@@ -18,7 +18,7 @@ import cn from '~/lib/utils/className';
 import styles from './SaveSearchDropdown.module.scss';
 
 /**
- * Saves the current search, as a dropdown next to the search filter.
+ * Saves the current search, as a dropdown above the search results.
  */
 export default function SaveSearchDropdown({
   className,
