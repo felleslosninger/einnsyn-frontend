@@ -107,23 +107,6 @@
   min-height: var(--styled-input-flow-height, var(--styled-input-min-height));
 }
 
-.styledInputContainer[data-width-locked='true'] {
-  .styledInput,
-  .input {
-    width: var(--styled-input-locked-width, 100%);
-    white-space: nowrap;
-  }
-
-  .styledInput {
-    overflow: hidden;
-  }
-
-  .input:focus,
-  .input:focus-visible {
-    white-space: nowrap;
-  }
-}
-
 .searchToken {
   position: relative;
 }
