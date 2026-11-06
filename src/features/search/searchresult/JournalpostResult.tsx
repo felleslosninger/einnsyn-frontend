@@ -7,6 +7,7 @@ import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import SearchResultSubheader from './common/SearchResultSubheader';
+import { getJournalpostDocumentUrl } from './getJournalpostDocumentUrl';
 import styles from './searchResultStyles.module.scss';
 
 function getSaksnummer(item: Journalpost): string | null {
@@ -29,6 +30,7 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
+  const documentUrl = getJournalpostDocumentUrl(item);
   const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
@@ -60,10 +62,16 @@ export default function JournalpostResult({
           )}
         </SearchResultSubheader>
         <JournalpostCorrespondence journalpost={item} />
-        {/* TODO: implement open document functionality
-        <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
-          {translate('search.openDocument')}
-        </a> */}
+        {documentUrl && (
+          <a
+            href={documentUrl}
+            className={styles.searchResultAction}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {translate('search.openDocument')}
+          </a>
+        )}
         {/* TODO: implement order access functionality
         <EinLink href="http://localhost:3000" className={styles.searchResultAction}>
           {translate('search.orderAccess')}
