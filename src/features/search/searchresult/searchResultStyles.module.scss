@@ -41,6 +41,8 @@
 }
 
 .searchResultBody {
+  // Fill the row, so a long korrespondansepart truncates instead of widening it.
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-1);
@@ -99,19 +101,6 @@
   display: flex;
   align-items: center;
   gap: var(--ds-size-3);
-}
-
-.searchResultCorrespondence {
-
-  .correspondenceParty {
-    white-space: nowrap;
-    margin-right: var(--ds-size-2);
-  }
-
-  .correspondenceDirection {
-    font-weight: 600;
-  }
-
 }
 
 .searchResultAction {

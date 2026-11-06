@@ -14,7 +14,9 @@ import {
   useMemo,
   useRef,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { useHydrated } from '~/hooks/useHydrated';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import {
   calculatePopupPosition,
@@ -63,6 +65,10 @@ export type EinPopupProps = {
   // container is what `autoFocus` focuses, so this is where dialog/menu
   // semantics belong.
   contentProps?: HTMLAttributes<HTMLDivElement>;
+  // Render into <body>, out of ancestors that would clip the popup or throw off
+  // its position (`overflow`, virtua's transforms). The popup then comes last
+  // in the DOM, so pair with `autoFocus` and `restoreFocus`.
+  portal?: boolean;
 };
 
 export default function EinPopup(props: EinPopupProps) {
@@ -85,6 +91,7 @@ export default function EinPopup(props: EinPopupProps) {
     autoFocus = false,
     restoreFocus = false,
     contentProps,
+    portal = false,
     setOpen = () => undefined,
   } = props;
   const anchorRef = useRef<Element | null>(null);
@@ -369,12 +376,22 @@ export default function EinPopup(props: EinPopupProps) {
     </div>
   ) : null;
 
+  // A popup mounted after hydration is in the DOM from its first render, as
+  // the effects that run on opening expect.
+  const hydrated = useHydrated();
+  const portalTarget = portal && hydrated ? document.body : null;
+
   // Wrap in EinTransition if we're animating
-  return animate ? (
+  const popup = animate ? (
     <EinTransition dependencies={[open]} withClassNames events={events}>
       {content}
     </EinTransition>
   ) : (
     content
   );
+
+  if (!portal) {
+    return popup;
+  }
+  return portalTarget && createPortal(popup, portalTarget);
 }

@@ -1,0 +1,13 @@
+.enhetChain {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // Trailing, so every name keeps the left edge. `/ ""` is empty alt text, as
+  // in metaSeparator: the list already gives the order.
+  li:not(:last-child)::after {
+    content: "/" / "";
+    margin-left: var(--ds-size-1);
+    color: var(--ds-color-neutral-border-default);
+  }
+}
