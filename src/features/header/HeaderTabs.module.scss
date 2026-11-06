@@ -55,6 +55,7 @@ $underline-color: color-mix(in oklab,
 // One underline for the row, so it can slide between tabs.
 .underline {
   position: absolute;
+  pointer-events: none;
   left: var(--underline-left);
   bottom: calc(2 * var(--ds-border-width-focus));
   width: var(--underline-width);
