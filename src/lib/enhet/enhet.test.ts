@@ -9,6 +9,7 @@ import {
   matchesEnhetIdentifier,
   type TrimmedEnhet,
   toTrimmedEnhet,
+  withParentChain,
 } from './enhet';
 
 function makeEnhet(
@@ -199,6 +200,48 @@ describe('getAncestors', () => {
     assert.deepStrictEqual(
       getAncestors(partiallyExpanded).map((enhet) => enhet.id),
       ['mid'],
+    );
+  });
+});
+
+describe('withParentChain', () => {
+  const byId = (...enhets: TrimmedEnhet[]) =>
+    new Map(enhets.map((enhet) => [enhet.id, enhet]));
+
+  test('expands parent ids into the chain getAncestors walks', () => {
+    const root = makeEnhet('root');
+    const top = makeEnhet('top', { parent: 'root' });
+    const mid = makeEnhet('mid', { parent: 'top' });
+    const leaf = makeEnhet('leaf', { parent: 'mid' });
+
+    const resolved = withParentChain(leaf, byId(root, top, mid, leaf));
+
+    assert.deepStrictEqual(
+      getAncestors(resolved).map((enhet) => enhet.id),
+      ['top', 'mid'],
+    );
+    // The map's entries are copied, not linked in place.
+    assert.equal(mid.parent, 'top');
+  });
+
+  test('ends the chain where the map does', () => {
+    const mid = makeEnhet('mid', { parent: 'top' });
+    const leaf = makeEnhet('leaf', { parent: 'mid' });
+
+    assert.deepStrictEqual(
+      getAncestors(withParentChain(leaf, byId(mid))).map((enhet) => enhet.id),
+      ['mid'],
+    );
+    assert.equal(withParentChain(leaf, byId()), leaf);
+  });
+
+  test('a parent cycle terminates', () => {
+    const a = makeEnhet('a', { parent: 'b' });
+    const b = makeEnhet('b', { parent: 'a' });
+
+    assert.deepStrictEqual(
+      getAncestors(withParentChain(a, byId(a, b))).map((enhet) => enhet.id),
+      ['b'],
     );
   });
 });

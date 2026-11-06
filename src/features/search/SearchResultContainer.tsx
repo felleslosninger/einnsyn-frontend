@@ -10,15 +10,26 @@ import {
   isSaksmappe,
   type PaginatedList,
 } from '@digdir/einnsyn-sdk';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
-import { EinTransition } from '~/components/EinTransition/EinTransition';
+import {
+  EinTransition,
+  type EinTransitionEvents,
+} from '~/components/EinTransition/EinTransition';
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
+import { showsSearchResults } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
@@ -56,26 +67,51 @@ export default function SearchResultContainer({
   const {
     loadingPathname,
     pathname,
+    searchParams,
     loadingSearchParamsString,
     searchParamsString,
     loading,
     optimisticPathname,
     optimisticSearchParams,
   } = useNavigation();
-  const enhetIds = useMemo(
-    () =>
-      getEnhetSelection(
-        getPathEnhet(optimisticPathname),
-        optimisticSearchParams,
-      ),
-    [optimisticPathname, optimisticSearchParams],
-  );
+  const enhetIds = useMemo(() => {
+    // Don't reload enhets when moving away from search (e.g. to a Enhet's
+    // Saksmappe).
+    const isSearch = showsSearchResults(optimisticPathname);
+    return getEnhetSelection(
+      getPathEnhet(isSearch ? optimisticPathname : pathname),
+      isSearch ? optimisticSearchParams : searchParams,
+    );
+  }, [optimisticPathname, optimisticSearchParams, pathname, searchParams]);
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const isLoading =
     loading &&
     (loadingPathname !== pathname ||
       loadingSearchParamsString !== searchParamsString);
+
+  // While loading, only the transition's frozen copy of the page is visible,
+  // so the enhet panel can't fade its cards out itself. Flag the copy when
+  // the selection is what changed, and its styles fade them.
+  const enhetsChanging =
+    enhetIds.join('|') !==
+    getEnhetSelection(getPathEnhet(pathname), searchParams).join('|');
+  const enhetsChangingRef = useRef(enhetsChanging);
+  useLayoutEffect(() => {
+    enhetsChangingRef.current = enhetsChanging;
+  });
+  const transitionEvents = useMemo<EinTransitionEvents>(
+    () => ({
+      onInitTransition: (snapshot) => {
+        if (enhetsChangingRef.current) {
+          // Style the fresh copy first, or there is nothing to fade from.
+          snapshot.getBoundingClientRect();
+          snapshot.dataset.enhetsChanging = '';
+        }
+      },
+    }),
+    [],
+  );
 
   const searchSymbolRef = useRef<symbol>(Symbol());
   const searchKey = `${pathname}?${searchParamsString}`;
@@ -118,7 +154,7 @@ export default function SearchResultContainer({
   }, [currentSearchResults]);
 
   return (
-    <EinTransition loading={isLoading} withClassNames>
+    <EinTransition loading={isLoading} withClassNames events={transitionEvents}>
       <div
         className={cn(
           'container-wrapper',
