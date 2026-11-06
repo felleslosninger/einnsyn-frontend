@@ -102,6 +102,15 @@
   }
 }
 
+// Fade out the one-line overflow, ending --styled-input-fade-inset from the right.
+.styledInputContainer:not(:has(.input:focus)) .styledInput {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - var(--styled-input-fade-inset, 0px) - var(--ds-size-12)),
+    transparent calc(100% - var(--styled-input-fade-inset, 0px))
+  );
+}
+
 .expandInFlow:has(.input:focus),
 .expandInFlow:has(.input:focus-visible) {
   min-height: var(--styled-input-flow-height, var(--styled-input-min-height));
