@@ -13,10 +13,10 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { useHydrated } from '~/hooks/useHydrated';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import {
   calculatePopupPosition,
@@ -376,11 +376,10 @@ export default function EinPopup(props: EinPopupProps) {
     </div>
   ) : null;
 
-  // Resolved in an effect, so the server and first client render agree.
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setPortalTarget(portal ? document.body : null);
-  }, [portal]);
+  // A popup mounted after hydration is in the DOM from its first render, as
+  // the effects that run on opening expect.
+  const hydrated = useHydrated();
+  const portalTarget = portal && hydrated ? document.body : null;
 
   // Wrap in EinTransition if we're animating
   const popup = animate ? (
