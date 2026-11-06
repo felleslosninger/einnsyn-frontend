@@ -1,3 +1,1 @@
-export default function SavedSearchesPage() {
-  return null;
-}
+export { default } from '~/features/bruker/saved-searches/SavedSearches';
