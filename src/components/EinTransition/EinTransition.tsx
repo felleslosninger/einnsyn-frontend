@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useMergedRefs } from '~/hooks/useMergedRef';
 import { IS_BROWSER } from '~/lib/isBrowser';
@@ -162,7 +163,7 @@ export function EinTransition<T extends unknown[] = [number]>(
   // On the first render of a fresh-enter (no previous element to snapshot),
   // there is no chance for the useLayoutEffect below to hide the element
   // before paint — so we hide it inline here. The element stays hidden until
-  // enterInit applies the initial pose, preventing a flash at the final pose.
+  // enterInit applies the initial styles, preventing a flash of the final styles.
   const isFreshEnter =
     shouldTransition && children !== null && !childRef.current;
 
@@ -199,10 +200,23 @@ export function EinTransition<T extends unknown[] = [number]>(
       const transitionId = ++transitionIdCounter;
       transitionIdRef.current = transitionId;
 
+      // Loaded but not revealed yet, so nothing new is on screen to exit: wait
+      // for the newer content behind whatever snapshot is still there. Read off
+      // the clone, since `hideNew` may already hold a reveal this render brings.
+      if (
+        (transitionStep === 'merge' || transitionStep === 'enterInit') &&
+        snapshot?.element.style.display === 'none'
+      ) {
+        childRef.current?.classList.remove(...stepClassNames);
+        setHideNew(true);
+        setTransitionStep('waitForLoad');
+        return;
+      }
+
       if (!snapshot?.parent) {
         // Fresh enter (no previous element to snapshot, or it had no parent).
-        // Keep the new element hidden until enterInit positions it at the
-        // initial pose, otherwise it paints once at its final pose.
+        // Keep the new element hidden until enterInit applies its initial
+        // styles, otherwise it paints once with its final styles.
         fromDepsRef.current = changedDeps.previous;
         setHideNew(true);
         setTransitionStep('waitForLoad');
@@ -211,6 +225,10 @@ export function EinTransition<T extends unknown[] = [number]>(
 
       // Remove any existing snapshot from a prior transition
       snapshotRef.current?.remove();
+
+      // Restarted while entering: the entering content exits from where it had
+      // got to, and the live element starts over.
+      transferTransitionStyles(childRef.current, snapshot.element);
 
       // Insert the snapshot at the original element's position. The original
       // may already be gone (transition to null children) — that's fine, we
@@ -229,6 +247,11 @@ export function EinTransition<T extends unknown[] = [number]>(
     }
   }, [changedDeps, snapshot, shouldTransition, transitionStep]);
 
+  // Read during render: a restart in this commit replaces the ref before the
+  // step effect runs, and the step it superseded must not carry on as the new
+  // transition.
+  const stepTransitionId = transitionIdRef.current;
+
   // Handle transition transitionSteps
   // biome-ignore lint/correctness/useExhaustiveDependencies: Do not trigger when 'loading' changes, this is handled in a separate step
   useEffect(() => {
@@ -237,7 +260,7 @@ export function EinTransition<T extends unknown[] = [number]>(
       return;
     }
 
-    const transitionId = transitionIdRef.current;
+    const transitionId = stepTransitionId;
     const toDeps = dependencies;
     const fromDeps = fromDepsRef.current;
     const checkStale = () => transitionIdRef.current !== transitionId;
@@ -341,10 +364,6 @@ export function EinTransition<T extends unknown[] = [number]>(
 
         // Init enter transition
         else if (transitionStep === 'enterInit') {
-          // Remove snapshot from DOM
-          snapshotRef.current?.remove();
-          snapshotRef.current = null;
-
           const newElement = childRef.current;
 
           // If we don't have a new element, we're done
@@ -354,14 +373,17 @@ export function EinTransition<T extends unknown[] = [number]>(
             return;
           }
 
-          // Apply the initial entry pose while the element is still hidden,
-          // so it never paints at its final pose before the animation starts.
-          if (checkStale()) return;
+          // Apply the initial entry styles while the element is still hidden,
+          // so it never paints with its final styles before the animation starts.
           await events.onInitEnterTransition?.(newElement, toDeps, fromDeps);
-
-          // Reveal — the element is now positioned at the initial pose.
-          setHideNew(false);
           if (checkStale()) return;
+
+          // Swap the snapshot for the element, now in its initial styles,
+          // within one task. A plain state update renders in a later task, and
+          // a frame painted in between shows neither (seen in Safari).
+          snapshotRef.current?.remove();
+          snapshotRef.current = null;
+          flushSync(() => setHideNew(false));
           await animationFrame(1);
 
           if (checkStale()) return;
@@ -464,6 +486,66 @@ const transitionEvents = {
   onInitEnterTransition: `${classNamePrefix}-init-enter-transition`,
   onEnterTransition: `${classNamePrefix}-enter-transition`,
 } as const;
+const stepClassNames = Object.values(transitionEvents);
+
+// Properties a snapshot holds inline until its exit step.
+const heldStyleProperties = new WeakMap<HTMLElement, string[]>();
+
+/**
+ * Takes the step classes off `live` and its snapshot, holding on the snapshot
+ * the values they gave `live` as of now (mid-transition included), so its exit
+ * starts from there. Timing is left to the steps.
+ */
+function transferTransitionStyles(
+  live: HTMLElement | null,
+  snapshot: HTMLElement,
+) {
+  snapshot.classList.remove(...stepClassNames);
+  if (!live || !stepClassNames.some((name) => live.classList.contains(name))) {
+    return;
+  }
+
+  const readStyle = () => {
+    const style = getComputedStyle(live);
+    return new Map(
+      Array.from(style, (property) => {
+        return [property, style.getPropertyValue(property)] as const;
+      }),
+    );
+  };
+  // A transition already heading for the resting value runs on once the
+  // classes are gone, so the difference below misses it.
+  const running = live
+    .getAnimations()
+    .flatMap((animation) =>
+      animation instanceof CSSTransition ? [animation.transitionProperty] : [],
+    );
+  const currentStyles = readStyle();
+  live.classList.remove(...stepClassNames);
+  const rest = readStyle();
+
+  const held: string[] = [];
+  for (const [property, value] of currentStyles) {
+    if (
+      (value !== rest.get(property) || running.includes(property)) &&
+      !property.startsWith('transition') &&
+      !property.startsWith('animation')
+    ) {
+      snapshot.style.setProperty(property, value);
+      held.push(property);
+    }
+  }
+  heldStyleProperties.set(snapshot, held);
+}
+
+// In the same task as the exit class goes on, so the exit transitions from the
+// held values.
+function releaseTransitionStyles(element: HTMLElement) {
+  for (const property of heldStyleProperties.get(element) ?? []) {
+    element.style.removeProperty(property);
+  }
+  heldStyleProperties.delete(element);
+}
 
 /**
  * Update an events object with events for each step.
@@ -489,6 +571,7 @@ function addClassNameEvents<T extends unknown[]>(
 
   newEvents.onExitTransition = async (e, toDeps, fromDeps) => {
     await events.onExitTransition?.(e, toDeps, fromDeps);
+    releaseTransitionStyles(e);
     e.classList.add(transitionEvents.onExitTransition);
     await domTransitionend(e);
   };
@@ -530,7 +613,7 @@ function addClassNameEvents<T extends unknown[]>(
   // Remove all transition class names
   newEvents.onClean = async (e, toDeps, fromDeps) => {
     await events.onClean?.(e, toDeps, fromDeps);
-    e.classList.remove(...Object.values(transitionEvents));
+    e.classList.remove(...stepClassNames);
   };
 
   return newEvents;
