@@ -3,7 +3,7 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
@@ -45,9 +45,10 @@ export default function MoetesakResult({
         {isEnhet(utvalg) && (
           <div className={styles.searchResultEnhet}>
             <EinLink
-              href={buildPathname(
-                { enhetIdentifier: getEnhetIdentifier(utvalg) },
+              href={toLocalizedPath(
                 languageCode,
+                '/[enhet]',
+                getEnhetIdentifier(utvalg),
               )}
             >
               {getName(utvalg, languageCode)}
