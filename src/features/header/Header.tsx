@@ -10,13 +10,14 @@ import { EnhetProvider } from '~/components/EnhetProvider/EnhetProvider';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
-import { useScrollState } from '~/hooks/useScrollState';
+import { resetScrollDirection, useScrollState } from '~/hooks/useScrollState';
 import type { TrimmedEnhet } from '~/lib/enhet/enhet';
 import { resolvePath } from '~/lib/routing/pathname';
-import { showsSearchField } from '~/lib/routing/sections';
+import { showsSearchField, showsSearchResults } from '~/lib/routing/sections';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
+import { domFreeze } from '~/lib/utils/domFreeze';
 import { domTransitionend } from '~/lib/utils/domTransitionend';
 import UserMenu from './components/UserMenu';
 import styles from './Header.module.scss';
@@ -46,36 +47,15 @@ export default function Header({
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const { isAtTop, isScrollingDown } = useScrollState();
 
+  // Scrolling the landing page doesn't compact it, so the direction picked up
+  // there must not compact the page it opens. A layout effect, so the header
+  // has re-rendered by the time the morph below clones it.
+  useLayoutEffect(() => {
+    if (!isHome) resetScrollDirection();
+  }, [isHome]);
+
   // The header itself; its wrapper is the sticky element.
   const headerRef = useRef<HTMLElement>(null);
-  const previousSectionRef = useRef(section);
-  const activeRouteTransitionRef = useRef<{
-    fromSection: string;
-    toSection: string;
-  } | null>(null);
-
-  if (previousSectionRef.current !== section) {
-    activeRouteTransitionRef.current = {
-      fromSection: previousSectionRef.current,
-      toSection: section,
-    };
-    previousSectionRef.current = section;
-  }
-
-  if (!loading) {
-    activeRouteTransitionRef.current = null;
-  }
-
-  const activeRouteTransition = activeRouteTransitionRef.current;
-  const waitForLoad =
-    loading &&
-    !(
-      activeRouteTransition &&
-      ((activeRouteTransition.fromSection === '' &&
-        activeRouteTransition.toSection === 'search') ||
-        (activeRouteTransition.fromSection === 'search' &&
-          activeRouteTransition.toSection === ''))
-    );
 
   // Keep the in-flow header height measured, so the wrapper can hold it as soon
   // as the header sticks, without waiting for a second pass.
@@ -129,18 +109,18 @@ export default function Header({
     };
   }, [headerHeight]);
 
-  const stuck = !isHome && !isAtTop && headerHeight !== null;
+  const isStuck = !isHome && !isAtTop && headerHeight !== null;
 
   // Measured only at the top. While stuck, the wrapper holds this height so the
   // header collapsing doesn't reflow the page (see `.sticky`).
-  if (flowHeight !== headerHeight && (!stuck || flowHeight === null)) {
+  if (flowHeight !== headerHeight && (!isStuck || flowHeight === null)) {
     setFlowHeight(headerHeight);
   }
 
-  const className = cn(styles.header, {
+  const headerClassName = cn(styles.header, {
     'section-home': isHome,
     [styles.scrolled]: !isHome && isScrollingDown,
-    [styles.stuck]: stuck,
+    [styles.stuck]: isStuck,
   });
 
   // Only the home <-> inner morph runs here. Every other route change leaves
@@ -148,149 +128,170 @@ export default function Header({
   // has its own transition below — so the dependency deliberately does not
   // include the section, which would snapshot and replace an element that would
   // otherwise just update in place.
-  const transitionDeps = [isHome ? 'home' : 'inner'];
-  // The second row swaps whenever the section does — search tabs, breadcrumb,
-  // admin tabs. Keyed on the canonical section, not the raw segment, so moving
-  // between two enhet pages, which show the same tabs, is not a change.
-  const secondRowTransitionDeps = [section];
-  const transitionEvents: EinTransitionEvents<typeof transitionDeps> = useMemo(
+  const headerTransitionDeps = [isHome ? 'home' : 'inner'];
+  // The second row swaps when the row it shows does: search tabs, breadcrumb,
+  // admin tabs. Every section with search results shows the search tabs (the
+  // landing page hides them), so moving among those is not a change.
+  const secondRowTransitionDeps = [
+    showsSearchResults(optimisticPathname) ? 'search' : section,
+  ];
+  // Flies a frozen copy of the incoming header from the outgoing one's place to
+  // its own layout. Reads nothing from render: EinTransition re-runs its current
+  // step whenever the events object changes.
+  const headerTransitionEvents = useMemo<
+    EinTransitionEvents<typeof headerTransitionDeps>
+  >(
     () => ({
-      onInitTransition: async (e, [toLayout], [fromLayout] = []) => {
-        const head = e.querySelector('header');
-        if (!head) {
+      onInitTransition: async (snapshot) => {
+        const outgoingHeader = snapshot.querySelector('header');
+        const liveHeader = headerRef.current;
+        if (!outgoingHeader || !liveHeader) {
           return;
         }
 
-        const form = head.querySelector('form');
-        if (!form) {
-          return;
-        }
+        const fromHeaderRect = outgoingHeader.getBoundingClientRect();
+        const fromFormRect = outgoingHeader
+          .querySelector('form')
+          ?.getBoundingClientRect();
+        const fromSnapshotHeight = snapshot.getBoundingClientRect().height;
+        const fromCornerRects = [
+          ...outgoingHeader.querySelectorAll(HEADER_CORNERS),
+        ].map((corner) => corner.getBoundingClientRect());
 
-        // Create a clone with the new className, to measure the final position
-        const targetHead = createInvisibleClone(head);
-        targetHead.className = className;
-        const targetStyle = getStyle(targetHead);
-        const targetForm = targetHead.querySelector('form');
-        if (!targetForm) {
-          removeInvisibleClone(targetHead);
-          return;
+        // Replace the frozen outgoing header with a frozen incoming one, so
+        // it has the new content.
+        const incomingHeader = domFreeze(liveHeader);
+        outgoingHeader.replaceWith(incomingHeader);
+
+        // A row on its way out belongs to the second row's own transition.
+        for (const rowSnapshot of incomingHeader.querySelectorAll<HTMLElement>(
+          '.header-second-row[inert]',
+        )) {
+          rowSnapshot.style.visibility = 'hidden';
         }
-        const currentHeadRect = head.getBoundingClientRect();
-        const currentFormRect = form.getBoundingClientRect();
-        const targetHeadRect = targetHead.getBoundingClientRect();
-        const targetFormRect = targetForm.getBoundingClientRect();
-        const targetFormOffset = getRelativeOffset(
-          targetFormRect,
-          targetHeadRect,
+        const form = incomingHeader.querySelector('form');
+        const row = incomingHeader.querySelector<HTMLElement>(
+          '.header-second-row:not([inert])',
         );
+        const corners = [
+          ...incomingHeader.querySelectorAll<HTMLElement>(HEADER_CORNERS),
+        ];
+        const toHeaderRect = incomingHeader.getBoundingClientRect();
+        const toFormRect = form?.getBoundingClientRect();
+        const toCornerRects = corners.map((corner) =>
+          corner.getBoundingClientRect(),
+        );
+        // No height on the landing page, or while its own transition loads it.
+        const measuredRowRect = row?.getBoundingClientRect();
+        const toRowRect = measuredRowRect?.height ? measuredRowRect : undefined;
+        // The row hangs under the field, as in its own layout.
+        const fromRowRect =
+          toRowRect && fromFormRect && toFormRect
+            ? new DOMRect(
+                fromFormRect.x + toRowRect.x - toFormRect.x,
+                fromFormRect.y + toRowRect.y - toFormRect.y,
+                fromFormRect.width + toRowRect.width - toFormRect.width,
+                toRowRect.height,
+              )
+            : undefined;
 
-        removeInvisibleClone(targetHead);
-
-        // Transition landing page search form to header search form
-        if (fromHomeToInner(fromLayout, toLayout)) {
-          lockElementToRect(head, currentHeadRect, currentHeadRect, {
-            preserveHeight: true,
-            preserveWidth: false,
-            resetMargins: false,
-            pinToViewport: true,
+        // Posed at the outgoing geometry. The snapshot too, for this commit:
+        // the page transition pins the outgoing page where it finds it.
+        snapshot.style.height = `${fromSnapshotHeight}px`;
+        Object.assign(incomingHeader.style, {
+          position: 'fixed',
+          top: `${fromHeaderRect.top}px`,
+          left: `${fromHeaderRect.left}px`,
+          width: `${fromHeaderRect.width}px`,
+          height: `${fromHeaderRect.height}px`,
+          overflow: 'hidden',
+        });
+        if (form && fromFormRect) {
+          // Drawn over the row, as in the live header.
+          Object.assign(form.style, {
+            position: 'absolute',
+            margin: '0',
+            zIndex: '1',
           });
-          lockElementToRect(form, currentFormRect, currentHeadRect);
-
-          await animationFrame(1);
-
-          // Animate header container
-          head.style.transition = [
-            `height 400ms ${EASE_IN_OUT_QUART}`,
-            `border-bottom-color 400ms ${EASE_IN_OUT_QUART}`,
-            `border-bottom-width 400ms ${EASE_IN_OUT_QUART}`,
-          ].join(', ');
-          head.style.borderBottomColor = targetStyle['border-bottom-color'];
-          head.style.borderBottomWidth = targetStyle['border-bottom-width'];
-          head.style.height = `${targetHeadRect.height}px`;
-
-          // Animate input field
-          form.style.transition = [
-            `top 400ms ${EASE_IN_OUT_QUART}`,
-            `left 400ms ${EASE_IN_OUT_QUART}`,
-            `width 400ms ${EASE_IN_OUT_QUART}`,
-            `max-width 400ms ${EASE_IN_OUT_QUART}`,
-          ].join(', ');
-          form.style.top = `${targetFormOffset.top}px`;
-          form.style.left = `${targetFormOffset.left}px`;
-          form.style.width = `${targetFormRect.width}px`;
-          form.style.maxWidth = `${targetFormRect.width}px`;
-
-          await Promise.all([domTransitionend(head), domTransitionend(form)]);
-        } else if (fromInnerToHome(fromLayout, toLayout)) {
-          const headerBar = head.querySelector('.header-bar');
-          const currentHeaderBarRect =
-            headerBar instanceof HTMLElement
-              ? headerBar.getBoundingClientRect()
-              : null;
-
-          lockElementToRect(head, currentHeadRect, currentHeadRect, {
-            preserveHeight: true,
-            preserveWidth: false,
-            resetMargins: false,
-            pinToViewport: true,
-          });
-          lockElementToRect(form, currentFormRect, currentHeadRect);
-          if (
-            headerBar instanceof HTMLElement &&
-            currentHeaderBarRect instanceof DOMRect
-          ) {
-            lockElementToRect(headerBar, currentHeaderBarRect, currentHeadRect);
-          }
-
-          await animationFrame(1);
-
-          // Animate header container
-          head.style.transition = [
-            `height 400ms ${EASE_OUT_QUART}`,
-            `border-bottom-color 400ms ${EASE_OUT_QUART}`,
-          ].join(', ');
-          head.style.borderBottomColor = 'transparent';
-          head.style.height = `${targetHeadRect.height}px`;
-
-          if (headerBar instanceof HTMLElement) {
-            headerBar.style.transition = `opacity 200ms ${EASE_OUT_QUART}`;
-            headerBar.style.opacity = '0';
-          }
-
-          // Animate input field
-          form.style.transition = [
-            `top 400ms ${EASE_OUT_QUART}`,
-            `left 400ms ${EASE_OUT_QUART}`,
-            `width 400ms ${EASE_OUT_QUART}`,
-            `max-width 400ms ${EASE_OUT_QUART}`,
-          ].join(', ');
-          form.style.top = `${targetFormOffset.top}px`;
-          form.style.left = `${targetFormOffset.left}px`;
-          form.style.width = `${targetFormRect.width}px`;
-          form.style.maxWidth = `${targetFormRect.width}px`;
-
-          await Promise.all([domTransitionend(head), domTransitionend(form)]);
+          place(form, fromFormRect, fromHeaderRect);
         }
+        if (row && fromRowRect) {
+          Object.assign(row.style, { position: 'absolute', opacity: '0' });
+          place(row, fromRowRect, fromHeaderRect);
+        }
+        // The logo and the menu sit in the header's padding, which the compact
+        // header trims.
+        corners.forEach((corner, index) => {
+          const fromRect = fromCornerRects[index];
+          const toRect = toCornerRects[index];
+          if (!fromRect?.width || !toRect?.width) return;
+          const dx =
+            fromRect.left -
+            fromHeaderRect.left -
+            (toRect.left - toHeaderRect.left);
+          const dy =
+            fromRect.top - fromHeaderRect.top - (toRect.top - toHeaderRect.top);
+          if (dx || dy) corner.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
+
+        await animationFrame(1);
+
+        // The incoming page is still hidden, so it can take its place at once
+        // and only fade in, while the header moves over it.
+        snapshot.style.height = `${toHeaderRect.height}px`;
+
+        // A slow start both ways: going home, the results fade out in place
+        // before the growing header reaches them.
+        const morphTransition = (...properties: string[]) =>
+          properties
+            .map((property) => `${property} 400ms ${EASE_IN_OUT_QUART}`)
+            .join(', ');
+        incomingHeader.style.transition = morphTransition('height');
+        incomingHeader.style.height = `${toHeaderRect.height}px`;
+        if (form && fromFormRect && toFormRect) {
+          form.style.transition = morphTransition(
+            'top',
+            'left',
+            'width',
+            'max-width',
+          );
+          place(form, toFormRect, toHeaderRect);
+        }
+        // Moves with the field, and fades in once the field has slowed down.
+        if (row && fromRowRect && toRowRect) {
+          row.style.transition = [
+            morphTransition('top', 'left', 'width', 'max-width'),
+            `opacity 200ms ${EASE_OUT_QUART} 250ms`,
+          ].join(', ');
+          place(row, toRowRect, toHeaderRect);
+          row.style.opacity = '1';
+        }
+        for (const corner of corners) {
+          if (!corner.style.transform) continue;
+          corner.style.transition = morphTransition('transform');
+          corner.style.transform = '';
+        }
+
+        await domTransitionend(incomingHeader);
       },
     }),
-    [className],
+    [],
   );
 
   return (
     <EinTransition
-      dependencies={transitionDeps}
-      loading={waitForLoad}
-      events={transitionEvents}
+      dependencies={headerTransitionDeps}
+      events={headerTransitionEvents}
     >
       <div
         className={cn({ [styles.sticky]: !isHome })}
         style={
-          stuck && flowHeight !== null
+          isStuck && flowHeight !== null
             ? { height: `${flowHeight}px` }
             : undefined
         }
       >
-        <header ref={headerRef} className={className}>
+        <header ref={headerRef} className={headerClassName}>
           <div className={cn(styles.containerWrapper, 'container-wrapper')}>
             <div
               className={cn(
@@ -341,91 +342,14 @@ export default function Header({
   );
 }
 
-function createInvisibleClone(e: HTMLElement) {
-  const clone = e.cloneNode(true) as HTMLElement;
-  clone.style.position = 'absolute';
-  clone.style.visibility = 'hidden';
-  clone.style.width = `${e.offsetWidth}px`;
-  e.parentElement?.appendChild(clone);
-  return clone;
-}
+// The logo and the user menu.
+const HEADER_CORNERS =
+  ':scope > .container-wrapper > :is(.container-pre, .container-post) > *';
 
-function removeInvisibleClone(clone: HTMLElement) {
-  clone.parentElement?.removeChild(clone);
-}
-
-function getStyle(element: HTMLElement) {
-  const style = window.getComputedStyle(element);
-  const obj: Record<string, string> = {};
-  for (let i = 0; i < style.length; i++) {
-    const prop = style[i];
-    obj[prop] = style.getPropertyValue(prop);
-  }
-  return obj;
-}
-
-function getRelativeOffset(rect: DOMRect, containerRect: DOMRect) {
-  return {
-    top: rect.top - containerRect.top,
-    left: rect.left - containerRect.left,
-  };
-}
-
-function lockElementToRect(
-  element: HTMLElement,
-  rect: DOMRect,
-  containerRect: DOMRect,
-  options: {
-    preserveHeight?: boolean;
-    preserveWidth?: boolean;
-    resetMargins?: boolean;
-    pinToViewport?: boolean;
-  } = {},
-) {
-  const {
-    preserveHeight = true,
-    preserveWidth = true,
-    resetMargins = true,
-    pinToViewport = false,
-  } = options;
-
-  element.style.overflow = 'hidden';
-
-  if (preserveWidth) {
-    element.style.width = `${rect.width}px`;
-    element.style.maxWidth = `${rect.width}px`;
-  }
-
-  if (preserveHeight) {
-    element.style.height = `${rect.height}px`;
-  }
-
-  if (resetMargins) {
-    element.style.margin = '0';
-  }
-
-  if (pinToViewport) {
-    element.style.position = 'fixed';
-    element.style.top = `${rect.top}px`;
-    element.style.left = `${rect.left}px`;
-    element.style.width = `${rect.width}px`;
-    element.style.maxWidth = `${rect.width}px`;
-    return;
-  }
-
-  const { top, left } = getRelativeOffset(rect, containerRect);
-  element.style.position = 'absolute';
-  element.style.top = `${top}px`;
-  element.style.left = `${left}px`;
-}
-
-// The landing page is the only header with a layout of its own — a tall hero
-// with the form centred in it — so 'home' | 'inner' is the only boundary that
-// needs the measured morph. Every other section change is handled by the second
-// row's own CSS transition.
-function fromHomeToInner(from: string, to: string) {
-  return from === 'home' && to === 'inner';
-}
-function fromInnerToHome(from: string, to: string) {
-  return from === 'inner' && to === 'home';
+// Places an absolutely positioned element at `rect` within `containerRect`.
+function place(element: HTMLElement, rect: DOMRect, containerRect: DOMRect) {
+  element.style.top = `${rect.top - containerRect.top}px`;
+  element.style.left = `${rect.left - containerRect.left}px`;
+  element.style.width = `${rect.width}px`;
+  element.style.maxWidth = `${rect.width}px`;
 }
