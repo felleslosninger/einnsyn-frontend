@@ -8,7 +8,13 @@ import { useSessionData } from '~/components/SessionDataProvider/SessionDataProv
 import { useTranslation } from '~/hooks/useTranslation';
 import { ansattportenAuthAction } from '~/lib/auth/auth.actions';
 
-export function AnsattportenLoginButton() {
+type ButtonStyle = 'link' | 'primary';
+
+export function AnsattportenLoginButton({
+  style = 'link',
+}: {
+  style?: ButtonStyle;
+}) {
   const t = useTranslation();
   const { href } = useNavigation();
   const { origin } = useSessionData();
@@ -17,17 +23,23 @@ export function AnsattportenLoginButton() {
   return (
     <form action={ansattportenAuthAction}>
       <input type="hidden" name="originUrl" value={originUrl} />
-      <SubmitButton>{t('site.ansattportenLogin')}</SubmitButton>
+      <SubmitButton style={style}>{t('site.ansattportenLogin')}</SubmitButton>
     </form>
   );
 }
 
 // useFormStatus only sees a form rendered by a parent component
-function SubmitButton({ children }: { children: ReactNode }) {
+function SubmitButton({
+  style,
+  children,
+}: {
+  style: ButtonStyle;
+  children: ReactNode;
+}) {
   const { pending } = useFormStatus();
 
   return (
-    <EinButton type="submit" style="link" disabled={pending}>
+    <EinButton type="submit" style={style} disabled={pending}>
       {children}
     </EinButton>
   );
