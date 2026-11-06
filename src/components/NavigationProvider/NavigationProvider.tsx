@@ -19,7 +19,7 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { getSection, isModalSection } from '~/lib/routing/sections';
+import { isModal } from '~/lib/routing/sections';
 
 type NavigationState = {
   state: 'idle' | 'loading';
@@ -210,7 +210,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       const stamp = event.state?.[MODAL_STAMP_KEY];
       const entry: HistoryEntry = stamp
         ? { href, pageHref: stamp.pageHref, depth: stamp.depth }
-        : entryOf(href, isModalSection(getSection(pathname)));
+        : entryOf(href, isModal(pathname));
       latestRef.current.historyEntry = entry;
       setHistoryEntry(entry);
 
@@ -317,7 +317,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       }
 
       pendingTypeRef.current = type;
-      if (isModalSection(getSection(url.pathname))) {
+      if (isModal(url.pathname)) {
         // A modal opens over the page, so the page is not loading.
         setNavigationState({ state: 'idle' });
         startTransition(() => {

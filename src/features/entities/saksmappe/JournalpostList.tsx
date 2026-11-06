@@ -31,7 +31,7 @@ import { useInfiniteScroll } from '~/hooks/useInfiniteScroll';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useScrollToExpanded } from '~/hooks/useScrollToExpanded';
 import { useTranslation } from '~/hooks/useTranslation';
-import { buildPathname, parsePathname } from '~/lib/routing/pathname';
+import { matchPath, toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
@@ -59,6 +59,8 @@ function journalpostKind(
   if (type === 'moetebok') return 'moetebok';
   return undefined;
 }
+
+const JOURNALPOST_ROUTE = '/[enhet]/saksmappe/[saksmappe]/[journalpost]';
 
 function journalpostIdentifier(j: Journalpost): string {
   return j.slug ?? j.id;
@@ -89,13 +91,16 @@ export default function JournalpostList({
     useInfiniteScroll(journalposts);
   const vlistRef = useRef<WindowVirtualizerHandle>(null);
 
-  const currentRoute = useMemo(() => parsePathname(pathname), [pathname]);
-  const selectedJournalpostIdentifier = currentRoute?.journalpostIdentifier;
+  const selectedJournalpostIdentifier = useMemo(
+    () => matchPath(pathname, JOURNALPOST_ROUTE)?.[2],
+    [pathname],
+  );
 
   // The optimistic pathname opens the row on click, before the route resolves.
-  const optimisticJournalpostIdentifier = useMemo(() => {
-    return parsePathname(optimisticPathname)?.journalpostIdentifier;
-  }, [optimisticPathname]);
+  const optimisticJournalpostIdentifier = useMemo(
+    () => matchPath(optimisticPathname, JOURNALPOST_ROUTE)?.[2],
+    [optimisticPathname],
+  );
 
   const selectedIndex = useMemo(() => {
     if (!optimisticJournalpostIdentifier) {
@@ -117,23 +122,23 @@ export default function JournalpostList({
   // Every in-view link reuses the enhet and saksmappe identifiers in the URL: a
   // slug/id swap would change a route param on open/close and remount the
   // subtree, canceling the transition.
-  const { enhetIdentifier, saksmappeIdentifier } =
-    currentRoute?.saksmappeIdentifier !== undefined
-      ? currentRoute
-      : getSaksmappeRoute(saksmappe);
-  const saksmappeHref = buildPathname(
-    { enhetIdentifier, saksmappeIdentifier },
+  const [enhetIdentifier, saksmappeIdentifier] =
+    matchPath(pathname, '/[enhet]/saksmappe/[saksmappe]') ??
+    getSaksmappeRoute(saksmappe);
+  const saksmappeHref = toLocalizedPath(
     languageCode,
+    '/[enhet]/saksmappe/[saksmappe]',
+    enhetIdentifier,
+    saksmappeIdentifier,
   );
   const journalpostHref = useCallback(
     (j: Journalpost) =>
-      buildPathname(
-        {
-          enhetIdentifier,
-          saksmappeIdentifier,
-          journalpostIdentifier: journalpostIdentifier(j),
-        },
+      toLocalizedPath(
         languageCode,
+        JOURNALPOST_ROUTE,
+        enhetIdentifier,
+        saksmappeIdentifier,
+        journalpostIdentifier(j),
       ),
     [enhetIdentifier, saksmappeIdentifier, languageCode],
   );
