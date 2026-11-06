@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 import useIsChanged from '~/hooks/useIsChanged';
 import { useMergedRefs } from '~/hooks/useMergedRef';
 import { IS_BROWSER } from '~/lib/isBrowser';
@@ -363,10 +364,6 @@ export function EinTransition<T extends unknown[] = [number]>(
 
         // Init enter transition
         else if (transitionStep === 'enterInit') {
-          // Remove snapshot from DOM
-          snapshotRef.current?.remove();
-          snapshotRef.current = null;
-
           const newElement = childRef.current;
 
           // If we don't have a new element, we're done
@@ -378,12 +375,15 @@ export function EinTransition<T extends unknown[] = [number]>(
 
           // Apply the initial entry styles while the element is still hidden,
           // so it never paints with its final styles before the animation starts.
-          if (checkStale()) return;
           await events.onInitEnterTransition?.(newElement, toDeps, fromDeps);
-
-          // Reveal — the element is now rendered with the initial styles.
           if (checkStale()) return;
-          setHideNew(false);
+
+          // Swap the snapshot for the element, now in its initial styles,
+          // within one task. A plain state update renders in a later task, and
+          // a frame painted in between shows neither (seen in Safari).
+          snapshotRef.current?.remove();
+          snapshotRef.current = null;
+          flushSync(() => setHideNew(false));
           await animationFrame(1);
 
           if (checkStale()) return;
