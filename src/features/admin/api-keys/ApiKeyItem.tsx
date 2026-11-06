@@ -15,6 +15,7 @@ import { dateFormat } from '~/lib/utils/dateFormat';
 import { deleteApiKeyAction } from '../admin.actions';
 import tableStyles from './AddApiKeyModal.module.scss';
 import styles from './ApiKeyItem.module.scss';
+import { deleteApiKeyAndUpdateUi } from './apiKeyDeletion';
 
 interface ApiKeyItemProps {
   apiKey: ApiKey;
@@ -39,10 +40,11 @@ export default function ApiKeyItem({
   };
 
   const handleDelete = (form: FormData) => {
-    startDeleteTransition(() => {
-      removeApiKeyHandler(form.get('keyId') as string);
-      deleteApiKeyAction(form);
-      setShowDeletePopup(false);
+    startDeleteTransition(async () => {
+      await deleteApiKeyAndUpdateUi(form, deleteApiKeyAction, () => {
+        removeApiKeyHandler(form.get('keyId') as string);
+        setShowDeletePopup(false);
+      });
     });
   };
 
