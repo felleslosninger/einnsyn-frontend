@@ -39,13 +39,19 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   const urlSearchQuery = navigation.optimisticSearchParams.get('q') ?? '';
   const [searchQuery, _setSearchQuery] = useState(urlSearchQuery);
 
+  // Synced during render rather than in an effect, so the field never shows
+  // the previous URL's query for a frame (the header morph copies it).
+  const [syncedUrlSearchQuery, setSyncedUrlSearchQuery] =
+    useState(urlSearchQuery);
+  if (syncedUrlSearchQuery !== urlSearchQuery) {
+    setSyncedUrlSearchQuery(urlSearchQuery);
+    _setSearchQuery(urlSearchQuery);
+  }
+
   const searchTokens = useMemo(
     () => searchQueryToTokens(searchQuery),
     [searchQuery],
   );
-  useEffect(() => {
-    _setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery]);
 
   const searchStateRef = useRef({ searchQuery, searchTokens });
   useEffect(() => {
