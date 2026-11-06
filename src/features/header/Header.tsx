@@ -10,7 +10,7 @@ import { EnhetProvider } from '~/components/EnhetProvider/EnhetProvider';
 import Logo from '~/components/Logo';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { SearchField } from '~/components/SearchField/SearchField';
-import { useScrollState } from '~/hooks/useScrollState';
+import { resetScrollDirection, useScrollState } from '~/hooks/useScrollState';
 import type { TrimmedEnhet } from '~/lib/enhet/enhet';
 import { resolvePath } from '~/lib/routing/pathname';
 import { showsSearchField, showsSearchResults } from '~/lib/routing/sections';
@@ -46,6 +46,13 @@ export default function Header({
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const { isAtTop, isScrollingDown } = useScrollState();
+
+  // Scrolling the landing page doesn't compact it, so the direction picked up
+  // there must not compact the page it opens. A layout effect, so the header
+  // has re-rendered by the time the morph below clones it.
+  useLayoutEffect(() => {
+    if (!isHome) resetScrollDirection();
+  }, [isHome]);
 
   // The header itself; its wrapper is the sticky element.
   const headerRef = useRef<HTMLElement>(null);
@@ -147,6 +154,9 @@ export default function Header({
           .querySelector('form')
           ?.getBoundingClientRect();
         const fromSnapshotHeight = snapshot.getBoundingClientRect().height;
+        const fromCornerRects = [
+          ...outgoingHeader.querySelectorAll(HEADER_CORNERS),
+        ].map((corner) => corner.getBoundingClientRect());
 
         // Replace the frozen outgoing header with a frozen incoming one, so
         // it has the new content.
@@ -163,8 +173,14 @@ export default function Header({
         const row = incomingHeader.querySelector<HTMLElement>(
           '.header-second-row:not([inert])',
         );
+        const corners = [
+          ...incomingHeader.querySelectorAll<HTMLElement>(HEADER_CORNERS),
+        ];
         const toHeaderRect = incomingHeader.getBoundingClientRect();
         const toFormRect = form?.getBoundingClientRect();
+        const toCornerRects = corners.map((corner) =>
+          corner.getBoundingClientRect(),
+        );
         // No height on the landing page, or while its own transition loads it.
         const measuredRowRect = row?.getBoundingClientRect();
         const toRowRect = measuredRowRect?.height ? measuredRowRect : undefined;
@@ -203,6 +219,20 @@ export default function Header({
           Object.assign(row.style, { position: 'absolute', opacity: '0' });
           place(row, fromRowRect, fromHeaderRect);
         }
+        // The logo and the menu sit in the header's padding, which the compact
+        // header trims.
+        corners.forEach((corner, index) => {
+          const fromRect = fromCornerRects[index];
+          const toRect = toCornerRects[index];
+          if (!fromRect?.width || !toRect?.width) return;
+          const dx =
+            fromRect.left -
+            fromHeaderRect.left -
+            (toRect.left - toHeaderRect.left);
+          const dy =
+            fromRect.top - fromHeaderRect.top - (toRect.top - toHeaderRect.top);
+          if (dx || dy) corner.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
 
         await animationFrame(1);
 
@@ -235,6 +265,11 @@ export default function Header({
           ].join(', ');
           place(row, toRowRect, toHeaderRect);
           row.style.opacity = '1';
+        }
+        for (const corner of corners) {
+          if (!corner.style.transform) continue;
+          corner.style.transition = morphTransition('transform');
+          corner.style.transform = '';
         }
 
         await domTransitionend(incomingHeader);
@@ -306,6 +341,10 @@ export default function Header({
     </EinTransition>
   );
 }
+
+// The logo and the user menu.
+const HEADER_CORNERS =
+  ':scope > .container-wrapper > :is(.container-pre, .container-post) > *';
 
 // Places an absolutely positioned element at `rect` within `containerRect`.
 function place(element: HTMLElement, rect: DOMRect, containerRect: DOMRect) {
