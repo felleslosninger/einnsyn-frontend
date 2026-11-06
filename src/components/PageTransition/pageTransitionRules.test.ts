@@ -5,14 +5,14 @@ import { pageTransition } from './pageTransitionRules';
 describe('pageTransition', () => {
   it('goes inward from search results to an archive page', () => {
     assert.equal(pageTransition('search', 'saksmappe'), 'inward');
-    assert.equal(pageTransition('enhet', 'moetemappe'), 'inward');
-    assert.equal(pageTransition('home', 'saksmappe'), 'inward');
+    assert.equal(pageTransition('[enhet]', 'moetemappe'), 'inward');
+    assert.equal(pageTransition('', 'saksmappe'), 'inward');
   });
 
   it('goes outward from an archive page back to search results', () => {
     assert.equal(pageTransition('saksmappe', 'search'), 'outward');
-    assert.equal(pageTransition('moetemappe', 'enhet'), 'outward');
-    assert.equal(pageTransition('saksmappe', 'home'), 'outward');
+    assert.equal(pageTransition('moetemappe', '[enhet]'), 'outward');
+    assert.equal(pageTransition('saksmappe', ''), 'outward');
   });
 
   it('fades between two archive pages', () => {
@@ -22,7 +22,7 @@ describe('pageTransition', () => {
 
   it('fades to and from the static pages, archive pages included', () => {
     assert.equal(pageTransition('search', 'about'), 'fade');
-    assert.equal(pageTransition('about', 'home'), 'fade');
+    assert.equal(pageTransition('about', ''), 'fade');
     assert.equal(pageTransition('about', 'privacy'), 'fade');
     assert.equal(pageTransition('bruker', 'privacy'), 'fade');
     assert.equal(pageTransition('about', 'saksmappe'), 'fade');
@@ -30,12 +30,12 @@ describe('pageTransition', () => {
   });
 
   it('fades between the landing page and search results', () => {
-    assert.equal(pageTransition('home', 'search'), 'fade');
-    assert.equal(pageTransition('enhet', 'home'), 'fade');
+    assert.equal(pageTransition('', 'search'), 'fade');
+    assert.equal(pageTransition('[enhet]', ''), 'fade');
   });
 
   it('leaves the results list and unlisted moves alone', () => {
-    assert.equal(pageTransition('search', 'enhet'), null);
+    assert.equal(pageTransition('search', '[enhet]'), null);
     assert.equal(pageTransition('search', 'admin'), null);
   });
 

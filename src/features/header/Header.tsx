@@ -12,11 +12,8 @@ import { useNavigation } from '~/components/NavigationProvider/NavigationProvide
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useScrollState } from '~/hooks/useScrollState';
 import type { TrimmedEnhet } from '~/lib/enhet/enhet';
-import {
-  getSection,
-  SECTIONS_WITH_RESULTS,
-  showsSearchField,
-} from '~/lib/routing/sections';
+import { resolvePath } from '~/lib/routing/pathname';
+import { showsSearchField, showsSearchResults } from '~/lib/routing/sections';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
@@ -38,10 +35,12 @@ export default function Header({
   initialEnhets?: readonly TrimmedEnhet[];
 }) {
   const { loading, optimisticPathname } = useNavigation();
-  // Canonical, so it does not depend on which language the URL is spelled in:
-  // `/oslo/case/abc` and `/oslo/sak/abc` are both the `saksmappe` section.
-  const section = getSection(optimisticPathname);
-  const isHome = section === 'home';
+  // Which second row the page gets: one per root folder, and below an enhet one
+  // per case or meeting folder. In folder names, so `/oslo/case/abc` and
+  // `/oslo/sak/abc` are both `saksmappe`.
+  const [folder = '', subfolder] = resolvePath(optimisticPathname);
+  const section = folder === '[enhet]' ? (subfolder ?? folder) : folder;
+  const isHome = section === '';
   const hasSearchField = showsSearchField(optimisticPathname);
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
@@ -111,7 +110,8 @@ export default function Header({
     setFlowHeight(headerHeight);
   }
 
-  const headerClassName = cn(styles.header, `section-${section}`, {
+  const headerClassName = cn(styles.header, {
+    'section-home': isHome,
     [styles.scrolled]: !isHome && isScrollingDown,
     [styles.stuck]: isStuck,
   });
@@ -126,7 +126,7 @@ export default function Header({
   // admin tabs. Every section with search results shows the search tabs (the
   // landing page hides them), so moving among those is not a change.
   const secondRowTransitionDeps = [
-    SECTIONS_WITH_RESULTS.has(section) ? 'search' : section,
+    showsSearchResults(optimisticPathname) ? 'search' : section,
   ];
   // Flies a frozen copy of the incoming header from the outgoing one's place to
   // its own layout. Reads nothing from render: EinTransition re-runs its current
