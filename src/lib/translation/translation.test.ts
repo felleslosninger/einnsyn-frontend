@@ -1,9 +1,21 @@
 import assert from 'node:assert';
 import { describe, test } from 'node:test';
 
-import { resolveLanguageCode, supportedLanguages } from './translation';
+import {
+  getTranslateFunction,
+  resolveLanguageCode,
+  supportedLanguages,
+} from './translation';
 
 describe('translation', () => {
+  test('has date range labels in every supported language', () => {
+    for (const languageCode of supportedLanguages) {
+      const t = getTranslateFunction(languageCode);
+      assert.notStrictEqual(t('common.fromDate'), 'common.fromDate');
+      assert.notStrictEqual(t('common.toDate'), 'common.toDate');
+    }
+  });
+
   describe('resolveLanguageCode', () => {
     test('*', () => {
       const result = resolveLanguageCode('*', ['en', 'nb', 'nn', 'se']);

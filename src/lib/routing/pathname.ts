@@ -1,248 +1,190 @@
 // Relative imports: next.config.ts loads this module, without the `~` alias.
-import en from '../../resources/translations/en/translations.json';
-import nb from '../../resources/translations/nb/translations.json';
-import nn from '../../resources/translations/nn/translations.json';
-import se from '../../resources/translations/se/translations.json';
 import type { LanguageCode } from '../translation/translation';
+import { ROUTES, type Translations } from './routes';
 
-/**
- * Every URL shape the app has:
- *
- *   /                                       home
- *   /<root page>[/…]                        `routing.root`: search, about, …
- *   /:enhet                                 enhet
- *   /:enhet/<enhet page>[/…]                `routing.enhet`
- *   /:enhet/<mappe>/:mappe[/:child]         `routing.mappe`: saksmappe, moetemappe
- *
- * Each `routing` key is a route folder, its value the folder's spelling in that
- * language. Every spelling is accepted, so no URL favours a language;
- * `buildPathname` writes the viewer's.
- */
-export type RootPage = keyof typeof nb.routing.root;
-export type EnhetPage = keyof typeof nb.routing.enhet;
-type Mappe = keyof typeof nb.routing.mappe;
+/** A route by its folder path, such as `/[enhet]/saksmappe/[saksmappe]`. */
+export type Route = '/' | keyof typeof ROUTES;
 
-// Pages are named; entity routes are told apart by which identifiers they carry.
-export type Route =
-  | Exclusive<{ page: 'home' | RootPage }>
-  | Exclusive<{ page: EnhetPage; enhetIdentifier: string }>
-  | Exclusive<{ enhetIdentifier: string }>
-  | Exclusive<{
-      enhetIdentifier: string;
-      saksmappeIdentifier: string;
-      journalpostIdentifier?: string;
-    }>
-  | Exclusive<{
-      enhetIdentifier: string;
-      moetemappeIdentifier: string;
-      moetesakIdentifier?: string;
-    }>;
+// The values of a route's dynamic segments, in order.
+type Values<R extends string> = R extends `${string}[${string}]${infer Rest}`
+  ? [string, ...Values<Rest>]
+  : [];
 
-type RouteKey =
-  | 'page'
-  | 'enhetIdentifier'
-  | 'saksmappeIdentifier'
-  | 'journalpostIdentifier'
-  | 'moetemappeIdentifier'
-  | 'moetesakIdentifier';
+type Subfolders = { bySpelling: Map<string, string>; dynamic?: string };
 
-// Forbids every other route's keys, which a plain union would let through.
-type Exclusive<T> = T & { [K in Exclude<RouteKey, keyof T>]?: never };
+// The folders directly below each route ('' for the root): the static ones by
+// every normalized spelling, and the dynamic one.
+const SUBFOLDERS = indexSubfolders();
 
-// The identifier fields of each mappe and of its child.
-const MAPPE_FIELDS = {
-  saksmappe: ['saksmappeIdentifier', 'journalpostIdentifier'],
-  moetemappe: ['moetemappeIdentifier', 'moetesakIdentifier'],
-} as const satisfies Record<Mappe, readonly [RouteKey, RouteKey]>;
-
-type Level = keyof typeof nb.routing;
-type Words = Record<string, string | undefined>;
-
-const ROUTING: Record<LanguageCode, Record<Level, Words>> = {
-  nb: nb.routing,
-  nn: nn.routing,
-  en: en.routing,
-  se: se.routing,
-};
-
-/** The route folder name plus every translation of it, deduplicated. */
-function spellings(level: Level, folder: string): string[] {
-  return [
-    ...new Set([
-      folder,
-      ...Object.values(ROUTING).flatMap(
-        (routing) => routing[level][folder] ?? [],
-      ),
-    ]),
-  ];
-}
-
-type Folder = { level: Level; folder: string };
-
-// Normalized spelling → folder, over levels that share a path position.
-function foldersBySpelling(...levels: Level[]): Map<string, Folder> {
-  const map = new Map<string, Folder>();
-  for (const level of levels) {
-    for (const folder of Object.keys(nb.routing[level])) {
-      for (const spelling of spellings(level, folder).map(normalizeSegment)) {
-        const existing = map.get(spelling);
-        if (existing !== undefined && existing.folder !== folder) {
-          throw new Error(
-            `"${spelling}" spells both ${existing.folder} and ${folder}`,
-          );
-        }
-        map.set(spelling, { level, folder });
-      }
-    }
-  }
-  return map;
-}
-
-const ROOT_FOLDERS = foldersBySpelling('root');
-const ENHET_FOLDERS = foldersBySpelling('enhet', 'mappe');
-
-/**
- * The route a pathname points at, in any language. `undefined` for a path
- * below an enhet that matches no route.
- */
-export function parsePathname(pathname: string): Route | undefined {
-  const [first, second, mappeId, childId, ...rest] = pathSegments(pathname);
-  if (first === undefined) {
-    return { page: 'home' };
-  }
-
-  const root = ROOT_FOLDERS.get(normalizeSegment(first));
-  if (root !== undefined) {
-    return { page: root.folder as RootPage };
-  }
-
-  const enhetIdentifier = normalizeSegment(first);
-  if (second === undefined) {
-    return { enhetIdentifier };
-  }
-
-  const match = ENHET_FOLDERS.get(normalizeSegment(second));
-  if (match?.level === 'enhet') {
-    return { page: match.folder as EnhetPage, enhetIdentifier };
-  }
-  if (match === undefined || mappeId === undefined || rest.length > 0) {
-    return undefined;
-  }
-
-  const [mappeField, childField] = MAPPE_FIELDS[match.folder as Mappe];
-  return {
-    enhetIdentifier,
-    [mappeField]: decodeSegment(mappeId),
-    ...(childId !== undefined && { [childField]: decodeSegment(childId) }),
-  } as Route;
-}
-
-/**
- * The enhet a URL is scoped to by its path (`/oslo`, `/oslo/sak/…`), or
- * `undefined` when the root segment is not an enhet.
- */
-export function getPathEnhet(pathname: string): string | undefined {
-  const [first] = pathSegments(pathname);
-  if (first === undefined) {
-    return undefined;
-  }
-
-  const segment = normalizeSegment(first);
-  return ROOT_FOLDERS.has(segment) ? undefined : segment;
-}
-
-/** The href for a route, with fixed segments in the given language. */
-export function buildPathname(
-  route: Route,
-  languageCode: LanguageCode,
-): string {
-  const routing = ROUTING[languageCode];
-  const segments: string[] = [];
-
-  if (route.enhetIdentifier !== undefined) {
-    segments.push(route.enhetIdentifier);
-  }
-
-  if (route.page !== undefined && route.page !== 'home') {
-    const level = route.enhetIdentifier === undefined ? 'root' : 'enhet';
-    segments.push(routing[level][route.page] ?? route.page);
-  }
-
-  for (const [mappe, [mappeField, childField]] of Object.entries(
-    MAPPE_FIELDS,
-  )) {
-    const mappeIdentifier = route[mappeField];
-    if (mappeIdentifier === undefined) {
+function indexSubfolders(): Map<string, Subfolders> {
+  const index = new Map<string, Subfolders>();
+  for (const [route, translations] of Object.entries(ROUTES)) {
+    const [parent, folder] = splitLast(route);
+    const subfolders: Subfolders = index.get(parent) ?? {
+      bySpelling: new Map(),
+    };
+    index.set(parent, subfolders);
+    if (isDynamic(folder)) {
+      subfolders.dynamic = folder;
       continue;
     }
-    segments.push(routing.mappe[mappe] ?? mappe, mappeIdentifier);
-    const childIdentifier = route[childField];
-    if (childIdentifier !== undefined) {
-      segments.push(childIdentifier);
+    for (const spelling of [folder, ...Object.values(translations)]) {
+      const key = normalizeSegment(spelling);
+      const existing = subfolders.bySpelling.get(key);
+      if (existing !== undefined && existing !== folder) {
+        throw new Error(`"${spelling}" spells both ${existing} and ${folder}`);
+      }
+      subfolders.bySpelling.set(key, folder);
     }
   }
+  return index;
+}
 
+/**
+ * The folders of the deepest route in `ROUTES` that `pathname`, spelled in any
+ * language, is at or below: `/oslo/sak/sm_1` gives `['[enhet]', 'saksmappe',
+ * '[saksmappe]']`, and `/` gives `[]`.
+ */
+export function resolvePath(pathname: string): string[] {
+  const folders: string[] = [];
+  let route = '';
+  for (const segment of pathSegments(pathname)) {
+    const subfolders = SUBFOLDERS.get(route);
+    // As in Next, a static segment wins over a dynamic one.
+    const folder =
+      subfolders?.bySpelling.get(normalizeSegment(segment)) ??
+      subfolders?.dynamic;
+    if (folder === undefined) {
+      break;
+    }
+    folders.push(folder);
+    route += `/${folder}`;
+  }
+  return folders;
+}
+
+/**
+ * The values of `route`'s dynamic segments, in order, if `pathname`, spelled
+ * in any language, is that route or below it; `undefined` if not. Every path
+ * is below `/`, so home is checked with `matchExactPath`.
+ */
+export function matchPath<R extends Exclude<Route, '/'>>(
+  pathname: string,
+  route: R,
+): Values<R> | undefined {
+  return match(pathname, route, false) as Values<R> | undefined;
+}
+
+/** {@link matchPath} for `route` itself, not the paths below it. */
+export function matchExactPath<R extends Route>(
+  pathname: string,
+  route: R,
+): Values<R> | undefined {
+  return match(pathname, route, true) as Values<R> | undefined;
+}
+
+function match(
+  pathname: string,
+  route: string,
+  exact: boolean,
+): string[] | undefined {
+  const segments = pathSegments(pathname);
+  const folders = resolvePath(pathname);
+  const routeFolders = pathSegments(route);
+  const isAtOrBelow = routeFolders.every(
+    (folder, index) => folder === folders[index],
+  );
+  const isAt = isAtOrBelow && segments.length === routeFolders.length;
+  if (exact ? !isAt : !isAtOrBelow) {
+    return undefined;
+  }
+  // `resolvePath` gives one folder per segment, so their indices line up.
+  return routeFolders.flatMap((folder, index) =>
+    isDynamic(folder) ? [decodeSegment(segments[index])] : [],
+  );
+}
+
+/** The href for `route`, its values filled in, spelled in the language. */
+export function toLocalizedPath<R extends Route>(
+  languageCode: LanguageCode,
+  route: R,
+  ...values: Values<R>
+): string {
+  // `ROUTES`, indexable by the path built below.
+  const routes: Readonly<Record<string, Translations>> = ROUTES;
+  let valueIndex = 0;
+  let path = '';
+  const segments = pathSegments(route).map((folder) => {
+    path += `/${folder}`;
+    return isDynamic(folder)
+      ? values[valueIndex++]
+      : (routes[path]?.[languageCode] ?? folder);
+  });
   return `/${segments.map(encodeURIComponent).join('/')}`;
 }
 
 /**
- * The pathname with its fixed segment in the given language, encoded like
- * `buildPathname`. Identifiers, and anything below a root page or an unknown
- * segment, keep their spelling and case.
+ * `pathname`, spelled in any language, with its static segments in the
+ * language, encoded like `toLocalizedPath`. Values, and the segments below the
+ * deepest route it resolves to, keep their spelling and case.
  */
 export function translatePathname(
   pathname: string,
   languageCode: LanguageCode,
 ): string {
-  const segments = pathSegments(pathname);
-  const [first] = segments;
-
-  // Root pages are spelled by the first segment, enhet and mappe pages by the
-  // second.
-  const isRootPage =
-    first !== undefined && ROOT_FOLDERS.has(normalizeSegment(first));
-  const index = isRootPage ? 0 : 1;
-  const match =
-    segments[index] === undefined
-      ? undefined
-      : (isRootPage ? ROOT_FOLDERS : ENHET_FOLDERS).get(
-          normalizeSegment(segments[index]),
-        );
-
-  const decoded = segments.map(decodeSegment);
-  if (match !== undefined) {
-    decoded[index] =
-      ROUTING[languageCode][match.level][match.folder] ?? match.folder;
+  // `ROUTES`, indexable by the path built below.
+  const routes: Readonly<Record<string, Translations>> = ROUTES;
+  const segments = pathSegments(pathname).map(decodeSegment);
+  let route = '';
+  for (const [index, folder] of resolvePath(pathname).entries()) {
+    route += `/${folder}`;
+    if (!isDynamic(folder)) {
+      segments[index] = routes[route]?.[languageCode] ?? folder;
+    }
   }
-
-  return `/${decoded.map(encodeURIComponent).join('/')}`;
+  return `/${segments.map(encodeURIComponent).join('/')}`;
 }
+
+/**
+ * The enhet a URL is scoped to by its path (`/oslo`, `/oslo/sak/…`),
+ * lowercased, or `undefined` when the root segment is not an enhet.
+ */
+export function getPathEnhet(pathname: string): string | undefined {
+  return matchPath(pathname, '/[enhet]')?.[0].toLowerCase();
+}
+
+type Rewrite = { source: string; destination: string };
 
 /**
  * Rewrites from every translated spelling to the route folder, for
  * next.config.ts. Without them a translated path falls through to `[enhet]`.
+ * Applied in order, each to the last one's result: a route's rewrites match
+ * the path its parent's rewrites wrote.
  */
-export function routeRewrites(): { source: string; destination: string }[] {
-  const rewrites = (level: Level, prefix: string, tails: string[]) =>
-    Object.keys(nb.routing[level]).flatMap((folder) =>
-      spellings(level, folder)
-        .filter((spelling) => spelling !== folder)
-        // Browsers send non-ASCII segments percent-encoded: `ášši` as `%C3%A1…`.
-        .flatMap((spelling) => [spelling, encodeURIComponent(spelling)])
-        .filter((spelling, index, all) => all.indexOf(spelling) === index)
-        .flatMap((spelling) =>
-          tails.map((tail) => ({
-            source: `${prefix}/${spelling}${tail}`,
-            destination: `${prefix}/${folder}${tail}`,
-          })),
-        ),
-    );
+export function routeRewrites(): Rewrite[] {
+  return Object.entries(ROUTES).flatMap(([route, translations]) => {
+    // Next spells a dynamic segment `:name`.
+    const [parent, folder] = splitLast(route.replace(/\[(\w+)\]/g, ':$1'));
+    const translated = Object.values(translations)
+      .filter((spelling) => spelling !== folder)
+      // Browsers send non-ASCII segments percent-encoded: `ášši` as `%C3%A1…`.
+      .flatMap((spelling) => [spelling, encodeURIComponent(spelling)]);
+    // `:rest*` may be empty, so this covers the route and the paths below it.
+    return [...new Set(translated)].map((spelling) => ({
+      source: `${parent}/${spelling}/:rest*`,
+      destination: `${parent}/${folder}/:rest*`,
+    }));
+  });
+}
 
-  return [
-    ...rewrites('root', '', ['', '/:rest*']),
-    ...rewrites('enhet', '/:enhet', ['', '/:rest*']),
-    ...rewrites('mappe', '/:enhet', ['/:mappe', '/:mappe/:child']),
-  ];
+// `/login/register` → `['/login', 'register']`.
+function splitLast(path: string): [string, string] {
+  const index = path.lastIndexOf('/');
+  return [path.slice(0, index), path.slice(index + 1)];
+}
+
+function isDynamic(folder: string): boolean {
+  return folder.startsWith('[');
 }
 
 /** Path segments, with any query/hash tail stripped. */
