@@ -52,7 +52,7 @@ export const getName = (
  *
  * Not interchangeable with `enhet.id` at the API boundary: the cursor params
  * (`startingAfter`/`endingBefore`) silently misbehave when given a slug. Pass
- * `enhet.id` there, never this. For a link target, use `buildPathname`.
+ * `enhet.id` there, never this. For a link target, use `toLocalizedPath`.
  */
 export const getEnhetIdentifier = (enhet: Pick<Enhet, 'id' | 'slug'>) => {
   return enhet.slug || enhet.id;

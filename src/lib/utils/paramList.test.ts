@@ -7,6 +7,7 @@ import {
   parseParamList,
   removeParamListValue,
   serializeParamList,
+  toggleParamListValue,
 } from './paramList';
 
 describe('paramList', () => {
@@ -28,6 +29,21 @@ describe('paramList', () => {
     assert.strictEqual(
       serializeParamList(['100', ' 200 ', '100', '', '300']),
       '100,200,300',
+    );
+  });
+
+  test('toggleParamListValue updates the current value', () => {
+    assert.strictEqual(
+      toggleParamListValue('utgaaende', 'inngaaende', true),
+      'inngaaende,utgaaende',
+    );
+    assert.strictEqual(
+      toggleParamListValue('inngaaende,utgaaende', 'inngaaende', false),
+      'utgaaende',
+    );
+    assert.strictEqual(
+      toggleParamListValue(undefined, 'inngaaende', false),
+      undefined,
     );
   });
 

@@ -17,7 +17,7 @@ import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import type { UpcomingMeeting } from '~/lib/moetemappe/moetemappe.server';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import {
   getNorwegianDate,
@@ -89,12 +89,11 @@ function Meeting({ id, offentligTittel, moetedato, utvalg }: UpcomingMeeting) {
       <p className={styles.meetingTitle}>
         {utvalg ? (
           <EinLink
-            href={buildPathname(
-              {
-                enhetIdentifier: getEnhetIdentifier(utvalg),
-                moetemappeIdentifier: id,
-              },
+            href={toLocalizedPath(
               languageCode,
+              '/[enhet]/moetemappe/[moetemappe]',
+              getEnhetIdentifier(utvalg),
+              id,
             )}
           >
             {title}

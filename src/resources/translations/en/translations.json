@@ -175,21 +175,6 @@
     "innsynskrav": "access requests",
     "month": "Month"
   },
-  "routing": {
-    "root": {
-      "search": "search",
-      "about": "about",
-      "privacy": "privacy",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "case",
-      "moetemappe": "meeting"
-    }
-  },
   "common": {
     "publishedAt": "Published",
     "updatedAt": "Updated",

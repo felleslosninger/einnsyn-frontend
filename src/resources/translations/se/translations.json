@@ -175,19 +175,6 @@
     "innsynskrav": "innsynskrav",
     "month": "Måned"
   },
-  "routing": {
-    "root": {
-      "search": "oza",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "ášši",
-      "moetemappe": "čoahkkin"
-    }
-  },
   "common": {
     "publishedAt": "Almmuhuvvon",
     "updatedAt": "Beaiváduvvon",

@@ -12,11 +12,8 @@ import { useNavigation } from '~/components/NavigationProvider/NavigationProvide
 import { SearchField } from '~/components/SearchField/SearchField';
 import { useScrollState } from '~/hooks/useScrollState';
 import type { TrimmedEnhet } from '~/lib/enhet/enhet';
-import {
-  getSection,
-  type Section,
-  showsSearchField,
-} from '~/lib/routing/sections';
+import { resolvePath } from '~/lib/routing/pathname';
+import { showsSearchField } from '~/lib/routing/sections';
 import { animationFrame } from '~/lib/utils/animationFrame';
 import cn from '~/lib/utils/className';
 import { EASE_IN_OUT_QUART, EASE_OUT_QUART } from '~/lib/utils/cssConstants';
@@ -37,10 +34,12 @@ export default function Header({
   initialEnhets?: readonly TrimmedEnhet[];
 }) {
   const { loading, optimisticPathname } = useNavigation();
-  // Canonical, so it does not depend on which language the URL is spelled in:
-  // `/oslo/case/abc` and `/oslo/sak/abc` are both the `saksmappe` section.
-  const section = getSection(optimisticPathname);
-  const isHome = section === 'home';
+  // Which second row the page gets: one per root folder, and below an enhet one
+  // per case or meeting folder. In folder names, so `/oslo/case/abc` and
+  // `/oslo/sak/abc` are both `saksmappe`.
+  const [folder = '', subfolder] = resolvePath(optimisticPathname);
+  const section = folder === '[enhet]' ? (subfolder ?? folder) : folder;
+  const isHome = section === '';
   const hasSearchField = showsSearchField(optimisticPathname);
 
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
@@ -51,8 +50,8 @@ export default function Header({
   const headerRef = useRef<HTMLElement>(null);
   const previousSectionRef = useRef(section);
   const activeRouteTransitionRef = useRef<{
-    fromSection: Section;
-    toSection: Section;
+    fromSection: string;
+    toSection: string;
   } | null>(null);
 
   if (previousSectionRef.current !== section) {
@@ -72,10 +71,10 @@ export default function Header({
     loading &&
     !(
       activeRouteTransition &&
-      ((activeRouteTransition.fromSection === 'home' &&
+      ((activeRouteTransition.fromSection === '' &&
         activeRouteTransition.toSection === 'search') ||
         (activeRouteTransition.fromSection === 'search' &&
-          activeRouteTransition.toSection === 'home'))
+          activeRouteTransition.toSection === ''))
     );
 
   // Keep the in-flow header height measured, so the wrapper can hold it as soon
@@ -138,7 +137,8 @@ export default function Header({
     setFlowHeight(headerHeight);
   }
 
-  const className = cn(styles.header, `section-${section}`, {
+  const className = cn(styles.header, {
+    'section-home': isHome,
     [styles.scrolled]: !isHome && isScrollingDown,
     [styles.stuck]: stuck,
   });
