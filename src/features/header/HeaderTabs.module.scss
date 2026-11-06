@@ -65,6 +65,10 @@ $underline-color: color-mix(in oklab,
   transition-duration: 0.3s;
   transition-timing-function: fx.$easeOut;
 
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
   .tabs:not(:has(> [aria-current]))>& {
     display: none;
   }
