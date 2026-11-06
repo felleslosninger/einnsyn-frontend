@@ -48,7 +48,7 @@ export function toggleParamListValue(
   if (isIncluded) {
     values.add(value);
   } else {
-    values.delete(value);
+    values.delete(value.trim());
   }
   return serializeParamList([...values], { sort: true }) || undefined;
 }
