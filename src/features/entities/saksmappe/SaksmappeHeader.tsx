@@ -13,7 +13,7 @@ import {
   getName,
   type TrimmedEnhet,
 } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import styles from './SaksmappeHeader.module.scss';
 
@@ -48,9 +48,10 @@ export default function SaksmappeHeader({
   if (isEnhet(enhet)) {
     const enhetLink = (node: TrimmedEnhet) => (
       <EinLink
-        href={buildPathname(
-          { enhetIdentifier: getEnhetIdentifier(node) },
+        href={toLocalizedPath(
           languageCode,
+          '/[enhet]',
+          getEnhetIdentifier(node),
         )}
       >
         {getName(node, languageCode)}

@@ -1,5 +1,5 @@
 import { Saksmappe } from '~/features/entities';
-import { parsePathname } from '~/lib/routing/pathname';
+import { matchPath } from '~/lib/routing/pathname';
 import { getRequestPathname } from '~/lib/routing/requestPath.server';
 
 // The saksmappe page is rendered from a layout rather than a page so that
@@ -18,7 +18,10 @@ export default async function SaksmappeLayout({
     params,
     getRequestPathname(),
   ]);
-  const journalpostIdentifier = parsePathname(pathname)?.journalpostIdentifier;
+  const journalpostIdentifier = matchPath(
+    pathname,
+    '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
+  )?.[2];
 
   return (
     <Saksmappe

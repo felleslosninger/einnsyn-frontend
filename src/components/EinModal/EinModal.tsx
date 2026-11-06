@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -16,7 +17,6 @@ import {
 import { createPortal } from 'react-dom';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useDraggable } from '~/hooks/useDraggable';
-import { useModalBasepath } from '~/hooks/useModalBasepath';
 import { useScrollwheelTrap } from '~/hooks/useScrollwheelTrap';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -25,7 +25,7 @@ import type { EinTransitionEvents } from '../EinTransition/EinTransition';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
 import styles from './EinModal.module.scss';
 
-type EinModalContextValue = { close: () => void };
+type EinModalContextValue = { close: () => void; titleId: string };
 const EinModalContext = createContext<EinModalContextValue | null>(null);
 
 type EinModalProps = Readonly<{
@@ -65,7 +65,6 @@ export default function EinModal({
   transitionEvents: transitionEventsProp,
 }: EinModalProps) {
   const navigation = useNavigation();
-  const basepath = useModalBasepath();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   // Update portal target for client-side rendering
@@ -79,14 +78,17 @@ export default function EinModal({
     onClose?.();
     if (setOpen) {
       setOpen(false);
-    } else if (basepath !== navigation.pathname) {
-      // Route-driven callers (intercepted route segments) rely on navigation
-      // back to the basepath instead of a setter.
-      navigation.push(basepath);
+    } else {
+      // Route-driven modals (app/@modal) close through the history.
+      navigation.closeModal();
     }
-  }, [onClose, setOpen, basepath, navigation]);
+  }, [onClose, setOpen, navigation]);
 
-  const contextValue = useMemo(() => ({ close: closeModal }), [closeModal]);
+  const titleId = useId();
+  const contextValue = useMemo(
+    () => ({ close: closeModal, titleId }),
+    [closeModal, titleId],
+  );
   const isMobileLayout = useBreakpoint('SM');
   const backupContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = containerRefProp ?? backupContainerRef;
@@ -224,11 +226,36 @@ export default function EinModal({
     };
   }, [open, containerRef]);
 
+  // Make the page behind the modal inert. A layout effect, so the cleanup runs
+  // before EinPopup's restoreFocus, which can't focus an inert trigger.
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!open || !portalTarget || !container) {
+      return;
+    }
+    const background = Array.from(portalTarget.children).filter(
+      (el): el is HTMLElement =>
+        el instanceof HTMLElement && el !== container && !el.inert,
+    );
+    for (const el of background) el.inert = true;
+    return () => {
+      for (const el of background) el.inert = false;
+    };
+  }, [open, portalTarget, containerRef]);
+
   const popup = (
     <EinPopup
       open={open}
       setOpen={(value) => !value && closeModal()}
       animate
+      autoFocus
+      restoreFocus
+      trapFocus={false}
+      contentProps={{
+        role: 'dialog',
+        'aria-modal': true,
+        'aria-labelledby': titleId,
+      }}
       unstyled
       arrow={false}
       className={cn(className, styles.einModalContainer, 'ein-modal-container')}
@@ -266,7 +293,7 @@ export function EinModalHeader({
   children,
 }: EinModalHeaderProps) {
   const t = useTranslation();
-  const basepath = useModalBasepath();
+  const { href } = useNavigation();
   const einModal = useContext(EinModalContext);
   const isMobileLayout = useBreakpoint('SM');
 
@@ -278,11 +305,11 @@ export function EinModalHeader({
   return (
     <div className={cn(className, styles.einModalHeader, 'ein-modal-header')}>
       {children ?? (
-        <h1 className="ds-heading" data-size="md">
+        <h1 id={einModal?.titleId} className="ds-heading" data-size="md">
           {title}
         </h1>
       )}
-      <form method="get" action={basepath} onSubmit={closeHandler}>
+      <form method="get" action={href} onSubmit={closeHandler}>
         {isMobileLayout ? (
           <Button
             type="submit"

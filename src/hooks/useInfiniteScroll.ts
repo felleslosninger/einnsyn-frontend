@@ -49,7 +49,8 @@ export function useInfiniteScroll<T extends Base>(
     loadingPrevRef.current = true;
     setShift(true);
     try {
-      setPage(await fetchPreviousPage(current));
+      const extended = await fetchPreviousPage(current);
+      setPage((latest) => mergeWindow(latest, extended));
     } finally {
       loadingPrevRef.current = false;
     }
@@ -61,7 +62,8 @@ export function useInfiniteScroll<T extends Base>(
     loadingNextRef.current = true;
     setShift(false);
     try {
-      setPage(await fetchNextPage(current));
+      const extended = await fetchNextPage(current);
+      setPage((latest) => mergeWindow(latest, extended));
     } finally {
       loadingNextRef.current = false;
     }

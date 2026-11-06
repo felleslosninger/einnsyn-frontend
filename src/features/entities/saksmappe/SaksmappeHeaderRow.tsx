@@ -6,7 +6,7 @@ import HeaderBreadcrumbs, {
   type BreadcrumbItem,
 } from '~/features/header/HeaderBreadcrumbs';
 import { getAncestors, getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
 import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
@@ -34,9 +34,10 @@ export default async function SaksmappeHeaderRow({
   const items: BreadcrumbItem[] = isEnhet(leafEnhet)
     ? [...getAncestors(leafEnhet), leafEnhet].map((enhet) => ({
         label: getName(enhet, languageCode),
-        href: buildPathname(
-          { enhetIdentifier: getEnhetIdentifier(enhet) },
+        href: toLocalizedPath(
           languageCode,
+          '/[enhet]',
+          getEnhetIdentifier(enhet),
         ),
       }))
     : [];

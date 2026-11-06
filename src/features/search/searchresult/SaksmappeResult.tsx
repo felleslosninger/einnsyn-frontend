@@ -3,7 +3,7 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { generateSaksmappeURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
@@ -45,9 +45,10 @@ export default function SaksmappeResult({
         {isEnhet(enhet) && (
           <div className={styles.searchResultEnhet}>
             <EinLink
-              href={buildPathname(
-                { enhetIdentifier: getEnhetIdentifier(enhet) },
+              href={toLocalizedPath(
                 languageCode,
+                '/[enhet]',
+                getEnhetIdentifier(enhet),
               )}
             >
               {getName(enhet, languageCode)}

@@ -1,13 +1,9 @@
 import EntityKind from '~/features/entities/common/EntityKind';
 import EntityPageLayout from '~/features/entities/common/EntityPageLayout';
-import {
-  getJournalpostWindow,
-  LIST_EXPAND,
-} from '~/features/entities/journalpost/journalpost.server';
+import { getJournalpostWindow } from '~/features/entities/journalpost/journalpost.server';
 import JournalpostList from '~/features/entities/saksmappe/JournalpostList';
 import SaksmappeHeader from '~/features/entities/saksmappe/SaksmappeHeader';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
-import { cachedApiClient } from '~/lib/api/api.server';
 
 /**
  * A saksmappe page: its header in the shared entity layout's sidebar, with
@@ -26,17 +22,9 @@ export default async function Saksmappe({
   activeJournalpost?: string;
   children: React.ReactNode;
 }) {
-  const apiClient = await cachedApiClient();
   const [saksmappe, journalposts] = await Promise.all([
     getSaksmappe(saksmappeId),
-    activeJournalpost
-      ? getJournalpostWindow(saksmappeId, activeJournalpost)
-      : apiClient.saksmappe.listJournalpost(saksmappeId, {
-          sortOrder: 'desc',
-          id: '',
-          saksmappeId: '',
-          expand: LIST_EXPAND,
-        }),
+    getJournalpostWindow(saksmappeId, activeJournalpost),
   ]);
 
   return (

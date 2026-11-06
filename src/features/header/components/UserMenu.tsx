@@ -1,7 +1,7 @@
 'use client';
 
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
-import { cloneElement, useState } from 'react';
+import { cloneElement, type Ref, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
@@ -51,6 +51,7 @@ type DropdownButtonProps = {
   authInfo: ExtendedAuthInfo;
   onClick?: () => void;
   'aria-expanded'?: boolean;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 type DropdownContentProps = {
@@ -61,12 +62,14 @@ export function BrukerMenuButton({
   authInfo,
   onClick,
   'aria-expanded': ariaExpanded,
+  ref,
 }: DropdownButtonProps) {
   const t = useTranslation();
   const { email } = authInfo;
 
   return (
     <EinButton
+      ref={ref}
       onClick={onClick}
       aria-expanded={ariaExpanded}
       variant="tertiary"
@@ -120,11 +123,13 @@ export function EnhetMenuButton({
   authInfo,
   onClick,
   'aria-expanded': ariaExpanded,
+  ref,
 }: DropdownButtonProps) {
   const t = useTranslation();
   const orgnummer = authInfo.orgnummer;
   return (
     <EinButton
+      ref={ref}
       onClick={onClick}
       aria-expanded={ariaExpanded}
       variant="secondary"
@@ -193,9 +198,11 @@ export function Dropdown({
   label?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const toggleDropdown = () => setOpen(!open);
 
   const buttonWithClickHandler = cloneElement(button, {
+    ref: buttonRef,
     onClick: toggleDropdown,
     'aria-expanded': open,
   });
@@ -218,6 +225,7 @@ export function Dropdown({
     >
       {buttonWithClickHandler}
       <EinPopup
+        anchorRef={buttonRef}
         open={open}
         setOpen={setOpen}
         autoFocus

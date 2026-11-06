@@ -9,7 +9,7 @@ import type {
 import { useCallback } from 'react';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { getEnhetIdentifier } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import type { LanguageCode } from '~/lib/translation/translation';
 
 // The identifier a reference contributes to a URL: the entity's slug, or its
@@ -24,19 +24,25 @@ function enhetIdentifier(enhet: Enhet | string): string {
   return typeof enhet === 'string' ? enhet : getEnhetIdentifier(enhet);
 }
 
-/** The identifiers of a saksmappe's route, as {@link buildPathname} takes them. */
-export function getSaksmappeRoute(saksmappe: Saksmappe) {
-  return {
-    enhetIdentifier: enhetIdentifier(saksmappe.administrativEnhetObjekt),
-    saksmappeIdentifier: identifier(saksmappe),
-  };
+/** The values of a saksmappe's route, as {@link toLocalizedPath} takes them. */
+export function getSaksmappeRoute(
+  saksmappe: Saksmappe,
+): [enhet: string, saksmappe: string] {
+  return [
+    enhetIdentifier(saksmappe.administrativEnhetObjekt),
+    identifier(saksmappe),
+  ];
 }
 
 export function generateSaksmappeURL(
   saksmappe: Saksmappe,
   languageCode: LanguageCode,
 ): string {
-  return buildPathname(getSaksmappeRoute(saksmappe), languageCode);
+  return toLocalizedPath(
+    languageCode,
+    '/[enhet]/saksmappe/[saksmappe]',
+    ...getSaksmappeRoute(saksmappe),
+  );
 }
 
 /**
@@ -52,13 +58,12 @@ export function generateJournalpostURL(
     return '';
   }
 
-  return buildPathname(
-    {
-      enhetIdentifier: enhetIdentifier(enhet),
-      saksmappeIdentifier: identifier(saksmappe),
-      journalpostIdentifier: identifier(journalpost),
-    },
+  return toLocalizedPath(
     languageCode,
+    '/[enhet]/saksmappe/[saksmappe]/[journalpost]',
+    enhetIdentifier(enhet),
+    identifier(saksmappe),
+    identifier(journalpost),
   );
 }
 
@@ -66,12 +71,11 @@ export function generateMoetemappeURL(
   moetemappe: Moetemappe,
   languageCode: LanguageCode,
 ): string {
-  return buildPathname(
-    {
-      enhetIdentifier: enhetIdentifier(moetemappe.utvalgObjekt),
-      moetemappeIdentifier: identifier(moetemappe),
-    },
+  return toLocalizedPath(
     languageCode,
+    '/[enhet]/moetemappe/[moetemappe]',
+    enhetIdentifier(moetemappe.utvalgObjekt),
+    identifier(moetemappe),
   );
 }
 
@@ -84,13 +88,12 @@ export function generateMoetesakURL(
     return '';
   }
 
-  return buildPathname(
-    {
-      enhetIdentifier: enhetIdentifier(moetesak.utvalgObjekt),
-      moetemappeIdentifier: identifier(moetesak.moetemappe),
-      moetesakIdentifier: identifier(moetesak),
-    },
+  return toLocalizedPath(
     languageCode,
+    '/[enhet]/moetemappe/[moetemappe]/[moetesak]',
+    enhetIdentifier(moetesak.utvalgObjekt),
+    identifier(moetesak.moetemappe),
+    identifier(moetesak),
   );
 }
 

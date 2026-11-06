@@ -13,10 +13,10 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '~/hooks/useFocusTrap';
+import { useHydrated } from '~/hooks/useHydrated';
 import { useOnOutsideClick } from '~/hooks/useOnOutsideClick';
 import {
   calculatePopupPosition,
@@ -252,10 +252,16 @@ export default function EinPopup(props: EinPopupProps) {
     }
   }, [open, popupRef, updatePopupPosition]);
 
-  // Update popup position when it becomes visible
+  // Update popup position when it becomes visible. updatePopupPosition skips
+  // non-absolute popups (EinModal), so don't hide those.
   useLayoutEffect(() => {
     const popupElement = popupRef.current;
-    if (open && popupElement && domIsHidden(popupElement)) {
+    if (
+      open &&
+      popupElement &&
+      domIsHidden(popupElement) &&
+      getComputedStyle(popupElement).position === 'absolute'
+    ) {
       popupElement.style.visibility = 'hidden';
       const observer = new IntersectionObserver(
         ([entry]) => {
@@ -279,8 +285,20 @@ export default function EinPopup(props: EinPopupProps) {
   const events: EinTransitionEvents = useMemo(
     () => ({
       onInitEnterTransition: () => updatePopupPosition(),
+      ...transitionEvents,
+      onEnterTransition: (element, toDeps, fromDeps) => {
+        // Fresh animated content was display:none when the opening effect ran.
+        // It is visible now, so autofocus can succeed.
+        if (
+          autoFocus &&
+          !contentRef.current?.contains(document.activeElement)
+        ) {
+          contentRef.current?.focus({ preventScroll: true });
+        }
+        return transitionEvents?.onEnterTransition?.(element, toDeps, fromDeps);
+      },
     }),
-    [updatePopupPosition],
+    [updatePopupPosition, autoFocus, transitionEvents],
   );
 
   // Close on esc
@@ -358,19 +376,14 @@ export default function EinPopup(props: EinPopupProps) {
     </div>
   ) : null;
 
-  // Resolved in an effect, so the server and first client render agree.
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setPortalTarget(portal ? document.body : null);
-  }, [portal]);
+  // A popup mounted after hydration is in the DOM from its first render, as
+  // the effects that run on opening expect.
+  const hydrated = useHydrated();
+  const portalTarget = portal && hydrated ? document.body : null;
 
   // Wrap in EinTransition if we're animating
   const popup = animate ? (
-    <EinTransition
-      dependencies={[open]}
-      withClassNames
-      events={{ ...events, ...transitionEvents }}
-    >
+    <EinTransition dependencies={[open]} withClassNames events={events}>
       {content}
     </EinTransition>
   ) : (
