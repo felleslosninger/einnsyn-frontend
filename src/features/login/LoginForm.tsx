@@ -15,24 +15,26 @@ import { EinInput } from '~/components/EinInput/EinInput';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
   eInnsynLoginAction,
   registerAction,
   requestPasswordResetAction,
 } from '~/lib/auth/auth.actions';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { validatePassword } from '~/lib/utils/validators';
 import styles from './LoginForm.module.scss';
 
 export type FormStateType = 'idle' | 'error' | 'submitting';
 
-export type LoginFormMode = 'login' | 'forgottenPassword' | 'register';
+export type LoginFormMode = 'login' | 'register' | 'forgotten-password';
 
 /** Each step's name, on its submit button and as the modal's title. */
 export const stepNames: Record<LoginFormMode, string> = {
   login: 'site.login',
-  forgottenPassword: 'site.resetPassword',
+  'forgotten-password': 'site.resetPassword',
   register: 'site.createAccount',
 };
 
@@ -53,6 +55,7 @@ export default function LoginForm({
   mode?: LoginFormMode;
 }) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   const { settings } = useSessionData();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -105,7 +108,7 @@ export default function LoginForm({
   useEffect(() => {
     if (resetState.sent || resetState.error) {
       setNotice({
-        mode: 'forgottenPassword',
+        mode: 'forgotten-password',
         color: resetState.sent ? 'success' : 'danger',
         message: resetState.sent
           ? 'site.resetPasswordSent'
@@ -191,7 +194,7 @@ export default function LoginForm({
 
   const formAction = {
     login: loginAction,
-    forgottenPassword: resetAction,
+    'forgotten-password': resetAction,
     register: registerFormAction,
   }[mode];
 
@@ -277,7 +280,7 @@ export default function LoginForm({
           />
           <EinLink
             ref={forgotPasswordLink}
-            href="/login/forgotten-password"
+            href={toLocalizedPath(languageCode, '/login/forgotten-password')}
             className={styles.forgotPasswordLink}
           >
             {t('site.forgottenPassword')}
@@ -296,7 +299,10 @@ export default function LoginForm({
             className={styles.backToLogin}
             contentClassName={styles.backToLoginContent}
           >
-            <EinLink ref={backToLoginLink} href="/login">
+            <EinLink
+              ref={backToLoginLink}
+              href={toLocalizedPath(languageCode, '/login')}
+            >
               {t('site.backToLogin')}
             </EinLink>
           </EinExpandable>

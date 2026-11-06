@@ -1,7 +1,7 @@
 'use client';
 
 import { CogIcon, MonitorIcon, MoonIcon, SunIcon } from '@navikt/aksel-icons';
-import { cloneElement, useState } from 'react';
+import { cloneElement, type Ref, useRef, useState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
@@ -22,17 +22,19 @@ export default function SettingsButton() {
 
 type DropdownButtonProps = {
   onClick?: () => void;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 type DropdownContentProps = {
   settings: Settings;
 };
 
-export function SettingsMenuButton({ onClick }: DropdownButtonProps) {
+export function SettingsMenuButton({ onClick, ref }: DropdownButtonProps) {
   const t = useTranslation();
 
   return (
     <EinButton
+      ref={ref}
       onClick={onClick}
       variant="tertiary"
       data-color="neutral"
@@ -146,16 +148,18 @@ export function Dropdown({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const toggleDropdown = () => setOpen(!open);
 
   const buttonWithClickHandler = cloneElement(button, {
+    ref: buttonRef,
     onClick: toggleDropdown,
   });
 
   return (
     <div className="header-dropdown">
       {buttonWithClickHandler}
-      <EinPopup open={open} setOpen={setOpen}>
+      <EinPopup anchorRef={buttonRef} open={open} setOpen={setOpen}>
         {children}
       </EinPopup>
     </div>

@@ -170,21 +170,6 @@
     "innsynskrav": "innsynskrav",
     "month": "Månad"
   },
-  "routing": {
-    "root": {
-      "search": "søk",
-      "about": "om",
-      "privacy": "personvern",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "sak",
-      "moetemappe": "moete"
-    }
-  },
   "common": {
     "publishedAt": "Publisert",
     "updatedAt": "Oppdatert",
