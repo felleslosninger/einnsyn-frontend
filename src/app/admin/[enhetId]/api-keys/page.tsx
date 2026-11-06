@@ -2,7 +2,12 @@ import { notFound } from 'next/navigation';
 import { cachedApiClient } from '~/lib/api/api.server';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
 import { logger } from '~/lib/utils/logger';
+import { translatedTitleMetadata } from '~/lib/utils/translatedTitleMetadata.server';
 import ApiKeys from '../../../../features/admin/api-keys/ApiKeys';
+
+export const generateMetadata = translatedTitleMetadata(
+  'admin.apiKey.labelPlural',
+);
 
 export default async function ApiKeysPage({
   params,
