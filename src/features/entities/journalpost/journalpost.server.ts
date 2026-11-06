@@ -1,6 +1,10 @@
 import 'server-only';
 
-import type { Journalpost, PaginatedList } from '@digdir/einnsyn-sdk';
+import {
+  EInnsynError,
+  type Journalpost,
+  type PaginatedList,
+} from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
 import { cachedApiClient } from '~/lib/api/api.server';
 
@@ -34,15 +38,15 @@ export async function getJournalpost(
   return fetchJournalpostDetail(journalpostId);
 }
 
-// Initial server-side window for a deep link to a specific journalpost: a page
-// of items on each side of `active`, with `active` in the middle. The client
-// scrolls the (independently scrollable) list to `active` on mount, so it lands
-// at the top of the list with the earlier items preloaded just above it (ready
-// for the detail pane's "previous" navigation and for scrolling up), and either
-// edge extends as the user scrolls.
+// Initial server-side window: the newest page, or for a deep link to a specific
+// journalpost a page of items on each side of `active`, with `active` in the
+// middle. The client scrolls the (independently scrollable) list to `active` on
+// mount, so it lands at the top of the list with the earlier items preloaded
+// just above it (ready for the detail pane's "previous" navigation and for
+// scrolling up), and either edge extends as the user scrolls.
 export async function getJournalpostWindow(
   saksmappeId: string,
-  journalpostId: string,
+  journalpostId: string | undefined,
   pageSize = 25,
 ): Promise<PaginatedList<Journalpost>> {
   const apiClient = await cachedApiClient();
@@ -52,7 +56,23 @@ export async function getJournalpostWindow(
   // fetchJournalpostDetail is cached per request, so it's better to use
   // detail-expansions than not expanding, so we can re-use the cached result
   // for the active item.
-  const active = await fetchJournalpostDetail(journalpostId);
+  const active = journalpostId
+    ? await fetchJournalpostDetail(journalpostId).catch((error: unknown) => {
+        // One that fails to load leaves the list valid. Only API errors:
+        // Next's control-flow errors must propagate.
+        if (error instanceof EInnsynError) return undefined;
+        throw error;
+      })
+    : undefined;
+
+  if (!active) {
+    return apiClient.saksmappe.listJournalpost(saksmappeId, {
+      sortOrder: 'desc',
+      id: '',
+      saksmappeId: '',
+      expand: LIST_EXPAND,
+    });
+  }
 
   const [before, after] = await Promise.all([
     apiClient.saksmappe.listJournalpost(saksmappeId, {
