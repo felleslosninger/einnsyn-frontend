@@ -171,7 +171,7 @@ export function DateFilter({
       >
         <div className={styles.dateField}>
           <label className={styles.dateLabel}>
-            <span>From</span>
+            <span>{t('common.fromDate')}</span>
             <input
               type="date"
               className={cn(styles.dateInput)}
@@ -184,7 +184,7 @@ export function DateFilter({
 
         <div className={styles.dateField}>
           <label className={styles.dateLabel}>
-            <span>To</span>
+            <span>{t('common.toDate')}</span>
             <input
               type="date"
               className={styles.dateInput}
