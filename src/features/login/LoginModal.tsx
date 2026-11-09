@@ -1,7 +1,7 @@
 'use client';
 
 import { PersonPlusIcon } from '@navikt/aksel-icons';
-import { useSelectedLayoutSegments } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import type { ComponentType, ReactNode, SVGProps } from 'react';
 import DigdirIcon from '~/components/DigdirIcon';
 import { EinExpandable } from '~/components/EinExpandable/EinExpandable';
@@ -11,7 +11,9 @@ import {
   EinModalFooter,
   EinModalHeader,
 } from '~/components/EinModal/EinModal';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { matchPath, toLocalizedPath } from '~/lib/routing/pathname';
 import { AnsattportenLoginButton } from './AnsattportenLoginButton';
 import LoginForm, { type LoginFormMode, stepNames } from './LoginForm';
 import styles from './LoginModal.module.scss';
@@ -23,11 +25,12 @@ import styles from './LoginModal.module.scss';
  */
 export default function LoginModal({ children }: { children: ReactNode }) {
   const t = useTranslation();
-  const segments = useSelectedLayoutSegments();
-  const mode: LoginFormMode = segments.includes('forgotten-password')
-    ? 'forgottenPassword'
-    : segments.includes('register')
-      ? 'register'
+  const languageCode = useLanguageCode();
+  const pathname = usePathname();
+  const mode: LoginFormMode = matchPath(pathname, '/login/register')
+    ? 'register'
+    : matchPath(pathname, '/login/forgotten-password')
+      ? 'forgotten-password'
       : 'login';
 
   return (
@@ -42,7 +45,7 @@ export default function LoginModal({ children }: { children: ReactNode }) {
           {/* The footer lines its children up in a row; these go in a column */}
           <div className={styles.footerOptions}>
             <LoginOption icon={PersonPlusIcon} prompt={t('site.noAccount')}>
-              <EinLink href="/login/register">
+              <EinLink href={toLocalizedPath(languageCode, '/login/register')}>
                 {t('site.createAccount')}
               </EinLink>
             </LoginOption>

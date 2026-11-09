@@ -122,19 +122,6 @@
     "saveSearchMissingLabel": "Atte ohcamii nama",
     "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
-  "routing": {
-    "root": {
-      "search": "oza",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "ášši",
-      "moetemappe": "čoahkkin"
-    }
-  },
   "common": {
     "publishedAt": "Almmuhuvvon",
     "updatedAt": "Beaiváduvvon",

@@ -55,11 +55,8 @@ export default function SearchTabs() {
           key={entity}
           href={searchHref({ entity })}
           active={activeEntity === entity}
+          dotClassName={cn(resultStyles.searchResultDot, dotClassName)}
         >
-          <span
-            className={cn(resultStyles.searchResultDot, dotClassName)}
-            aria-hidden="true"
-          />
           {t(labelKey)}
         </HeaderTab>
       ))}
