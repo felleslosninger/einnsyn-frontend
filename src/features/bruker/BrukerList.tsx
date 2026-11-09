@@ -30,7 +30,7 @@ import SaksmappeResult from '~/features/search/searchresult/SaksmappeResult';
 import { SearchResultSkeleton } from '~/features/search/searchresult/SearchResultSkeleton';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import { fetchNextPage } from '~/lib/utils/pagination';
@@ -249,7 +249,7 @@ function BrukerListItem({
             <h2 className={cn('ds-heading', styles.title)}>
               <EinLink
                 href={savedSearchHref(
-                  buildPathname({ page: 'search' }, languageCode),
+                  toLocalizedPath(languageCode, '/search'),
                   item.searchParameters,
                 )}
               >
