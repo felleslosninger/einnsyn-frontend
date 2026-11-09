@@ -4,6 +4,7 @@ import {
   EInnsynError,
   type Journalpost,
   type PaginatedList,
+  type SearchParameters,
 } from '@digdir/einnsyn-sdk';
 import { cache } from 'react';
 import { cachedApiClient } from '~/lib/api/api.server';
@@ -38,7 +39,25 @@ export async function getJournalpost(
   return fetchJournalpostDetail(journalpostId);
 }
 
-// Initial server-side window: the newest page, or for a deep link to a specific
+// A saksmappe's journalposts via /search, the only endpoint that sorts by a
+// property (the saksmappe's own list sorts by id).
+async function searchJournalposts(
+  saksmappeId: string,
+  parameters: SearchParameters,
+): Promise<PaginatedList<Journalpost>> {
+  const apiClient = await cachedApiClient();
+  const page = await apiClient.search.search({
+    saksmappe: [saksmappeId],
+    entity: ['Journalpost'],
+    sortBy: 'journalpostnummer',
+    sortOrder: 'desc',
+    expand: LIST_EXPAND,
+    ...parameters,
+  });
+  return page as PaginatedList<Journalpost>;
+}
+
+// Initial server-side window: the first page, or for a deep link to a specific
 // journalpost a page of items on each side of `active`, with `active` in the
 // middle. The client scrolls the (independently scrollable) list to `active` on
 // mount, so it lands at the top of the list with the earlier items preloaded
@@ -49,13 +68,9 @@ export async function getJournalpostWindow(
   journalpostId: string | undefined,
   pageSize = 25,
 ): Promise<PaginatedList<Journalpost>> {
-  const apiClient = await cachedApiClient();
-
-  // The URL param can be a slug; cursor params (endingBefore / startingAfter)
-  // only behave correctly with the canonical id. Resolve via .get first.
-  // fetchJournalpostDetail is cached per request, so it's better to use
-  // detail-expansions than not expanding, so we can re-use the cached result
-  // for the active item.
+  // The cursor needs the active journalpost's sort value and canonical id (the
+  // URL param can be a slug), so fetch it first. Use the detail expand, so the
+  // detail page can reuse the request-cached result.
   const active = journalpostId
     ? await fetchJournalpostDetail(journalpostId).catch((error: unknown) => {
         // One that fails to load leaves the list valid. Only API errors:
@@ -66,31 +81,14 @@ export async function getJournalpostWindow(
     : undefined;
 
   if (!active) {
-    return apiClient.saksmappe.listJournalpost(saksmappeId, {
-      sortOrder: 'desc',
-      id: '',
-      saksmappeId: '',
-      expand: LIST_EXPAND,
-    });
+    return searchJournalposts(saksmappeId, { limit: pageSize });
   }
 
+  // A /search cursor is [sort value, id].
+  const cursor = [String(active.journalpostnummer), active.id];
   const [before, after] = await Promise.all([
-    apiClient.saksmappe.listJournalpost(saksmappeId, {
-      sortOrder: 'desc',
-      id: '',
-      saksmappeId: '',
-      endingBefore: active.id,
-      limit: pageSize,
-      expand: LIST_EXPAND,
-    }),
-    apiClient.saksmappe.listJournalpost(saksmappeId, {
-      sortOrder: 'desc',
-      id: '',
-      saksmappeId: '',
-      startingAfter: active.id,
-      limit: pageSize,
-      expand: LIST_EXPAND,
-    }),
+    searchJournalposts(saksmappeId, { endingBefore: cursor, limit: pageSize }),
+    searchJournalposts(saksmappeId, { startingAfter: cursor, limit: pageSize }),
   ]);
 
   return {
