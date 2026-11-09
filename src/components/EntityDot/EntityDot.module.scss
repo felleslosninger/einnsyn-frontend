@@ -1,0 +1,25 @@
+// The dot's color is its `color`, whether it is a ring or filled.
+.dot {
+  --ein-entity-dot-size: 11px;
+
+  display: inline-block;
+  flex: none;
+  width: var(--ein-entity-dot-size);
+  height: var(--ein-entity-dot-size);
+  border: 2px solid currentColor;
+  border-radius: var(--ds-border-radius-full);
+}
+
+// Smaller than a ring but in the same box, so labels line up in a mixed list.
+.filled {
+  border: 1px solid transparent;
+  background: padding-box currentColor;
+}
+
+.sak {
+  color: var(--ds-color-support-color-4-base-primary);
+}
+
+.moete {
+  color: var(--ds-color-support-color-3-base-primary);
+}
