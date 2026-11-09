@@ -1,8 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { matchPath } from '~/lib/routing/pathname';
 import { getRequestPathname } from '~/lib/routing/requestPath.server';
-import { getSection } from '~/lib/routing/sections';
 import { startAnsattportenLogin } from './ansattporten.server';
 import type { LoginState, PasswordResetState, RegisterState } from './auth';
 import { endSession } from './auth.server';
@@ -49,10 +49,10 @@ export async function registerAction(
 
 /** `<form action>` on the log out button. */
 export async function logoutAction(): Promise<void> {
-  const section = getSection(await getRequestPathname());
+  const pathname = await getRequestPathname();
   await endSession();
   // Logged out, these pages would only ask the user to log in again.
-  if (section === 'bruker' || section === 'admin') {
+  if (matchPath(pathname, '/bruker') || matchPath(pathname, '/admin')) {
     redirect('/');
   }
 }
