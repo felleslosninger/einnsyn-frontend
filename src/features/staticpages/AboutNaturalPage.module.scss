@@ -1,0 +1,197 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-30);
+  padding-block: var(--ds-size-10) var(--ds-size-30);
+
+  @include mq.small {
+    gap: var(--ds-size-22);
+  }
+}
+
+.hero,
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ds-size-4);
+}
+
+.eyebrow {
+  color: var(--ds-color-neutral-text-subtle);
+  font-size: var(--ds-font-size-2);
+}
+
+.title {
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  max-width: 18ch;
+}
+
+.lead {
+  max-width: 48ch;
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.muted {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-4) var(--ds-size-6);
+  margin-block-start: var(--ds-size-6);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
+.plainLink {
+  text-decoration: none;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ds-size-5);
+  align-self: stretch;
+
+  @media (max-width: 1299px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  --dsc-card-padding: var(--ds-size-5);
+  --dsc-card-border-color: var(--ds-color-neutral-surface-active);
+  --dsc-card-border-radius: var(--ds-border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  height: var(--ds-size-30);
+  margin-block-end: var(--ds-size-4);
+  border-radius: var(--ds-border-radius-sm);
+  background: var(--ds-color-neutral-background-tinted);
+}
+
+.tileIcon {
+  display: grid;
+  place-items: center;
+  width: var(--ds-size-13);
+  height: var(--ds-size-13);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-color-accent-surface-tinted);
+  color: var(--ds-color-accent-text-subtle);
+  font-size: 2rem;
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  margin-block-start: var(--ds-size-6);
+  padding: var(--ds-size-18) var(--ds-size-5);
+  border-radius: var(--ds-border-radius-lg);
+  background:
+    radial-gradient(120% 90% at 20% 10%, var(--ds-color-accent-surface-tinted), transparent 60%),
+    linear-gradient(160deg, var(--ds-color-accent-background-tinted), var(--ds-color-neutral-background-tinted));
+
+  @include mq.small {
+    padding-block: var(--ds-size-8);
+  }
+}
+
+.floating {
+  --dsc-card-padding: var(--ds-size-6);
+  --dsc-card-border-width: 0;
+  max-width: 42rem;
+  box-shadow: 0 var(--ds-size-2) var(--ds-size-8) rgb(0 0 0 / 0.08);
+
+  >p {
+    text-wrap: pretty;
+  }
+}
+
+.list {
+  --dsc-card-padding: 0;
+  --dsc-card-border-color: var(--ds-color-neutral-surface-active);
+  --dsc-card-border-radius: var(--ds-border-radius-lg);
+  align-self: stretch;
+  margin-block-start: var(--ds-size-6);
+}
+
+.row {
+  --dsc-details-border-color: var(--ds-color-neutral-surface-active);
+  --dsc-details-padding: var(--ds-size-5);
+
+  &:first-child {
+    border-block-start: 0;
+  }
+
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.rowContent {
+  color: var(--ds-color-neutral-text-subtle);
+
+  >*+* {
+    margin-block-start: var(--ds-size-3);
+  }
+}
+
+.contact {
+  --dsc-card-padding: var(--ds-size-5);
+  --dsc-card-border-color: var(--ds-color-neutral-surface-active);
+  --dsc-card-border-radius: var(--ds-border-radius-lg);
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--ds-size-6);
+  align-self: stretch;
+  margin-block-start: var(--ds-size-6);
+
+  @media (max-width: 1299px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.contactText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+  max-width: 52ch;
+}
+
+.contactLinks {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ds-size-4);
+  padding: var(--ds-size-5);
+  border-radius: var(--ds-border-radius-sm);
+  background: var(--ds-color-neutral-background-tinted);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+
+  >svg {
+    flex-shrink: 0;
+    color: var(--ds-color-accent-text-subtle);
+  }
+}

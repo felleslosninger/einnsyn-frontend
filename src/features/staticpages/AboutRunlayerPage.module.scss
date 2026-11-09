@@ -1,0 +1,183 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
+// Below this the two-column rows are too narrow for the long compound words in
+// the headings.
+$stackBelow: 1299px;
+$rule: var(--ds-border-width-default) solid var(--hairline);
+
+.frame {
+  --hairline: var(--ds-color-neutral-surface-active);
+  --pane-inset: var(--ds-size-8);
+  border: $rule;
+  background-color: var(--ds-color-neutral-background-tinted);
+
+  @include mq.small {
+    --pane-inset: var(--ds-size-5);
+    border-inline: 0;
+  }
+}
+
+.rule {
+  --dsc-divider-border-color: var(--hairline);
+  margin-block: 0;
+}
+
+.muted {
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  gap: var(--ds-size-6) var(--ds-size-10);
+  align-items: end;
+  padding: var(--ds-size-26) var(--pane-inset) var(--ds-size-10);
+
+  @media (max-width: $stackBelow) {
+    grid-template-columns: minmax(0, 1fr);
+    padding-block-start: var(--ds-size-18);
+  }
+}
+
+.pageTitle {
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+
+  @include mq.small {
+    font-size: var(--ds-heading-xl-font-size);
+  }
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @media (max-width: $stackBelow) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.feature {
+  --dsc-card-padding: var(--ds-size-10) var(--pane-inset) var(--ds-size-14);
+  --dsc-card-border-width: 0;
+  --dsc-card-border-radius: 0;
+
+  &+& {
+    border-inline-start: $rule;
+
+    @media (max-width: $stackBelow) {
+      border-inline-start: 0;
+      border-block-start: $rule;
+    }
+  }
+}
+
+.iconTile {
+  display: grid;
+  place-items: center;
+  width: var(--ds-size-11);
+  height: var(--ds-size-11);
+  margin-block-end: var(--ds-size-6);
+  border: $rule;
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-color-neutral-surface-default);
+  color: var(--ds-color-accent-text-subtle);
+  font-size: 1.5rem;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+
+  @media (max-width: $stackBelow) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.splitHeading {
+  padding: var(--ds-size-14) var(--pane-inset);
+}
+
+.sectionTitle {
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  overflow-wrap: break-word;
+}
+
+.splitBody,
+.panel {
+  min-width: 0;
+  border-inline-start: $rule;
+
+  @media (max-width: $stackBelow) {
+    border-inline-start: 0;
+    border-block-start: $rule;
+  }
+}
+
+.splitBody {
+  background-color: var(--ds-color-neutral-surface-default);
+}
+
+.panel {
+  --dsc-card-padding: var(--ds-size-14) var(--pane-inset);
+  --dsc-card-border-width: 0;
+  --dsc-card-border-radius: 0;
+
+  >p {
+    max-width: 62ch;
+    text-wrap: pretty;
+  }
+}
+
+.pane {
+  padding: var(--ds-size-14) var(--pane-inset);
+
+  >*+* {
+    margin-block-start: var(--ds-size-3);
+  }
+
+  >p {
+    max-width: 62ch;
+    text-wrap: pretty;
+  }
+}
+
+.row {
+  --dsc-details-border-color: var(--hairline);
+  --dsc-details-padding: var(--ds-size-7) var(--pane-inset);
+  --dsc-details-icon-gap: var(--ds-size-3);
+
+  // The section's Divider closes the last row.
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.rowSummary {
+  font-size: var(--ds-heading-xs-font-size);
+  font-weight: var(--ds-heading-xs-font-weight);
+}
+
+.rowContent {
+  margin: var(--ds-size-6) var(--pane-inset) var(--ds-size-8);
+  color: var(--ds-color-neutral-text-subtle);
+
+  >*+* {
+    margin-block-start: var(--ds-size-3);
+  }
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-3);
+  padding: var(--ds-size-6) var(--pane-inset);
+  border-block-start: $rule;
+  font-size: var(--ds-heading-xs-font-size);
+
+  >svg {
+    flex-shrink: 0;
+    color: var(--ds-color-accent-text-subtle);
+  }
+}
