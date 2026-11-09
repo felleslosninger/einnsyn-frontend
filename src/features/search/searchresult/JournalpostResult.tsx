@@ -40,7 +40,6 @@ export default function JournalpostResult({
       </EinLink>
       <div className={cn('ds-paragraph', styles.searchResultBody)}>
         <SearchResultSubheader
-          variant="journalpost"
           item={item}
           label={translate('journalpost.label')}
         >

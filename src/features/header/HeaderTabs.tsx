@@ -58,9 +58,12 @@ function placeUnderline(tabs: HTMLElement) {
     2 * overhang;
   tabs.style.setProperty('--underline-left', `${left}px`);
   tabs.style.setProperty('--underline-width', `${width}px`);
-  const dot = active.querySelector(':scope > [data-dot]');
+  // HeaderTab renders the dot, if any, right before the label.
+  const dot = active.querySelector(
+    ':scope > [data-label]',
+  )?.previousElementSibling;
   if (dot) {
-    const color = getComputedStyle(dot).backgroundColor;
+    const color = getComputedStyle(dot).color;
     tabs.style.setProperty('--underline-color', color);
   } else {
     tabs.style.removeProperty('--underline-color');
@@ -71,13 +74,13 @@ function placeUnderline(tabs: HTMLElement) {
 export function HeaderTab({
   href,
   active,
-  dotClassName,
+  dot,
   children,
 }: {
   href: string;
   active: boolean;
-  /** Adds a dot before the label. Its color also colors the underline. */
-  dotClassName?: string;
+  /** Shown before the label. Its `color` also colors the underline. */
+  dot?: React.ReactNode;
   children: string;
 }) {
   return (
@@ -87,9 +90,7 @@ export function HeaderTab({
       href={href}
       aria-current={active ? 'page' : undefined}
     >
-      {dotClassName && (
-        <span className={dotClassName} data-dot aria-hidden="true" />
-      )}
+      {dot}
       <span className={styles.label} data-label={children}>
         {children}
       </span>
