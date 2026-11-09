@@ -31,7 +31,8 @@ import styles from './EinPopup.module.scss';
 
 export type EinPopupProps = {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  // `event` is the click when closing on an outside click.
+  setOpen: (open: boolean, event?: MouseEvent) => void;
   closeOnOutsideClick?: boolean;
   closeOnEsc?: boolean;
   trapFocus?: boolean;
@@ -42,6 +43,10 @@ export type EinPopupProps = {
   popupRef?: RefObject<HTMLDivElement | null>;
   anchorRef?: RefObject<Element | null>;
   sizeReferenceRef?: RefObject<Element | null>;
+  // At least as wide as the anchor and centred on it (above/below/center).
+  matchAnchorWidth?: boolean;
+  // Shrink above/below down to this height before trying the next position.
+  minHeight?: number;
   preferredPosition?: PopupPosition[];
   // Skip the default visual chrome (drop-shadow, content background,
   // border-radius, arrow). Useful for callers that fully style the popup.
@@ -79,6 +84,8 @@ export default function EinPopup(props: EinPopupProps) {
     popupRef = fallbackPopupRef,
     anchorRef: anchorRefProp,
     sizeReferenceRef,
+    matchAnchorWidth = false,
+    minHeight,
     preferredPosition = ['below', 'above', 'right', 'left'],
     unstyled = false,
     arrow = true,
@@ -114,6 +121,7 @@ export default function EinPopup(props: EinPopupProps) {
     popupElement.style.left = `${-body.scrollWidth}px`;
     popupElement.style.width = '';
     popupElement.style.maxHeight = '';
+    popupElement.style.removeProperty('--ein-popup-max-height');
     // Use offset{Width,Height} so an in-flight enter-transition transform
     // (e.g. scale(0.97)) doesn't shrink the measured size and place the
     // popup slightly off — getBoundingClientRect() includes the transform.
@@ -135,6 +143,8 @@ export default function EinPopup(props: EinPopupProps) {
       popup: popupRect,
       anchor: anchorRect,
       sizeReference: sizeReferenceRect,
+      matchAnchorWidth,
+      minHeight,
       preferredPosition,
     });
     if (!position) {
@@ -184,7 +194,13 @@ export default function EinPopup(props: EinPopupProps) {
       '--ein-popup-arrow-left',
       position.arrowLeft ? `${position.arrowLeft}px` : '',
     );
-  }, [preferredPosition, popupRef, sizeReferenceRef]);
+  }, [
+    preferredPosition,
+    popupRef,
+    sizeReferenceRef,
+    matchAnchorWidth,
+    minHeight,
+  ]);
 
   // Update the ref of the anchor when the popup is opened
   useLayoutEffect(() => {
@@ -231,16 +247,22 @@ export default function EinPopup(props: EinPopupProps) {
       // Follow anchor size changes — e.g. a summary button that grows as the
       // user selects items. Without this, the popup is pinned to its initial
       // position and drifts out of alignment as the anchor resizes.
-      let anchorObserver: ResizeObserver | undefined;
+      // Also follow the positioned ancestor: top/left are relative to it, so
+      // when it resizes (and usually moves), the popup moves along with it.
+      const observer = new ResizeObserver(() => updatePopupPosition());
       if (anchorRef.current instanceof Element) {
-        anchorObserver = new ResizeObserver(() => updatePopupPosition());
-        anchorObserver.observe(anchorRef.current);
+        observer.observe(anchorRef.current);
+      }
+      const positionedAncestor =
+        popupRef.current && getClosestPositionedAncestor(popupRef.current);
+      if (positionedAncestor) {
+        observer.observe(positionedAncestor);
       }
 
       // Clean up the event listener on unmount or when open changes
       return () => {
         window.removeEventListener('resize', updatePopupPosition);
-        anchorObserver?.disconnect();
+        observer.disconnect();
       };
     }
   }, [open, popupRef, updatePopupPosition]);
@@ -325,9 +347,12 @@ export default function EinPopup(props: EinPopupProps) {
   }, [closeOnEsc, popupRef, open, setOpen]);
 
   // Close on click outside
-  const outsideClickHandler = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
+  const outsideClickHandler = useCallback(
+    (event: MouseEvent) => {
+      setOpen(false, event);
+    },
+    [setOpen],
+  );
   useOnOutsideClick(popupRef, open && closeOnOutsideClick, outsideClickHandler);
 
   // Trap focus when open

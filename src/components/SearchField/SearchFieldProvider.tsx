@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSearchHref } from '~/hooks/useSearchHref';
+import type { SearchParams } from '~/lib/routing/searchParams';
 import {
   type SearchToken,
   searchQueryToTokens,
@@ -28,7 +29,7 @@ interface SearchFieldContextType {
     push?: boolean,
   ) => void;
   setSearchQuery: (query: string, push?: boolean) => void;
-  pushSearchQuery: (query: string) => void;
+  pushSearchQuery: (query: string, updates?: Partial<SearchParams>) => void;
 }
 
 const SearchFieldContext = createContext<SearchFieldContextType | null>(null);
@@ -53,8 +54,8 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   }, [searchQuery, searchTokens]);
 
   const pushSearchQuery = useCallback(
-    (queryToPush: string) => {
-      navigation.push(searchHref({ q: queryToPush }));
+    (queryToPush: string, updates?: Partial<SearchParams>) => {
+      navigation.push(searchHref({ ...updates, q: queryToPush }));
     },
     [navigation, searchHref],
   );

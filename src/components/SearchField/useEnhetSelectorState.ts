@@ -1,6 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { VListHandle } from 'virtua';
 import { useEnhets } from '~/components/EnhetProvider/EnhetProvider';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
@@ -31,6 +38,8 @@ export type UseEnhetSelectorStateOptions = {
   active: boolean;
   close: () => void;
   isMobileLayout: boolean;
+  // Holds the draft while the selector is open, null otherwise.
+  draftRef?: RefObject<readonly string[] | null>;
 };
 
 /**
@@ -39,7 +48,8 @@ export type UseEnhetSelectorStateOptions = {
  * commits changes back to the URL.
  *
  * Selection changes buffer in a draft while the selector is open. Desktop
- * commits it on "Bruk valg"; mobile commits it when the sheet closes, since a
+ * commits it on "Bruk valg" (or Søk, via `draftRef`) and discards it on any
+ * other close; mobile commits it when the sheet closes, since a
  * commit can change route and remount the sheet. The view layer is
  * layout-agnostic — it just calls `addEnhet` / `removeEnhet` / `applySelection`.
  */
@@ -47,6 +57,7 @@ export function useEnhetSelectorState({
   active,
   close,
   isMobileLayout,
+  draftRef,
 }: UseEnhetSelectorStateOptions) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
@@ -106,6 +117,12 @@ export function useEnhetSelectorState({
       setDraftSelectedIdentifiers(urlSelectedEnhetIdentifiers);
     }
   }, [isBuffered]);
+
+  useEffect(() => {
+    if (draftRef) {
+      draftRef.current = isBuffered ? draftSelectedIdentifiers : null;
+    }
+  }, [draftRef, isBuffered, draftSelectedIdentifiers]);
 
   const selectedEnhetIdentifiers = isBuffered
     ? draftSelectedIdentifiers
