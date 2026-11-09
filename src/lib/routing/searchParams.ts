@@ -4,7 +4,7 @@ import {
   parseParamList,
   serializeParamList,
 } from '../utils/paramList';
-import { buildPathname, getPathEnhet } from './pathname';
+import { getPathEnhet, toLocalizedPath } from './pathname';
 
 export const SEARCHABLE_ENTITIES = [
   'Journalpost',
@@ -132,12 +132,10 @@ export function buildSearchHref({
         );
   const pathEnhet = enhetSelection.length === 1 ? enhetSelection[0] : undefined;
 
-  const targetPathname = buildPathname(
+  const targetPathname =
     pathEnhet !== undefined
-      ? { enhetIdentifier: pathEnhet }
-      : { page: 'search' },
-    languageCode,
-  );
+      ? toLocalizedPath(languageCode, '/[enhet]', pathEnhet)
+      : toLocalizedPath(languageCode, '/search');
   return `${targetPathname}${buildQueryString({
     searchParams,
     updates: {
