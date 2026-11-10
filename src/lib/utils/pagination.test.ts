@@ -136,6 +136,26 @@ describe('mergeWindow', () => {
     assert.deepStrictEqual(merged.total, { value: 5, capped: false });
   });
 
+  test('keeps a page the other edge loaded meanwhile', () => {
+    // Both edges extended `c d` at once; the appended page landed first.
+    const merged = mergeWindow(
+      paginatedList('c d e f', { previous: 'before-c', next: 'after-f' }),
+      paginatedList('a b c d', { previous: 'before-a', next: 'after-d' }),
+    );
+    assert.strictEqual(joinIds(merged), 'a b c d e f');
+    assert.strictEqual(merged.previous, 'before-a');
+    assert.strictEqual(merged.next, 'after-f');
+
+    // And the other way round.
+    const reversed = mergeWindow(
+      paginatedList('a b c d', { previous: 'before-a', next: 'after-d' }),
+      paginatedList('c d e f', { previous: 'before-c', next: 'after-f' }),
+    );
+    assert.strictEqual(joinIds(reversed), 'a b c d e f');
+    assert.strictEqual(reversed.previous, 'before-a');
+    assert.strictEqual(reversed.next, 'after-f');
+  });
+
   test('returns the incoming window when nothing overlaps', () => {
     const incoming = paginatedList('x y', { next: 'after-y' });
     assert.strictEqual(mergeWindow(current, incoming), incoming);

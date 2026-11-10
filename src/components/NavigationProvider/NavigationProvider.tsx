@@ -45,6 +45,7 @@ type NavigationContextValue = {
   optimisticPathname: string;
   optimisticSearchParams: URLSearchParams;
   optimisticSearchParamsString: string;
+  navigationType: NavigationState['type'];
   loading: boolean;
   modalOpen: boolean;
   // Navigation methods
@@ -287,6 +288,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     ) {
       setNavigationState({
         state: 'idle',
+        type: navigationState.type,
       });
       return;
     }
@@ -298,6 +300,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     ) {
       setNavigationState({
         state: 'idle',
+        type: navigationState.type,
       });
     }
   }, [navigationState, pagePathname, pageSearchParamsString, isPending]);
@@ -409,6 +412,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       optimisticSearchParams,
       optimisticSearchParamsString:
         navigationState.loadingSearchParamsString ?? pageSearchParamsString,
+      navigationType: navigationState.type,
       loading: navigationState.state === 'loading',
       modalOpen,
       push,
@@ -430,6 +434,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       loadingSearchParams,
       optimisticPathname,
       optimisticSearchParams,
+      navigationState.type,
       modalOpen,
       push,
       replace,

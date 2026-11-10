@@ -10,11 +10,13 @@ $block-end: var(--ds-size-3);
 // The tabs' active-state underline, reserved as a transparent border so
 // selecting a tab does not shift the row.
 $underline-width: 3px;
+// Between an item's icon or dot and its label.
+$item-gap: var(--ds-size-2);
 
 @mixin header-row-item {
   display: inline-flex;
   align-items: center;
-  gap: var(--ds-size-2);
+  gap: $item-gap;
   padding-block: $block-start $block-end;
   border-bottom: $underline-width solid transparent;
   color: var(--ds-color-neutral-text-subtle);

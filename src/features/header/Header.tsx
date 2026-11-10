@@ -161,7 +161,7 @@ export default function Header({
           return;
         }
 
-        const form = head.querySelector('form');
+        const form = head.querySelector<HTMLFormElement>('.search-form');
         if (!form) {
           return;
         }
@@ -170,7 +170,8 @@ export default function Header({
         const targetHead = createInvisibleClone(head);
         targetHead.className = className;
         const targetStyle = getStyle(targetHead);
-        const targetForm = targetHead.querySelector('form');
+        const targetForm =
+          targetHead.querySelector<HTMLFormElement>('.search-form');
         if (!targetForm) {
           removeInvisibleClone(targetHead);
           return;
@@ -306,7 +307,9 @@ export default function Header({
             <div className={cn(styles.container, 'container')}>
               {hasSearchField && (
                 <EnhetProvider initialEnhets={initialEnhets}>
-                  <SearchField className={styles.searchForm} />
+                  <SearchField
+                    className={cn(styles.searchForm, 'search-form')}
+                  />
                 </EnhetProvider>
               )}
 

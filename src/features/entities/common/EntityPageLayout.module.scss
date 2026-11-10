@@ -1,0 +1,48 @@
+@use "../../../styles/mediaQueries" as mq;
+
+$gap: calc(var(--ein-horizontal-spacing) * 1.5);
+// Fixed, so the content column can start level with what follows the kind.
+// Fits EntityKind's 2rem icon.
+$kindHeight: 2rem;
+$kindGap: var(--ds-size-3);
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--ein-vertical-spacing);
+  margin: $gap 0;
+
+  // `start`, so the sidebar keeps its own height and has room to stick.
+  @include mq.large {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.kind {
+  display: flex;
+  height: $kindHeight;
+  margin-bottom: $kindGap;
+}
+
+@include mq.small-and-medium {
+  .content {
+    margin-top: calc(var(--ein-horizontal-spacing) * 2);
+  }
+}
+
+@include mq.large {
+  // Pinned under the header when it fits the viewport. When it doesn't, the
+  // negative offset lets it scroll until its bottom is in view, then pins that.
+  .sidebar {
+    position: sticky;
+    top: min(
+      var(--ein-header-height) + #{$gap},
+      100vh - var(--sidebar-height, 0px) - #{$gap}
+    );
+  }
+
+  .content {
+    margin-top: calc(#{$kindHeight} + #{$kindGap});
+  }
+}
