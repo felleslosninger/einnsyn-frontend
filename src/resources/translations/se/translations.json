@@ -2,6 +2,12 @@
   "site": {
     "settings": "Heivehusat",
     "login": "Čálit sisa",
+    "loginRequired": {
+      "title": "Logga sisa",
+      "description": "Logga sisa vai beasat dán siidui.",
+      "descriptionOrganization": "Logga sisa organisašuvnna beales vai beasat dán siidui.",
+      "goToFrontPage": "Mana ovdasiidui"
+    },
     "loggingIn": "Čállá sisa",
     "logout": "Čálit olggos",
     "loggingOut": "Čállá olggos",
@@ -11,6 +17,17 @@
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Biso sisačálgašuvvan",
     "forgottenPassword": "Leatgo vajálduhttán beassansáni?",
+    "resetPassword": "Ođasmahte beassansáni",
+    "resetPasswordSent": "Jus e-poastačujuhusas lea kontu min luhtte, de leat sádden dutnje liŋkka mainna sáhtát ođasmahttit beassansáni.",
+    "backToLogin": "Máhcat sisačáliheapmái",
+    "noAccount": "Ii go dus leat kontu?",
+    "createAccount": "Ráhkat kontu",
+    "managesOrganization": "Hálddašatgo organisašuvnna?",
+    "ansattportenLogin": "Čálit sisa Ansattporten bokte",
+    "registerSent": "Jus e-poastačujuhusas ii leat juo kontu min luhtte, de leat sádden dutnje liŋkka mainna sáhtát aktiveret kontu.",
+    "repeatPassword": "Čále beassansáni ođđasit",
+    "passwordRequirements": "Unnimusat 8 mearkka, stuorra ja smávva bustávaiguin ja unnimusat okta lohku dahje sierramearka",
+    "passwordsDoNotMatch": "Beassansánit eai leat seammá",
     "invalidUsernameOrPassword": "Boastut geavaheaddjinamma dahje beassansátni",
     "loggedInAs": "Sisačálgašuvvan dego $1",
     "unknownError": "Dovdameahttun feaila dáhpáhuvai",
@@ -101,20 +118,15 @@
       "UTVALG": "Lávdegoddi",
       "VIRKSOMHET": "Organisašuvdna"
     },
-    "searchingIn": "Ohcamin"
-  },
-  "routing": {
-    "root": {
-      "search": "oza",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "ášši",
-      "moetemappe": "čoahkkin"
-    }
+    "searchingIn": "Ohcamin",
+    "saveSearch": "Vurke ohcama",
+    "saveSearchName": "Ohcama namma",
+    "saveSearchSubscribe": "Dieđit munnje ođđa bohtosiid birra",
+    "saveSearchSubscribeDescription": "Mii sáddet dutnje e-poastta juohke iđit dii. 06:00 jos ohcamis leat ođđa bohtosat.",
+    "saveSearchSuccess": "Ohcan lea vurkejuvvon",
+    "saveSearchError": "Ii sáhttán vurket ohcama",
+    "saveSearchMissingLabel": "Atte ohcamii nama",
+    "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
   "common": {
     "publishedAt": "Almmuhuvvon",
