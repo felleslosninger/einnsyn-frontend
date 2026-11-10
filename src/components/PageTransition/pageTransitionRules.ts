@@ -34,6 +34,9 @@ const PAGE_TRANSITIONS: readonly [
   // From search results to archive pages (and back)
   [RESULTS_SECTIONS, ARCHIVE_SECTIONS, 'inward'],
   [ARCHIVE_SECTIONS, RESULTS_SECTIONS, 'outward'],
+  // The landing page has no results list to animate the move.
+  ['', RESULTS_SECTIONS, 'fade'],
+  [RESULTS_SECTIONS, '', 'fade'],
   // The results list animates a new search itself.
   [RESULTS_SECTIONS, RESULTS_SECTIONS, null],
   [STATIC_SECTIONS, '*', 'fade'],

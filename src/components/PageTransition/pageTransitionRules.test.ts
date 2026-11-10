@@ -29,8 +29,12 @@ describe('pageTransition', () => {
     assert.equal(pageTransition('moetemappe', 'privacy'), 'fade');
   });
 
+  it('fades between the landing page and search results', () => {
+    assert.equal(pageTransition('', 'search'), 'fade');
+    assert.equal(pageTransition('[enhet]', ''), 'fade');
+  });
+
   it('leaves the results list and unlisted moves alone', () => {
-    assert.equal(pageTransition('', 'search'), null);
     assert.equal(pageTransition('search', '[enhet]'), null);
     assert.equal(pageTransition('search', 'admin'), null);
   });
