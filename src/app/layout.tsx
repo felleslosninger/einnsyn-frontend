@@ -1,8 +1,10 @@
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-css/theme';
 import type { Metadata, ResolvingMetadata } from 'next';
+import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
+import { PageTransition } from '~/components/PageTransition/PageTransition';
 import { SearchFieldProvider } from '~/components/SearchField/SearchFieldProvider';
 import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDataProvider';
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
@@ -12,7 +14,6 @@ import { getAuth } from '~/lib/auth/authCookie.server';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
-import { ModalWrapper } from './@modal/ModalWrapper';
 
 export const viewport = {
   width: 'device-width',
@@ -64,13 +65,14 @@ export default async function Layout({
             settings,
             authInfo,
             origin,
+            apiUrl: process.env.API_URL,
           }}
         >
           <SearchFieldProvider>
             <body data-color-scheme={settings.colorScheme}>
               <div className="einnsyn-body">
                 {header}
-                <main className="content-flex-grow">{children}</main>
+                <PageTransition>{children}</PageTransition>
                 <Footer />
                 <ModalWrapper>{modal}</ModalWrapper>
                 <KeyboardFocusManager />

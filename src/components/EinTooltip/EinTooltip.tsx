@@ -3,6 +3,7 @@ import {
   cloneElement,
   isValidElement,
   type ReactElement,
+  useRef,
   useState,
 } from 'react';
 import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
@@ -21,6 +22,7 @@ export default function EinTooltip({
   preferredPosition?: PopupPosition[];
 }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement>(null);
 
   const child = Children.only(children);
   if (!isValidElement(child)) {
@@ -43,6 +45,7 @@ export default function EinTooltip({
     {
       ...((child.props as Record<string, unknown>) || {}),
       onClick: handleClick,
+      ref: triggerRef,
     },
   );
 
@@ -50,6 +53,7 @@ export default function EinTooltip({
     <>
       {childWithClick}
       <EinPopup
+        anchorRef={triggerRef}
         open={!!content && open}
         setOpen={(isOpen) => setOpen(isOpen)}
         className={styles.tooltip}

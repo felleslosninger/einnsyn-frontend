@@ -17,12 +17,6 @@ const emptySnapshot: EnhetStoreSnapshot = {
 };
 
 let snapshot = emptySnapshot;
-
-// The newest version any server response has carried, and a counter bumped
-// whenever it moves. The counter is what an in-flight full-list fetch compares
-// against — versions are opaque hashes, so they cannot be ordered.
-let latestVersion: string | null = null;
-let versionEpoch = 0;
 let fullListPromise: Promise<void> | null = null;
 
 const subscribers = new Set<() => void>();
@@ -49,115 +43,54 @@ function getServerSnapshot(): EnhetStoreSnapshot {
 }
 
 function addToMap(map: Map<string, TrimmedEnhet>, enhet: TrimmedEnhet) {
-  // A re-slugged enhet would otherwise keep its old alias pointing at the stale
-  // copy. The identity check leaves the alias alone when another enhet has
-  // taken it over in the meantime.
-  const previous = map.get(enhet.id);
-  if (
-    previous?.slug &&
-    previous.slug !== enhet.slug &&
-    map.get(previous.slug) === previous
-  ) {
-    map.delete(previous.slug);
-  }
-
   map.set(enhet.id, enhet);
   if (enhet.slug) {
     map.set(enhet.slug, enhet);
   }
 }
 
-/**
- * Merge server-rendered enhets into the store, and drop the full list when the
- * server reports a version we did not load under.
- *
- * The entries are kept across that invalidation: stale names render
- * better than blank ones while the refetch runs.
- */
-export function seedEnhets(
-  enhets: readonly TrimmedEnhet[],
-  version?: string | null,
-) {
-  let changed = false;
-
-  const versionMoved = !!version && version !== latestVersion;
-  if (versionMoved) {
-    latestVersion = version;
-    versionEpoch += 1;
-    if (snapshot.loadedVersion !== null) {
-      snapshot = { ...snapshot, loadedVersion: null };
-      changed = true;
-    }
-  }
-
+/** Merge server-rendered enhets into the store, keeping the ones it holds. */
+export function seedEnhets(enhets: readonly TrimmedEnhet[]) {
   let nextMap: Map<string, TrimmedEnhet> | null = null;
   for (const enhet of enhets) {
-    // A moved version means our copy of this enhet may be the stale one, so
-    // seeded entries overwrite rather than skip.
-    if (!versionMoved && snapshot.enhetMap.has(enhet.id)) {
+    if (snapshot.enhetMap.has(enhet.id)) {
       continue;
     }
     nextMap ??= new Map(snapshot.enhetMap);
     addToMap(nextMap, enhet);
-    changed = true;
   }
   if (nextMap) {
     snapshot = { ...snapshot, enhetMap: nextMap };
-  }
-
-  if (changed) {
     notify();
   }
 }
 
+/**
+ * Load the full list, or check that the loaded one is still current: the server
+ * leaves the list out when the version sent is its own. Callers share a request.
+ */
 export function ensureEnhetListLoaded(): Promise<void> {
-  if (snapshot.loadedVersion !== null) {
-    return Promise.resolve();
-  }
-  if (fullListPromise) {
-    return fullListPromise;
-  }
-
-  const epochAtStart = versionEpoch;
-  let invalidatedMidFetch = false;
-  fullListPromise = (async () => {
+  fullListPromise ??= (async () => {
     try {
-      const { enhets, version } = await getTrimmedEnhetList();
-
-      // A seed may have advanced the version while this was in flight. Marking
-      // the list loaded would then strand the store on data the server has
-      // already moved past, so keep the entries but stay invalid and refetch.
-      const invalidated = versionEpoch !== epochAtStart;
+      const { enhets, version } = await getTrimmedEnhetList(
+        snapshot.loadedVersion ?? undefined,
+      );
+      if (!enhets) {
+        return;
+      }
       // Rebuild, or enhets the API has dropped keep their id and slug keys.
-      const nextMap = invalidated
-        ? new Map(snapshot.enhetMap)
-        : new Map<string, TrimmedEnhet>();
-
+      const nextMap = new Map<string, TrimmedEnhet>();
       for (const enhet of enhets) {
         addToMap(nextMap, enhet);
       }
-
-      if (invalidated) {
-        invalidatedMidFetch = true;
-        snapshot = { ...snapshot, enhetMap: nextMap };
-      } else {
-        latestVersion = version;
-        snapshot = { enhetMap: nextMap, loadedVersion: version };
-      }
+      snapshot = { enhetMap: nextMap, loadedVersion: version };
       notify();
     } catch (error) {
       // Surfaced as "not loaded": the store carries no error state yet, so
       // consumers keep their loading view until a later call succeeds.
       logger.error('Failed to load enhet list', error);
     } finally {
-      // The only release point, so the slot is non-null exactly while a fetch
-      // is in flight and a seed cannot null it out from under one.
       fullListPromise = null;
-      // Nothing else would retry: the sole caller re-runs its effect on
-      // `enhetListLoaded`, which an invalidated fetch never flips.
-      if (invalidatedMidFetch) {
-        void ensureEnhetListLoaded();
-      }
     }
   })();
   return fullListPromise;

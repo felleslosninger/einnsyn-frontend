@@ -3,9 +3,10 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
+import { generateMoetemappeURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -25,7 +26,7 @@ export default function MoetemappeResult({
 
   return (
     <div className={cn(className, styles.searchResult, 'moetemappe-result')}>
-      <EinLink href="">
+      <EinLink href={generateMoetemappeURL(item, languageCode)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
@@ -35,7 +36,6 @@ export default function MoetemappeResult({
         data-size="sm"
       >
         <SearchResultSubheader
-          variant="moetemappe"
           item={item}
           label={translate('moetemappe.label')}
         >
@@ -45,9 +45,10 @@ export default function MoetemappeResult({
         {isEnhet(utvalg) && (
           <div className={styles.searchResultEnhet}>
             <EinLink
-              href={buildPathname(
-                { enhetIdentifier: getEnhetIdentifier(utvalg) },
+              href={toLocalizedPath(
                 languageCode,
+                '/[enhet]',
+                getEnhetIdentifier(utvalg),
               )}
             >
               {getName(utvalg, languageCode)}

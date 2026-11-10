@@ -5,8 +5,11 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
   devIndicators: false,
   reactProductionProfiling: true,
+  poweredByHeader: false,
   async rewrites() {
-    return routeRewrites();
+    // Ahead of Next's interception rewrites, which also run in `beforeFiles`,
+    // so a translated `/login` still opens the modal.
+    return { beforeFiles: routeRewrites() };
   },
 };
 

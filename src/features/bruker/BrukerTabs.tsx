@@ -1,9 +1,8 @@
 'use client';
 
-import { EinLink } from '~/components/EinLink/EinLink';
 import { useOptimisticPathname } from '~/components/NavigationProvider/NavigationProvider';
+import { HeaderTab, HeaderTabs } from '~/features/header/HeaderTabs';
 import { useTranslation } from '~/hooks/useTranslation';
-import cn from '~/lib/utils/className';
 import { brukerRoutes } from './brukerRoutes';
 
 export default function BrukerTabs() {
@@ -12,18 +11,13 @@ export default function BrukerTabs() {
 
   return (
     <nav aria-label={t('bruker.title')}>
-      <div className="header-tabs" data-size="sm">
+      <HeaderTabs>
         {brukerRoutes.map(({ href, translationKey }) => (
-          <EinLink
-            key={href}
-            className={cn('header-tab', { active: pathname === href })}
-            href={href}
-            aria-current={pathname === href ? 'page' : undefined}
-          >
+          <HeaderTab key={href} href={href} active={pathname === href}>
             {t(translationKey)}
-          </EinLink>
+          </HeaderTab>
         ))}
-      </div>
+      </HeaderTabs>
     </nav>
   );
 }

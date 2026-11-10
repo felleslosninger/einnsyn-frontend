@@ -3,8 +3,9 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
-import { buildPathname } from '~/lib/routing/pathname';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
+import { generateMoetesakURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
 
@@ -21,7 +22,7 @@ export default function MoetesakResult({
 
   return (
     <div className={cn(className, styles.searchResult, 'moetesak-result')}>
-      <EinLink href="">
+      <EinLink href={generateMoetesakURL(item, languageCode)}>
         <h2 className="ds-heading" data-size="sm">
           {item.offentligTittel}
         </h2>
@@ -30,11 +31,7 @@ export default function MoetesakResult({
         className={cn('ds-paragraph', styles.searchResultBody)}
         data-size="sm"
       >
-        <SearchResultSubheader
-          variant="moetesak"
-          item={item}
-          label={translate('moetesak.label')}
-        >
+        <SearchResultSubheader item={item} label={translate('moetesak.label')}>
           {item.moetesakssekvensnummer && (
             <span>
               {translate('common.number')} {item.moetesakssekvensnummer}/
@@ -45,9 +42,10 @@ export default function MoetesakResult({
         {isEnhet(utvalg) && (
           <div className={styles.searchResultEnhet}>
             <EinLink
-              href={buildPathname(
-                { enhetIdentifier: getEnhetIdentifier(utvalg) },
+              href={toLocalizedPath(
                 languageCode,
+                '/[enhet]',
+                getEnhetIdentifier(utvalg),
               )}
             >
               {getName(utvalg, languageCode)}

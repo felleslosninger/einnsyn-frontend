@@ -2,6 +2,12 @@
   "site": {
     "settings": "Innstillinger",
     "login": "Logg inn",
+    "loginRequired": {
+      "title": "Du må logge inn",
+      "description": "Denne siden er bare tilgjengelig når du er logget inn.",
+      "descriptionOrganization": "Denne siden er bare tilgjengelig når du er logget inn på vegne av en virksomhet.",
+      "goToFrontPage": "Gå til forsiden"
+    },
     "loggingIn": "Logger inn",
     "logout": "Logg ut",
     "loggingOut": "Logger ut",
@@ -11,6 +17,17 @@
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Forbli innlogget",
     "forgottenPassword": "Glemt passord?",
+    "resetPassword": "Tilbakestill passord",
+    "resetPasswordSent": "Hvis e-postadressen har en konto hos oss, har vi sendt deg en lenke for å tilbakestille passordet.",
+    "backToLogin": "Tilbake til innlogging",
+    "noAccount": "Har du ikke konto?",
+    "createAccount": "Opprett konto",
+    "managesOrganization": "Forvalter du en virksomhet?",
+    "ansattportenLogin": "Logg inn gjennom Ansattporten",
+    "registerSent": "Hvis e-postadressen ikke allerede har en konto hos oss, har vi sendt deg en lenke for å aktivere kontoen.",
+    "repeatPassword": "Gjenta passord",
+    "passwordRequirements": "Minst 8 tegn, med store og små bokstaver og minst ett tall eller spesialtegn",
+    "passwordsDoNotMatch": "Passordene er ikke like",
     "invalidUsernameOrPassword": "Ugyldig brukernavn eller passord",
     "loggedInAs": "Innlogget som $1",
     "unknownError": "En ukjent feil oppstod",
@@ -75,6 +92,7 @@
     "button": "Søk",
     "placeholder": "Søk i eInnsyn...",
     "clear": "Tøm søk",
+    "clearEnhetSelection": "Fjern valgte virksomheter",
     "sortedBy": "Sortert etter",
     "orderAccess": "Bestill innsyn",
     "openDocument": "Åpne dokument",
@@ -100,22 +118,16 @@
       "UTVALG": "Utvalg",
       "VIRKSOMHET": "Virksomhet"
     },
-    "searchingIn": "Søker i"
-  },
-  "routing": {
-    "root": {
-      "search": "søk",
-      "about": "om",
-      "privacy": "personvern",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "sak",
-      "moetemappe": "moete"
-    }
+    "searchingIn": "Søker i",
+    "backToResults": "Tilbake til søkeresultat",
+    "saveSearch": "Lagre søk",
+    "saveSearchName": "Navn på søket",
+    "saveSearchSubscribe": "Varsle meg om nye treff",
+    "saveSearchSubscribeDescription": "Vi sender deg en e-post hver morgen klokken 06:00 hvis søket har nye treff.",
+    "saveSearchSuccess": "Søket er lagret",
+    "saveSearchError": "Kunne ikke lagre søket",
+    "saveSearchMissingLabel": "Gi søket et navn",
+    "saveSearchLoginPrompt": "Logg inn for å lagre søket."
   },
   "common": {
     "publishedAt": "Publisert",
@@ -154,16 +166,39 @@
     "yes": "Ja",
     "no": "Nei"
   },
+  "breadcrumbs": {
+    "label": "Brødsmulesti"
+  },
   "saksmappe": {
     "label": "Sak",
     "labelPlural": "Saker",
-    "saksnummer": "Saksnummer"
+    "saksnummer": "Saksnummer",
+    "journalfoert": "Journalført",
+    "follow": "Følg saken",
+    "publishedBy": "Publisert av"
   },
   "journalpost": {
     "label": "Journalpost",
     "labelPlural": "Journalposter",
+    "labelPluralInCase": "Journalposter i saken",
     "from": "Fra",
     "to": "Til",
+    "docDate": "Dokumentdato",
+    "legalBasis": "Hjemmel",
+    "attachmentPlural": "Vedlegg",
+    "mainDocument": "Hoveddokument",
+    "orderAccess": "Bestill innsyn",
+    "downloadDocument": "Last ned dokument",
+    "recordType": "Type",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendere",
+      "mottaker": "$1 mottakere"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendere, alle $2",
+      "mottaker": "$1 mottakere, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Inngående dokument",
       "utgaaende_dokument": "Utgående dokument",
@@ -250,6 +285,37 @@
     "savedCases": "Lagrede saker",
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
-    "profile": "Profil"
+    "profile": "Profil",
+    "profilePage": {
+      "title": "Profilinformasjon",
+      "description": "Administrer innloggingen og kontoen din.",
+      "login": "Innlogging",
+      "newEmail": "Ny e-post",
+      "changeEmailSuccess": "E-postadressen er oppdatert",
+      "saveEmailChanges": "Lagre ny e-post",
+      "currentPassword": "Nåværende passord",
+      "newPassword": "Nytt passord",
+      "confirmNewPassword": "Bekreft nytt passord",
+      "changePasswordSuccess": "Passordet er oppdatert",
+      "savePasswordChanges": "Lagre nytt passord",
+      "deleteAccount": "Slett konto",
+      "deleteAccountDescription": "Dette sletter kontoen din permanent. Alle innsynskrav, lagrede saker og lagrede søk vil bli slettet og kan ikke gjenopprettes.",
+      "deleteAccountConfirm": "Er du sikker på at du vil slette kontoen din? Dette kan ikke angres.",
+      "deleteAccountSubmit": "Slett kontoen min",
+      "deleteAccountCancel": "Behold kontoen",
+      "errors": {
+        "invalidEmail": "E-postadressen er ugyldig",
+        "invalidPassword": "Passordet må ha minst 8 tegn og inneholde store og små bokstaver samt tall eller spesialtegn",
+        "wrongPassword": "Nåværende passord er feil",
+        "authenticationError": "Sesjonen har utløpt. Logg inn på nytt",
+        "authorizationError": "Du har ikke tilgang",
+        "badRequest": "Ugyldig forespørsel",
+        "notFound": "Brukeren ble ikke funnet",
+        "internalServerError": "Det oppstod en serverfeil. Prøv igjen senere",
+        "tooManyRequests": "For mange forsøk. Prøv igjen om en liten stund",
+        "passwordMismatch": "Passordene er ikke like",
+        "missingFields": "Fyll ut alle feltene"
+      }
+    }
   }
 }

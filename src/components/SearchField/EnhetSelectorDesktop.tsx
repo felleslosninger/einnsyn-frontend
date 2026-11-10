@@ -18,6 +18,7 @@ import type { PopupPosition } from '~/lib/utils/calculatePopupPosition';
 import cn from '~/lib/utils/className';
 import { skeletonLength } from '~/lib/utils/skeletonUtils';
 import styles from './EnhetSelector.module.scss';
+import { EnhetSelectorClearButton } from './EnhetSelectorClearButton';
 import type { EnhetSelectorState } from './useEnhetSelectorState';
 
 type Translate = (
@@ -76,6 +77,14 @@ export function EnhetSelectorDesktop({
           state={state}
           activate={activate}
         />
+        {state.hasSelection && (
+          <EnhetSelectorClearButton
+            className={styles.desktopClearSelectionButton}
+            state={state}
+            active={active}
+            focusAfterClearRef={summaryButtonRef}
+          />
+        )}
       </div>
 
       <EinPopup
@@ -153,6 +162,7 @@ const SummaryButton = ({
       ref={buttonRef}
       type="button"
       className={cn(styles.summaryButton, {
+        [styles.summaryButtonClearable]: hasSelection,
         [styles.summaryButtonActive]: active,
       })}
       aria-label={selectedSummary || t('search.enhetPlaceholder')}
