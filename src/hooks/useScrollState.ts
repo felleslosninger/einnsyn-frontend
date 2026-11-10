@@ -131,6 +131,14 @@ export const suspendScrollDirection = (): (() => void) => {
   };
 };
 
+/**
+ * Settle the direction upwards, as `suspendScrollDirection` does, without
+ * holding it.
+ */
+export const resetScrollDirection = (): void => {
+  commitDirection('up');
+};
+
 const handleScroll = () => {
   isQueued = false;
   rafId = null;
