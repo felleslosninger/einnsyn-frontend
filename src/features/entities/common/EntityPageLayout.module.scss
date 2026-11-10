@@ -33,12 +33,13 @@ $kindGap: var(--ds-size-3);
 
 @include mq.large {
   // Pinned under the header when it fits the viewport. When it doesn't, the
-  // negative offset lets it scroll until its bottom is in view, then pins that.
+  // negative offset lets it scroll until its bottom is in view, then pins that,
+  // clear of the footer for when that is shown.
   .sidebar {
     position: sticky;
     top: min(
       var(--ein-header-height) + #{$gap},
-      100vh - var(--sidebar-height, 0px) - #{$gap}
+      100vh - var(--sidebar-height, 0px) - var(--ein-footer-height, 0px) - #{$gap}
     );
   }
 

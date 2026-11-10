@@ -91,10 +91,13 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
     return parsedSearchOrigin?.searchParams.get('q') ?? undefined;
   }, [showsResults, optimisticSearchParams, parsedSearchOrigin]);
 
-  useEffect(() => {
-    if (authoritativeQuery === undefined) return;
-    _setSearchQuery(authoritativeQuery);
-  }, [authoritativeQuery]);
+  // Synced during render rather than in an effect, so the field never shows
+  // the previous query for a frame (the header morph copies it).
+  const [syncedQuery, setSyncedQuery] = useState(authoritativeQuery);
+  if (syncedQuery !== authoritativeQuery) {
+    setSyncedQuery(authoritativeQuery);
+    if (authoritativeQuery !== undefined) _setSearchQuery(authoritativeQuery);
+  }
 
   // Submitting from a detail page must go back to the search, not to the
   // page's own enhet, and it has to carry the remembered filters, enhet and sort.
