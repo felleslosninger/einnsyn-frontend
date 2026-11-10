@@ -2,6 +2,12 @@
   "site": {
     "settings": "Settings",
     "login": "Log in",
+    "loginRequired": {
+      "title": "You need to log in",
+      "description": "This page is only available when you are logged in.",
+      "descriptionOrganization": "This page is only available when you are logged in on behalf of an organization.",
+      "goToFrontPage": "Go to front page"
+    },
     "loggingIn": "Logging in",
     "logout": "Log out",
     "loggingOut": "Logging out",
@@ -11,6 +17,17 @@
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Stay logged in",
     "forgottenPassword": "Forgotten password?",
+    "resetPassword": "Reset password",
+    "resetPasswordSent": "If the email address has an account with us, we have sent you a link to reset your password.",
+    "backToLogin": "Back to login",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account",
+    "managesOrganization": "Do you manage an organization?",
+    "ansattportenLogin": "Log in with Ansattporten",
+    "registerSent": "If the email address doesn't already have an account with us, we have sent you a link to activate your new account.",
+    "repeatPassword": "Repeat password",
+    "passwordRequirements": "At least 8 characters, with upper and lower case letters and at least one number or special character",
+    "passwordsDoNotMatch": "The passwords do not match",
     "invalidUsernameOrPassword": "Invalid username or password",
     "loggedInAs": "Logged in as $1",
     "unknownError": "An unknown error occurred",
@@ -101,22 +118,16 @@
       "UTVALG": "Committee",
       "VIRKSOMHET": "Organization"
     },
-    "searchingIn": "Searching in"
-  },
-  "routing": {
-    "root": {
-      "search": "search",
-      "about": "about",
-      "privacy": "privacy",
-      "admin": "admin",
-      "login": "login",
-      "bruker": "bruker"
-    },
-    "enhet": {},
-    "mappe": {
-      "saksmappe": "case",
-      "moetemappe": "meeting"
-    }
+    "searchingIn": "Searching in",
+    "backToResults": "Back to search results",
+    "saveSearch": "Save search",
+    "saveSearchName": "Search name",
+    "saveSearchSubscribe": "Notify me about new results",
+    "saveSearchSubscribeDescription": "We send you an email every morning at 06:00 if the search has new results.",
+    "saveSearchSuccess": "Search saved",
+    "saveSearchError": "Could not save the search",
+    "saveSearchMissingLabel": "Give the search a name",
+    "saveSearchLoginPrompt": "Log in to save the search."
   },
   "common": {
     "publishedAt": "Published",
@@ -154,16 +165,39 @@
     "yes": "Yes",
     "no": "No"
   },
+  "breadcrumbs": {
+    "label": "Breadcrumb trail"
+  },
   "saksmappe": {
     "label": "Case",
     "labelPlural": "Cases",
-    "saksnummer": "Case number"
+    "saksnummer": "Case number",
+    "journalfoert": "Recorded",
+    "follow": "Follow case",
+    "publishedBy": "Published by"
   },
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
+    "labelPluralInCase": "Records in the case",
     "from": "From",
     "to": "To",
+    "docDate": "Document date",
+    "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "mainDocument": "Main document",
+    "orderAccess": "Request access",
+    "downloadDocument": "Download document",
+    "recordType": "Type",
+    "number": "Record no.",
+    "partyCount": {
+      "avsender": "$1 senders",
+      "mottaker": "$1 recipients"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 senders, all $2",
+      "mottaker": "$1 recipients, all $2"
+    },
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",

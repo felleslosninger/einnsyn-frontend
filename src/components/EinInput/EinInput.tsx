@@ -3,6 +3,7 @@ import {
   Input,
   type InputProps,
   Label,
+  ValidationMessage,
 } from '@digdir/designsystemet-react';
 import {
   CheckmarkIcon,
@@ -10,6 +11,7 @@ import {
   QuestionmarkIcon,
 } from '@navikt/aksel-icons';
 import { useEffect, useRef, useState } from 'react';
+import { useMergedRefs } from '~/hooks/useMergedRef';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { logger } from '~/lib/utils/logger';
@@ -20,7 +22,7 @@ import styles from './EinInput.module.scss';
 type EinInputProps = {
   fullWidth?: boolean;
   errorMessage?: string;
-  label?: string;
+  label?: React.ReactNode;
   tooltip?: string;
   copyToClipboard?: boolean;
   ref?: React.Ref<HTMLInputElement>;
@@ -38,6 +40,7 @@ export const EinInput = ({
 }: InputProps & EinInputProps) => {
   const t = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const mergedRef = useMergedRefs(inputRef, ref);
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -102,8 +105,8 @@ export const EinInput = ({
           )}
         </Label>
       )}
-      <Input {...props} ref={inputRef} />
-      {errorMessage && <span>{errorMessage}</span>}
+      <Input {...props} ref={mergedRef} />
+      {errorMessage && <ValidationMessage>{errorMessage}</ValidationMessage>}
     </Field>
   );
 };

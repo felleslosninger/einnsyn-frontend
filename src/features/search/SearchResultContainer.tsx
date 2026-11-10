@@ -15,12 +15,13 @@ import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger
 import { EinTransition } from '~/components/EinTransition/EinTransition';
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
 import cn from '~/lib/utils/className';
-import { fetchNextPage } from '~/lib/utils/pagination';
+import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
 import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
@@ -59,16 +60,16 @@ export default function SearchResultContainer({
     loadingSearchParamsString,
     searchParamsString,
     loading,
-    optimisticPathname,
-    optimisticSearchParams,
   } = useNavigation();
+  // The search's own selection, which holds still while navigating to a hit.
+  const { searchTarget } = useSearchField();
   const enhetIds = useMemo(
     () =>
       getEnhetSelection(
-        getPathEnhet(optimisticPathname),
-        optimisticSearchParams,
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
       ),
-    [optimisticPathname, optimisticSearchParams],
+    [searchTarget],
   );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
@@ -78,12 +79,22 @@ export default function SearchResultContainer({
       loadingSearchParamsString !== searchParamsString);
 
   const searchSymbolRef = useRef<symbol>(Symbol());
+  const searchKey = `${pathname}?${searchParamsString}`;
+  const searchKeyRef = useRef(searchKey);
 
-  // Update currentSearchResults when searchResults prop changes (new search)
+  // A new search starts the list over. A refresh of the same search (e.g.
+  // after logging in) keeps the pages already loaded.
   useEffect(() => {
+    const sameSearch = searchKeyRef.current === searchKey;
+    searchKeyRef.current = searchKey;
     searchSymbolRef.current = Symbol();
-    setCurrentSearchResults(searchResults);
-  }, [searchResults]);
+    setCurrentSearchResults((current) => {
+      if (current === searchResults) {
+        return current;
+      }
+      return sameSearch ? mergeWindow(current, searchResults) : searchResults;
+    });
+  }, [searchResults, searchKey]);
 
   // The header layout seeds the enhet selector only on a full load, so an enhet
   // reached through a result's link has to be in the store before the click.

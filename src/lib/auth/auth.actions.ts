@@ -1,9 +1,12 @@
 'use server';
 
+import { redirect } from 'next/navigation';
+import { matchPath } from '~/lib/routing/pathname';
+import { getRequestPathname } from '~/lib/routing/requestPath.server';
 import { startAnsattportenLogin } from './ansattporten.server';
-import type { LoginState } from './auth';
+import type { LoginState, PasswordResetState, RegisterState } from './auth';
 import { endSession } from './auth.server';
-import { eInnsynLogin } from './einnsyn.server';
+import { eInnsynLogin, register, requestPasswordReset } from './einnsyn.server';
 
 // Every export here is a publicly callable endpoint, so this file holds only
 // what a form or client component actually submits to. Server-side callers use
@@ -28,7 +31,28 @@ export async function eInnsynLoginAction(
   return await eInnsynLogin(prevState, formData);
 }
 
+/** `useActionState` on the forgotten-password form. */
+export async function requestPasswordResetAction(
+  prevState: PasswordResetState,
+  formData: FormData,
+): Promise<PasswordResetState> {
+  return await requestPasswordReset(prevState, formData);
+}
+
+/** `useActionState` on the registration form. */
+export async function registerAction(
+  prevState: RegisterState,
+  formData: FormData,
+): Promise<RegisterState> {
+  return await register(prevState, formData);
+}
+
 /** `<form action>` on the log out button. */
 export async function logoutAction(): Promise<void> {
+  const pathname = await getRequestPathname();
   await endSession();
+  // Logged out, these pages would only ask the user to log in again.
+  if (matchPath(pathname, '/bruker') || matchPath(pathname, '/admin')) {
+    redirect('/');
+  }
 }

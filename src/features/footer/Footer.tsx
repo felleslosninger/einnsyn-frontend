@@ -1,16 +1,16 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
+import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import SettingsMenu from '~/features/header/components/SettingsMenu';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import {
-  buildPathname,
-  parsePathname,
-  type RootPage,
+  matchExactPath,
+  type Route,
+  toLocalizedPath,
 } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 
@@ -19,7 +19,7 @@ import styles from './Footer.module.scss';
 export default function Footer() {
   const t = useTranslation();
   const languageCode = useLanguageCode();
-  const pathname = usePathname();
+  const { pathname } = useNavigation();
   const footerRef = useRef<HTMLDivElement>(null);
   const footerPlaceholderRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -84,8 +84,8 @@ export default function Footer() {
     return () => observer.disconnect();
   }, [stick, isAtBottom]);
 
-  const getLinkClassName = (page: RootPage) => {
-    return cn('ein-link', { active: parsePathname(pathname)?.page === page });
+  const getLinkClassName = (route: Route) => {
+    return cn('ein-link', { active: !!matchExactPath(pathname, route) });
   };
 
   return (
@@ -97,15 +97,15 @@ export default function Footer() {
               <SettingsMenu />
               <EinLink
                 data-color="neutral"
-                href={buildPathname({ page: 'about' }, languageCode)}
-                className={getLinkClassName('about')}
+                href={toLocalizedPath(languageCode, '/about')}
+                className={getLinkClassName('/about')}
               >
                 {t('footer.about')}
               </EinLink>
               <EinLink
                 data-color="neutral"
-                href={buildPathname({ page: 'privacy' }, languageCode)}
-                className={getLinkClassName('privacy')}
+                href={toLocalizedPath(languageCode, '/privacy')}
+                className={getLinkClassName('/privacy')}
               >
                 {t('footer.privacy')}
               </EinLink>
