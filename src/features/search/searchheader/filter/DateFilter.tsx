@@ -6,7 +6,6 @@ import { EinDropdown } from '~/components/EinDropdown';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import styles from './DateFilter.module.scss';
-import { getDateFilterValue } from './dateFilterValue';
 
 const DATE_PRESETS = {
   all: 'common.all',
@@ -101,7 +100,8 @@ export function DateFilter({
   }, [setRadioValue]);
 
   useEffect(() => {
-    setValue?.(getDateFilterValue(currentValue, defaultValue));
+    const isEmptyOrDefault = currentValue === '' || currentValue === defaultValue;
+    setValue?.(isEmptyOrDefault ? undefined : currentValue);
   }, [setValue, currentValue, defaultValue]);
 
   return (
