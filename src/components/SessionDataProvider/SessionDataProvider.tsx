@@ -24,6 +24,8 @@ export type SessionData = {
   settings: Settings;
   authInfo?: AuthInfo;
   origin: string;
+  // API_URL is a server-only env var; client components read it from here.
+  apiUrl: string;
 };
 
 export type SessionDataWithUpdate = SessionData & {
