@@ -1,4 +1,9 @@
-import { isEnhet, type Journalpost } from '@digdir/einnsyn-sdk';
+import {
+  isDokumentbeskrivelse,
+  isDokumentobjekt,
+  isEnhet,
+  type Journalpost,
+} from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useSearchHref } from '~/hooks/useSearchHref';
@@ -7,7 +12,6 @@ import { getEnhetIdentifier, getName } from '~/lib/enhet/enhet';
 import cn from '~/lib/utils/className';
 import { dateFormat } from '~/lib/utils/dateFormat';
 import SearchResultSubheader from './common/SearchResultSubheader';
-import { getJournalpostDocumentUrl } from './getJournalpostDocumentUrl';
 import styles from './searchResultStyles.module.scss';
 
 function getSaksnummer(item: Journalpost): string | null {
@@ -20,6 +24,16 @@ function getSaksnummer(item: Journalpost): string | null {
   return null;
 }
 
+function getDocumentUrl(item: Journalpost): string | undefined {
+  for (const beskrivelse of item.dokumentbeskrivelse ?? []) {
+    if (!isDokumentbeskrivelse(beskrivelse)) continue;
+    for (const objekt of beskrivelse.dokumentobjekt ?? []) {
+      if (isDokumentobjekt(objekt) && objekt.url) return objekt.url;
+    }
+  }
+  return undefined;
+}
+
 export default function JournalpostResult({
   className,
   item,
@@ -30,7 +44,7 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
-  const documentUrl = getJournalpostDocumentUrl(item);
+  const documentUrl = getDocumentUrl(item);
   const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
