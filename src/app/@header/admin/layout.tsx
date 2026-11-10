@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation';
 import { AdminTabs } from '~/features/admin';
 import HeaderBar from '~/features/header/HeaderBar';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
@@ -9,8 +8,8 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const authInfo = await cachedAuthInfo();
-  if (!authInfo) {
-    notFound();
+  if (authInfo?.type !== 'Enhet') {
+    return null;
   }
 
   return (

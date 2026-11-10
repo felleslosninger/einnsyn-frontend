@@ -151,7 +151,7 @@ export default function Header({
 
         const fromHeaderRect = outgoingHeader.getBoundingClientRect();
         const fromFormRect = outgoingHeader
-          .querySelector('form')
+          .querySelector('.search-form')
           ?.getBoundingClientRect();
         const fromSnapshotHeight = snapshot.getBoundingClientRect().height;
         const fromCornerRects = [
@@ -169,7 +169,8 @@ export default function Header({
         )) {
           rowSnapshot.style.visibility = 'hidden';
         }
-        const form = incomingHeader.querySelector('form');
+        const form =
+          incomingHeader.querySelector<HTMLFormElement>('.search-form');
         const row = incomingHeader.querySelector<HTMLElement>(
           '.header-second-row:not([inert])',
         );
@@ -307,7 +308,9 @@ export default function Header({
             <div className={cn(styles.container, 'container')}>
               {hasSearchField && (
                 <EnhetProvider initialEnhets={initialEnhets}>
-                  <SearchField className={styles.searchForm} />
+                  <SearchField
+                    className={cn(styles.searchForm, 'search-form')}
+                  />
                 </EnhetProvider>
               )}
 
