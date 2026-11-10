@@ -31,11 +31,7 @@ export default function MoetesakResult({
         className={cn('ds-paragraph', styles.searchResultBody)}
         data-size="sm"
       >
-        <SearchResultSubheader
-          variant="moetesak"
-          item={item}
-          label={translate('moetesak.label')}
-        >
+        <SearchResultSubheader item={item} label={translate('moetesak.label')}>
           {item.moetesakssekvensnummer && (
             <span>
               {translate('common.number')} {item.moetesakssekvensnummer}/

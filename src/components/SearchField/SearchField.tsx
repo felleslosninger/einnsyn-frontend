@@ -147,7 +147,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
             styles.searchInputWithIcon,
             { [styles.activeContainer]: activeContainer === 'searchQuery' },
           )}
-          data-styled-input-width-animated="true"
         >
           <div
             className={cn(styles.expandableInputContainer)}
@@ -165,7 +164,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
               { [styles.activeContainer]: activeContainer === 'enhetSelector' },
             )}
             data-enhet-selector-container="true"
-            data-styled-input-width-animated="true"
           >
             <div className={cn(styles.expandableInputContainer)}>
               {enhetSelector}

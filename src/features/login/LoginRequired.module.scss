@@ -1,0 +1,39 @@
+@use '../../styles/mediaQueries.scss' as mq;
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--ein-horizontal-spacing) var(--ein-vertical-spacing);
+
+  @include mq.small {
+    padding-inline: var(--ds-size-4);
+  }
+}
+
+.alert {
+  width: 100%;
+  max-width: 700px;
+  margin-block: var(--ds-size-6);
+
+  // Swap the info icon for PadlockLockedIcon from Aksel
+  &:global(.ds-alert) {
+    --dsc-alert-icon-url: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M7.25%207a4.75%204.75%200%200%201%209.5%200v2.25H17c.966%200%201.75.784%201.75%201.75v9a.75.75%200%200%201-.75.75H6a.75.75%200%200%201-.75-.75v-9c0-.966.784-1.75%201.75-1.75h.25zm1.5%200a3.25%203.25%200%200%201%206.5%200v2.25h-6.5zM7%2010.75a.25.25%200%200%200-.25.25v8.25h10.5V11a.25.25%200%200%200-.25-.25zm3.5%203.75a1.5%201.5%200%201%201%202.25%201.3V17a.75.75%200%200%201-1.5%200v-1.2a1.5%201.5%200%200%201-.75-1.3%22%2F%3E%3C%2Fsvg%3E");
+  }
+}
+
+.heading {
+  margin-block-end: var(--ds-size-2);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ds-size-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}

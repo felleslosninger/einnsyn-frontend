@@ -31,11 +31,7 @@ export default function SaksmappeResult({
         className={cn('ds-paragraph', styles.searchResultBody)}
         data-size="sm"
       >
-        <SearchResultSubheader
-          variant="saksmappe"
-          item={item}
-          label={translate('saksmappe.label')}
-        >
+        <SearchResultSubheader item={item} label={translate('saksmappe.label')}>
           {item.saksnummer && (
             <span>
               {translate('common.number')} {item.saksnummer}

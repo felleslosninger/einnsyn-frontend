@@ -50,31 +50,6 @@
   font-size: var(--ds-font-size-2);
 }
 
-.searchResultDot {
-  display: inline-block;
-  flex: none;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--ds-size-1);
-  border-radius: var(--ds-border-radius-full);
-}
-
-.searchResultDotSaksmappe {
-  background: var(--ds-color-support-color-3-base-primary);
-}
-
-.searchResultDotJournalpost {
-  background: var(--ds-color-support-color-4-base-primary);
-}
-
-.searchResultDotMoetemappe {
-  background: var(--ds-color-brand2-base-primary);
-}
-
-.searchResultDotMoetesak {
-  background: var(--ds-color-support-color-5-base-primary);
-}
-
 .searchResultSubheader {
   display: flex;
   align-items: center;
@@ -86,7 +61,7 @@
     // Centred on the first line rather than on the whole subheader, which is
     // several lines tall once the metadata wraps.
     align-self: flex-start;
-    margin-top: calc((1lh - 9px) / 2);
+    margin-top: calc((1lh - var(--ein-entity-dot-size)) / 2);
   }
 
   .searchResultMeta {

@@ -106,7 +106,6 @@
 
 .searchInputContainer {
   --search-input-surface: transparent;
-  --search-input-fade-surface: var(--search-field-inactive-surface);
   --search-input-border-color: transparent;
   --search-input-shadow: none;
   --search-input-outline: none;
@@ -118,7 +117,6 @@
 
   .pillRow:not(.hasActiveContainer) &:hover {
     --search-input-surface: var(--search-field-segment-hover-surface);
-    --search-input-fade-surface: var(--search-field-segment-hover-surface);
     --search-input-border-color: rgb(17 24 39 / 0.04);
     --search-input-shadow:
       0 0 0 var(--ds-border-width-default) rgb(17 24 39 / 0.04),
@@ -132,7 +130,6 @@
   &:focus-within,
   &.activeContainer {
     --search-input-surface: var(--search-field-segment-active-surface);
-    --search-input-fade-surface: var(--search-field-segment-active-surface);
     --search-input-border-color: rgb(17 24 39 / 0.06);
     --search-input-shadow: 0 1rem 2rem -1.2rem rgb(17 24 39 / 0.22);
     z-index: 3;
@@ -151,7 +148,8 @@
     padding-right: var(--ds-size-4);
     background: var(--search-input-surface);
     border: var(--ds-border-width-default) solid var(--search-input-border-color);
-    border-radius: var(--ds-border-radius-full);
+    // Half the single-row height: a "full" radius scales with the expanded height.
+    border-radius: calc(var(--ds-size-12) / 2);
     box-shadow: var(--search-input-shadow);
     outline: var(--search-input-outline);
     outline-offset: 0;
@@ -270,20 +268,6 @@
   white-space: nowrap;
 }
 
-.pillRow :not(:has(:focus)) .styledInput::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: var(--ds-size-8);
-  background: linear-gradient(to right,
-      rgba(255, 255, 255, 0),
-      var(--search-input-fade-surface));
-  border-right: var(--ds-size-6) solid var(--search-input-fade-surface);
-  pointer-events: none;
-}
-
 .input {
   position: absolute;
   top: 0;
@@ -345,6 +329,11 @@
   right: var(--ds-size-2);
   z-index: 4;
   margin-right: calc(-1 * var(--ds-size-2)); // Negate padding
+}
+
+// The clear button reaches about size-4 into the text box.
+.expandableInputContainer:has(> .clearButton) {
+  --styled-input-fade-inset: var(--ds-size-4);
 }
 
 .actionButtonContainer {

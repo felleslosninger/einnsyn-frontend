@@ -36,7 +36,6 @@ export default function MoetemappeResult({
         data-size="sm"
       >
         <SearchResultSubheader
-          variant="moetemappe"
           item={item}
           label={translate('moetemappe.label')}
         >
