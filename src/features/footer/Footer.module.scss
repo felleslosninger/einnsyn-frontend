@@ -6,7 +6,8 @@
   // transform would add its height to the scrollable area.
   position: sticky;
   bottom: calc(-1 * var(--ein-footer-height, 100vh));
-  z-index: 10;
+  // Under the header (10), whose popups can reach down over it
+  z-index: 9;
   // The header's timing: slow to collapse, quick to come back
   transition: bottom 0.4s fx.$easeInOutQuart;
 
