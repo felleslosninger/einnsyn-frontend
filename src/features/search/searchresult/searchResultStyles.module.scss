@@ -8,10 +8,23 @@
   align-items: flex-start;
   padding-bottom: var(--ds-size-12);
 
-  > a {
+  >a {
     display: block;
     width: 100%;
     text-decoration: none;
+
+    // Opt in to Designsystemet's visited-link colour. The theme ships
+    // `--ds-link-color-visited` and `.ds-link` exposes `--dsc-link-color--visited`,
+    // but nothing wires the two — the distinction is deliberately per-component.
+    --dsc-link-color--visited: var(--ds-link-color-visited);
+
+    &:visited {
+      color: var(--dsc-link-color--visited);
+    }
+
+    &:hover {
+      color: var(--ds-color-neutral-text-default);
+    }
 
     :hover {
       text-decoration: underline;
@@ -28,36 +41,13 @@
 }
 
 .searchResultBody {
+  // Fill the row, so a long korrespondansepart truncates instead of widening it.
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-1);
   padding-top: var(--ds-size-1);
   font-size: var(--ds-font-size-2);
-}
-
-.searchResultDot {
-  display: inline-block;
-  flex: none;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--ds-size-1);
-  border-radius: var(--ds-border-radius-full);
-}
-
-.searchResultDotSaksmappe {
-  background: var(--ds-color-support-color-3-base-primary);
-}
-
-.searchResultDotJournalpost {
-  background: var(--ds-color-support-color-4-base-primary);
-}
-
-.searchResultDotMoetemappe {
-  background: var(--ds-color-brand2-base-primary);
-}
-
-.searchResultDotMoetesak {
-  background: var(--ds-color-support-color-5-base-primary);
 }
 
 .searchResultSubheader {
@@ -68,13 +58,17 @@
 
   .searchResultDot {
     margin-right: -5px;
+    // Centred on the first line rather than on the whole subheader, which is
+    // several lines tall once the metadata wraps.
+    align-self: flex-start;
+    margin-top: calc((1lh - var(--ein-entity-dot-size)) / 2);
   }
 
   .searchResultMeta {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--ds-size-2) var(--ds-size-5);
+    // Takes the rest of the subheader's line and wraps inside itself, so the
+    // dot keeps the label company instead of being left on a line of its own.
+    flex: 1;
+    min-width: 0;
   }
 }
 
@@ -82,19 +76,6 @@
   display: flex;
   align-items: center;
   gap: var(--ds-size-3);
-}
-
-.searchResultCorrespondence {
-
-  .correspondenceParty {
-    white-space: nowrap;
-    margin-right: var(--ds-size-2);
-  }
-
-  .correspondenceDirection {
-    font-weight: 600;
-  }
-
 }
 
 .searchResultAction {

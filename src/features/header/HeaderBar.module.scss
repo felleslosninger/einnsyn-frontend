@@ -1,0 +1,37 @@
+@use '../../styles/effects.scss' as fx;
+@use '../../styles/headerRow.scss' as headerRow;
+@use '../../styles/mediaQueries.scss' as mq;
+
+// An explicit height, because the collapse on scroll can't animate `auto`. The
+// row is pinned to the bottom so it leaves with that edge.
+.bar {
+  display: flex;
+  align-items: flex-end;
+  height: headerRow.$bar-height;
+  // Subtract padding from the right, to align with the content of the row.
+  margin-right: calc(-1 * var(--ds-size-4));
+  // The reveal; the collapse has its own in Header.module.scss. Stays clipped
+  // until fully open, or the content spills over the search field.
+  transition:
+    height 0.2s fx.$easeOut,
+    opacity 0.2s fx.$easeOut,
+    overflow 0s 0.2s allow-discrete;
+
+  @include mq.small {
+    margin-right: 0;
+  }
+}
+
+// Centres the end action on the items, which are taller.
+.row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-4);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}

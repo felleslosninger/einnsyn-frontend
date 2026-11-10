@@ -3,7 +3,7 @@ export default function NotFound() {
     <div className="container-wrapper">
       <div className="container-pre" />
       <div className="container">
-        <h2>404 Not Found</h2>
+        <h2 className="ds-heading">404 Not Found</h2>
       </div>
       <div className="container-post" />
     </div>

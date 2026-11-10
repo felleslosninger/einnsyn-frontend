@@ -1,15 +1,15 @@
 'use client';
 
-import { Button } from '@digdir/designsystemet-react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@navikt/aksel-icons';
+import { ArrowLeftIcon, MagnifyingGlassIcon } from '@navikt/aksel-icons';
 import { useCallback, useRef, useState } from 'react';
-import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { EinLink } from '~/components/EinLink/EinLink';
 import EnhetSelector from '~/components/SearchField/EnhetSelector';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
 import { EinButton } from '../EinButton/EinButton';
 import styles from './SearchField.module.scss';
+import { SearchFieldClearButton } from './SearchFieldClearButton';
 import { useSearchField } from './SearchFieldProvider';
 import { StyledInput } from './StyledInput';
 
@@ -20,8 +20,13 @@ type SearchFieldProps = {
 export const SearchField = ({ className }: SearchFieldProps) => {
   const t = useTranslation();
   const containerRef = useRef<HTMLFormElement>(null);
-  const { searchQuery, setSearchQuery, pushSearchQuery } = useSearchField();
-  const { optimisticPathname, optimisticSearchParams } = useNavigation();
+  const {
+    searchQuery,
+    setSearchQuery,
+    pushSearchQuery,
+    backToSearchHref,
+    searchTarget,
+  } = useSearchField();
   const isMobileLayout = useBreakpoint('SM');
   const [activeContainer, setActiveContainer] = useState<string | undefined>(
     undefined,
@@ -52,7 +57,54 @@ export const SearchField = ({ className }: SearchFieldProps) => {
   }, [setSearchQuery]);
 
   const showClearButton =
-    !!searchQuery && (!activeContainer || activeContainer === 'searchQuery');
+    !backToSearchHref &&
+    !!searchQuery &&
+    (!activeContainer || activeContainer === 'searchQuery');
+
+  // The magnifying glass is decorative, and dropped on mobile for space.
+  const searchQueryIcon = !isMobileLayout && (
+    <MagnifyingGlassIcon className={cn(styles.searchIcon)} aria-hidden="true" />
+  );
+
+  // On a page reached from a search the query is not this page's to show, so
+  // the field's contents are the way back to it instead. Everything around them
+  // — the pill, the enhet selector, the submit button — is unchanged, and still
+  // acts on the remembered search.
+  const searchQueryContent = backToSearchHref ? (
+    <EinLink
+      href={backToSearchHref}
+      className={cn(styles.backToSearch)}
+      unstyled
+    >
+      <ArrowLeftIcon
+        className={cn(styles.backToSearchIcon)}
+        aria-hidden="true"
+      />
+      <span className={cn(styles.backToSearchLabel)}>
+        {t('search.backToResults')}
+      </span>
+    </EinLink>
+  ) : (
+    <>
+      <StyledInput
+        icon={searchQueryIcon}
+        value={searchQuery}
+        setValue={setSearchQuery}
+        onFocus={activateSearchQueryContainer}
+        onBlur={deactivateContainer}
+        placeholder={t('search.placeholder')}
+        name="q"
+      />
+
+      {showClearButton && (
+        <SearchFieldClearButton
+          className={styles.clearButton}
+          label={t('search.clear')}
+          onClick={handleClear}
+        />
+      )}
+    </>
+  );
 
   const enhetSelector = (
     <EnhetSelector
@@ -67,13 +119,16 @@ export const SearchField = ({ className }: SearchFieldProps) => {
       className={cn(styles.searchFieldContainer, className)}
       method="get"
       onSubmit={onSubmit}
-      action={optimisticPathname}
+      action={searchTarget.pathname}
       ref={containerRef}
     >
-      {/* Include current query parameters as hidden inputs */}
-      {Array.from(optimisticSearchParams?.entries() ?? []).map(
+      {/* Include current query parameters as hidden inputs. On a detail page
+          these come from the remembered search, so a no-JS submit lands back on
+          the results rather than on `/oslo/sak/abc?q=…`. `q` travels in the
+          textarea, except while the back link stands in for it. */}
+      {Array.from(searchTarget.searchParams.entries()).map(
         ([key, value]) =>
-          key !== 'q' && (
+          (key !== 'q' || !!backToSearchHref) && (
             <input key={key} type="hidden" name={key} value={value} />
           ),
       )}
@@ -92,43 +147,12 @@ export const SearchField = ({ className }: SearchFieldProps) => {
             styles.searchInputWithIcon,
             { [styles.activeContainer]: activeContainer === 'searchQuery' },
           )}
-          data-styled-input-width-animated="true"
         >
           <div
             className={cn(styles.expandableInputContainer)}
             data-styled-input-expandable="true"
           >
-            <StyledInput
-              icon={
-                !isMobileLayout && (
-                  <MagnifyingGlassIcon
-                    className={cn(styles.searchIcon)}
-                    aria-hidden="true"
-                  />
-                )
-              }
-              value={searchQuery}
-              setValue={setSearchQuery}
-              onFocus={activateSearchQueryContainer}
-              onBlur={deactivateContainer}
-              placeholder={t('search.placeholder')}
-              name="q"
-            />
-
-            {showClearButton && (
-              <Button
-                className={cn(styles.clearButton)}
-                type="button"
-                onClick={handleClear}
-                aria-label={t('search.clear')}
-                variant="tertiary"
-              >
-                <XMarkIcon
-                  className={cn(styles.clearIcon)}
-                  aria-hidden="true"
-                />
-              </Button>
-            )}
+            {searchQueryContent}
           </div>
         </div>
 
@@ -140,7 +164,6 @@ export const SearchField = ({ className }: SearchFieldProps) => {
               { [styles.activeContainer]: activeContainer === 'enhetSelector' },
             )}
             data-enhet-selector-container="true"
-            data-styled-input-width-animated="true"
           >
             <div className={cn(styles.expandableInputContainer)}>
               {enhetSelector}

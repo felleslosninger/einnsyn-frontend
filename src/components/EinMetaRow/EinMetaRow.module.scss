@@ -1,0 +1,14 @@
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
+// Trails the field, so a wrapped line ends with it rather than starting with it.
+// The `/ ""` is alt text: generated content otherwise gets announced.
+.field:not(:last-child)::after {
+  content: "·" / "";
+  margin-left: var(--ds-size-2);
+  color: var(--ds-color-neutral-border-default);
+}

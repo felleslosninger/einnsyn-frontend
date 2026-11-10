@@ -1,0 +1,97 @@
+@use '../../styles/effects.scss' as fx;
+@use '../../styles/headerRow.scss' as headerRow;
+
+$padding-inline: var(--ds-size-4);
+$active-weight: var(--ds-font-weight-semibold);
+// The underline reaches half the dot–label gap past the tab's content.
+$underline-inset: calc(#{$padding-inline} - #{headerRow.$item-gap} / 2);
+
+// The active tab's dot color, set by HeaderTabs, toned towards the text color.
+// A tab without a dot gets the text color.
+$underline-color: color-mix(in oklab,
+    var(--underline-color, var(--ds-color-neutral-text-default)) 0%,
+    var(--ds-color-neutral-text-default));
+
+.tabs {
+  position: relative;
+  display: flex;
+  gap: var(--ds-size-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  // `overflow-x: auto` clips vertically, so leave room on every side for
+  // focus rings. The negative margin keeps the tabs where they were.
+  padding: calc(2 * var(--ds-border-width-focus));
+  margin: calc(-2 * var(--ds-border-width-focus));
+  // Align the first tab's content, not its padding, with the row.
+  margin-left: calc(-2 * var(--ds-border-width-focus) - #{$padding-inline});
+}
+
+.tab {
+  @include headerRow.header-row-item;
+
+  padding-inline: $padding-inline;
+
+  &[aria-current] {
+    font-weight: $active-weight;
+  }
+}
+
+// We render an invisible "active"-version of the label in :after, so that each
+// tab get the same width when it's active and inactive.
+.label {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+
+  &::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: $active-weight;
+  }
+}
+
+// One underline for the row, so it can slide between tabs.
+.underline {
+  position: absolute;
+  pointer-events: none;
+  left: var(--underline-left);
+  bottom: calc(2 * var(--ds-border-width-focus));
+  width: var(--underline-width);
+  height: headerRow.$underline-width;
+  background-color: $underline-color;
+  transition-property: left, width, background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: fx.$easeOut;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  .tabs:not(:has(> [aria-current]))>& {
+    display: none;
+  }
+}
+
+// Until HeaderTabs has measured (the server render), the active tab draws its
+// own underline.
+.tabs:not([data-measured]) {
+  >.underline {
+    display: none;
+  }
+
+  >.tab[aria-current] {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: $underline-inset;
+      right: $underline-inset;
+      bottom: calc(-1 * #{headerRow.$underline-width});
+      height: headerRow.$underline-width;
+      background-color: $underline-color;
+    }
+  }
+}
