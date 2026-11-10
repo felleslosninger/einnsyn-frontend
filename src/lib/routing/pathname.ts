@@ -124,6 +124,28 @@ export function toLocalizedPath<R extends Route>(
 }
 
 /**
+ * `pathname`, spelled in any language, with its static segments in the
+ * language, encoded like `toLocalizedPath`. Values, and the segments below the
+ * deepest route it resolves to, keep their spelling and case.
+ */
+export function translatePathname(
+  pathname: string,
+  languageCode: LanguageCode,
+): string {
+  // `ROUTES`, indexable by the path built below.
+  const routes: Readonly<Record<string, Translations>> = ROUTES;
+  const segments = pathSegments(pathname).map(decodeSegment);
+  let route = '';
+  for (const [index, folder] of resolvePath(pathname).entries()) {
+    route += `/${folder}`;
+    if (!isDynamic(folder)) {
+      segments[index] = routes[route]?.[languageCode] ?? folder;
+    }
+  }
+  return `/${segments.map(encodeURIComponent).join('/')}`;
+}
+
+/**
  * The enhet a URL is scoped to by its path (`/oslo`, `/oslo/sak/…`),
  * lowercased, or `undefined` when the root segment is not an enhet.
  */
