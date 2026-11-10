@@ -132,11 +132,14 @@ export const suspendScrollDirection = (): (() => void) => {
 };
 
 /**
- * Settle the direction upwards, as `suspendScrollDirection` does, without
- * holding it.
+ * Settle every subscriber upwards — `suspendedDirection` aside — without
+ * holding the direction. The next real scroll is measured from here.
  */
 export const resetScrollDirection = (): void => {
-  commitDirection('up');
+  lastY = readScrollY();
+  subscribers.forEach((subscriber) => {
+    commitDirection(subscriber, 'up');
+  });
 };
 
 const handleScroll = () => {
