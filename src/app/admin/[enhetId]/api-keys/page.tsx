@@ -10,7 +10,7 @@ export default async function ApiKeysPage({
   params: Promise<{ enhetId: string }>;
 }) {
   const authInfo = await cachedAuthInfo();
-  if (!authInfo) {
+  if (authInfo?.type !== 'Enhet') {
     notFound();
   }
 

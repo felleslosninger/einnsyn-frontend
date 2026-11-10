@@ -25,11 +25,11 @@ import {
 } from '~/components/EinTransition/EinTransition';
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
+import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
 import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
-import { showsSearchResults } from '~/lib/routing/sections';
 import cn from '~/lib/utils/className';
 import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
 import styles from './SearchResultContainer.module.scss';
@@ -71,18 +71,17 @@ export default function SearchResultContainer({
     loadingSearchParamsString,
     searchParamsString,
     loading,
-    optimisticPathname,
-    optimisticSearchParams,
   } = useNavigation();
-  const enhetIds = useMemo(() => {
-    // Don't reload enhets when moving away from search (e.g. to a Enhet's
-    // Saksmappe).
-    const isSearch = showsSearchResults(optimisticPathname);
-    return getEnhetSelection(
-      getPathEnhet(isSearch ? optimisticPathname : pathname),
-      isSearch ? optimisticSearchParams : searchParams,
-    );
-  }, [optimisticPathname, optimisticSearchParams, pathname, searchParams]);
+  // The search's own selection, which holds still while navigating to a hit.
+  const { searchTarget } = useSearchField();
+  const enhetIds = useMemo(
+    () =>
+      getEnhetSelection(
+        getPathEnhet(searchTarget.pathname),
+        searchTarget.searchParams,
+      ),
+    [searchTarget],
+  );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
   const isLoading =

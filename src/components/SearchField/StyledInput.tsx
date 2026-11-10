@@ -2,17 +2,12 @@ import {
   Fragment,
   forwardRef,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
 
 import cn from '~/lib/utils/className';
-import {
-  domTransitionDuration,
-  domTransitionend,
-} from '~/lib/utils/domTransitionend';
 import { searchQueryToTokens } from '~/lib/utils/searchStringTokenizer';
 import styles from './StyledInput.module.scss';
 
@@ -41,7 +36,6 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
     ref,
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const widthLockCleanupRef = useRef<(() => void) | null>(null);
     const searchQuery = typeof value === 'string' ? value : '';
     const searchTokens = useMemo(
       () => searchQueryToTokens((value || '').toString()),
@@ -128,90 +122,6 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
       [resizeTextarea],
     );
 
-    const clearWidthLock = useCallback(() => {
-      widthLockCleanupRef.current?.();
-      widthLockCleanupRef.current = null;
-    }, []);
-
-    const lockWidthDuringTransition = useCallback(
-      (target: HTMLTextAreaElement): boolean => {
-        clearWidthLock();
-
-        const styledInputContainer = target.closest(
-          `.${styles.styledInputContainer}`,
-        ) as HTMLElement | null;
-        const widthAnimatedContainer = target.closest(
-          '[data-styled-input-width-animated="true"]',
-        ) as HTMLElement | null;
-        if (!styledInputContainer || !widthAnimatedContainer) {
-          return false;
-        }
-
-        const width = target.getBoundingClientRect().width;
-        if (width <= 0) {
-          return false;
-        }
-
-        const hasMinWidthTransition =
-          domTransitionDuration(widthAnimatedContainer, 'min-width') > 0;
-        if (!hasMinWidthTransition) {
-          return false;
-        }
-
-        styledInputContainer.dataset.widthLocked = 'true';
-        styledInputContainer.style.setProperty(
-          '--styled-input-locked-width',
-          `${width}px`,
-        );
-
-        let released = false;
-        let lockedWidth = width;
-        const widthObserver = new ResizeObserver(() => {
-          const nextWidth = styledInputContainer.getBoundingClientRect().width;
-          if (nextWidth > lockedWidth + 0.5) {
-            lockedWidth = nextWidth;
-            styledInputContainer.style.setProperty(
-              '--styled-input-locked-width',
-              `${nextWidth}px`,
-            );
-          }
-        });
-
-        const release = () => {
-          if (released) {
-            return;
-          }
-          released = true;
-
-          widthObserver.disconnect();
-          delete styledInputContainer.dataset.widthLocked;
-          styledInputContainer.style.removeProperty(
-            '--styled-input-locked-width',
-          );
-
-          if (target.isConnected) {
-            requestAnimationFrame(() => {
-              resizeIfExpanded(target);
-            });
-          }
-
-          if (widthLockCleanupRef.current === release) {
-            widthLockCleanupRef.current = null;
-          }
-        };
-
-        widthObserver.observe(widthAnimatedContainer);
-
-        widthLockCleanupRef.current = release;
-        void domTransitionend(widthAnimatedContainer, 'min-width').then(
-          release,
-          release,
-        );
-        return true;
-      },
-      [clearWidthLock, resizeIfExpanded],
-    );
-
     const onInputWrapper = useCallback(
       (event: React.InputEvent<HTMLTextAreaElement>) => {
         onInput?.(event);
@@ -248,32 +158,23 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
     const onTextareaFocus = useCallback(
       (event: React.FocusEvent<HTMLTextAreaElement>) => {
         const target = event.target as HTMLTextAreaElement;
-        const lockedDuringTransition = lockWidthDuringTransition(target);
         onFocus?.(event);
-        if (!lockedDuringTransition) {
-          requestAnimationFrame(() => {
-            resizeTextarea(target);
-          });
-        }
+        requestAnimationFrame(() => {
+          resizeTextarea(target);
+        });
       },
-      [lockWidthDuringTransition, onFocus, resizeTextarea],
+      [onFocus, resizeTextarea],
     );
 
     const onTextareaFocusBlur = useCallback(
       (event: React.FocusEvent<HTMLTextAreaElement>) => {
         onBlur?.(event);
-        clearWidthLock();
         const target = event.target as HTMLTextAreaElement;
         target.style.height = '';
         updateExpandableContainerHeight(target, undefined);
         updateFlowContainerHeight(target, undefined);
       },
-      [
-        clearWidthLock,
-        onBlur,
-        updateExpandableContainerHeight,
-        updateFlowContainerHeight,
-      ],
+      [onBlur, updateExpandableContainerHeight, updateFlowContainerHeight],
     );
 
     const setTextareaRef = useCallback(
@@ -338,12 +239,6 @@ export const StyledInput = forwardRef<HTMLTextAreaElement, StyledInputProps>(
         observer.disconnect();
       };
     }, [resizeIfExpanded]);
-
-    useEffect(() => {
-      return () => {
-        clearWidthLock();
-      };
-    }, [clearWidthLock]);
 
     return (
       <div
