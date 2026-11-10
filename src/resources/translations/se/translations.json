@@ -41,7 +41,8 @@
       "copyKeyWarning": "Várjal čoavdaga sihkkarit, dat čájehuvvo dušše oktii.",
       "copyKeyConfirmation": "Lean vurken čoavdaga.",
       "deleteConfirmationTitle": "Sihko API-čoavdaga",
-      "deleteConfirmationMessage": "Leatgo sihkkar ahte háliidat sihkkojuvvot API-čoavdaga '$1'?"
+      "deleteConfirmationMessage": "Leatgo sihkkar ahte háliidat sihkkojuvvot API-čoavdaga '$1'?",
+      "deleteError": "Ii sáhttán sihkkut API-čoavdaga"
     },
     "organization": {
       "label": "Organisašuvdna",

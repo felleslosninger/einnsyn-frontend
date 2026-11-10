@@ -41,7 +41,8 @@
       "copyKeyWarning": "Vennligst lagre nøkkelen din på et sikkert sted. Den vil kun bli vist denne ene gangen.",
       "copyKeyConfirmation": "Jeg har lagret nøkkelen.",
       "deleteConfirmationTitle": "Slett API-nøkkel",
-      "deleteConfirmationMessage": "Er du sikker på at du vil slette API-nøkkelen '$1'?"
+      "deleteConfirmationMessage": "Er du sikker på at du vil slette API-nøkkelen '$1'?",
+      "deleteError": "Kunne ikke slette API-nøkkelen"
     },
     "organization": {
       "label": "Organisasjon",

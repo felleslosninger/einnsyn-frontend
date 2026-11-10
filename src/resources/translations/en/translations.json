@@ -41,7 +41,8 @@
       "copyKeyWarning": "Please store your key securely, it will only be shown once.",
       "copyKeyConfirmation": "I have stored my key.",
       "deleteConfirmationTitle": "Delete API key",
-      "deleteConfirmationMessage": "Are you sure you want to delete the API key '$1'?"
+      "deleteConfirmationMessage": "Are you sure you want to delete the API key '$1'?",
+      "deleteError": "Could not delete the API key"
     },
     "organization": {
       "label": "Organization",
