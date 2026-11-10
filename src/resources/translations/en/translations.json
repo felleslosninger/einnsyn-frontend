@@ -2,6 +2,12 @@
   "site": {
     "settings": "Settings",
     "login": "Log in",
+    "loginRequired": {
+      "title": "You need to log in",
+      "description": "This page is only available when you are logged in.",
+      "descriptionOrganization": "This page is only available when you are logged in on behalf of an organization.",
+      "goToFrontPage": "Go to front page"
+    },
     "loggingIn": "Logging in",
     "logout": "Log out",
     "loggingOut": "Logging out",
@@ -115,6 +121,7 @@
       "VIRKSOMHET": "Organization"
     },
     "searchingIn": "Searching in",
+    "backToResults": "Back to search results",
     "saveSearch": "Save search",
     "saveSearchName": "Search name",
     "saveSearchSubscribe": "Notify me about new results",
@@ -160,16 +167,39 @@
     "yes": "Yes",
     "no": "No"
   },
+  "breadcrumbs": {
+    "label": "Breadcrumb trail"
+  },
   "saksmappe": {
     "label": "Case",
     "labelPlural": "Cases",
-    "saksnummer": "Case number"
+    "saksnummer": "Case number",
+    "journalfoert": "Recorded",
+    "follow": "Follow case",
+    "publishedBy": "Published by"
   },
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
+    "labelPluralInCase": "Records in the case",
     "from": "From",
     "to": "To",
+    "docDate": "Document date",
+    "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "mainDocument": "Main document",
+    "orderAccess": "Request access",
+    "downloadDocument": "Download document",
+    "recordType": "Type",
+    "number": "Record no.",
+    "partyCount": {
+      "avsender": "$1 senders",
+      "mottaker": "$1 recipients"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 senders, all $2",
+      "mottaker": "$1 recipients, all $2"
+    },
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
