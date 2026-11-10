@@ -104,7 +104,8 @@ const commitDirection = (
  * stops spends the whole of it covering what is being scrolled to. Holding it
  * there is then what keeps the scrolling itself from undoing it.
  *
- * Suspensions nest.
+ * Suspensions nest. When the last one is released at the bottom of the page,
+ * `upAtBottom` subscribers commit `up`, as if the user had scrolled there.
  */
 export const suspendScrollDirection = (): (() => void) => {
   directionSuspensions++;
@@ -119,6 +120,14 @@ export const suspendScrollDirection = (): (() => void) => {
     if (released) return;
     released = true;
     directionSuspensions--;
+    if (directionSuspensions > 0) return;
+
+    // Read fresh: the last scroll event may not have been handled yet
+    const y = readScrollY();
+    if (!readIsAtBottom(y) || readIsAtTop(y)) return;
+    subscribers.forEach((subscriber) => {
+      if (subscriber.upAtBottom) commitDirection(subscriber, 'up');
+    });
   };
 };
 
