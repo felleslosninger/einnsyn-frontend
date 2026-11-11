@@ -1,0 +1,9 @@
+@use '../../../styles/headerRow.scss' as headerRow;
+
+.followLink {
+  @include headerRow.header-row-item;
+
+  svg {
+    font-size: 1.25em;
+  }
+}

@@ -57,8 +57,14 @@ const translateFunction = (
   return current.trim();
 };
 
+/** The translate function returned by getTranslateFunction / useTranslation. */
+export type TranslateFunction = (
+  fullKey: string,
+  ...replacements: (string | undefined)[]
+) => string;
+
 export const getTranslateFunction =
-  (languageCode: LanguageCode) =>
+  (languageCode: LanguageCode): TranslateFunction =>
   (fullKey: string, ...replacements: (string | undefined)[]) =>
     translateFunction(fullKey, languageCode, ...replacements);
 
@@ -96,3 +102,10 @@ export function resolveLanguageCode<
 
 export const isLanguageCode = (lc: unknown): lc is LanguageCode =>
   supportedLanguages.includes(lc as LanguageCode);
+
+/**
+ * The locale numeric dates, times and numbers are formatted in. Month and
+ * weekday names come from the translations, as Chrome has no nynorsk or Sami.
+ */
+export const getIntlLocale = (languageCode: LanguageCode) =>
+  languageCode === 'en' ? 'en-GB' : 'nb-NO';

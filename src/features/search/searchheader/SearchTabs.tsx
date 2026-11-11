@@ -1,38 +1,17 @@
 'use client';
 
+import { EntityDot } from '~/components/EntityDot/EntityDot';
 import { useOptimisticSearchParams } from '~/components/NavigationProvider/NavigationProvider';
 import { HeaderTab, HeaderTabs } from '~/features/header/HeaderTabs';
 import { useSearchHref } from '~/hooks/useSearchHref';
 import { useTranslation } from '~/hooks/useTranslation';
 import type { SearchableEntity } from '~/lib/routing/searchParams';
-import cn from '~/lib/utils/className';
-import resultStyles from '../searchresult/searchResultStyles.module.scss';
 
-const ENTITY_TABS: {
-  entity: SearchableEntity;
-  labelKey: string;
-  dotClassName: string;
-}[] = [
-  {
-    entity: 'Saksmappe',
-    labelKey: 'saksmappe.labelPlural',
-    dotClassName: resultStyles.searchResultDotSaksmappe,
-  },
-  {
-    entity: 'Journalpost',
-    labelKey: 'journalpost.labelPlural',
-    dotClassName: resultStyles.searchResultDotJournalpost,
-  },
-  {
-    entity: 'Moetemappe',
-    labelKey: 'moetemappe.labelPlural',
-    dotClassName: resultStyles.searchResultDotMoetemappe,
-  },
-  {
-    entity: 'Moetesak',
-    labelKey: 'moetesak.labelPlural',
-    dotClassName: resultStyles.searchResultDotMoetesak,
-  },
+const ENTITY_TABS: { entity: SearchableEntity; labelKey: string }[] = [
+  { entity: 'Saksmappe', labelKey: 'saksmappe.labelPlural' },
+  { entity: 'Journalpost', labelKey: 'journalpost.labelPlural' },
+  { entity: 'Moetemappe', labelKey: 'moetemappe.labelPlural' },
+  { entity: 'Moetesak', labelKey: 'moetesak.labelPlural' },
 ];
 
 export default function SearchTabs() {
@@ -50,12 +29,12 @@ export default function SearchTabs() {
       >
         {t('common.all')}
       </HeaderTab>
-      {ENTITY_TABS.map(({ entity, labelKey, dotClassName }) => (
+      {ENTITY_TABS.map(({ entity, labelKey }) => (
         <HeaderTab
           key={entity}
           href={searchHref({ entity })}
           active={activeEntity === entity}
-          dotClassName={cn(resultStyles.searchResultDot, dotClassName)}
+          dot={<EntityDot entity={entity} />}
         >
           {t(labelKey)}
         </HeaderTab>
