@@ -153,11 +153,7 @@ export function EinTransition<T extends unknown[] = [number]>(
   // unmount (e.g. when children transition to null).
   const snapshot =
     shouldTransition && childRef.current
-      ? {
-          element: domFreeze(childRef.current),
-          parent: childRef.current.parentElement,
-          nextSibling: childRef.current.nextSibling,
-        }
+      ? freezeSnapshot(childRef.current, withClassNames)
       : null;
 
   // On the first render of a fresh-enter (no previous element to snapshot),
@@ -202,7 +198,8 @@ export function EinTransition<T extends unknown[] = [number]>(
 
       // Loaded but not revealed yet, so nothing new is on screen to exit: wait
       // for the newer content behind whatever snapshot is still there. Read off
-      // the clone, since `hideNew` may already hold a reveal this render brings.
+      // `snapshot.element`, copied before this commit: `hideNew` may already
+      // hold a reveal this render brings.
       if (
         (transitionStep === 'merge' || transitionStep === 'enterInit') &&
         snapshot?.element.style.display === 'none'
@@ -228,7 +225,11 @@ export function EinTransition<T extends unknown[] = [number]>(
 
       // Restarted while entering: the entering content exits from where it had
       // got to, and the live element starts over.
-      transferTransitionStyles(childRef.current, snapshot.element);
+      transferTransitionStyles(
+        childRef.current,
+        snapshot.element,
+        snapshot.transitionValues,
+      );
 
       // Insert the snapshot at the original element's position. The original
       // may already be gone (transition to null children) — that's fine, we
@@ -488,24 +489,107 @@ const transitionEvents = {
 } as const;
 const stepClassNames = Object.values(transitionEvents);
 
-// Properties a snapshot holds inline until its exit step.
-const heldStyleProperties = new WeakMap<HTMLElement, string[]>();
+type StyledElement = HTMLElement | SVGElement;
+type StyleValue = { element: StyledElement; property: string; value: string };
+type TransferredStyle = StyleValue & { replaced: string };
+
+// What was transferred inline to a snapshot, oldest first, with the inline
+// values they took the place of.
+const transferredStyles = new WeakMap<HTMLElement, TransferredStyle[]>();
+
+function freezeSnapshot(live: HTMLElement, withClassNames: boolean) {
+  const element = domFreeze(live);
+  return {
+    element,
+    // Only the class-name exit step clears them.
+    transitionValues: withClassNames ? readTransitionValues(live, element) : [],
+    parent: live.parentElement,
+    nextSibling: live.nextSibling,
+  };
+}
 
 /**
- * Takes the step classes off `live` and its snapshot, holding on the snapshot
- * the values they gave `live` as of now (mid-transition included), so its exit
- * starts from there. Timing is left to the steps.
+ * The current value of each transition running in `live`'s subtree, for the
+ * matching node in `snapshot`, which starts at their end values. CSS
+ * animations restart in the snapshot by themselves.
+ */
+function readTransitionValues(live: HTMLElement, snapshot: HTMLElement) {
+  // Filled one parent's children at a time, as the targets need them, so the
+  // cost follows the targets, not the size of the tree.
+  const counterparts = new Map<Element, Element | null>([[live, snapshot]]);
+  const counterpart = (node: Element): Element | null => {
+    if (!counterparts.has(node)) {
+      const parent = node.parentElement;
+      const parentSnapshot = parent && counterpart(parent);
+      for (
+        let liveChild = parent?.firstElementChild,
+          snapshotChild = parentSnapshot?.firstElementChild;
+        liveChild && snapshotChild;
+        liveChild = liveChild.nextElementSibling,
+          snapshotChild = snapshotChild.nextElementSibling
+      ) {
+        counterparts.set(liveChild, snapshotChild);
+      }
+      if (!counterparts.has(node)) counterparts.set(node, null);
+    }
+    return counterparts.get(node) ?? null;
+  };
+
+  const values: StyleValue[] = [];
+  // Loop all ongoing transitions in the live tree
+  for (const animation of live.getAnimations({ subtree: true })) {
+    if (!(animation instanceof CSSTransition)) continue;
+    const { target, pseudoElement } = animation.effect as KeyframeEffect;
+    if (!target || pseudoElement) continue;
+    const snapshotTarget = counterpart(target);
+    if (snapshotTarget) {
+      const property = animation.transitionProperty;
+      const value = getComputedStyle(target).getPropertyValue(property);
+      values.push({
+        element: snapshotTarget as StyledElement,
+        property,
+        value,
+      });
+    }
+  }
+  return values;
+}
+
+/**
+ * Takes the step classes off `live` and its snapshot, and transfers to the
+ * snapshot, inline, the values they gave `live` as of now and the
+ * `transitionValues` read as it was cloned, so its exit starts from what was
+ * on screen. Timing is left to the steps.
  */
 function transferTransitionStyles(
   live: HTMLElement | null,
   snapshot: HTMLElement,
+  transitionValues: StyleValue[],
 ) {
   snapshot.classList.remove(...stepClassNames);
+
+  const transferred: TransferredStyle[] = [];
+  transferredStyles.set(snapshot, transferred);
+  const transfer = ({ element, property, value }: StyleValue) => {
+    const replaced = element.style.getPropertyValue(property);
+    element.style.setProperty(property, value);
+    transferred.push({
+      element,
+      property,
+      // As serialised, for the comparison when cleared
+      value: element.style.getPropertyValue(property),
+      replaced,
+    });
+  };
+
+  transitionValues.forEach(transfer);
+
+  // `live` is gone, replaced, or has no steps to undo.
   if (!live || !stepClassNames.some((name) => live.classList.contains(name))) {
     return;
   }
 
-  const readStyle = () => {
+  const readStyles = () => {
     const style = getComputedStyle(live);
     return new Map(
       Array.from(style, (property) => {
@@ -513,38 +597,36 @@ function transferTransitionStyles(
       }),
     );
   };
-  // A transition already heading for the resting value runs on once the
-  // classes are gone, so the difference below misses it.
-  const running = live
-    .getAnimations()
-    .flatMap((animation) =>
-      animation instanceof CSSTransition ? [animation.transitionProperty] : [],
-    );
-  const currentStyles = readStyle();
+  const currentStyles = readStyles();
   live.classList.remove(...stepClassNames);
-  const rest = readStyle();
+  const finalStyles = readStyles();
 
-  const held: string[] = [];
+  // Read later than `transitionValues`, so these replace theirs on the root. A
+  // transition heading for its final value is only in `transitionValues`.
   for (const [property, value] of currentStyles) {
     if (
-      (value !== rest.get(property) || running.includes(property)) &&
+      value !== finalStyles.get(property) &&
       !property.startsWith('transition') &&
       !property.startsWith('animation')
     ) {
-      snapshot.style.setProperty(property, value);
-      held.push(property);
+      transfer({ element: snapshot, property, value });
     }
   }
-  heldStyleProperties.set(snapshot, held);
 }
 
 // In the same task as the exit class goes on, so the exit transitions from the
-// held values.
-function releaseTransitionStyles(element: HTMLElement) {
-  for (const property of heldStyleProperties.get(element) ?? []) {
-    element.style.removeProperty(property);
+// transferred values. Newest first, so a property transferred twice ends up
+// with what it had.
+function clearTransitionStyles(snapshot: HTMLElement) {
+  const transferred = transferredStyles.get(snapshot) ?? [];
+  for (let i = transferred.length - 1; i >= 0; i--) {
+    const { element, property, value, replaced } = transferred[i];
+    // Unless an event has set it since
+    if (element.style.getPropertyValue(property) === value) {
+      element.style.setProperty(property, replaced);
+    }
   }
-  heldStyleProperties.delete(element);
+  transferredStyles.delete(snapshot);
 }
 
 /**
@@ -571,7 +653,7 @@ function addClassNameEvents<T extends unknown[]>(
 
   newEvents.onExitTransition = async (e, toDeps, fromDeps) => {
     await events.onExitTransition?.(e, toDeps, fromDeps);
-    releaseTransitionStyles(e);
+    clearTransitionStyles(e);
     e.classList.add(transitionEvents.onExitTransition);
     await domTransitionend(e);
   };
