@@ -1,7 +1,7 @@
 'use client';
 
 import { Fieldset, Radio } from '@digdir/designsystemet-react';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -67,17 +67,29 @@ export function DateFilter({
 }) {
   const t = useTranslation();
   const name = useId();
-  const [radioValue, customFromValue = '', customToValue = ''] =
-    parseCurrentValue(value, defaultValue);
+  const [radioValue] = parseCurrentValue(value, defaultValue);
+
+  // The last custom range, kept while a preset is selected so "custom" can
+  // restore it. Follows the query whenever the query holds a range.
+  const [customValue, setCustomValue] = useState(
+    radioValue === 'custom' ? (value ?? '') : '',
+  );
+  if (radioValue === 'custom' && value !== customValue) {
+    setCustomValue(value ?? '');
+  }
+  const [, customFromValue = '', customToValue = ''] = parseCurrentValue(
+    customValue,
+    defaultValue,
+  );
 
   const update = (next: string) =>
     setValue?.(next === defaultValue ? undefined : next);
 
-  // "Custom" before any date is picked is the empty token (`publisert:`),
-  // which the query keeps apart from "all".
+  // "Custom" without a range is the empty token (`publisert:`), which the
+  // query keeps apart from "all".
   const selectOption = (option: string) => {
     if (option !== radioValue) {
-      update(option === 'custom' ? '' : option);
+      update(option === 'custom' ? customValue : option);
     }
   };
 
