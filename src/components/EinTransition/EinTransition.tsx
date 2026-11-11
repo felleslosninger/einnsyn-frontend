@@ -200,10 +200,7 @@ export function EinTransition<T extends unknown[] = [number]>(
       // for the newer content behind whatever snapshot is still there. Read off
       // `snapshot.element`, copied before this commit: `hideNew` may already
       // hold a reveal this render brings.
-      if (
-        (transitionStep === 'merge' || transitionStep === 'enterInit') &&
-        snapshot?.element.style.display === 'none'
-      ) {
+      if (snapshot?.element.style.display === 'none') {
         childRef.current?.classList.remove(...stepClassNames);
         setHideNew(true);
         setTransitionStep('waitForLoad');
@@ -379,12 +376,15 @@ export function EinTransition<T extends unknown[] = [number]>(
           await events.onInitEnterTransition?.(newElement, toDeps, fromDeps);
           if (checkStale()) return;
 
-          // Swap the snapshot for the element, now in its initial styles,
-          // within one task. A plain state update renders in a later task, and
-          // a frame painted in between shows neither (seen in Safari).
+          // Swap the snapshot for the element, in its initial styles, within
+          // one task. A plain state update renders in a later task, and a frame
+          // painted in between shows neither (seen in Safari).
+          flushSync(() => setHideNew(false));
+          // flushSync also renders other pending updates. A restart among them
+          // waits behind the snapshot, so it stays.
+          if (checkStale()) return;
           snapshotRef.current?.remove();
           snapshotRef.current = null;
-          flushSync(() => setHideNew(false));
           await animationFrame(1);
 
           if (checkStale()) return;
@@ -401,7 +401,6 @@ export function EinTransition<T extends unknown[] = [number]>(
           }
 
           // Perform entry transition
-          if (checkStale()) return;
           await events.onEnterTransition?.(newElement, toDeps, fromDeps);
           await animationFrame(1);
 
@@ -566,7 +565,15 @@ function transferTransitionStyles(
   snapshot: HTMLElement,
   transitionValues: StyleValue[],
 ) {
+  // If interrupted before `enter`, keep the init-enter class until exit starts:
+  // inline copying below only covers the root and requires a mounted `live` node.
+  const keepInitialStyles =
+    snapshot.classList.contains(transitionEvents.onInitEnterTransition) &&
+    !snapshot.classList.contains(transitionEvents.onEnterTransition);
   snapshot.classList.remove(...stepClassNames);
+  if (keepInitialStyles) {
+    snapshot.classList.add(transitionEvents.onInitEnterTransition);
+  }
 
   const transferred: TransferredStyle[] = [];
   transferredStyles.set(snapshot, transferred);
@@ -614,9 +621,9 @@ function transferTransitionStyles(
   }
 }
 
-// In the same task as the exit class goes on, so the exit transitions from the
-// transferred values. Newest first, so a property transferred twice ends up
-// with what it had.
+// Runs right before adding the exit class so exit transitions start from the
+// transferred inline styles and kept init-enter class. Reverts newest first so
+// properties transferred twice restore their original inline value.
 function clearTransitionStyles(snapshot: HTMLElement) {
   const transferred = transferredStyles.get(snapshot) ?? [];
   for (let i = transferred.length - 1; i >= 0; i--) {
@@ -627,6 +634,7 @@ function clearTransitionStyles(snapshot: HTMLElement) {
     }
   }
   transferredStyles.delete(snapshot);
+  snapshot.classList.remove(transitionEvents.onInitEnterTransition);
 }
 
 /**
