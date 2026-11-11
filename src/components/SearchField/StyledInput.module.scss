@@ -78,6 +78,12 @@
     background: transparent;
   }
 
+  // Firefox derives the placeholder's colour from the text's, which is
+  // transparent here.
+  &::placeholder {
+    color: var(--ds-color-neutral-text-subtle);
+  }
+
   &:focus,
   &:focus-visible {
     box-shadow: none;
