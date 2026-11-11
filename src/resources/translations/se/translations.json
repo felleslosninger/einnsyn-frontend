@@ -119,6 +119,7 @@
       "VIRKSOMHET": "Organisašuvdna"
     },
     "searchingIn": "Ohcamin",
+    "backToResults": "Ruovttoluotta ohcanbohtosiidda",
     "saveSearch": "Vurke ohcama",
     "saveSearchName": "Ohcama namma",
     "saveSearchSubscribe": "Dieđit munnje ođđa bohtosiid birra",
@@ -128,12 +129,65 @@
     "saveSearchMissingLabel": "Atte ohcamii nama",
     "saveSearchLoginPrompt": "Logga sisa vai sáhtát vurket ohcama."
   },
+  "date": {
+    "weekdayDate": "$1 $2. $3",
+    "monthYear": "$1 $2",
+    "months": {
+      "1": "ođđajagemánnu",
+      "2": "guovvamánnu",
+      "3": "njukčamánnu",
+      "4": "cuoŋománnu",
+      "5": "miessemánnu",
+      "6": "geassemánnu",
+      "7": "suoidnemánnu",
+      "8": "borgemánnu",
+      "9": "čakčamánnu",
+      "10": "golggotmánnu",
+      "11": "skábmamánnu",
+      "12": "juovlamánnu"
+    },
+    "monthsShort": {
+      "1": "ođđj",
+      "2": "guov",
+      "3": "njuk",
+      "4": "cuo",
+      "5": "mies",
+      "6": "geas",
+      "7": "suoi",
+      "8": "borg",
+      "9": "čakč",
+      "10": "golg",
+      "11": "skáb",
+      "12": "juov"
+    },
+    "weekdays": {
+      "1": "vuossárga",
+      "2": "maŋŋebárga",
+      "3": "gaskavahkku",
+      "4": "duorasdat",
+      "5": "bearjadat",
+      "6": "lávvardat",
+      "7": "sotnabeaivi"
+    }
+  },
+  "statistics": {
+    "last12Months": "Siste 12 måneder",
+    "documents": "dokumenter",
+    "fulltext": "med fulltekst",
+    "innsynskrav": "innsynskrav",
+    "month": "Måned"
+  },
   "common": {
     "publishedAt": "Almmuhuvvon",
     "updatedAt": "Beaiváduvvon",
     "recordedAt": "Journaliserejuvvon",
     "number": "Nr",
     "andMore": "+ $1 eanet",
+    "today": "Odne",
+    "tomorrow": "Ihttin",
+    "inDays": "$1 beaivvi geažes",
+    "yesterday": "Ikte",
+    "daysAgo": "$1 beaivvi áigi",
     "all": "Buot",
     "phone": "Telefovdna",
     "email": "Siidu",
@@ -164,16 +218,39 @@
     "yes": "Jo",
     "no": "Ii"
   },
+  "breadcrumbs": {
+    "label": "Láidestanbálggis"
+  },
   "saksmappe": {
     "label": "Ášši",
     "labelPlural": "Áššit",
-    "saksnummer": "Áššinummar"
+    "saksnummer": "Áššinummar",
+    "journalfoert": "Journalastojuvvon",
+    "follow": "Čuovo ášši",
+    "publishedBy": "Almmuhan"
   },
   "journalpost": {
     "label": "Journalapoasta",
     "labelPlural": "Journalapoasttat",
-    "from": "Eret",
-    "to": "Vuostáiváldi",
+    "labelPluralInCase": "Journalapoasttat áššis",
+    "from": "Geas",
+    "to": "Geasa",
+    "docDate": "Dokumeantadáhton",
+    "legalBasis": "Láhkavuođđu",
+    "attachmentPlural": "Mildosat",
+    "mainDocument": "Váldodokumeanta",
+    "orderAccess": "Diŋgo geahčadeami",
+    "downloadDocument": "Last ned dokument",
+    "recordType": "Dok.málle",
+    "number": "Journalpostnr.",
+    "partyCount": {
+      "avsender": "$1 avsendere",
+      "mottaker": "$1 mottakere"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 avsendere, alle $2",
+      "mottaker": "$1 mottakere, alle $2"
+    },
     "type": {
       "inngaaende_dokument": "Sisasboahtti dokumeanta",
       "utgaaende_dokument": "Olggosmanni dokumeanta",
@@ -188,7 +265,8 @@
   },
   "moetemappe": {
     "label": "Čoahkkin",
-    "labelPlural": "Čoahkkimat"
+    "labelPlural": "Čoahkkimat",
+    "upcoming": "Boahtte čoahkkimat"
   },
   "moetesak": {
     "label": "Čoahkkinášši",

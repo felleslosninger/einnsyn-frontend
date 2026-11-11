@@ -119,6 +119,7 @@
       "VIRKSOMHET": "Organization"
     },
     "searchingIn": "Searching in",
+    "backToResults": "Back to search results",
     "saveSearch": "Save search",
     "saveSearchName": "Search name",
     "saveSearchSubscribe": "Notify me about new results",
@@ -128,12 +129,65 @@
     "saveSearchMissingLabel": "Give the search a name",
     "saveSearchLoginPrompt": "Log in to save the search."
   },
+  "date": {
+    "weekdayDate": "$1 $2 $3",
+    "monthYear": "$1 $2",
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "monthsShort": {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sept",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec"
+    },
+    "weekdays": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    }
+  },
+  "statistics": {
+    "last12Months": "Last 12 months",
+    "documents": "documents",
+    "fulltext": "with full text",
+    "innsynskrav": "access requests",
+    "month": "Month"
+  },
   "common": {
     "publishedAt": "Published",
     "updatedAt": "Updated",
     "recordedAt": "Recorded",
     "number": "No.",
     "andMore": "+ $1 more",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays": "In $1 days",
+    "yesterday": "Yesterday",
+    "daysAgo": "$1 days ago",
     "all": "All",
     "phone": "Phone",
     "email": "Email",
@@ -164,16 +218,39 @@
     "yes": "Yes",
     "no": "No"
   },
+  "breadcrumbs": {
+    "label": "Breadcrumb trail"
+  },
   "saksmappe": {
     "label": "Case",
     "labelPlural": "Cases",
-    "saksnummer": "Case number"
+    "saksnummer": "Case number",
+    "journalfoert": "Recorded",
+    "follow": "Follow case",
+    "publishedBy": "Published by"
   },
   "journalpost": {
     "label": "Record",
     "labelPlural": "Records",
+    "labelPluralInCase": "Records in the case",
     "from": "From",
     "to": "To",
+    "docDate": "Document date",
+    "legalBasis": "Legal basis",
+    "attachmentPlural": "Attachments",
+    "mainDocument": "Main document",
+    "orderAccess": "Request access",
+    "downloadDocument": "Download document",
+    "recordType": "Type",
+    "number": "Record no.",
+    "partyCount": {
+      "avsender": "$1 senders",
+      "mottaker": "$1 recipients"
+    },
+    "partyCountAllSame": {
+      "avsender": "$1 senders, all $2",
+      "mottaker": "$1 recipients, all $2"
+    },
     "type": {
       "inngaaende_dokument": "Incoming document",
       "utgaaende_dokument": "Outgoing document",
@@ -188,7 +265,8 @@
   },
   "moetemappe": {
     "label": "Meeting",
-    "labelPlural": "Meetings"
+    "labelPlural": "Meetings",
+    "upcoming": "Upcoming meetings"
   },
   "moetesak": {
     "label": "Meeting case",
