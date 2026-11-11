@@ -59,6 +59,7 @@ export default function LoginForm({
   const { settings } = useSessionData();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordRepeat, setPasswordRepeat] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(!!settings?.stayLoggedIn);
   const [notice, setNotice] = useState<Notice>();
@@ -72,6 +73,10 @@ export default function LoginForm({
   const forgotPasswordLink = useRef<HTMLAnchorElement>(null);
   const backToLoginLink = useRef<HTMLAnchorElement>(null);
   const focusOnLogin = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isLogin) setShowPassword(false);
+  }, [isLogin]);
 
   const [loginState, loginAction, isLoggingIn] = useActionState(
     eInnsynLoginAction,
@@ -227,7 +232,7 @@ export default function LoginForm({
             ref={passwordInput}
             // Without a name it stays out of the reset request
             name={hasPassword ? 'password' : undefined}
-            type="password"
+            type={isLogin && showPassword ? 'text' : 'password'}
             label={
               <>
                 {t('site.password')}
@@ -244,6 +249,16 @@ export default function LoginForm({
             required={hasPassword}
             fullWidth
           />
+          {isLogin && (
+            <EinButton
+              type="button"
+              variant="tertiary"
+              data-size="sm"
+              onClick={() => setShowPassword((shown) => !shown)}
+            >
+              {showPassword ? t('site.hidePassword') : t('site.showPassword')}
+            </EinButton>
+          )}
         </EinExpandable>
         <EinExpandable expanded={isRegister}>
           <EinInput

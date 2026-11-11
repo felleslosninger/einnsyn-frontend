@@ -14,6 +14,8 @@
     "username": "Brukarnamn",
     "usernamePlaceholder": "brukar@eksempel.no",
     "password": "Passord",
+    "showPassword": "Vis passord",
+    "hidePassword": "Skjul passord",
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Forbli innlogga",
     "forgottenPassword": "Gløymt passord?",
