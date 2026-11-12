@@ -100,7 +100,8 @@ export function DateFilter({
   }, [setRadioValue]);
 
   useEffect(() => {
-    setValue?.(currentValue === defaultValue ? undefined : currentValue);
+    const isEmptyOrDefault = currentValue === '' || currentValue === defaultValue;
+    setValue?.(isEmptyOrDefault ? undefined : currentValue);
   }, [setValue, currentValue, defaultValue]);
 
   return (
