@@ -24,13 +24,13 @@ $stickyGap: var(--ein-horizontal-spacing);
   }
 }
 
-// Held between its top under the header and its bottom in view, so content
-// taller than the viewport scrolls between the two. Content that fits stays
-// under the header.
+// Held between its top under the header and its bottom in view, clear of the
+// footer for when that is shown, so content taller than the viewport scrolls
+// between the two. Content that fits stays under the header.
 .sticky {
   position: sticky;
   top: min(var(--ein-header-height) + #{$stickyGap},
-    100vh - var(--panel-height, 0px) - #{$stickyGap});
+    100vh - var(--panel-height, 0px) - var(--ein-footer-height, 0px) - #{$stickyGap});
   bottom: calc(100vh - var(--ein-header-height) - #{$stickyGap} - var(--panel-height, 0px));
 }
 
