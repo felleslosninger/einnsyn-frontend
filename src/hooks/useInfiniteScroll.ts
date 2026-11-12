@@ -24,8 +24,6 @@ export function useInfiniteScroll<T extends Base>(
   extendBackward: () => void;
   extendForward: () => void;
   shift: boolean;
-  /** The last extend failed. Cleared by the next one that succeeds. */
-  loadFailed: boolean;
 } {
   const [page, setPage] = useState(serverPage);
 
@@ -44,7 +42,6 @@ export function useInfiniteScroll<T extends Base>(
   // prepends don't shift visible content, and stays true so the anchor
   // survives the async ResizeObserver measurement of the prepended rows.
   const [shift, setShift] = useState(false);
-  const [loadFailed, setLoadFailed] = useState(false);
 
   const extendBackward = useCallback(async () => {
     const current = pageRef.current;
@@ -54,9 +51,6 @@ export function useInfiniteScroll<T extends Base>(
     try {
       const extended = await fetchPreviousPage(current);
       setPage((latest) => mergeWindow(latest, extended));
-      setLoadFailed(false);
-    } catch {
-      setLoadFailed(true);
     } finally {
       loadingPrevRef.current = false;
     }
@@ -70,19 +64,10 @@ export function useInfiniteScroll<T extends Base>(
     try {
       const extended = await fetchNextPage(current);
       setPage((latest) => mergeWindow(latest, extended));
-      setLoadFailed(false);
-    } catch {
-      setLoadFailed(true);
     } finally {
       loadingNextRef.current = false;
     }
   }, []);
 
-  return {
-    page,
-    extendBackward,
-    extendForward,
-    shift,
-    loadFailed,
-  };
+  return { page, extendBackward, extendForward, shift };
 }

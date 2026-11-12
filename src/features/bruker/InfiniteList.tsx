@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Paragraph } from '@digdir/designsystemet-react';
+import { Paragraph } from '@digdir/designsystemet-react';
 import type { Base, PaginatedList } from '@digdir/einnsyn-sdk';
 import { Fragment, type ReactNode, useState } from 'react';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
@@ -33,7 +33,7 @@ export default function InfiniteList<T extends Base>({
   filter?: (item: T) => boolean;
 }) {
   const t = useTranslation();
-  const { page, extendForward, loadFailed } = useInfiniteScroll(initialPage);
+  const { page, extendForward } = useInfiniteScroll(initialPage);
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
 
   const items = page.items.filter(
@@ -65,13 +65,7 @@ export default function InfiniteList<T extends Base>({
           {page.next && (
             // A new trigger per page, so it fires again if it is still in view.
             <EinScrollTrigger key={page.items.length} onEnter={extendForward}>
-              {loadFailed ? (
-                <Alert data-color="danger" className={styles.loadError}>
-                  {t('bruker.loadError')}
-                </Alert>
-              ) : (
-                skeleton
-              )}
+              {skeleton}
             </EinScrollTrigger>
           )}
         </>
