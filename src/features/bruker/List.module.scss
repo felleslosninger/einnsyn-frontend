@@ -26,6 +26,10 @@
   list-style: none;
 }
 
+.loadError {
+  margin-bottom: var(--ds-size-10);
+}
+
 .item {
   display: flex;
   flex-direction: column;
