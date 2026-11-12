@@ -1,4 +1,5 @@
 import { isEnhet, type Moetemappe } from '@digdir/einnsyn-sdk';
+import { createEvent } from 'ics';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
@@ -9,6 +10,30 @@ import { dateFormat } from '~/lib/utils/dateFormat';
 import { generateMoetemappeURL } from '~/lib/utils/urlGenerators';
 import SearchResultSubheader from './common/SearchResultSubheader';
 import styles from './searchResultStyles.module.scss';
+
+function getCalendarHref(item: Moetemappe): string | undefined {
+  const date = new Date(item.moetedato);
+  if (Number.isNaN(date.getTime())) return undefined;
+
+  const { value } = createEvent({
+    title: item.offentligTittel,
+    start: [
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+    ],
+    startInputType: 'utc',
+    startOutputType: 'utc',
+    duration: { hours: 1 },
+    location: item.moetested,
+  });
+
+  return value
+    ? `data:text/calendar;charset=utf-8,${encodeURIComponent(value)}`
+    : undefined;
+}
 
 export default function MoetemappeResult({
   className,
@@ -22,6 +47,7 @@ export default function MoetemappeResult({
   const meetingDate = item.moetedato
     ? dateFormat(item.moetedato, languageCode)
     : undefined;
+  const calendarHref = getCalendarHref(item);
   const utvalg = item.utvalgObjekt;
 
   return (
@@ -55,10 +81,15 @@ export default function MoetemappeResult({
             </EinLink>
           </div>
         )}
-        {/* TODO: implement add to calendar functionality
-        <EinLink href="" className={styles.searchResultAction}>
-          {translate('search.addToCalendar')}
-        </EinLink> */}
+        {calendarHref && (
+          <a
+            href={calendarHref}
+            download="meeting.ics"
+            className={styles.searchResultAction}
+          >
+            {translate('search.addToCalendar')}
+          </a>
+        )}
       </div>
     </div>
   );
