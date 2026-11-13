@@ -2,7 +2,6 @@ import 'server-only';
 
 import {
   type Base,
-  EInnsynError,
   type FilterParameters,
   type PaginatedList,
   type SearchParameters,
@@ -37,12 +36,6 @@ const SORT_MAP: Record<
   enhetAsc: { sortBy: 'administrativEnhetNavn', sortOrder: 'asc' },
   enhetDesc: { sortBy: 'administrativEnhetNavn', sortOrder: 'desc' },
 };
-
-async function getEmptySearchResults(): Promise<PaginatedList<Base>> {
-  return {
-    items: [],
-  };
-}
 
 /**
  * Get the search API query for a search
@@ -167,8 +160,7 @@ export const getSearchParameters = (
 export const getSearchResults = async (
   enhetSlug: string,
   searchParams: URLSearchParams,
-) => {
-  const api = await cachedApiClient();
+): Promise<PaginatedList<Base> | null> => {
   const apiQuery = getSearchParameters(enhetSlug, searchParams);
 
   const sortParam = searchParams.get('sort');
@@ -179,6 +171,7 @@ export const getSearchResults = async (
   }
 
   try {
+    const api = await cachedApiClient();
     apiQuery.expand = [
       'administrativEnhetObjekt.parent.parent.parent.parent',
       'utvalgObjekt.parent.parent.parent.parent',
@@ -189,11 +182,8 @@ export const getSearchResults = async (
     const searchResults = await api.search.search(apiQuery);
     return searchResults;
   } catch (error) {
-    // TODO: Handle the error
-    if (error instanceof EInnsynError) {
-      logger.error('Error fetching search results', error);
-    }
-    return getEmptySearchResults();
+    logger.error('Error fetching search results', error);
+    return null;
   }
 };
 
