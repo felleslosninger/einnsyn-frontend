@@ -35,6 +35,9 @@
   padding-top: calc(var(--ds-size-2) + var(--ds-border-width-default));
   padding-bottom: var(--ds-size-2);
   min-height: var(--styled-input-min-height); // Full height minus borders
+  // Keeps runs of spaces like the textarea does; if the overlay collapsed
+  // them, clicks would land off the visible text.
+  white-space: pre;
 }
 
 .hasIcon {
@@ -53,7 +56,6 @@
   overflow: hidden;
   pointer-events: none;
   z-index: 1;
-  white-space: nowrap;
 }
 
 .input {
@@ -68,7 +70,6 @@
   z-index: 2;
   overflow: hidden;
   resize: none;
-  white-space: nowrap;
   border: none;
   margin: 0;
   padding-left: 0;
