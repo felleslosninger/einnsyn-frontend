@@ -1,4 +1,9 @@
-import { isSaksmappe, type Journalpost } from '@digdir/einnsyn-sdk';
+import {
+  isDokumentbeskrivelse,
+  isDokumentobjekt,
+  isSaksmappe,
+  type Journalpost,
+} from '@digdir/einnsyn-sdk';
 import { EinLink } from '~/components/EinLink/EinLink';
 import { Korrespondansepart } from '~/features/entities/journalpost/Korrespondansepart';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
@@ -20,6 +25,16 @@ function getSaksnummer(item: Journalpost): string | null {
   return null;
 }
 
+function getDocumentUrl(item: Journalpost): string | undefined {
+  for (const beskrivelse of item.dokumentbeskrivelse ?? []) {
+    if (!isDokumentbeskrivelse(beskrivelse)) continue;
+    for (const objekt of beskrivelse.dokumentobjekt ?? []) {
+      if (isDokumentobjekt(objekt) && objekt.url) return objekt.url;
+    }
+  }
+  return undefined;
+}
+
 export default function JournalpostResult({
   className,
   item,
@@ -30,6 +45,7 @@ export default function JournalpostResult({
   const translate = useTranslation();
   const languageCode = useLanguageCode();
   const saksnummer = getSaksnummer(item);
+  const documentUrl = getDocumentUrl(item);
   const journaldato = item.journaldato
     ? dateFormat(item.journaldato, languageCode)
     : undefined;
@@ -65,10 +81,16 @@ export default function JournalpostResult({
           )}
         </SearchResultSubheader>
         <Korrespondansepart journalpost={item} />
-        {/* TODO: implement open document functionality
-        <a href="http://localhost:3000" className={styles.searchResultAction} target="_blank" rel="noopener noreferrer">
-          {translate('search.openDocument')}
-        </a> */}
+        {documentUrl && (
+          <a
+            href={documentUrl}
+            className={styles.searchResultAction}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {translate('search.openDocument')}
+          </a>
+        )}
         {/* TODO: implement order access functionality
         <EinLink href="http://localhost:3000" className={styles.searchResultAction}>
           {translate('search.orderAccess')}
