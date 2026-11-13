@@ -26,14 +26,16 @@ import {
 import { seedEnhets } from '~/components/EnhetProvider/enhetStore';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useSearchField } from '~/components/SearchField/SearchFieldProvider';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import { type TrimmedEnhet, toTrimmedEnhet } from '~/lib/enhet/enhet';
 import { getPathEnhet } from '~/lib/routing/pathname';
 import { getEnhetSelection } from '~/lib/routing/searchParams';
+import { getIntlLocale } from '~/lib/translation/translation';
 import cn from '~/lib/utils/className';
 import { fetchNextPage, mergeWindow } from '~/lib/utils/pagination';
+import SaveSearchDropdown from './SaveSearchDropdown';
 import styles from './SearchResultContainer.module.scss';
-import SearchSortDropdown from './SearchSortDropdown';
 import SelectedEnhetPanel from './SelectedEnhetPanel';
 import SearchResult from './searchresult/SearchResult';
 import { SearchResultSkeleton } from './searchresult/SearchResultSkeleton';
@@ -56,6 +58,57 @@ function getLinkedEnhets(items: readonly Base[]): TrimmedEnhet[] {
     }
   }
   return Array.from(enhetsById.values());
+}
+
+function getResultCountKey(capped: boolean, enhetCount: number) {
+  if (enhetCount === 0) {
+    return capped ? 'search.resultCountCappedAll' : 'search.resultCountAll';
+  }
+  if (enhetCount === 1) {
+    return capped
+      ? 'search.resultCountCappedEnhetSingular'
+      : 'search.resultCountEnhetSingular';
+  }
+  return capped
+    ? 'search.resultCountCappedEnhetPlural'
+    : 'search.resultCountEnhetPlural';
+}
+
+/** The count sentence, with the number in `<strong>` tags. */
+function useResultCountText(
+  total: PaginatedList<Base>['total'],
+  enhetCount: number,
+): string | undefined {
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
+  if (!total) {
+    return undefined;
+  }
+  const count = new Intl.NumberFormat(getIntlLocale(languageCode)).format(
+    total.value,
+  );
+  return t(getResultCountKey(total.capped, enhetCount), count);
+}
+
+function SearchResultCount({
+  total,
+  enhetCount,
+}: {
+  total: PaginatedList<Base>['total'];
+  enhetCount: number;
+}) {
+  const text = useResultCountText(total, enhetCount);
+  if (!text) {
+    return null;
+  }
+  const [before, strong, after] = text.split(/<\/?strong>/);
+  return (
+    <p className={styles.resultCount}>
+      {before}
+      <strong>{strong}</strong>
+      {after}
+    </p>
+  );
 }
 
 export default function SearchResultContainer({
@@ -88,6 +141,14 @@ export default function SearchResultContainer({
     loading &&
     (loadingPathname !== pathname ||
       loadingSearchParamsString !== searchParamsString);
+
+  // Announced outside EinTransition, which hides the results while a search
+  // loads. Empty meanwhile, so a repeated count is still a change; taken from
+  // the prop, as currentSearchResults catches up a render later.
+  const announcedCount = useResultCountText(
+    isLoading ? undefined : searchResults.total,
+    enhetIds.length,
+  )?.replace(/<\/?strong>/g, '');
 
   // While loading, only the transition's frozen copy of the page is visible,
   // so the enhet panel can't fade its cards out itself. Flag the copy when
@@ -153,54 +214,76 @@ export default function SearchResultContainer({
   }, [currentSearchResults]);
 
   return (
-    <EinTransition loading={isLoading} withClassNames events={transitionEvents}>
-      <div
-        className={cn(
-          'container-wrapper',
-          'main-content',
-          styles.searchContainer,
-        )}
+    <>
+      <EinTransition
+        loading={isLoading}
+        withClassNames
+        events={transitionEvents}
       >
-        <div className="container-pre collapsible" />
-        <div className="container">
-          <SearchSortDropdown />
-          <div className={styles.resultsLayout}>
-            <div
-              className={cn(styles.results, resultStyles.searchResults)}
-              aria-busy={isLoading}
-              aria-live="polite"
-            >
-              {currentSearchResults.items.length ? (
-                currentSearchResults.items.map((item) => (
-                  <SearchResult
-                    className={styles.searchResult}
-                    key={item.id}
-                    item={item}
+        <div
+          className={cn(
+            'container-wrapper',
+            'main-content',
+            styles.searchContainer,
+          )}
+        >
+          <div className="container-pre collapsible" />
+          <div className="container">
+            <div className={styles.resultsLayout}>
+              <div className={styles.results}>
+                <div
+                  className={styles.toolbar}
+                  data-size="sm"
+                  data-color="neutral"
+                >
+                  <SearchResultCount
+                    total={currentSearchResults.total}
+                    enhetCount={enhetIds.length}
                   />
-                ))
-              ) : (
-                <div className={cn(styles.searchResult, 'no-results')}>
-                  <p>{t('common.noResults')}</p>
+                  <SaveSearchDropdown className={styles.saveSearch} />
                 </div>
-              )}
-              {currentSearchResults.next && (
-                <EinScrollTrigger onEnter={scrollTriggerHandler}>
-                  <SearchResultSkeleton
-                    className={styles.searchResult}
-                    index={0}
-                  />
-                  <SearchResultSkeleton
-                    className={styles.searchResult}
-                    index={1}
-                  />
-                </EinScrollTrigger>
+                <div
+                  className={resultStyles.searchResults}
+                  aria-busy={isLoading}
+                >
+                  {currentSearchResults.items.length ? (
+                    currentSearchResults.items.map((item) => (
+                      <SearchResult
+                        className={styles.searchResult}
+                        key={item.id}
+                        item={item}
+                      />
+                    ))
+                  ) : (
+                    <div className={cn(styles.searchResult, 'no-results')}>
+                      <p>{t('common.noResults')}</p>
+                    </div>
+                  )}
+                  {currentSearchResults.next && (
+                    <EinScrollTrigger onEnter={scrollTriggerHandler}>
+                      <SearchResultSkeleton
+                        className={styles.searchResult}
+                        index={0}
+                      />
+                      <SearchResultSkeleton
+                        className={styles.searchResult}
+                        index={1}
+                      />
+                    </EinScrollTrigger>
+                  )}
+                </div>
+              </div>
+              {enhetIds.length > 0 && (
+                <SelectedEnhetPanel enhetIds={enhetIds} />
               )}
             </div>
-            {enhetIds.length > 0 && <SelectedEnhetPanel enhetIds={enhetIds} />}
           </div>
+          <div className="container-post"></div>
         </div>
-        <div className="container-post"></div>
-      </div>
-    </EinTransition>
+      </EinTransition>
+      <p role="status" className="ds-sr-only">
+        {announcedCount}
+      </p>
+    </>
   );
 }
