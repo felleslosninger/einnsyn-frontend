@@ -63,7 +63,10 @@ export default function SearchSortDropdown({
             [styles.active]: key === currentSort,
           })}
         >
-          <EinLink href={getSortUrl(key)}>
+          <EinLink
+            href={getSortUrl(key)}
+            aria-current={key === currentSort ? 'true' : undefined}
+          >
             <span className={styles.sortOptionInner}>
               <span className={styles.radioIndicator} aria-hidden="true" />
               {t(`searchFilters.sortOptions.${key}`)}
