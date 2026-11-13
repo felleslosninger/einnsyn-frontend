@@ -196,6 +196,7 @@
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Sletter...",
+    "deleted": "Slettet",
     "create": "Opprett",
     "creating": "Oppretter...",
     "cancel": "Avbryt",
@@ -204,6 +205,7 @@
     "removeAll": "Fjern alle",
     "change": "Endre",
     "select": "Velg",
+    "subscribe": "Få varsel",
     "unnamed": "Uten navn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavle",
@@ -339,6 +341,28 @@
     "savedMeetings": "Lagrede møter",
     "savedSearches": "Lagrede søk",
     "profile": "Profil",
+    "loadError": "Kunne ikke hente listen. Prøv igjen senere.",
+    "deleteError": "Kunne ikke slette. Prøv igjen.",
+    "subscribeError": "Kunne ikke endre abonnementet. Prøv igjen.",
+    "savedMeetingsPage": {
+      "description": "Slå på «Få varsel» på et møte for å få e-post når det blir oppdatert.",
+      "empty": "Du har ingen lagrede møter ennå."
+    },
+    "savedSearchesPage": {
+      "description": "Slå på «Få varsel» på et søk for å få e-post når det kommer nye treff.",
+      "notificationInfo": "Varslene sendes én gang i døgnet, kl. 06.00.",
+      "empty": "Du har ingen lagrede søk ennå."
+    },
+    "accessRequestsPage": {
+      "description": "Svaret på et innsynskrav kommer på e-post fra virksomheten som behandler det. Sletter du et krav fra listen, blir det likevel behandlet.",
+      "sentAt": "Sendt til virksomhet",
+      "notSent": "Ikke sendt ennå",
+      "empty": "Du har ingen innsynskrav. Du kan bestille dokumenter fra søkesiden eller dokumentvisningene."
+    },
+    "savedCasesPage": {
+      "description": "Slå på «Få varsel» på en sak for å få e-post når den blir oppdatert.",
+      "empty": "Du har ingen lagrede saker ennå."
+    },
     "profilePage": {
       "title": "Profilinformasjon",
       "description": "Administrer innloggingen og kontoen din.",

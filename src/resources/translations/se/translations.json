@@ -196,6 +196,7 @@
     "add": "Lasit",
     "delete": "Sihko",
     "deleting": "Sihkko...",
+    "deleted": "Sihkkojuvvon",
     "create": "Ráhkat",
     "creating": "Ráhkada...",
     "cancel": "Gaskkalduhte",
@@ -204,6 +205,7 @@
     "removeAll": "Váldde buot eret",
     "change": "Rievdat",
     "select": "Vállje",
+    "subscribe": "Oaččo dieđu",
     "unnamed": "Nama haga",
     "close": "Gidde",
     "copyToClipboard": "Kopier čuohpuspircui",
@@ -329,6 +331,28 @@
     "savedMeetings": "Vurkon čoahkkimiid",
     "savedSearches": "Vurkon ohcanat",
     "profile": "Profila",
+    "loadError": "Ii lihkostuvvan viežžat listtu. Geahččal ođđasit maŋŋelaš.",
+    "deleteError": "Ii lihkostuvvan sihkkut. Geahččal ođđasit.",
+    "subscribeError": "Ii lihkostuvvan rievdadit diŋgojumi. Geahččal ođđasit.",
+    "savedMeetingsPage": {
+      "description": "Vállje «Oaččo dieđu» čoahkkimis vai oaččut e-poastta go čoahkkin ođasmahttojuvvo.",
+      "empty": "Dus eai leat vurkon čoahkkimat."
+    },
+    "savedSearchesPage": {
+      "description": "Vállje «Oaččo dieđu» ohcamis vai oaččut e-poastta go ohcamis leat ođđa bohtosat.",
+      "notificationInfo": "Dieđáhusat sáddejuvvojit oktii beaivái, dii. 06.00.",
+      "empty": "Dus eai leat vurkon ohcanat."
+    },
+    "accessRequestsPage": {
+      "description": "Vástádus geahčadangáibádussii boahtá e-poasttain doaimmas mii gieđahallá dan. Jus sihkut gáibádusa listtus, de dat gieđahallojuvvo goittotge.",
+      "sentAt": "Sáddejuvvon doibmii",
+      "notSent": "Ii leat vel sáddejuvvon",
+      "empty": "Dus eai leat geahčadangáibádusat. Sáhtát diŋgot dokumeanttaid ohcansiiddus dahje dokumeantačájeheamis."
+    },
+    "savedCasesPage": {
+      "description": "Vállje «Oaččo dieđu» áššis vai oaččut e-poastta go ášši ođasmahttojuvvo.",
+      "empty": "Dus eai leat vurkon áššit."
+    },
     "profilePage": {
       "title": "Profiladieđut",
       "description": "Hálddaš sisačálgama ja kontoat.",

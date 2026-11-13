@@ -196,6 +196,7 @@
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Slettar...",
+    "deleted": "Sletta",
     "create": "Opprett",
     "creating": "Opprettar...",
     "cancel": "Avbryt",
@@ -204,6 +205,7 @@
     "removeAll": "Fjern alle",
     "change": "Endre",
     "select": "Vel",
+    "subscribe": "Få varsel",
     "unnamed": "Utan namn",
     "close": "Lukk",
     "copyToClipboard": "Kopier til utklippstavla",
@@ -329,6 +331,28 @@
     "savedMeetings": "Lagra møte",
     "savedSearches": "Lagra søk",
     "profile": "Profil",
+    "loadError": "Kunne ikkje hente lista. Prøv igjen seinare.",
+    "deleteError": "Kunne ikkje slette. Prøv igjen.",
+    "subscribeError": "Kunne ikkje endre abonnementet. Prøv igjen.",
+    "savedMeetingsPage": {
+      "description": "Slå på «Få varsel» på eit møte for å få e-post når det blir oppdatert.",
+      "empty": "Du har ingen lagra møte enno."
+    },
+    "savedSearchesPage": {
+      "description": "Slå på «Få varsel» på eit søk for å få e-post når det kjem nye treff.",
+      "notificationInfo": "Varsla blir sende éin gong i døgnet, kl. 06.00.",
+      "empty": "Du har ingen lagra søk enno."
+    },
+    "accessRequestsPage": {
+      "description": "Svaret på eit innsynskrav kjem på e-post frå verksemda som behandlar det. Slettar du eit krav frå lista, blir det likevel behandla.",
+      "sentAt": "Sendt til verksemd",
+      "notSent": "Ikkje sendt enno",
+      "empty": "Du har ingen innsynskrav. Du kan bestille dokument frå søkesida eller dokumentvisningane."
+    },
+    "savedCasesPage": {
+      "description": "Slå på «Få varsel» på ei sak for å få e-post når ho blir oppdatert.",
+      "empty": "Du har ingen lagra saker enno."
+    },
     "profilePage": {
       "title": "Profilinformasjon",
       "description": "Administrer innlogginga og kontoen din.",

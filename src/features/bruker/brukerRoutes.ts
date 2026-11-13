@@ -1,7 +1,7 @@
 export const brukerRoutes = [
-  { href: '/bruker/access-requests', translationKey: 'bruker.accessRequests' },
-  { href: '/bruker/saved-cases', translationKey: 'bruker.savedCases' },
-  { href: '/bruker/saved-meetings', translationKey: 'bruker.savedMeetings' },
-  { href: '/bruker/saved-searches', translationKey: 'bruker.savedSearches' },
-  { href: '/bruker/profile', translationKey: 'bruker.profile' },
+  { route: '/bruker/access-requests', translationKey: 'bruker.accessRequests' },
+  { route: '/bruker/saved-cases', translationKey: 'bruker.savedCases' },
+  { route: '/bruker/saved-meetings', translationKey: 'bruker.savedMeetings' },
+  { route: '/bruker/saved-searches', translationKey: 'bruker.savedSearches' },
+  { route: '/bruker/profile', translationKey: 'bruker.profile' },
 ] as const;
