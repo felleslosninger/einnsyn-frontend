@@ -13,15 +13,26 @@ export type PopupPosition =
   | 'rightTop'
   | 'rightBottom'
   | 'aboveLeft'
-  | 'aboveRight';
+  | 'aboveRight'
+  // Over the anchor horizontally, centred in the viewport vertically.
+  | 'center';
 
-const HORIZONTAL_POSITIONS = new Set<PopupPosition>([
+const ABOVE_POSITIONS = new Set<PopupPosition>([
   'above',
-  'below',
   'aboveLeft',
   'aboveRight',
+]);
+
+const BELOW_POSITIONS = new Set<PopupPosition>([
+  'below',
   'belowLeft',
   'belowRight',
+]);
+
+const HORIZONTAL_POSITIONS = new Set<PopupPosition>([
+  ...ABOVE_POSITIONS,
+  ...BELOW_POSITIONS,
+  'center',
 ]);
 
 /**
@@ -39,6 +50,8 @@ export function calculatePopupPosition({
   popup,
   anchor,
   sizeReference,
+  matchAnchorWidth = false,
+  minHeight,
   preferredPosition = ['below', 'above', 'right', 'left'],
   offset = 8,
   offsetX = offset,
@@ -48,6 +61,12 @@ export function calculatePopupPosition({
   popup: HTMLElement | DOMRect;
   anchor: HTMLElement | DOMRect;
   sizeReference?: HTMLElement | DOMRect;
+  // Horizontal positions: at least the anchor's width, centred on the anchor,
+  // with equal gutters to the viewport edges.
+  matchAnchorWidth?: boolean;
+  // Above/below positions count as fitting when this much height fits; the
+  // caller shrinks the popup to the returned maxHeight. 'center' always fits.
+  minHeight?: number;
   preferredPosition?: PopupPosition[];
   offset?: number;
   offsetX?: number;
@@ -82,6 +101,10 @@ export function calculatePopupPosition({
     scrollX: window.scrollX,
     scrollY: window.scrollY,
   };
+
+  // 'center' keeps 2 × offsetY to both the top and the bottom edge.
+  const centerMaxHeight = Math.max(0, viewport.height - 2 * offsetY);
+  const centerHeight = Math.min(popupRect.height, centerMaxHeight);
 
   // Calculate the ideal position without considering viewport collision
   const positionCalculators: Record<
@@ -153,6 +176,14 @@ export function calculatePopupPosition({
       top: anchorRect.top + viewport.scrollY - popupRect.height - offsetY,
       left: anchorRect.right + viewport.scrollX - popupRect.width,
     }),
+    center: () => ({
+      top: viewport.scrollY + offsetY + (viewport.height - centerHeight) / 2,
+      left:
+        anchorRect.left +
+        viewport.scrollX +
+        anchorRect.width / 2 -
+        popupRect.width / 2,
+    }),
   };
 
   // Iterate through preferred positions and find the first one that fits
@@ -162,7 +193,7 @@ export function calculatePopupPosition({
     let { top, left } = idealPosition;
 
     // Adjust the position to fit horizontally
-    if (position === 'above' || position === 'below') {
+    if (position === 'above' || position === 'below' || position === 'center') {
       // Adjust left overflow
       if (left < viewport.scrollX) {
         left = viewport.scrollX;
@@ -289,17 +320,47 @@ export function calculatePopupPosition({
       }
     }
 
+    if (matchAnchorWidth && HORIZONTAL_POSITIONS.has(position)) {
+      // viewport.width leaves 2 × offsetX on the right; mirror it on the left.
+      const minLeft = viewport.scrollX + 2 * offsetX;
+      const maxRight = viewport.scrollX + viewport.width;
+      width = Math.min(
+        Math.max(popupRect.width, anchorRect.width),
+        maxRight - minLeft,
+      );
+      left = clamp(
+        anchorRect.left + viewport.scrollX + anchorRect.width / 2 - width / 2,
+        minLeft,
+        maxRight - width,
+      );
+    }
+
     const effectiveWidth = width ?? popupRect.width;
+
+    const isAbove = ABOVE_POSITIONS.has(position);
+    let fitHeight = popupRect.height;
+    if (position === 'center') {
+      fitHeight = centerHeight;
+    } else if (
+      minHeight !== undefined &&
+      (isAbove || BELOW_POSITIONS.has(position))
+    ) {
+      fitHeight = Math.min(popupRect.height, minHeight);
+    }
+    // A shrunk above-popup keeps its bottom edge at the anchor.
+    const fitTop = isAbove ? top + popupRect.height - fitHeight : top;
 
     // Does the position actually fit inside the viewport?
     const finalRight = left + effectiveWidth;
-    const finalBottom = top + popupRect.height;
     if (
-      top >= viewport.scrollY &&
+      fitTop >= viewport.scrollY &&
       left >= viewport.scrollX &&
-      finalBottom <= viewport.height + viewport.scrollY &&
+      fitTop + fitHeight <= viewport.height + viewport.scrollY &&
       finalRight <= viewport.width + viewport.scrollX
     ) {
+      top = Math.max(top, viewport.scrollY);
+      const finalBottom = top + popupRect.height;
+
       // Calculate arrow position
       const arrowPositions = getArrowPosition(
         { top, left, bottom: finalBottom, right: finalRight },
@@ -315,13 +376,14 @@ export function calculatePopupPosition({
       // it (or fill it). For above-style positions that's the space above the
       // anchor; otherwise it's the space from the popup's top to the viewport
       // bottom. Matches the formula used in the fallback path below.
-      const isAbove =
-        position === 'above' ||
-        position === 'aboveLeft' ||
-        position === 'aboveRight';
-      const maxHeight = isAbove
-        ? Math.max(0, anchorRect.top - offsetY)
-        : Math.max(0, viewport.scrollY + viewport.height - top);
+      let maxHeight: number;
+      if (position === 'center') {
+        maxHeight = centerMaxHeight;
+      } else if (isAbove) {
+        maxHeight = Math.max(0, anchorRect.top - offsetY);
+      } else {
+        maxHeight = Math.max(0, viewport.scrollY + viewport.height - top);
+      }
 
       return {
         position,

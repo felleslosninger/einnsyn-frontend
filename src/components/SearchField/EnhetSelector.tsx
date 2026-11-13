@@ -1,5 +1,6 @@
 'use client';
 
+import type { RefObject } from 'react';
 import useBreakpoint from '~/hooks/useBreakpoint';
 import cn from '~/lib/utils/className';
 import styles from './EnhetSelector.module.scss';
@@ -12,6 +13,10 @@ type EnhetSelectorProps = {
   active: boolean;
   activate: () => void;
   close: () => void;
+  // The whole search bar; the desktop popup spans and hangs from it.
+  popupAnchorRef?: RefObject<HTMLElement | null>;
+  // Holds the unapplied selection while the selector is open, null otherwise.
+  draftRef?: RefObject<readonly string[] | null>;
 };
 
 /**
@@ -31,9 +36,16 @@ export default function EnhetSelector({
   active,
   activate,
   close,
+  popupAnchorRef,
+  draftRef,
 }: EnhetSelectorProps) {
   const isMobileLayout = useBreakpoint('SM');
-  const state = useEnhetSelectorState({ active, close, isMobileLayout });
+  const state = useEnhetSelectorState({
+    active,
+    close,
+    isMobileLayout,
+    draftRef,
+  });
 
   return (
     <div className={cn(styles.enhetSelector, className)}>
@@ -50,6 +62,7 @@ export default function EnhetSelector({
           active={active}
           activate={activate}
           close={close}
+          popupAnchorRef={popupAnchorRef}
         />
       )}
     </div>

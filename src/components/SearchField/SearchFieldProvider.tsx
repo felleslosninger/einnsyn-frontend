@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { useNavigation } from '~/components/NavigationProvider/NavigationProvider';
 import { useLanguageCode } from '~/hooks/useLanguageCode';
-import { buildSearchHref } from '~/lib/routing/searchParams';
+import { buildSearchHref, type SearchParams } from '~/lib/routing/searchParams';
 import { showsSearchResults } from '~/lib/routing/sections';
 import {
   type SearchToken,
@@ -31,7 +31,7 @@ interface SearchFieldContextType {
     push?: boolean,
   ) => void;
   setSearchQuery: (query: string, push?: boolean) => void;
-  pushSearchQuery: (query: string) => void;
+  pushSearchQuery: (query: string, updates?: Partial<SearchParams>) => void;
   /**
    * Whether the current page shows the results the field describes. False on a
    * detail page, where the field is a view of the search that led there rather
@@ -128,12 +128,12 @@ export function SearchFieldProvider({ children }: { children: ReactNode }) {
   }, [searchQuery, searchTokens]);
 
   const pushSearchQuery = useCallback(
-    (queryToPush: string) => {
+    (queryToPush: string, updates?: Partial<SearchParams>) => {
       navigation.push(
         buildSearchHref({
           ...searchTarget,
           languageCode,
-          updates: { q: queryToPush },
+          updates: { ...updates, q: queryToPush },
         }),
       );
     },

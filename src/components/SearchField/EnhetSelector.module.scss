@@ -239,23 +239,22 @@
 // header / [filter + two columns] / footer.
 //
 
+// The width is a minimum: EinPopup widens it to the search bar (matchAnchorWidth).
 .desktopSelectorPopup {
-  width: min(1040px, calc(100vw - 2 * var(--ds-size-4)));
+  width: min(720px, calc(100vw - 2 * var(--ds-size-4)));
   max-width: calc(100vw - 2 * var(--ds-size-4));
 
   // Use `height` (not max-height) so the popup stays a stable size while the
   // user filters or removes items — the lists inside have their own scrollbars.
-  // `--ein-popup-max-height` is set by EinPopup from the space available below
-  // the anchor, so we never overflow a fixed-header viewport. The fallback
-  // keeps the layout sensible during the first render before JS measures.
+  // `--ein-popup-max-height` is set by EinPopup from the space available for
+  // the chosen position. The fallback keeps the layout sensible during the
+  // first render before JS measures.
   :global(.ein-popup-content) {
     display: flex;
     flex-direction: column;
-    height: min(720px,
-        calc(var(--ein-popup-max-height, 100vh) - var(--ds-size-4)));
+    height: min(720px, var(--ein-popup-max-height, 100vh));
     overflow: hidden;
   }
-
 }
 
 .desktopHeader {
@@ -320,18 +319,19 @@
   min-height: calc(var(--ds-size-8) + var(--ds-size-3));
   padding: 0 var(--ein-vertical-spacing);
   border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  font-size: var(--ds-font-size-2);
 }
 
 .desktopColumnLabel {
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-1);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
+// Inherit, since --ds-font-size-* shrink inside data-size="sm". The end margin
+// cancels the padding and lines the text up with the rows' X glyph, which sits
+// ~5px inside its 24px box.
 .desktopClearAllButton {
-  margin-left: auto;
+  margin-inline: auto calc(5px - var(--ds-size-4));
+  font-size: inherit;
 }
 
 // Wrapper around the VList. The VList itself is the scroll container, so the
@@ -384,8 +384,7 @@
   font-size: var(--ds-font-size-2);
 }
 
-// Desktop row — name + subtitle on the left, "Legg til"/"Fjern" pill on the
-// right. Same chrome in both columns; the dividing border on the left column
+// Desktop row — name + subtitle on the left, arrow/X icon on the right. Same chrome in both columns; the dividing border on the left column
 // is the only visual separator between Available and Selected.
 .selectorListItem {
   position: relative;
@@ -442,40 +441,16 @@
   white-space: nowrap;
 }
 
-// Action pill (Legg til / Fjern). Subtle by default; the row's hover state
-// brightens the border + text so the affordance reads on intent.
 .selectorListAction {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ds-size-2);
-  min-height: var(--ds-size-7);
-  padding: 0 var(--ds-size-3);
-  border-radius: var(--ds-border-radius-full);
-  background: var(--ds-color-neutral-surface-default);
-  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-subtle);
+  display: block;
+  width: var(--ds-size-6);
+  height: var(--ds-size-6);
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-1);
-  font-weight: 600;
-  line-height: 1;
-  transition:
-    background-color 0.15s fx.$easeOut,
-    box-shadow 0.15s fx.$easeOut,
-    color 0.15s fx.$easeOut;
-
-  svg {
-    display: block;
-  }
-}
-
-.selectorListActionLabel {
-  white-space: nowrap;
+  transition: color 0.15s fx.$easeOut;
 }
 
 .selectorListItem:hover .selectorListAction,
 .selectorListItem.focusedListItem .selectorListAction {
-  box-shadow: inset 0 0 0 var(--ds-border-width-default) var(--ds-color-neutral-border-default);
   color: var(--ds-color-neutral-text-default);
 }
 
@@ -538,10 +513,7 @@
   padding: var(--ds-size-3) var(--ds-size-4) var(--ds-size-1);
   background: var(--ds-color-neutral-surface-tinted);
   color: var(--ds-color-neutral-text-subtle);
-  font-size: var(--ds-font-size-1);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: var(--ds-font-size-2);
 }
 
 .mobileListItem {

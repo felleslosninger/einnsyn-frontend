@@ -20,6 +20,8 @@ type SearchFieldProps = {
 export const SearchField = ({ className }: SearchFieldProps) => {
   const t = useTranslation();
   const containerRef = useRef<HTMLFormElement>(null);
+  const pillRowRef = useRef<HTMLDivElement>(null);
+  const enhetDraftRef = useRef<readonly string[] | null>(null);
   const {
     searchQuery,
     setSearchQuery,
@@ -46,10 +48,15 @@ export const SearchField = ({ className }: SearchFieldProps) => {
 
   const onSubmit = useCallback(
     (event: React.SubmitEvent<HTMLFormElement>) => {
-      pushSearchQuery(searchQuery);
+      // Søk with the enhet popup open searches with its unapplied selection.
+      const enhet = enhetDraftRef.current;
+      pushSearchQuery(searchQuery, enhet ? { enhet } : undefined);
+      if (enhet) {
+        deactivateContainer();
+      }
       event.preventDefault();
     },
-    [searchQuery, pushSearchQuery],
+    [searchQuery, pushSearchQuery, deactivateContainer],
   );
 
   const handleClear = useCallback(() => {
@@ -111,6 +118,8 @@ export const SearchField = ({ className }: SearchFieldProps) => {
       active={activeContainer === 'enhetSelector'}
       activate={activateEnhetSelectorContainer}
       close={deactivateContainer}
+      popupAnchorRef={pillRowRef}
+      draftRef={enhetDraftRef}
     />
   );
 
@@ -134,6 +143,7 @@ export const SearchField = ({ className }: SearchFieldProps) => {
       )}
 
       <div
+        ref={pillRowRef}
         className={cn(styles.pillRow, {
           [styles.hasActiveContainer]: isMobileLayout
             ? activeContainer === 'searchQuery'
