@@ -1,5 +1,5 @@
 import { Switch } from '@digdir/designsystemet-react';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import cn from '~/lib/utils/className';
 import styles from './BooleanFilter.module.scss';
 
@@ -12,6 +12,7 @@ export function BooleanFilter({
   defaultValue = false,
   trueValue = 'true',
   falseValue = 'false',
+  value,
   setValue,
 }: {
   className?: string;
@@ -19,10 +20,10 @@ export function BooleanFilter({
   defaultValue?: boolean;
   trueValue?: string;
   falseValue?: string;
-  initialValue?: boolean;
+  value?: string;
   setValue?: (value: string | undefined) => void;
 }) {
-  const [isChecked, setIsChecked] = useState(defaultValue);
+  const isChecked = value === undefined ? defaultValue : value === trueValue;
 
   // Handles the change event from the Switch component.
   const handleChange = useCallback(
@@ -31,7 +32,6 @@ export function BooleanFilter({
       setValue?.(
         checked === defaultValue ? undefined : checked ? trueValue : falseValue,
       );
-      setIsChecked(checked);
     },
     [defaultValue, trueValue, falseValue, setValue],
   );
