@@ -49,3 +49,15 @@ describe('getSearchParameters dates', () => {
     assert.strictEqual(query.moetedatoTo, '2026-01-31T23:59:59.999Z');
   });
 });
+
+describe('getSearchParameters unknown prefixes', () => {
+  test('keeps unknown prefixes in the search words', () => {
+    assert.strictEqual(searchFor('foo:bar').query, 'foo:bar');
+  });
+
+  test('keeps known filters out of the search words', () => {
+    const query = searchFor('publisert:2026-01-01 bar');
+    assert.strictEqual(query.query, 'bar');
+    assert.ok(query.publisertDatoFrom);
+  });
+});
