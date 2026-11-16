@@ -35,6 +35,9 @@ const HORIZONTAL_POSITIONS = new Set<PopupPosition>([
   'center',
 ]);
 
+// Horizontal positions centred on the anchor, not aligned to one of its edges.
+const CENTERED_POSITIONS = new Set<PopupPosition>(['above', 'below', 'center']);
+
 /**
  * Calculates the ideal position for a popup element relative to an anchor element,
  * ensuring it fits within the viewport.
@@ -61,7 +64,7 @@ export function calculatePopupPosition({
   popup: HTMLElement | DOMRect;
   anchor: HTMLElement | DOMRect;
   sizeReference?: HTMLElement | DOMRect;
-  // Horizontal positions: at least the anchor's width, centred on the anchor,
+  // above/below/center: at least the anchor's width, centred on the anchor,
   // with equal gutters to the viewport edges.
   matchAnchorWidth?: boolean;
   // Above/below positions count as fitting when this much height fits; the
@@ -105,6 +108,22 @@ export function calculatePopupPosition({
   // 'center' keeps 2 × offsetY to both the top and the bottom edge.
   const centerMaxHeight = Math.max(0, viewport.height - 2 * offsetY);
   const centerHeight = Math.min(popupRect.height, centerMaxHeight);
+
+  const getAnchorWidthBounds = () => {
+    // viewport.width leaves 2 × offsetX on the right; mirror it on the left.
+    const minLeft = viewport.scrollX + 2 * offsetX;
+    const maxRight = viewport.scrollX + viewport.width;
+    const width = Math.min(
+      Math.max(popupRect.width, anchorRect.width),
+      maxRight - minLeft,
+    );
+    const left = clamp(
+      anchorRect.left + viewport.scrollX + anchorRect.width / 2 - width / 2,
+      minLeft,
+      maxRight - width,
+    );
+    return { width, left };
+  };
 
   // Calculate the ideal position without considering viewport collision
   const positionCalculators: Record<
@@ -193,7 +212,7 @@ export function calculatePopupPosition({
     let { top, left } = idealPosition;
 
     // Adjust the position to fit horizontally
-    if (position === 'above' || position === 'below' || position === 'center') {
+    if (HORIZONTAL_POSITIONS.has(position)) {
       // Adjust left overflow
       if (left < viewport.scrollX) {
         left = viewport.scrollX;
@@ -213,24 +232,6 @@ export function calculatePopupPosition({
       // Adjust bottom overflow
       if (top + popupRect.height > viewport.height + viewport.scrollY) {
         top = viewport.height + viewport.scrollY - popupRect.height;
-      }
-    }
-
-    // Adjust positions for new edge-aligned positions
-    // For bottom-aligned positions, adjust horizontally
-    if (
-      position === 'belowLeft' ||
-      position === 'belowRight' ||
-      position === 'aboveLeft' ||
-      position === 'aboveRight'
-    ) {
-      // Adjust left overflow
-      if (left < viewport.scrollX) {
-        left = viewport.scrollX;
-      }
-      // Adjust right overflow
-      if (left + popupRect.width > viewport.width + viewport.scrollX) {
-        left = viewport.width + viewport.scrollX - popupRect.width;
       }
     }
 
@@ -320,19 +321,8 @@ export function calculatePopupPosition({
       }
     }
 
-    if (matchAnchorWidth && HORIZONTAL_POSITIONS.has(position)) {
-      // viewport.width leaves 2 × offsetX on the right; mirror it on the left.
-      const minLeft = viewport.scrollX + 2 * offsetX;
-      const maxRight = viewport.scrollX + viewport.width;
-      width = Math.min(
-        Math.max(popupRect.width, anchorRect.width),
-        maxRight - minLeft,
-      );
-      left = clamp(
-        anchorRect.left + viewport.scrollX + anchorRect.width / 2 - width / 2,
-        minLeft,
-        maxRight - width,
-      );
+    if (matchAnchorWidth && CENTERED_POSITIONS.has(position)) {
+      ({ width, left } = getAnchorWidthBounds());
     }
 
     const effectiveWidth = width ?? popupRect.width;
@@ -416,6 +406,10 @@ export function calculatePopupPosition({
     left = sizeReferenceRect.left + viewport.scrollX;
   }
 
+  if (matchAnchorWidth && CENTERED_POSITIONS.has(fallback)) {
+    ({ width, left } = getAnchorWidthBounds());
+  }
+
   // Clamp horizontally to viewport
   if (left < viewport.scrollX) {
     left = viewport.scrollX;
@@ -425,12 +419,11 @@ export function calculatePopupPosition({
   }
 
   // Clamp vertically and compute available max-height
-  const isAbove =
-    fallback === 'above' ||
-    fallback === 'aboveLeft' ||
-    fallback === 'aboveRight';
+  const isAbove = ABOVE_POSITIONS.has(fallback);
   let maxHeight: number;
-  if (isAbove) {
+  if (fallback === 'center') {
+    maxHeight = centerMaxHeight;
+  } else if (isAbove) {
     // Pin popup top to viewport top; cap height to space above the anchor
     top = viewport.scrollY;
     maxHeight = Math.max(0, anchorRect.top - offsetY);

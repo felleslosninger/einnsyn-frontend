@@ -48,6 +48,10 @@ export const SearchField = ({ className }: SearchFieldProps) => {
 
   const onSubmit = useCallback(
     (event: React.SubmitEvent<HTMLFormElement>) => {
+      // Submits from forms in portalled children (EinModalHeader) bubble here.
+      if (event.target !== event.currentTarget) {
+        return;
+      }
       // Søk with the enhet popup open searches with its unapplied selection.
       const enhet = enhetDraftRef.current;
       pushSearchQuery(searchQuery, enhet ? { enhet } : undefined);

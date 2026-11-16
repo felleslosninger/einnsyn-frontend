@@ -53,6 +53,7 @@ export function EnhetSelectorDesktop({
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const summaryButtonRef = useRef<HTMLButtonElement>(null);
+  const selectorFieldRef = useRef<HTMLDivElement>(null);
   const { inputRef } = state;
 
   const getRowSubtitle = useCallback(
@@ -74,23 +75,31 @@ export function EnhetSelectorDesktop({
     [inputRef],
   );
 
-  // Clicking outside discards the draft, like Esc and Cancel. Søk in the
-  // search bar is the exception: SearchField searches with the draft.
+  // Clicking outside discards the draft, like Esc and Cancel. Two exceptions:
+  // the selector field's own buttons (the summary button refocuses the input,
+  // the clear button empties the draft), and Søk in the search bar, which
+  // searches with the draft (see SearchField).
   const handleSetOpen = useCallback(
     (open: boolean, event?: MouseEvent) => {
       const target = event?.target;
       const submitter =
         target instanceof Element ? target.closest('[type="submit"]') : null;
-      if (!open && !popupAnchorRef?.current?.contains(submitter)) {
-        close();
+      if (
+        open ||
+        (target instanceof Node &&
+          selectorFieldRef.current?.contains(target)) ||
+        (submitter && popupAnchorRef?.current?.contains(submitter))
+      ) {
+        return;
       }
+      close();
     },
     [close, popupAnchorRef],
   );
 
   return (
     <>
-      <div className={styles.selectorField}>
+      <div ref={selectorFieldRef} className={styles.selectorField}>
         <SummaryButton
           buttonRef={summaryButtonRef}
           active={active}

@@ -15,7 +15,8 @@ type EnhetSelectorProps = {
   close: () => void;
   // The whole search bar; the desktop popup spans and hangs from it.
   popupAnchorRef?: RefObject<HTMLElement | null>;
-  // Holds the unapplied selection while the selector is open, null otherwise.
+  // Holds the unapplied selection while the desktop selector is open, null
+  // otherwise.
   draftRef?: RefObject<readonly string[] | null>;
 };
 

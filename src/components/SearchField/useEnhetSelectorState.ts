@@ -39,7 +39,7 @@ export type UseEnhetSelectorStateOptions = {
   active: boolean;
   close: () => void;
   isMobileLayout: boolean;
-  // Holds the draft while the selector is open, null otherwise.
+  // Holds the draft while the desktop selector is open, null otherwise.
   draftRef?: RefObject<readonly string[] | null>;
 };
 
@@ -107,28 +107,23 @@ export function useEnhetSelectorState({
   const searchHref = useSearchHref();
 
   const isBuffered = active;
+  // Null until the first edit after opening, and reset on close, so an open
+  // selector never shows a discarded draft.
   const [draftSelectedIdentifiers, setDraftSelectedIdentifiers] = useState<
-    string[]
-  >([]);
+    string[] | null
+  >(null);
 
-  // Re-seed the draft from the URL whenever the selector opens. URL
-  // changes mid-open are intentionally not synced — the user is editing.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only re-init on transition into buffered mode.
-  useEffect(() => {
-    if (isBuffered) {
-      setDraftSelectedIdentifiers(urlSelectedEnhetIdentifiers);
-    }
-  }, [isBuffered]);
+  const selectedEnhetIdentifiers = isBuffered
+    ? (draftSelectedIdentifiers ?? urlSelectedEnhetIdentifiers)
+    : urlSelectedEnhetIdentifiers;
 
   useEffect(() => {
     if (draftRef) {
-      draftRef.current = isBuffered ? draftSelectedIdentifiers : null;
+      // The mobile sheet commits its own draft on close.
+      draftRef.current =
+        isBuffered && !isMobileLayout ? selectedEnhetIdentifiers : null;
     }
-  }, [draftRef, isBuffered, draftSelectedIdentifiers]);
-
-  const selectedEnhetIdentifiers = isBuffered
-    ? draftSelectedIdentifiers
-    : urlSelectedEnhetIdentifiers;
+  }, [draftRef, isBuffered, isMobileLayout, selectedEnhetIdentifiers]);
 
   const commitToUrl = useCallback(
     (next: string[]) => {
@@ -149,9 +144,9 @@ export function useEnhetSelectorState({
   );
 
   const applySelection = useCallback(() => {
-    commitToUrl(draftSelectedIdentifiers);
+    commitToUrl(selectedEnhetIdentifiers);
     close();
-  }, [commitToUrl, draftSelectedIdentifiers, close]);
+  }, [commitToUrl, selectedEnhetIdentifiers, close]);
 
   //
   // Derived: the resolved enhet objects behind the selected identifiers, plus
@@ -355,8 +350,10 @@ export function useEnhetSelectorState({
     if (!active && wasActive) {
       setFilterValue('');
       setFocus(null);
+      setDraftSelectedIdentifiers(null);
       if (
         isMobileLayout &&
+        draftSelectedIdentifiers &&
         draftSelectedIdentifiers.join() !== urlSelectedEnhetIdentifiers.join()
       ) {
         commitToUrl(draftSelectedIdentifiers);

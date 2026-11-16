@@ -73,6 +73,11 @@ $arrowHalfSize: calc($arrowSize / 2);
       z-index: -1;
     }
 
+    // Centred in the viewport, away from the anchor.
+    &[style*="--ein-popup-position: center"]:before {
+      content: none;
+    }
+
     &[style*="--ein-popup-position: above"]:before {
       top: 100%;
       left: clamp($arrowHalfSize,
