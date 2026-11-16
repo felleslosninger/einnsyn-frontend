@@ -1,0 +1,145 @@
+'use client';
+
+import { Alert, Checkbox } from '@digdir/designsystemet-react';
+import { BellIcon } from '@navikt/aksel-icons';
+import { useActionState, useState } from 'react';
+import { EinButton } from '~/components/EinButton/EinButton';
+import { EinDropdown } from '~/components/EinDropdown';
+import { EinLink } from '~/components/EinLink/EinLink';
+import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
+import {
+  type AddLagretSakState,
+  addLagretSakAction,
+  type LagretSakTarget,
+} from '~/features/bruker/saved-cases/lagretSak.actions';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
+import { useTranslation } from '~/hooks/useTranslation';
+import { toLocalizedPath } from '~/lib/routing/pathname';
+import styles from './SaveCaseDropdown.module.scss';
+
+/**
+ * Saves a saksmappe or moetemappe, as a dropdown in the header row. Reads its
+ * texts from `${translationKey}.follow`, `.followSubscribe`, `.followSaved`,
+ * `.followError` and `.followLoginPrompt`.
+ *
+ * Nothing tells the page whether the user has already saved the case, so
+ * `isSaved` starts out false and only remembers a save made in this view.
+ * Once the case carries that itself, pass it as `isSaved`.
+ */
+export default function SaveCaseDropdown({
+  target,
+  translationKey,
+  isSaved = false,
+}: {
+  target: LagretSakTarget;
+  translationKey: string;
+  isSaved?: boolean;
+}) {
+  const t = useTranslation();
+  const languageCode = useLanguageCode();
+  const { authInfo } = useSessionData();
+  const isBruker = authInfo?.type === 'Bruker';
+  // Kept here, as the form is unmounted each time the dropdown closes.
+  const [saved, setSaved] = useState(isSaved);
+
+  return (
+    <EinDropdown
+      trigger={
+        <span className={styles.saveCaseTrigger}>
+          <BellIcon aria-hidden="true" focusable="false" />
+          {t(`${translationKey}.follow`)}
+        </span>
+      }
+      closeOnItemClick={!isBruker}
+      preferredPosition={[
+        'belowRight',
+        'belowLeft',
+        'rightTop',
+        'leftTop',
+        'right',
+        'left',
+        'below',
+        'above',
+      ]}
+      className={styles.saveCaseDropdown}
+    >
+      {!isBruker ? (
+        <div className={styles.saveCaseContent}>
+          <span>{t(`${translationKey}.followLoginPrompt`)}</span>
+          <EinButton asChild fullWidth data-color="accent">
+            <EinLink unstyled href={toLocalizedPath(languageCode, '/login')}>
+              {t('site.login')}
+            </EinLink>
+          </EinButton>
+        </div>
+      ) : (
+        <SaveCaseForm
+          target={target}
+          translationKey={translationKey}
+          saved={saved}
+          onSaved={() => setSaved(true)}
+        />
+      )}
+    </EinDropdown>
+  );
+}
+
+/**
+ * Mounted only while the dropdown is open, so each reopen starts fresh and
+ * shows no result from the last save.
+ */
+function SaveCaseForm({
+  target,
+  translationKey,
+  saved,
+  onSaved,
+}: {
+  target: LagretSakTarget;
+  translationKey: string;
+  saved: boolean;
+  onSaved: () => void;
+}) {
+  const t = useTranslation();
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: AddLagretSakState,
+      formData: FormData,
+    ): Promise<AddLagretSakState> => {
+      const next = await addLagretSakAction(target, previousState, formData);
+      if (next.success) {
+        onSaved();
+      }
+      return next;
+    },
+    { subscribe: true },
+  );
+
+  return (
+    <form action={formAction} className={styles.saveCaseContent}>
+      <Checkbox
+        name="subscribe"
+        label={t(`${translationKey}.followSubscribe`)}
+        defaultChecked={state.subscribe}
+        data-color="accent"
+      />
+      <EinButton
+        type="submit"
+        disabled={isPending || saved}
+        fullWidth
+        data-color="accent"
+      >
+        {isPending ? t('common.saving') : t(`${translationKey}.follow`)}
+      </EinButton>
+      {state.error === 'saveFailed' && (
+        <Alert data-color="danger" role="alert">
+          {t(`${translationKey}.followError`)}
+        </Alert>
+      )}
+      {saved && (
+        <Alert data-color="success" role="status">
+          {t(`${translationKey}.followSaved`)}
+        </Alert>
+      )}
+    </form>
+  );
+}

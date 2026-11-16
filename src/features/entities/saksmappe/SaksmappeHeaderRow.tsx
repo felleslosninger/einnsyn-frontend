@@ -1,5 +1,5 @@
 import { isEnhet } from '@digdir/einnsyn-sdk';
-import FollowLink from '~/features/entities/common/FollowLink';
+import SaveCaseDropdown from '~/features/entities/common/SaveCaseDropdown';
 import { getSaksmappe } from '~/features/entities/saksmappe/saksmappe.server';
 import HeaderBar from '~/features/header/HeaderBar';
 import HeaderBreadcrumbs, {
@@ -48,7 +48,14 @@ export default async function SaksmappeHeaderRow({
   };
 
   return (
-    <HeaderBar end={<FollowLink labelKey="saksmappe.follow" />}>
+    <HeaderBar
+      end={
+        <SaveCaseDropdown
+          target={{ saksmappe: saksmappeId }}
+          translationKey="saksmappe"
+        />
+      }
+    >
       <HeaderBreadcrumbs items={items} current={current} />
     </HeaderBar>
   );

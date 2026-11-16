@@ -198,6 +198,7 @@
     "deleting": "Deleting...",
     "create": "Create",
     "creating": "Creating...",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "ok": "OK",
     "remove": "Remove",
@@ -227,6 +228,10 @@
     "saksnummer": "Case number",
     "journalfoert": "Recorded",
     "follow": "Follow case",
+    "followSubscribe": "Notify me about changes to the case",
+    "followSaved": "Case saved",
+    "followError": "Could not save the case",
+    "followLoginPrompt": "Log in to follow the case",
     "publishedBy": "Published by"
   },
   "journalpost": {
