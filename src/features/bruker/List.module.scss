@@ -69,6 +69,10 @@
   }
 }
 
+.description {
+   max-width: 65ch;
+}
+
 .meta {
   font-size: var(--ds-font-size-2);
 }

@@ -55,9 +55,11 @@ export default async function ListPage<T extends Base>({
           <Heading level={1} data-size="md">
             {t(`bruker.${type}`)}
           </Heading>
-          <Paragraph>{t(`bruker.${type}Page.description`)}</Paragraph>
+          <Paragraph className={styles.description}>
+            {t(`bruker.${type}Page.description`)}
+          </Paragraph>
           {type === 'savedSearches' && (
-            <Paragraph>
+            <Paragraph className={styles.description}>
               {t('bruker.savedSearchesPage.notificationInfo')}
             </Paragraph>
           )}
