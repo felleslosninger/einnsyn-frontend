@@ -194,6 +194,8 @@
     "address": "Address",
     "noResults": "No results found",
     "searchFailed": "Search failed. Please try again later.",
+    "paginationFailed": "More results could not be loaded.",
+    "retry": "Try again",
     "add": "Add",
     "delete": "Delete",
     "deleting": "Deleting...",

@@ -194,6 +194,8 @@
     "address": "Čujuhus",
     "noResults": "Bohtosat eai gávdnon",
     "searchFailed": "Ohcan filtii. Geahččal fas maŋŋel.",
+    "paginationFailed": "Eanet bohtosiid ii sáhttán viežžat.",
+    "retry": "Geahččal fas",
     "add": "Lasit",
     "delete": "Sihko",
     "deleting": "Sihkko...",

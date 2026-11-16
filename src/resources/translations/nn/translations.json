@@ -194,6 +194,8 @@
     "address": "Adresse",
     "noResults": "Ingen treff",
     "searchFailed": "Søket mislukkast. Prøv igjen seinare.",
+    "paginationFailed": "Fleire resultat kunne ikkje lastast inn.",
+    "retry": "Prøv igjen",
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Slettar...",
