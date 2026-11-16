@@ -193,6 +193,8 @@
     "email": "Siidu",
     "address": "Čujuhus",
     "noResults": "Bohtosat eai gávdnon",
+    "paginationFailed": "Eanet bohtosiid ii sáhttán viežžat.",
+    "retry": "Geahččal fas",
     "add": "Lasit",
     "delete": "Sihko",
     "deleting": "Sihkko...",

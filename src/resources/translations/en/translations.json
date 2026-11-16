@@ -193,6 +193,8 @@
     "email": "Email",
     "address": "Address",
     "noResults": "No results found",
+    "paginationFailed": "More results could not be loaded.",
+    "retry": "Try again",
     "add": "Add",
     "delete": "Delete",
     "deleting": "Deleting...",

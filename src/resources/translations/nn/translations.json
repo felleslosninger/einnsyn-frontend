@@ -193,6 +193,8 @@
     "email": "E-post",
     "address": "Adresse",
     "noResults": "Ingen treff",
+    "paginationFailed": "Fleire resultat kunne ikkje lastast inn.",
+    "retry": "Prøv igjen",
     "add": "Legg til",
     "delete": "Slett",
     "deleting": "Slettar...",
