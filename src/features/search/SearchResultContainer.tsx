@@ -18,6 +18,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { EinButton } from '~/components/EinButton/EinButton';
 import { EinScrollTrigger } from '~/components/EinScrollTrigger/EinScrollTrigger';
 import {
   EinTransition,
@@ -84,6 +85,7 @@ export default function SearchResultContainer({
   );
   const [currentSearchResults, setCurrentSearchResults] =
     useState<PaginatedList<Base>>(searchResults);
+  const [loadMoreError, setLoadMoreError] = useState(false);
   const isLoading =
     loading &&
     (loadingPathname !== pathname ||
@@ -128,6 +130,7 @@ export default function SearchResultContainer({
       }
       return sameSearch ? mergeWindow(current, searchResults) : searchResults;
     });
+    setLoadMoreError(false);
   }, [searchResults, searchKey]);
 
   // The header layout seeds the enhet selector only on a full load, so an enhet
@@ -136,16 +139,23 @@ export default function SearchResultContainer({
     seedEnhets(getLinkedEnhets(currentSearchResults.items));
   }, [currentSearchResults]);
 
-  const scrollTriggerHandler = useCallback(async () => {
+  const loadMoreResults = useCallback(async () => {
     if (!currentSearchResults.next) {
       return; // No next page to fetch
     }
+    setLoadMoreError(false);
     const newSearchSymbol = Symbol();
     searchSymbolRef.current = newSearchSymbol;
     const nextPageData = await fetchNextPage(currentSearchResults);
 
     // Discard this result if a new search has been initiated
     if (searchSymbolRef.current !== newSearchSymbol) {
+      return;
+    }
+
+    // fetchNextPage returns the current page when loading fails.
+    if (nextPageData === currentSearchResults) {
+      setLoadMoreError(true);
       return;
     }
 
@@ -183,8 +193,20 @@ export default function SearchResultContainer({
                   <p>{t('common.noResults')}</p>
                 </div>
               )}
+              {loadMoreError && (
+                <div className={styles.searchResult} role="alert">
+                  <p>{t('common.paginationFailed')}</p>
+                  <EinButton
+                    onClick={loadMoreResults}
+                    style="link"
+                    type="button"
+                  >
+                    {t('common.retry')}
+                  </EinButton>
+                </div>
+              )}
               {currentSearchResults.next && (
-                <EinScrollTrigger onEnter={scrollTriggerHandler}>
+                <EinScrollTrigger onEnter={loadMoreResults}>
                   <SearchResultSkeleton
                     className={styles.searchResult}
                     index={0}
