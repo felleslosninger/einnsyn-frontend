@@ -169,7 +169,7 @@ export default function EinPopup(props: EinPopupProps) {
         preferredPosition,
       });
       if (!position) {
-        // Could not find a relative position that fits in the viewport
+        // No preferred positions
         popupElement.style.top = '';
         popupElement.style.left = '';
         return;
@@ -214,11 +214,11 @@ export default function EinPopup(props: EinPopupProps) {
       popupElement.style.setProperty('--ein-popup-position', position.position);
       popupElement.style.setProperty(
         '--ein-popup-arrow-top',
-        position.arrowTop ? `${position.arrowTop}px` : '',
+        position.arrowTop !== undefined ? `${position.arrowTop}px` : '',
       );
       popupElement.style.setProperty(
         '--ein-popup-arrow-left',
-        position.arrowLeft ? `${position.arrowLeft}px` : '',
+        position.arrowLeft !== undefined ? `${position.arrowLeft}px` : '',
       );
     },
     [
