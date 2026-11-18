@@ -47,6 +47,20 @@
   margin-top: 0;
 }
 
+.passwordField {
+  position: relative;
+
+  :global(input) {
+    padding-inline-end: calc(var(--ds-size-3) + var(--ds-size-8));
+  }
+}
+
+.passwordToggle {
+  position: absolute;
+  inset-inline-end: var(--ds-size-2);
+  inset-block-end: var(--ds-size-1);
+}
+
 // The password rules, as a footnote to the form
 .passwordHint p {
   margin: 0;
