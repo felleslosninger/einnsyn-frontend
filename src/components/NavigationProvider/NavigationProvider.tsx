@@ -54,7 +54,6 @@ type NavigationContextValue = {
   back: () => void;
   forward: () => void;
   refresh: () => void;
-  prefetch: (href: string) => void;
   closeModal: () => void;
 };
 
@@ -375,13 +374,6 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     });
   }, [router]);
 
-  const prefetch = useCallback(
-    (href: string) => {
-      router.prefetch(href);
-    },
-    [router],
-  );
-
   const closeModal = useCallback(() => {
     const entry = latestRef.current.historyEntry;
     // Only from a modal's entry, and once: going back twice would go too far.
@@ -420,7 +412,6 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       back,
       forward,
       refresh,
-      prefetch,
       closeModal,
     }),
     [
@@ -441,7 +432,6 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       back,
       forward,
       refresh,
-      prefetch,
       closeModal,
     ],
   );
