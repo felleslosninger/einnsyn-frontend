@@ -1,6 +1,7 @@
 'use client';
 
 import { Alert, Checkbox } from '@digdir/designsystemet-react';
+import { EyeIcon, EyeSlashIcon } from '@navikt/aksel-icons';
 import {
   useActionState,
   useEffect,
@@ -59,6 +60,7 @@ export default function LoginForm({
   const { settings } = useSessionData();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordRepeat, setPasswordRepeat] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(!!settings?.stayLoggedIn);
   const [notice, setNotice] = useState<Notice>();
@@ -72,6 +74,10 @@ export default function LoginForm({
   const forgotPasswordLink = useRef<HTMLAnchorElement>(null);
   const backToLoginLink = useRef<HTMLAnchorElement>(null);
   const focusOnLogin = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isLogin) setShowPassword(false);
+  }, [isLogin]);
 
   const [loginState, loginAction, isLoggingIn] = useActionState(
     eInnsynLoginAction,
@@ -223,27 +229,47 @@ export default function LoginForm({
         />
 
         <EinExpandable expanded={hasPassword}>
-          <EinInput
-            ref={passwordInput}
-            // Without a name it stays out of the reset request
-            name={hasPassword ? 'password' : undefined}
-            type="password"
-            label={
-              <>
-                {t('site.password')}
-                {/* Points to the rules below, which the field reads out */}
-                {isRegister && <span aria-hidden>*</span>}
-              </>
-            }
-            placeholder={t('site.passwordPlaceholder')}
-            autoComplete={isRegister ? 'new-password' : 'current-password'}
-            aria-describedby={isRegister ? passwordHintId : undefined}
-            onChange={onUpdatePassword}
-            onKeyDown={onKeyDown}
-            value={password}
-            required={hasPassword}
-            fullWidth
-          />
+          <div className={isLogin ? styles.passwordField : undefined}>
+            <EinInput
+              ref={passwordInput}
+              // Without a name it stays out of the reset request
+              name={hasPassword ? 'password' : undefined}
+              type={isLogin && showPassword ? 'text' : 'password'}
+              label={
+                <>
+                  {t('site.password')}
+                  {/* Points to the rules below, which the field reads out */}
+                  {isRegister && <span aria-hidden>*</span>}
+                </>
+              }
+              placeholder={t('site.passwordPlaceholder')}
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
+              aria-describedby={isRegister ? passwordHintId : undefined}
+              onChange={onUpdatePassword}
+              onKeyDown={onKeyDown}
+              value={password}
+              required={hasPassword}
+              fullWidth
+            />
+            {isLogin && (
+              <EinButton
+                type="button"
+                variant="tertiary"
+                data-size="sm"
+                className={styles.passwordToggle}
+                aria-label={
+                  showPassword ? t('site.hidePassword') : t('site.showPassword')
+                }
+                onClick={() => setShowPassword((shown) => !shown)}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon aria-hidden="true" />
+                ) : (
+                  <EyeIcon aria-hidden="true" />
+                )}
+              </EinButton>
+            )}
+          </div>
         </EinExpandable>
         <EinExpandable expanded={isRegister}>
           <EinInput
