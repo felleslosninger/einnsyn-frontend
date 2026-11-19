@@ -19,7 +19,28 @@ export const ROUTES = {
   '/about': { nb: 'om', nn: 'om' },
   '/privacy': { nb: 'personvern', nn: 'personvern' },
   '/admin': {},
-  '/bruker': {},
+  '/bruker': { nn: 'brukar', en: 'user', se: 'geavaheaddji' },
+  '/bruker/access-requests': {
+    nb: 'innsynskrav',
+    nn: 'innsynskrav',
+    se: 'vuhtiiváldágoahtin',
+  },
+  '/bruker/saved-cases': {
+    nb: 'lagrede-saker',
+    nn: 'lagra-saker',
+    se: 'vurkon-ásaid',
+  },
+  '/bruker/saved-meetings': {
+    nb: 'lagrede-moeter',
+    nn: 'lagra-moete',
+    se: 'vurkon-čoahkkimiid',
+  },
+  '/bruker/saved-searches': {
+    nb: 'lagrede-soek',
+    nn: 'lagra-soek',
+    se: 'vurkon-ohcanat',
+  },
+  '/bruker/profile': { nb: 'profil', nn: 'profil', se: 'profila' },
   '/login': { nb: 'logg-inn', nn: 'logg-inn' },
   '/login/register': {
     nb: 'opprett-konto',

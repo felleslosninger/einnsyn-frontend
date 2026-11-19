@@ -8,14 +8,20 @@ export async function SearchPage({
   searchParams,
 }: {
   params: Promise<{ enhet?: string }>;
-  searchParams: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { enhet = '' } = await params;
   if (enhet && (await isUnknownEnhet(enhet))) {
     notFound();
   }
 
-  const urlSearchParams = new URLSearchParams(await searchParams);
+  // A repeated parameter (e.g. `?entity=a&entity=b`) arrives as an array, which
+  // URLSearchParams would join into one comma-separated value.
+  const urlSearchParams = new URLSearchParams(
+    Object.entries(await searchParams).flatMap(([key, value]) =>
+      [value ?? []].flat().map((v) => [key, v]),
+    ),
+  );
   const searchResults = await getSearchResults(enhet, urlSearchParams);
   return <SearchResultContainer searchResults={searchResults} />;
 }
