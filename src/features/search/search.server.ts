@@ -71,8 +71,19 @@ export const getSearchParameters = (
   if (searchParams.has('q')) {
     const searchTokens = searchQueryToTokens(searchParams.get('q') ?? '');
 
-    // Add regular search words (preserving quotes)
-    const filteredTokens = searchTokens.filter((token) => !token.prefix);
+    // Add regular search words (preserving quotes). Text like `NOU 2026:12`
+    // stays in the search, only real filters are left out.
+    // Keep this list in sync with the filters below.
+    const filterPrefixes = [
+      'fulltext',
+      'publisert',
+      'oppdatert',
+      'moetedato',
+      'journalposttype',
+    ];
+    const filteredTokens = searchTokens.filter(
+      (token) => !token.prefix || !filterPrefixes.includes(token.prefix),
+    );
     apiQuery.query = tokensToSearchQuery(filteredTokens);
 
     // Fulltext
