@@ -2,7 +2,7 @@
 
 import type { LinkProps as NextLinkProps } from 'next/link';
 import type React from 'react';
-import { forwardRef, useCallback, useEffect } from 'react';
+import { forwardRef, useCallback } from 'react';
 import cn from '~/lib/utils/className';
 import { isStandardClick } from '~/lib/utils/isStandardClick';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
@@ -40,7 +40,9 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
     {
       href,
       onClick,
-      prefetch = true,
+      // Ignored: without loading.tsx a prefetch carries only the route tree,
+      // and the click fetches the whole page anyway.
+      prefetch,
       replace = false,
       scroll,
       shallow,
@@ -49,11 +51,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
     },
     ref,
   ) => {
-    const {
-      push,
-      replace: replaceRoute,
-      prefetch: prefetchRoute,
-    } = useNavigation();
+    const { push, replace: replaceRoute } = useNavigation();
 
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -84,13 +82,6 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
       },
       [onClick, push, replaceRoute, replace, href, scroll],
     );
-
-    // Handle prefetching
-    useEffect(() => {
-      if (prefetch && isRoutable(href)) {
-        prefetchRoute(href);
-      }
-    }, [prefetch, href, prefetchRoute]);
 
     return (
       <a

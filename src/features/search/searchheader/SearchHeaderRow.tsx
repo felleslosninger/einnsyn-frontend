@@ -1,6 +1,6 @@
 import HeaderBar from '~/features/header/HeaderBar';
 import SearchFilterDropdown from '~/features/search/searchheader/filter/SearchFilterDropdown';
-import SaveSearchDropdown from '~/features/search/searchheader/SaveSearchDropdown';
+import SearchSortDropdown from '~/features/search/searchheader/SearchSortDropdown';
 import SearchTabs from '~/features/search/searchheader/SearchTabs';
 import styles from './SearchHeaderRow.module.scss';
 
@@ -14,8 +14,8 @@ export default function SearchHeaderRow() {
     <HeaderBar
       end={
         <div className={styles.actions}>
-          <SaveSearchDropdown />
           <SearchFilterDropdown />
+          <SearchSortDropdown />
         </div>
       }
     >

@@ -11,7 +11,16 @@ const keyboardNavigationKeys = new Set([
 ]);
 
 function isKeyboardNavigationKey(event: KeyboardEvent) {
-  return event.key.startsWith('Arrow') || keyboardNavigationKeys.has(event.key);
+  if (
+    !event.key.startsWith('Arrow') &&
+    !keyboardNavigationKeys.has(event.key)
+  ) {
+    return false;
+  }
+  // In a text field every key but Tab only moves the caret.
+  const inTextField =
+    event.target instanceof Element && event.target.matches(':read-write');
+  return event.key === 'Tab' || !inTextField;
 }
 
 export function KeyboardFocusManager() {
