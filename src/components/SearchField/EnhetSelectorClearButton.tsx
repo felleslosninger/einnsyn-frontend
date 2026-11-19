@@ -31,11 +31,6 @@ export function EnhetSelectorClearButton({
 
   const onClick = useCallback(
     (event: React.MouseEvent) => {
-      if (active) {
-        // Only clear the draft. EinPopup's document click listener would
-        // apply it and close.
-        event.nativeEvent.stopImmediatePropagation();
-      }
       clearSelected();
       // `detail` is 0 when activated from the keyboard.
       if (!active && event.detail === 0) {
