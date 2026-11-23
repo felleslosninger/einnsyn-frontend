@@ -44,6 +44,15 @@
   }
 }
 
+// A single line of text, centred against the buttons beside it.
+.row:has(.unavailable) {
+  align-items: center;
+
+  @include mq.small {
+    align-items: flex-start;
+  }
+}
+
 .main {
   display: flex;
   flex-direction: column;

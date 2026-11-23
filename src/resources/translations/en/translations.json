@@ -362,6 +362,7 @@
       "description": "The answer to an access request comes by email from the organisation handling it. If you delete a request from the list, it will still be processed.",
       "sentAt": "Sent to organisation",
       "notSent": "Not sent yet",
+      "unavailable": "The document is no longer available",
       "empty": "You have no access requests. You can order documents from the search page or from document views."
     },
     "savedCasesPage": {

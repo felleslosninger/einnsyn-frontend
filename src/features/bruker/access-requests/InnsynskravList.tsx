@@ -55,17 +55,23 @@ export default function InnsynskravList({
           }
           onDelete={onDelete}
         >
-          {isJournalpost(item.journalpost) && (
+          {isJournalpost(item.journalpost) ? (
             <JournalpostResult
               className={styles.result}
               item={item.journalpost}
             />
+          ) : (
+            <Paragraph className={styles.unavailable}>
+              {t('bruker.accessRequestsPage.unavailable')}
+            </Paragraph>
           )}
-          <Paragraph data-size="sm" className={styles.meta}>
-            {item.sent
-              ? `${t('bruker.accessRequestsPage.sentAt')} ${dateFormat(item.sent, languageCode)}`
-              : t('bruker.accessRequestsPage.notSent')}
-          </Paragraph>
+          {isJournalpost(item.journalpost) && (
+            <Paragraph data-size="sm" className={styles.meta}>
+              {item.sent
+                ? `${t('bruker.accessRequestsPage.sentAt')} ${dateFormat(item.sent, languageCode)}`
+                : t('bruker.accessRequestsPage.notSent')}
+            </Paragraph>
+          )}
         </ListItem>
       )}
     />

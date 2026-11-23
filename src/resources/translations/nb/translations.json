@@ -357,6 +357,7 @@
       "description": "Svaret på et innsynskrav kommer på e-post fra virksomheten som behandler det. Sletter du et krav fra listen, blir det likevel behandlet.",
       "sentAt": "Sendt til virksomhet",
       "notSent": "Ikke sendt ennå",
+      "unavailable": "Dokumentet er ikke lenger tilgjengelig",
       "empty": "Du har ingen innsynskrav. Du kan bestille dokumenter fra søkesiden eller dokumentvisningene."
     },
     "savedCasesPage": {
