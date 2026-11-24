@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Search, Skeleton } from '@digdir/designsystemet-react';
-import { Buildings3Icon, PlusIcon, XMarkIcon } from '@navikt/aksel-icons';
-import { useCallback, useMemo, useRef } from 'react';
+import { ArrowRightIcon, Buildings3Icon, XMarkIcon } from '@navikt/aksel-icons';
+import { type RefObject, useCallback, useMemo, useRef } from 'react';
 import { VList } from 'virtua';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import type { EinTransitionEvents } from '~/components/EinTransition/EinTransition';
@@ -29,13 +29,18 @@ type Translate = (
 // Stable reference — passing an inline array would re-create the
 // `updatePopupPosition` callback inside EinPopup on every render and trigger
 // a reposition after every state change.
-const POPUP_PREFERRED_POSITION: PopupPosition[] = ['belowRight'];
+const POPUP_PREFERRED_POSITION: PopupPosition[] = ['below', 'center'];
+
+// Below the search bar while about three rows fit; centred in the viewport
+// otherwise (e.g. the landing page, where the bar sits mid-screen).
+const POPUP_MIN_HEIGHT = 540;
 
 type Props = {
   state: EnhetSelectorState;
   active: boolean;
   activate: () => void;
   close: () => void;
+  popupAnchorRef?: RefObject<HTMLElement | null>;
 };
 
 export function EnhetSelectorDesktop({
@@ -43,10 +48,12 @@ export function EnhetSelectorDesktop({
   active,
   activate,
   close,
+  popupAnchorRef,
 }: Props) {
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const summaryButtonRef = useRef<HTMLButtonElement>(null);
+  const selectorFieldRef = useRef<HTMLDivElement>(null);
   const { inputRef } = state;
 
   const getRowSubtitle = useCallback(
@@ -68,9 +75,31 @@ export function EnhetSelectorDesktop({
     [inputRef],
   );
 
+  // Clicking outside discards the draft, like Esc and Cancel. Two exceptions:
+  // the selector field's own buttons (the summary button refocuses the input,
+  // the clear button empties the draft), and Søk in the search bar, which
+  // searches with the draft (see SearchField).
+  const handleSetOpen = useCallback(
+    (open: boolean, event?: MouseEvent) => {
+      const target = event?.target;
+      const submitter =
+        target instanceof Element ? target.closest('[type="submit"]') : null;
+      if (
+        open ||
+        (target instanceof Node &&
+          selectorFieldRef.current?.contains(target)) ||
+        (submitter && popupAnchorRef?.current?.contains(submitter))
+      ) {
+        return;
+      }
+      close();
+    },
+    [close, popupAnchorRef],
+  );
+
   return (
     <>
-      <div className={styles.selectorField}>
+      <div ref={selectorFieldRef} className={styles.selectorField}>
         <SummaryButton
           buttonRef={summaryButtonRef}
           active={active}
@@ -89,11 +118,11 @@ export function EnhetSelectorDesktop({
 
       <EinPopup
         open={active}
-        // Clicking outside commits the draft selection. To discard changes
-        // the user must hit the explicit Cancel button (which calls `close`).
-        setOpen={(value) => !value && state.applySelection()}
-        anchorRef={summaryButtonRef}
+        setOpen={handleSetOpen}
+        anchorRef={popupAnchorRef ?? summaryButtonRef}
         className={styles.desktopSelectorPopup}
+        matchAnchorWidth
+        minHeight={POPUP_MIN_HEIGHT}
         preferredPosition={POPUP_PREFERRED_POSITION}
         closeOnEsc={false}
         trapFocus={false}
@@ -405,7 +434,7 @@ const SelectedColumn = ({ state, getRowSubtitle }: ColumnProps) => {
 };
 
 //
-// Row (name + subtitle on the left, action pill on the right)
+// Row (name + subtitle on the left, action icon on the right)
 //
 
 type DesktopRowProps = {
@@ -432,7 +461,7 @@ const DesktopRow = ({
     [enhet, languageCode],
   );
   const isSelectedColumn = variant === 'selected';
-  const ActionIcon = isSelectedColumn ? XMarkIcon : PlusIcon;
+  const ActionIcon = isSelectedColumn ? XMarkIcon : ArrowRightIcon;
   const actionLabel = isSelectedColumn ? t('common.remove') : t('common.add');
 
   return (
@@ -455,10 +484,7 @@ const DesktopRow = ({
           <span className={styles.selectorListSubtitle}>{subtitle}</span>
         )}
       </span>
-      <span className={styles.selectorListAction}>
-        <ActionIcon fontSize="1rem" aria-hidden="true" />
-        <span className={styles.selectorListActionLabel}>{actionLabel}</span>
-      </span>
+      <ActionIcon className={styles.selectorListAction} aria-hidden="true" />
     </button>
   );
 };

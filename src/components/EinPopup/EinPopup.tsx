@@ -33,7 +33,8 @@ import styles from './EinPopup.module.scss';
 
 export type EinPopupProps = {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  // `event` is the click when closing on an outside click.
+  setOpen: (open: boolean, event?: MouseEvent) => void;
   closeOnOutsideClick?: boolean;
   closeOnEsc?: boolean;
   trapFocus?: boolean;
@@ -44,6 +45,12 @@ export type EinPopupProps = {
   popupRef?: RefObject<HTMLDivElement | null>;
   anchorRef?: RefObject<Element | null>;
   sizeReferenceRef?: RefObject<Element | null>;
+  // At least as wide as the anchor and centred on it (above/below/center).
+  matchAnchorWidth?: boolean;
+  // Above/below placements count as fitting if at least this much height is
+  // available. The available height is set as max-height and
+  // --ein-popup-max-height; content must use the variable to shrink.
+  minHeight?: number;
   preferredPosition?: PopupPosition[];
   // Skip the default visual chrome (drop-shadow, content background,
   // border-radius, arrow). Useful for callers that fully style the popup.
@@ -85,6 +92,8 @@ export default function EinPopup(props: EinPopupProps) {
     popupRef = fallbackPopupRef,
     anchorRef: anchorRefProp,
     sizeReferenceRef,
+    matchAnchorWidth = false,
+    minHeight,
     preferredPosition = ['below', 'above', 'right', 'left'],
     unstyled = false,
     arrow = true,
@@ -96,102 +105,130 @@ export default function EinPopup(props: EinPopupProps) {
   } = props;
   const anchorRef = useRef<Element | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const measuredSizeRef = useRef<{ width: number; height: number } | null>(
+    null,
+  );
 
   /**
    * Set the position of the popup relative to the anchor element.
+   * `reuseMeasuredSize` skips measuring the popup, which resizes it for a
+   * moment: scrolling doesn't change its natural size, and the resize would
+   * clamp scroll positions inside the popup and in the page.
    */
-  const updatePopupPosition = useCallback(() => {
-    const popupElement = popupRef.current;
-    const anchorElement = anchorRef.current;
+  const updatePopupPosition = useCallback(
+    (reuseMeasuredSize = false) => {
+      const popupElement = popupRef.current;
+      const anchorElement = anchorRef.current;
 
-    if (
-      !(popupElement instanceof HTMLElement) ||
-      !(anchorElement instanceof HTMLElement) ||
-      getComputedStyle(popupElement).position !== 'absolute'
-    ) {
-      return;
-    }
+      if (
+        !(popupElement instanceof HTMLElement) ||
+        !(anchorElement instanceof HTMLElement) ||
+        getComputedStyle(popupElement).position !== 'absolute'
+      ) {
+        return;
+      }
 
-    // To calculate the position of the popup, we need to find the current
-    // dimensions of the popup element. Move it far up and left, so that it's current
-    // position does not affect its size. Clear any previous width override so
-    // the popup re-measures its natural size.
-    const body = document.body;
-    popupElement.style.top = `${-body.scrollHeight}px`;
-    popupElement.style.left = `${-body.scrollWidth}px`;
-    popupElement.style.width = '';
-    popupElement.style.maxHeight = '';
-    // Use offset{Width,Height} so an in-flight enter-transition transform
-    // (e.g. scale(0.97)) doesn't shrink the measured size and place the
-    // popup slightly off — getBoundingClientRect() includes the transform.
-    const rectFromBoundingRect = popupElement.getBoundingClientRect();
-    const popupRect = new DOMRect(
-      rectFromBoundingRect.x,
-      rectFromBoundingRect.y,
-      popupElement.offsetWidth,
-      popupElement.offsetHeight,
-    );
-    const anchorRect = anchorElement.getBoundingClientRect();
-    const sizeReferenceElement = sizeReferenceRef?.current;
-    const sizeReferenceRect =
-      sizeReferenceElement instanceof HTMLElement
-        ? sizeReferenceElement.getBoundingClientRect()
-        : undefined;
-
-    const position = calculatePopupPosition({
-      popup: popupRect,
-      anchor: anchorRect,
-      sizeReference: sizeReferenceRect,
-      preferredPosition,
-    });
-    if (!position) {
-      // Could not find a relative position that fits in the viewport
-      popupElement.style.top = '';
-      popupElement.style.left = '';
-      return;
-    }
-
-    // calculatePopupPosition returns page (document) coordinates. Convert them
-    // into the popup's containing block:
-    //  - With a positioned ancestor, subtract the ancestor's page-relative
-    //    top/left (its viewport rect plus the window scroll).
-    //  - With none (e.g. portalled to <body>), the containing block is the
-    //    initial containing block, whose origin is the document origin — so the
-    //    page coordinates are already correct and must NOT be scroll-adjusted.
-    //    (Subtracting the scroll here is what pushed portalled popups up by
-    //    exactly the scroll distance.)
-    const positionedAncestor = getClosestPositionedAncestor(popupElement);
-    if (positionedAncestor) {
-      const ancestorRect = positionedAncestor.getBoundingClientRect();
-      position.top -= ancestorRect.top + window.scrollY;
-      position.left -= ancestorRect.left + window.scrollX;
-    }
-
-    // Set the final position of the popup popup
-    popupElement.style.setProperty('top', `${position.top}px`);
-    popupElement.style.setProperty('left', `${position.left}px`);
-    if (typeof position.width === 'number') {
-      popupElement.style.setProperty('width', `${position.width}px`);
-    }
-    if (typeof position.maxHeight === 'number') {
-      popupElement.style.setProperty('max-height', `${position.maxHeight}px`);
-      // Also expose as a CSS variable so children can size themselves
-      // against the available space (e.g. to fill it with `height:`).
-      popupElement.style.setProperty(
-        '--ein-popup-max-height',
-        `${position.maxHeight}px`,
+      if (!reuseMeasuredSize || !measuredSizeRef.current) {
+        // To calculate the position of the popup, we need to find the current
+        // dimensions of the popup element. Move it far up and left, so that it's current
+        // position does not affect its size. Clear any previous width override so
+        // the popup re-measures its natural size.
+        const body = document.body;
+        popupElement.style.top = `${-body.scrollHeight}px`;
+        popupElement.style.left = `${-body.scrollWidth}px`;
+        popupElement.style.width = '';
+        popupElement.style.maxHeight = '';
+        popupElement.style.removeProperty('--ein-popup-max-height');
+        // Use offset{Width,Height} so an in-flight enter-transition transform
+        // (e.g. scale(0.97)) doesn't shrink the measured size and place the
+        // popup slightly off — getBoundingClientRect() includes the transform.
+        measuredSizeRef.current = {
+          width: popupElement.offsetWidth,
+          height: popupElement.offsetHeight,
+        };
+      }
+      const popupRect = new DOMRect(
+        0,
+        0,
+        measuredSizeRef.current.width,
+        measuredSizeRef.current.height,
       );
-    }
-    popupElement.style.setProperty('--ein-popup-position', position.position);
-    popupElement.style.setProperty(
-      '--ein-popup-arrow-top',
-      position.arrowTop ? `${position.arrowTop}px` : '',
-    );
-    popupElement.style.setProperty(
-      '--ein-popup-arrow-left',
-      position.arrowLeft ? `${position.arrowLeft}px` : '',
-    );
-  }, [preferredPosition, popupRef, sizeReferenceRef]);
+      const anchorRect = anchorElement.getBoundingClientRect();
+      const sizeReferenceElement = sizeReferenceRef?.current;
+      const sizeReferenceRect =
+        sizeReferenceElement instanceof HTMLElement
+          ? sizeReferenceElement.getBoundingClientRect()
+          : undefined;
+
+      const position = calculatePopupPosition({
+        popup: popupRect,
+        anchor: anchorRect,
+        sizeReference: sizeReferenceRect,
+        matchAnchorWidth,
+        minHeight,
+        preferredPosition,
+      });
+      if (!position) {
+        // No preferred positions
+        popupElement.style.top = '';
+        popupElement.style.left = '';
+        return;
+      }
+
+      // calculatePopupPosition returns page (document) coordinates. Convert them
+      // into the popup's containing block:
+      //  - With a positioned ancestor, subtract the ancestor's page-relative
+      //    top/left (its viewport rect plus the window scroll).
+      //  - With none (e.g. portalled to <body>), the containing block is the
+      //    initial containing block, whose origin is the document origin — so the
+      //    page coordinates are already correct and must NOT be scroll-adjusted.
+      //    (Subtracting the scroll here is what pushed portalled popups up by
+      //    exactly the scroll distance.)
+      const positionedAncestor = getClosestPositionedAncestor(popupElement);
+      if (positionedAncestor) {
+        const ancestorRect = positionedAncestor.getBoundingClientRect();
+        position.top -= ancestorRect.top + window.scrollY;
+        position.left -= ancestorRect.left + window.scrollX;
+      }
+
+      // Set the final position of the popup popup
+      popupElement.style.setProperty('top', `${position.top}px`);
+      popupElement.style.setProperty('left', `${position.left}px`);
+      if (typeof position.width === 'number') {
+        popupElement.style.setProperty('width', `${position.width}px`);
+      } else {
+        popupElement.style.width = '';
+      }
+      if (typeof position.maxHeight === 'number') {
+        popupElement.style.setProperty('max-height', `${position.maxHeight}px`);
+        // Also expose as a CSS variable so children can size themselves
+        // against the available space (e.g. to fill it with `height:`).
+        popupElement.style.setProperty(
+          '--ein-popup-max-height',
+          `${position.maxHeight}px`,
+        );
+      } else {
+        popupElement.style.maxHeight = '';
+        popupElement.style.removeProperty('--ein-popup-max-height');
+      }
+      popupElement.style.setProperty('--ein-popup-position', position.position);
+      popupElement.style.setProperty(
+        '--ein-popup-arrow-top',
+        position.arrowTop !== undefined ? `${position.arrowTop}px` : '',
+      );
+      popupElement.style.setProperty(
+        '--ein-popup-arrow-left',
+        position.arrowLeft !== undefined ? `${position.arrowLeft}px` : '',
+      );
+    },
+    [
+      preferredPosition,
+      popupRef,
+      sizeReferenceRef,
+      matchAnchorWidth,
+      minHeight,
+    ],
+  );
 
   // Update the ref of the anchor when the popup is opened
   useLayoutEffect(() => {
@@ -226,28 +263,43 @@ export default function EinPopup(props: EinPopupProps) {
     }
   }, [open, autoFocus]);
 
-  // Update popup position on resize
+  // Update popup position on resize and scroll
   useEffect(() => {
     if (open) {
-      // Update position on window resize
       if (!domIsHidden(popupRef.current)) {
         updatePopupPosition();
       }
-      window.addEventListener('resize', updatePopupPosition);
+      const onResize = () => updatePopupPosition();
+      window.addEventListener('resize', onResize);
+      // The fitted height and 'center' are measured against the viewport.
+      let scrollFrame = 0;
+      const onScroll = () => {
+        cancelAnimationFrame(scrollFrame);
+        scrollFrame = requestAnimationFrame(() => updatePopupPosition(true));
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
 
       // Follow anchor size changes — e.g. a summary button that grows as the
       // user selects items. Without this, the popup is pinned to its initial
       // position and drifts out of alignment as the anchor resizes.
-      let anchorObserver: ResizeObserver | undefined;
+      // Also follow the positioned ancestor: top/left are relative to it, so
+      // when it resizes (and usually moves), the popup moves along with it.
+      const observer = new ResizeObserver(() => updatePopupPosition());
       if (anchorRef.current instanceof Element) {
-        anchorObserver = new ResizeObserver(() => updatePopupPosition());
-        anchorObserver.observe(anchorRef.current);
+        observer.observe(anchorRef.current);
+      }
+      const positionedAncestor =
+        popupRef.current && getClosestPositionedAncestor(popupRef.current);
+      if (positionedAncestor) {
+        observer.observe(positionedAncestor);
       }
 
       // Clean up the event listener on unmount or when open changes
       return () => {
-        window.removeEventListener('resize', updatePopupPosition);
-        anchorObserver?.disconnect();
+        window.removeEventListener('resize', onResize);
+        window.removeEventListener('scroll', onScroll);
+        cancelAnimationFrame(scrollFrame);
+        observer.disconnect();
       };
     }
   }, [open, popupRef, updatePopupPosition]);
@@ -332,9 +384,12 @@ export default function EinPopup(props: EinPopupProps) {
   }, [closeOnEsc, popupRef, open, setOpen]);
 
   // Close on click outside
-  const outsideClickHandler = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
+  const outsideClickHandler = useCallback(
+    (event: MouseEvent) => {
+      setOpen(false, event);
+    },
+    [setOpen],
+  );
   useOnOutsideClick(popupRef, open && closeOnOutsideClick, outsideClickHandler);
 
   // Trap focus when open
