@@ -555,10 +555,10 @@ function readTransitionValues(live: HTMLElement, snapshot: HTMLElement) {
 }
 
 /**
- * Takes the step classes off `live` and its snapshot, and transfers to the
- * snapshot, inline, the values they gave `live` as of now and the
- * `transitionValues` read as it was cloned, so its exit starts from what was
- * on screen. Timing is left to the steps.
+ * Transfer the computed (possibly transitioning) styles of the live element to
+ * the snapshot, and clear transition step classes, so the exit transition
+ * starts from what's currently on screen.
+ *
  */
 function transferTransitionStyles(
   live: HTMLElement | null,
