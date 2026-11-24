@@ -124,6 +124,18 @@ describe('mergeWindow', () => {
     assert.strictEqual(merged.next, 'after-d');
   });
 
+  test('takes the total of the incoming window', () => {
+    const merged = mergeWindow(
+      { ...current, total: { value: 4, capped: false } },
+      {
+        ...paginatedList('a z b', { next: 'after-b' }),
+        total: { value: 5, capped: false },
+      },
+    );
+    assert.strictEqual(joinIds(merged), 'a z b c d');
+    assert.deepStrictEqual(merged.total, { value: 5, capped: false });
+  });
+
   test('keeps a page the other edge loaded meanwhile', () => {
     // Both edges extended `c d` at once; the appended page landed first.
     const merged = mergeWindow(

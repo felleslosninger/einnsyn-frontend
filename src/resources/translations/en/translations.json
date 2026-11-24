@@ -95,7 +95,12 @@
     "placeholder": "Search in eInnsyn...",
     "clear": "Clear search",
     "clearEnhetSelection": "Clear selected organizations",
-    "sortedBy": "Sorted by",
+    "resultCountAll": "<strong>$1</strong> results in all of eInnsyn",
+    "resultCountEnhetSingular": "<strong>$1</strong> results in the selected organization",
+    "resultCountEnhetPlural": "<strong>$1</strong> results in the selected organizations",
+    "resultCountCappedAll": "More than <strong>$1</strong> results in all of eInnsyn",
+    "resultCountCappedEnhetSingular": "More than <strong>$1</strong> results in the selected organization",
+    "resultCountCappedEnhetPlural": "More than <strong>$1</strong> results in the selected organizations",
     "orderAccess": "Request access",
     "openDocument": "Open document",
     "addToCalendar": "Add to calendar",
@@ -131,12 +136,65 @@
     "saveSearchMissingLabel": "Give the search a name",
     "saveSearchLoginPrompt": "Log in to save the search."
   },
+  "date": {
+    "weekdayDate": "$1 $2 $3",
+    "monthYear": "$1 $2",
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "monthsShort": {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sept",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec"
+    },
+    "weekdays": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    }
+  },
+  "statistics": {
+    "last12Months": "Last 12 months",
+    "documents": "documents",
+    "fulltext": "with full text",
+    "innsynskrav": "access requests",
+    "month": "Month"
+  },
   "common": {
     "publishedAt": "Published",
     "updatedAt": "Updated",
     "recordedAt": "Recorded",
     "number": "No.",
     "andMore": "+ $1 more",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays": "In $1 days",
+    "yesterday": "Yesterday",
+    "daysAgo": "$1 days ago",
     "all": "All",
     "phone": "Phone",
     "email": "Email",
@@ -214,7 +272,8 @@
   },
   "moetemappe": {
     "label": "Meeting",
-    "labelPlural": "Meetings"
+    "labelPlural": "Meetings",
+    "upcoming": "Upcoming meetings"
   },
   "moetesak": {
     "label": "Meeting case",

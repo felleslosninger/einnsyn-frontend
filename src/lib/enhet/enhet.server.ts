@@ -10,6 +10,7 @@ import {
   matchesEnhetIdentifier,
   type TrimmedEnhet,
   toTrimmedEnhet,
+  withParentChain,
 } from './enhet';
 
 // The API caps `limit` at 100
@@ -225,6 +226,55 @@ export async function getInitialEnhets({
     logger.error('Failed to build initial enhet list for request', error);
     return [];
   }
+}
+
+/** An enhet's names, contact details and expanded parent chain. */
+export type EnhetDetails = TrimmedEnhet &
+  Pick<
+    Enhet,
+    'kontaktpunktAdresse' | 'kontaktpunktEpost' | 'kontaktpunktTelefon'
+  >;
+
+// What some enhets have in place of an address.
+const ADDRESS_PLACEHOLDERS = new Set(['n/a', 'ukjent', '']);
+
+/**
+ * The enhets `identifiers` name, in that order, read from the cached list.
+ * Accepts ids or slugs; unknown ones are left out.
+ */
+export async function getEnhetDetails(
+  identifiers: readonly string[],
+): Promise<EnhetDetails[]> {
+  const { enhets, trimmed } = await getEnhetList();
+
+  // Keyed by id, since a selection can name the same enhet by id and by slug.
+  const selected = new Map<string, FlattenedEnhet>();
+  for (const identifier of identifiers) {
+    const identifierSet = new Set([identifier]);
+    const enhet = enhets.find((candidate) =>
+      matchesEnhetIdentifier(candidate, identifierSet),
+    );
+    if (enhet) {
+      selected.set(enhet.id, enhet);
+    }
+  }
+
+  const trimmedById = new Map(trimmed.map((enhet) => [enhet.id, enhet]));
+  return Array.from(selected.values(), (enhet) =>
+    withParentChain(
+      {
+        ...toTrimmedEnhet(enhet),
+        kontaktpunktAdresse: ADDRESS_PLACEHOLDERS.has(
+          enhet.kontaktpunktAdresse?.trim().toLowerCase() ?? '',
+        )
+          ? undefined
+          : enhet.kontaktpunktAdresse,
+        kontaktpunktEpost: enhet.kontaktpunktEpost,
+        kontaktpunktTelefon: enhet.kontaktpunktTelefon,
+      },
+      trimmedById,
+    ),
+  );
 }
 
 /**

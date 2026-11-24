@@ -1,8 +1,7 @@
 'use server';
 
-import { logger } from '~/lib/utils/logger';
 import type { TrimmedEnhet } from './enhet';
-import { type FlattenedEnhet, getEnhetList, getEnhets } from './enhet.server';
+import { getEnhetList } from './enhet.server';
 
 // Every export here is a publicly callable endpoint, so this file holds only
 // what a client component actually calls. Server-side callers use
@@ -17,16 +16,4 @@ export async function getTrimmedEnhetList(
 ): Promise<{ enhets?: TrimmedEnhet[]; version: string }> {
   const { trimmed, version } = await getEnhetList();
   return version === knownVersion ? { version } : { enhets: trimmed, version };
-}
-
-/** Accepts ids or slugs. */
-export async function getEnhet(
-  idsOrSlugs: string[],
-): Promise<FlattenedEnhet[]> {
-  try {
-    return await getEnhets(idsOrSlugs);
-  } catch (error) {
-    logger.error('Failed to look up enhets', error);
-    return [];
-  }
 }

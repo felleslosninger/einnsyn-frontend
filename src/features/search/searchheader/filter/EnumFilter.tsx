@@ -20,25 +20,22 @@ export function EnumFilter({
   className,
   label,
   options,
-  initialValue,
+  value,
   setValue,
 }: {
   className?: string;
   label: string;
   options: Option[];
-  initialValue?: string;
+  value?: string;
   setValue?: (value: string | undefined) => void;
 }) {
-  const selectedValues = useMemo(
-    () => new Set(parseParamList(initialValue)),
-    [initialValue],
-  );
+  const selectedValues = useMemo(() => new Set(parseParamList(value)), [value]);
 
   const handleChange = useCallback(
     (toggledValue: string, isChecked: boolean) => {
-      setValue?.(toggleParamListValue(initialValue, toggledValue, isChecked));
+      setValue?.(toggleParamListValue(value, toggledValue, isChecked));
     },
-    [initialValue, setValue],
+    [value, setValue],
   );
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
-import { Fieldset, Radio, useRadioGroup } from '@digdir/designsystemet-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fieldset, Radio } from '@digdir/designsystemet-react';
+import { useId, useState } from 'react';
 import { EinDropdown } from '~/components/EinDropdown';
 import { useTranslation } from '~/hooks/useTranslation';
 import cn from '~/lib/utils/className';
@@ -50,58 +50,58 @@ const parseCurrentValue = (
 /**
  * A dropdown filter for selecting a date or date range.
  * Supports presets (e.g., "Last 7 days") and a custom date range.
- * Integrates with a global optimistic search parameter system.
+ * Controlled by the filter's token in the search query.
  */
 export function DateFilter({
   className,
   label,
   defaultValue = 'all',
-  initialValue = defaultValue,
+  value,
   setValue,
 }: {
   className?: string;
   label: string;
   defaultValue?: string;
-  initialValue?: string;
+  value?: string;
   setValue?: (value: string | undefined) => void;
 }) {
   const t = useTranslation();
-  const [initialRadioValue, initialFrom, initialTo] = useMemo(
-    () => parseCurrentValue(initialValue, defaultValue),
-    [initialValue, defaultValue],
+  const name = useId();
+  const [radioValue] = parseCurrentValue(value, defaultValue);
+
+  // The last custom range, kept while a preset is selected so "custom" can
+  // restore it. Follows the query whenever the query holds a range.
+  const [customValue, setCustomValue] = useState(
+    radioValue === 'custom' ? (value ?? '') : '',
+  );
+  if (radioValue === 'custom' && value !== customValue) {
+    setCustomValue(value ?? '');
+  }
+  const [, customFromValue = '', customToValue = ''] = parseCurrentValue(
+    customValue,
+    defaultValue,
   );
 
-  const [customFromValue, setCustomFromValue] = useState(initialFrom ?? '');
-  const [customToValue, setCustomToValue] = useState(initialTo ?? '');
-  const customValue = useMemo(() => {
-    const from = customFromValue || '';
-    const to = customToValue || '';
-    return from || to ? `${from}/${to}` : '';
-  }, [customFromValue, customToValue]);
+  const update = (next: string) =>
+    setValue?.(next === defaultValue ? undefined : next);
 
-  const {
-    getRadioProps,
-    value: radioValue,
-    setValue: setRadioValue,
-  } = useRadioGroup({
-    value: initialRadioValue ?? defaultValue,
+  // "Custom" without a range is the empty token (`publisert:`), which the
+  // query keeps apart from "all".
+  const selectOption = (option: string) => {
+    if (option !== radioValue) {
+      update(option === 'custom' ? customValue : option);
+    }
+  };
+
+  const getOptionProps = (option: string) => ({
+    name,
+    value: option,
+    checked: radioValue === option,
+    onChange: () => selectOption(option),
   });
 
-  // Update currentValue
-  const currentValue = useMemo(() => {
-    if (radioValue === 'custom') {
-      return customValue;
-    }
-    return radioValue;
-  }, [radioValue, customValue]);
-
-  const focusOnCustom = useCallback(() => {
-    setRadioValue('custom');
-  }, [setRadioValue]);
-
-  useEffect(() => {
-    setValue?.(currentValue === defaultValue ? undefined : currentValue);
-  }, [setValue, currentValue, defaultValue]);
+  const setCustomRange = (from: string, to: string) =>
+    update(from || to ? `${from}/${to}` : '');
 
   return (
     <EinDropdown
@@ -123,7 +123,7 @@ export function DateFilter({
         <Radio
           label={t('common.all')}
           className={cn(styles.radioOption, { active: radioValue === 'all' })}
-          {...getRadioProps('all')}
+          {...getOptionProps('all')}
         />
         <div className={cn('spacer')} />
         <Radio
@@ -131,28 +131,28 @@ export function DateFilter({
           className={cn(styles.radioOption, {
             active: radioValue === '-24h',
           })}
-          {...getRadioProps('-24h')}
+          {...getOptionProps('-24h')}
         />
         <Radio
           label={t('searchFilters.datePresets.pastWeek')}
           className={cn(styles.radioOption, {
             active: radioValue === '-7d',
           })}
-          {...getRadioProps('-7d')}
+          {...getOptionProps('-7d')}
         />
         <Radio
           label={t('searchFilters.datePresets.pastMonth')}
           className={cn(styles.radioOption, {
             active: radioValue === '-1m',
           })}
-          {...getRadioProps('-1m')}
+          {...getOptionProps('-1m')}
         />
         <Radio
           label={t('searchFilters.datePresets.pastYear')}
           className={cn(styles.radioOption, {
             active: radioValue === '-1y',
           })}
-          {...getRadioProps('-1y')}
+          {...getOptionProps('-1y')}
         />
         <div className={cn('spacer')} />
         <Radio
@@ -160,7 +160,7 @@ export function DateFilter({
           className={cn(styles.radioOption, {
             active: radioValue === 'custom',
           })}
-          {...getRadioProps('custom')}
+          {...getOptionProps('custom')}
         />
       </Fieldset>
 
@@ -176,8 +176,8 @@ export function DateFilter({
               type="date"
               className={cn(styles.dateInput)}
               value={customFromValue}
-              onFocus={focusOnCustom}
-              onChange={(e) => setCustomFromValue(e.target.value)}
+              onFocus={() => selectOption('custom')}
+              onChange={(e) => setCustomRange(e.target.value, customToValue)}
             />
           </label>
         </div>
@@ -189,8 +189,8 @@ export function DateFilter({
               type="date"
               className={styles.dateInput}
               value={customToValue}
-              onFocus={focusOnCustom}
-              onChange={(e) => setCustomToValue(e.target.value)}
+              onFocus={() => selectOption('custom')}
+              onChange={(e) => setCustomRange(customFromValue, e.target.value)}
             />
           </label>
         </div>

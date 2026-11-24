@@ -73,17 +73,17 @@ export default function SearchFilterDropdown({
     >
       <DateFilter
         label={t('searchFilters.publisertDato')}
-        initialValue={getProperty('publisert')}
+        value={getProperty('publisert')}
         setValue={setPublisertDato}
       />
       <DateFilter
         label={t('searchFilters.oppdatertDato')}
-        initialValue={getProperty('oppdatert')}
+        value={getProperty('oppdatert')}
         setValue={setOppdatertDato}
       />
       <DateFilter
         label={t('searchFilters.moeteDato')}
-        initialValue={getProperty('moetedato')}
+        value={getProperty('moetedato')}
         setValue={setMoeteDato}
       />
 
@@ -91,7 +91,7 @@ export default function SearchFilterDropdown({
 
       <EnumFilter
         label={t('searchFilters.journalpostType')}
-        initialValue={getProperty('journalposttype')}
+        value={getProperty('journalposttype')}
         setValue={setJournalposttype}
         options={[
           {
@@ -114,6 +114,7 @@ export default function SearchFilterDropdown({
       />
       <BooleanFilter
         label={t('searchFilters.fullTextOnly')}
+        value={getProperty('fulltext')}
         setValue={setFulltext}
       />
     </EinDropdown>

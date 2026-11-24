@@ -2,7 +2,7 @@
 
 import type { LinkProps as NextLinkProps } from 'next/link';
 import type React from 'react';
-import { forwardRef, useCallback, useEffect } from 'react';
+import { forwardRef, useCallback } from 'react';
 import cn from '~/lib/utils/className';
 import { isStandardClick } from '~/lib/utils/isStandardClick';
 import { useNavigation } from '../NavigationProvider/NavigationProvider';
@@ -24,12 +24,25 @@ export interface LinkProps
   unstyled?: boolean;
 }
 
+/** Whether the router can open `href`; mailto:, tel: and other sites can't. */
+function isRoutable(href: string): boolean {
+  try {
+    return (
+      new URL(href, window.location.href).origin === window.location.origin
+    );
+  } catch {
+    return false;
+  }
+}
+
 export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
   (
     {
       href,
       onClick,
-      prefetch = true,
+      // Ignored: without loading.tsx a prefetch carries only the route tree,
+      // and the click fetches the whole page anyway.
+      prefetch,
       replace = false,
       scroll,
       shallow,
@@ -38,11 +51,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
     },
     ref,
   ) => {
-    const {
-      push,
-      replace: replaceRoute,
-      prefetch: prefetchRoute,
-    } = useNavigation();
+    const { push, replace: replaceRoute } = useNavigation();
 
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -54,7 +63,7 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
           return;
         }
 
-        if (e.defaultPrevented) {
+        if (e.defaultPrevented || !isRoutable(href)) {
           return;
         }
 
@@ -73,13 +82,6 @@ export const EinLink = forwardRef<HTMLAnchorElement, LinkProps>(
       },
       [onClick, push, replaceRoute, replace, href, scroll],
     );
-
-    // Handle prefetching
-    useEffect(() => {
-      if (prefetch && typeof href === 'string') {
-        prefetchRoute(href);
-      }
-    }, [prefetch, href, prefetchRoute]);
 
     return (
       <a

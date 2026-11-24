@@ -132,6 +132,27 @@ function getEnhetParentFromMap<T extends TrimmedEnhet>(
 }
 
 /**
+ * `enhet` with its parent ids resolved through `enhetsById`, as the expanded
+ * chain {@link getAncestors} walks. The chain ends where the map does.
+ */
+export function withParentChain<T extends TrimmedEnhet>(
+  enhet: T,
+  enhetsById: ReadonlyMap<string, TrimmedEnhet>,
+): T {
+  // Also ends a parent cycle.
+  const seen = new Set<string>();
+  // Linked on copies, so the map's entries keep their parent ids.
+  const link = <E extends TrimmedEnhet>(current: E): E => {
+    seen.add(current.id);
+    const parent = getEnhetParentFromMap(current, enhetsById);
+    return parent && !seen.has(parent.id)
+      ? { ...current, parent: link(parent) }
+      : current;
+  };
+  return link(enhet);
+}
+
+/**
  * Project a full enhet onto the subset the client needs.
  *
  * The whole list is serialized to the browser when the selector expands, so

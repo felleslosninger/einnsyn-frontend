@@ -8,7 +8,7 @@ import { useEffect } from 'react';
  */
 export function useOnOutsideClick(
   containerRef: RefObject<HTMLElement | null>,
-  callback: () => void,
+  callback: (event: MouseEvent) => void,
 ): void;
 
 /**
@@ -20,7 +20,7 @@ export function useOnOutsideClick(
 export function useOnOutsideClick(
   containerRef: RefObject<HTMLElement | null>,
   enabled: boolean,
-  callback: () => void,
+  callback: (event: MouseEvent) => void,
 ): void;
 
 export function useOnOutsideClick(
@@ -30,7 +30,9 @@ export function useOnOutsideClick(
   let i = 0;
   const enabled = typeof args[i] === 'boolean' ? args[i++] : true;
   const callback =
-    typeof args[i] === 'function' ? (args[i++] as () => void) : undefined;
+    typeof args[i] === 'function'
+      ? (args[i++] as (event: MouseEvent) => void)
+      : undefined;
 
   useEffect(() => {
     // Only react to clicks in the container '.einnsyn-body'. Browser extensions like password managers might click icons directly in the <body>, we don't want to react to those.
@@ -46,7 +48,7 @@ export function useOnOutsideClick(
         eInnsynBody.contains(target) &&
         !containerRef.current?.contains(target)
       ) {
-        callback?.();
+        callback?.(e);
       }
     };
 
