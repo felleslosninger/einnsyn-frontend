@@ -110,17 +110,15 @@ export function toLocalizedPath<R extends Route>(
   route: R,
   ...values: Values<R>
 ): string {
-  // `ROUTES`, indexable by the path built below.
-  const routes: Readonly<Record<string, Translations>> = ROUTES;
   let valueIndex = 0;
   let path = '';
   const segments = pathSegments(route).map((folder) => {
     path += `/${folder}`;
     return isDynamic(folder)
       ? values[valueIndex++]
-      : (routes[path]?.[languageCode] ?? folder);
+      : localizedSegment(path, languageCode);
   });
-  return `/${segments.map(encodeURIComponent).join('/')}`;
+  return joinPathSegments(segments);
 }
 
 /**
@@ -132,16 +130,26 @@ export function translatePathname(
   pathname: string,
   languageCode: LanguageCode,
 ): string {
-  // `ROUTES`, indexable by the path built below.
-  const routes: Readonly<Record<string, Translations>> = ROUTES;
   const segments = pathSegments(pathname).map(decodeSegment);
   let route = '';
   for (const [index, folder] of resolvePath(pathname).entries()) {
     route += `/${folder}`;
     if (!isDynamic(folder)) {
-      segments[index] = routes[route]?.[languageCode] ?? folder;
+      segments[index] = localizedSegment(route, languageCode);
     }
   }
+  return joinPathSegments(segments);
+}
+
+/** A static route's last segment, spelled in the language. */
+function localizedSegment(route: string, languageCode: LanguageCode): string {
+  // `ROUTES`, indexable by a route built at runtime
+  const routes: Readonly<Record<string, Translations>> = ROUTES;
+  return routes[route]?.[languageCode] ?? splitLast(route)[1];
+}
+
+/** The inverse of `pathSegments`, encoding each segment. */
+function joinPathSegments(segments: string[]): string {
   return `/${segments.map(encodeURIComponent).join('/')}`;
 }
 
