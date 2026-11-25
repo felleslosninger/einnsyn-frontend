@@ -276,32 +276,3 @@ export async function getEnhetDetails(
     ),
   );
 }
-
-/**
- * Whether an id or slug doesn't match an enhet.
- */
-export async function isUnknownEnhet(identifier: string): Promise<boolean> {
-  try {
-    return (await getEnhets([identifier])).length === 0;
-  } catch (error) {
-    logger.error('Failed to determine whether enhet is unknown', error);
-    return false;
-  }
-}
-
-/**
- * The enhet an id or slug names, from the cached list, so one added since the
- * last refresh is missing until the next.
- */
-export async function findCachedEnhet(
-  identifier: string,
-): Promise<TrimmedEnhet | undefined> {
-  try {
-    const { trimmed } = await getEnhetList();
-    const identifiers = new Set([identifier]);
-    return trimmed.find((enhet) => matchesEnhetIdentifier(enhet, identifiers));
-  } catch {
-    // Already logged by the list
-    return undefined;
-  }
-}
