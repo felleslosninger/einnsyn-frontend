@@ -15,6 +15,8 @@ import {
   getRequestPathname,
   getRequestSearchParams,
 } from '~/lib/routing/requestPath.server';
+import { buildQueryString } from '~/lib/routing/searchParams';
+import { showsSearchResults } from '~/lib/routing/sections';
 import { getSettings } from '~/lib/settings/settings.server';
 import { defaultLanguage } from '~/lib/translation/translation';
 import { getTranslator } from '~/lib/translation/translation.server';
@@ -33,9 +35,11 @@ export async function generateMetadata(): Promise<Metadata> {
     getRequestSearchParams(),
     getTranslator(),
   ]);
-  const search = searchParams.size > 0 ? `?${searchParams}` : '';
-  // Every spelling of a path serves the same page
-  const canonical = `${origin}${translatePathname(pathname, defaultLanguage)}${search}`;
+  // Queries are only relevant for search results
+  const query = showsSearchResults(pathname)
+    ? buildQueryString({ searchParams })
+    : '';
+  const canonical = `${origin}${translatePathname(pathname, defaultLanguage)}${query}`;
 
   return {
     title: { default: 'eInnsyn', template: '%s – eInnsyn' },
