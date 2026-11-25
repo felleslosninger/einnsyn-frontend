@@ -6,12 +6,8 @@ import { type FlattenedEnhet, getEnhets } from '~/lib/enhet/enhet.server';
 import { getSettings } from '~/lib/settings/settings.server';
 import { getTranslateFunction } from '~/lib/translation/translation';
 import { logger } from '~/lib/utils/logger';
-import {
-  searchQueryToTokens,
-  tokensToSearchQuery,
-} from '~/lib/utils/searchStringTokenizer';
 import SearchResultContainer from './SearchResultContainer';
-import { getSearchResults } from './search.server';
+import { getSearchParameters, getSearchResults } from './search.server';
 
 type SearchPageProps = {
   params: Promise<{ enhet?: string }>;
@@ -46,9 +42,9 @@ export async function generateSearchMetadata({
   const scope = found ? getName(found, language) : t('search.header');
 
   // Only the words searched for: filters have their own controls
-  const q = new URLSearchParams(await searchParams).get('q') ?? '';
-  const query = tokensToSearchQuery(
-    searchQueryToTokens(q).filter((token) => !token.prefix && token.value),
+  const { query } = getSearchParameters(
+    enhet,
+    new URLSearchParams(await searchParams),
   );
 
   return { title: query ? `${query} – ${scope}` : scope };
