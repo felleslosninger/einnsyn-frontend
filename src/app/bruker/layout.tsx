@@ -6,7 +6,8 @@ import { getTranslator } from '~/lib/translation/translation.server';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslator();
   const section = t('bruker.title');
-  return { title: { default: section, template: `%s – ${section}` } };
+  // Already names eInnsyn (mitt eInnsyn), so it skips the template's suffix
+  return { title: { absolute: section, template: `%s – ${section}` } };
 }
 
 export default async function BrukerLayout({
