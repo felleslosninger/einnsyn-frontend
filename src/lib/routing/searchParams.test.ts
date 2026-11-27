@@ -15,7 +15,44 @@ describe('buildQueryString', () => {
         searchParams: new URLSearchParams('q=innsyn&enhet=oslo'),
         updates: { entity: 'Saksmappe' },
       }),
-      '?q=innsyn&enhet=oslo&entity=Saksmappe',
+      '?q=innsyn&entity=Saksmappe&enhet=oslo',
+    );
+  });
+
+  it("keeps only the search's params, in a fixed order", () => {
+    assert.equal(
+      buildQueryString({
+        searchParams: new URLSearchParams(
+          'utm_source=x&sort=publisertDatoDesc&enhet=oslo&q=innsyn&entity=Saksmappe',
+        ),
+      }),
+      '?q=innsyn&entity=Saksmappe&sort=publisertDatoDesc&enhet=oslo',
+    );
+    assert.equal(
+      buildQueryString({ searchParams: new URLSearchParams('utm_source=x') }),
+      '',
+    );
+  });
+
+  it('reads repeated params as the search does', () => {
+    assert.equal(
+      buildQueryString({
+        searchParams: new URLSearchParams(
+          'q=&q=innsyn&sort=&sort=publisertDatoDesc&entity=Saksmappe&entity=Moetemappe',
+        ),
+      }),
+      '?entity=Saksmappe&entity=Moetemappe',
+    );
+  });
+
+  it('joins every enhet into one list', () => {
+    assert.equal(
+      buildQueryString({
+        searchParams: new URLSearchParams(
+          'enhet=oslo&enhet=bergen,%20oslo&enhet=',
+        ),
+      }),
+      '?enhet=oslo%2Cbergen',
     );
   });
 
@@ -73,15 +110,6 @@ describe('buildQueryString', () => {
         updates: { enhet: ['oslo', 'bergen'] },
       }),
       '?enhet=oslo%2Cbergen',
-    );
-  });
-
-  it('keeps the params as they are without updates', () => {
-    assert.equal(
-      buildQueryString({
-        searchParams: new URLSearchParams('q=innsyn'),
-      }),
-      '?q=innsyn',
     );
   });
 });
@@ -160,7 +188,7 @@ describe('buildSearchHref', () => {
     );
     assert.equal(
       href('/s%C3%B8k', 'enhet=oslo,bergen', { q: 'innsyn' }),
-      '/s%C3%B8k?enhet=oslo%2Cbergen&q=innsyn',
+      '/s%C3%B8k?q=innsyn&enhet=oslo%2Cbergen',
     );
   });
 

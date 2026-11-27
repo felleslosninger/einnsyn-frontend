@@ -276,15 +276,3 @@ export async function getEnhetDetails(
     ),
   );
 }
-
-/**
- * Whether an id or slug doesn't match an enhet.
- */
-export async function isUnknownEnhet(identifier: string): Promise<boolean> {
-  try {
-    return (await getEnhets([identifier])).length === 0;
-  } catch (error) {
-    logger.error('Failed to determine whether enhet is unknown', error);
-    return false;
-  }
-}

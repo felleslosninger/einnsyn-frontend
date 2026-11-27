@@ -48,40 +48,69 @@ const SEARCH_PARAM_DEFAULTS: Partial<Record<keyof SearchParams, string>> = {
   sort: DEFAULT_SORT,
 };
 
+// The first value, every value, or every value as one comma-separated list.
+type ParamRead = 'first' | 'all' | 'list';
+
+// The search's params in URL order, read as `getSearchParameters` reads them.
+const SEARCH_PARAM_READS: Record<keyof SearchParams, ParamRead> = {
+  q: 'first',
+  entity: 'all',
+  sort: 'first',
+  enhet: 'list',
+};
+
 /**
- * The query string for `searchParams` with `updates` applied, like
- * `location.search`: `?…`, or `''` when no params remain, so it can be appended
- * to a pathname as is.
+ * The query string for a search, like `location.search`: `?…`, or `''`.
  *
- * `undefined`, empty-string values and values equal to the default delete the param.
- *
- * `searchParams` is nullable because `useOptimisticSearchParams` is typed that
- * way; `undefined` counts as empty.
+ * Keeps only the search's params, read as the search reads them, with
+ * `updates` applied, in a fixed order and without empty or default values, so
+ * each search has one href. An update of `undefined`, `''` or `[]` removes the
+ * param.
  */
 export function buildQueryString({
   searchParams,
-  updates,
+  updates = {},
 }: {
   searchParams: URLSearchParams | undefined;
   updates?: Partial<SearchParams>;
 }): string {
-  const nextSearchParams = new URLSearchParams(searchParams);
+  const nextSearchParams = new URLSearchParams();
 
-  for (const [key, update] of Object.entries(updates ?? {})) {
-    const value =
-      typeof update === 'string'
-        ? update
-        : update && serializeParamList(update);
-    if (value) {
-      nextSearchParams.set(key, value);
-    } else {
-      nextSearchParams.delete(key);
+  for (const key of Object.keys(SEARCH_PARAM_READS) as (keyof SearchParams)[]) {
+    const read = SEARCH_PARAM_READS[key];
+    let values: (string | null | undefined)[];
+    if (key in updates) {
+      const update = updates[key];
+
+      // Keep the incoming updated value
+      if (typeof update === 'string') {
+        values = [update];
+      } else if (Array.isArray(update)) {
+        values = [serializeParamList(update)];
+      } else {
+        values = [];
+      }
     }
-  }
+    // Keep the first value of a list
+    else if (read === 'first') {
+      values = [searchParams?.get(key)];
+    }
+    // Keep every value of a list
+    else if (read === 'list') {
+      const list = searchParams?.getAll(key) ?? [];
+      values = [
+        serializeParamList(list.flatMap((value) => parseParamList(value))),
+      ];
+    }
+    // Keep every value as-is
+    else {
+      values = searchParams?.getAll(key) ?? [];
+    }
 
-  for (const [key, defaultValue] of Object.entries(SEARCH_PARAM_DEFAULTS)) {
-    if (nextSearchParams.get(key) === defaultValue) {
-      nextSearchParams.delete(key);
+    for (const value of values) {
+      if (value && value !== SEARCH_PARAM_DEFAULTS[key]) {
+        nextSearchParams.append(key, value);
+      }
     }
   }
 

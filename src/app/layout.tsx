@@ -1,6 +1,6 @@
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-css/theme';
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata } from 'next';
 import { ModalWrapper } from '~/components/EinModal/ModalWrapper';
 import { KeyboardFocusManager } from '~/components/KeyboardFocusManager/KeyboardFocusManager';
 import { NavigationProvider } from '~/components/NavigationProvider/NavigationProvider';
@@ -10,8 +10,16 @@ import { SessionDataProvider } from '~/components/SessionDataProvider/SessionDat
 import ThemeManager from '~/components/ThemeManager/ThemeManager';
 import { Footer } from '~/features/footer';
 import { cachedAuthInfo } from '~/lib/auth/auth.server';
-import { getAuth } from '~/lib/auth/authCookie.server';
+import { translatePathname } from '~/lib/routing/pathname';
+import {
+  getRequestPathname,
+  getRequestSearchParams,
+} from '~/lib/routing/requestPath.server';
+import { buildQueryString } from '~/lib/routing/searchParams';
+import { showsSearchResults } from '~/lib/routing/sections';
 import { getSettings } from '~/lib/settings/settings.server';
+import { defaultLanguage } from '~/lib/translation/translation';
+import { getTranslator } from '~/lib/translation/translation.server';
 import { getOrigin } from '~/lib/utils/getOrigin';
 import '~/styles/eInnsyn.scss';
 
@@ -20,23 +28,27 @@ export const viewport = {
   initialScale: 1,
 };
 
-type Props = {
-  params: Promise<{ path: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export async function generateMetadata(
-  { params, searchParams }: Props,
-  _parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const { language } = await getSettings();
-  const _auth = await getAuth();
-
-  // fetch post information
+export async function generateMetadata(): Promise<Metadata> {
+  const [origin, pathname, searchParams, t] = await Promise.all([
+    getOrigin(),
+    getRequestPathname(),
+    getRequestSearchParams(),
+    getTranslator(),
+  ]);
+  // Queries are only relevant for search results
+  const query = showsSearchResults(pathname)
+    ? buildQueryString({ searchParams })
+    : '';
+  const canonical = `${origin}${translatePathname(pathname, defaultLanguage)}${query}`;
 
   return {
-    title: 'eInnsyn',
-    description: '',
+    title: { default: 'eInnsyn', template: '%s – eInnsyn' },
+    description: t('site.description'),
+    alternates: { canonical },
+    // Next replaces openGraph whole, so a page setting it must repeat these
+    openGraph: { siteName: 'eInnsyn', type: 'website', url: canonical },
+    // Keeps iOS from linking org and case numbers as phone numbers
+    formatDetection: { telephone: false },
   };
 }
 
