@@ -7,8 +7,10 @@ import { EinLink } from '~/components/EinLink/EinLink';
 import EinPopup from '~/components/EinPopup/EinPopup';
 import { useSessionData } from '~/components/SessionDataProvider/SessionDataProvider';
 import { brukerRoutes } from '~/features/bruker/brukerRoutes';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
 import type { ExtendedAuthInfo } from '~/lib/auth/auth';
+import { toLocalizedPath } from '~/lib/routing/pathname';
 import cn from '~/lib/utils/className';
 import { isStandardClick } from '~/lib/utils/isStandardClick';
 import LoginButton from './LoginButton';
@@ -84,6 +86,7 @@ export function BrukerMenuButton({
 
 export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
   const t = useTranslation();
+  const languageCode = useLanguageCode();
   return (
     <div className="header-dropdown-content">
       <div className="header-dropdown-content-section">
@@ -98,15 +101,15 @@ export function BrukerMenuContent({ authInfo }: DropdownContentProps) {
           'header-dropdown-content-section',
         )}
       >
-        {brukerRoutes.map(({ href, translationKey }) => (
+        {brukerRoutes.map(({ route, translationKey }) => (
           <EinButton
-            key={href}
+            key={route}
             asChild
             variant="tertiary"
             data-color="neutral"
             fullWidth
           >
-            <EinLink unstyled href={href}>
+            <EinLink unstyled href={toLocalizedPath(languageCode, route)}>
               {t(translationKey)}
             </EinLink>
           </EinButton>

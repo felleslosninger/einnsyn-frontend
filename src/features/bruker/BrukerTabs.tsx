@@ -2,21 +2,31 @@
 
 import { useOptimisticPathname } from '~/components/NavigationProvider/NavigationProvider';
 import { HeaderTab, HeaderTabs } from '~/features/header/HeaderTabs';
+import { useLanguageCode } from '~/hooks/useLanguageCode';
 import { useTranslation } from '~/hooks/useTranslation';
+import { matchExactPath, toLocalizedPath } from '~/lib/routing/pathname';
 import { brukerRoutes } from './brukerRoutes';
 
 export default function BrukerTabs() {
   const pathname = useOptimisticPathname();
   const t = useTranslation();
+  const languageCode = useLanguageCode();
 
   return (
     <nav aria-label={t('bruker.title')}>
       <HeaderTabs>
-        {brukerRoutes.map(({ href, translationKey }) => (
-          <HeaderTab key={href} href={href} active={pathname === href}>
-            {t(translationKey)}
-          </HeaderTab>
-        ))}
+        {brukerRoutes.map(({ route, translationKey }) => {
+          const href = toLocalizedPath(languageCode, route);
+          return (
+            <HeaderTab
+              key={route}
+              href={href}
+              active={!!matchExactPath(pathname, route)}
+            >
+              {t(translationKey)}
+            </HeaderTab>
+          );
+        })}
       </HeaderTabs>
     </nav>
   );
