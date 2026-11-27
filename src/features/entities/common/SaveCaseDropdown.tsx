@@ -2,7 +2,7 @@
 
 import { Alert, Checkbox } from '@digdir/designsystemet-react';
 import { BellIcon } from '@navikt/aksel-icons';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { EinButton } from '~/components/EinButton/EinButton';
 import { EinDropdown } from '~/components/EinDropdown';
 import { EinLink } from '~/components/EinLink/EinLink';
@@ -23,7 +23,8 @@ import styles from './SaveCaseDropdown.module.scss';
  * `.followError` and `.followLoginPrompt`.
  *
  * Nothing tells the page whether the user has already saved the case, so
- * `isSaved` starts out false and only remembers a save made in this view.
+ * `isSaved` starts out false, and a save is only remembered while this
+ * component stays mounted.
  * Once the case carries that itself, pass it as `isSaved`.
  */
 export default function SaveCaseDropdown({
@@ -39,8 +40,25 @@ export default function SaveCaseDropdown({
   const languageCode = useLanguageCode();
   const { authInfo } = useSessionData();
   const isBruker = authInfo?.type === 'Bruker';
-  // Kept here, as the form is unmounted each time the dropdown closes.
-  const [saved, setSaved] = useState(isSaved);
+  // Kept here, as the form is unmounted each time the dropdown closes. A
+  // pending or finished save, and what was chosen, must outlive it.
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: AddLagretSakState,
+      formData: FormData,
+    ): Promise<AddLagretSakState> => {
+      try {
+        return await addLagretSakAction(target, previousState, formData);
+      } catch {
+        // The request itself failed, so the action never got to answer.
+        return {
+          error: 'saveFailed',
+          subscribe: formData.get('subscribe') !== null,
+        };
+      }
+    },
+    { subscribe: true },
+  );
 
   return (
     <EinDropdown
@@ -62,6 +80,7 @@ export default function SaveCaseDropdown({
         'above',
       ]}
       className={styles.saveCaseDropdown}
+      triggerClassName={styles.saveCaseTriggerButton}
     >
       {!isBruker ? (
         <div className={styles.saveCaseContent}>
@@ -74,45 +93,33 @@ export default function SaveCaseDropdown({
         </div>
       ) : (
         <SaveCaseForm
-          target={target}
           translationKey={translationKey}
-          saved={saved}
-          onSaved={() => setSaved(true)}
+          state={state}
+          formAction={formAction}
+          isPending={isPending}
+          saved={isSaved || !!state.success}
         />
       )}
     </EinDropdown>
   );
 }
 
-/**
- * Mounted only while the dropdown is open, so each reopen starts fresh and
- * shows no result from the last save.
- */
+/** Mounted only while the dropdown is open. */
 function SaveCaseForm({
-  target,
   translationKey,
+  state,
+  formAction,
+  isPending,
   saved,
-  onSaved,
 }: {
-  target: LagretSakTarget;
   translationKey: string;
+  state: AddLagretSakState;
+  formAction: (formData: FormData) => void;
+  isPending: boolean;
   saved: boolean;
-  onSaved: () => void;
 }) {
   const t = useTranslation();
-  const [state, formAction, isPending] = useActionState(
-    async (
-      previousState: AddLagretSakState,
-      formData: FormData,
-    ): Promise<AddLagretSakState> => {
-      const next = await addLagretSakAction(target, previousState, formData);
-      if (next.success) {
-        onSaved();
-      }
-      return next;
-    },
-    { subscribe: true },
-  );
+  const isBlocked = isPending || saved;
 
   return (
     <form action={formAction} className={styles.saveCaseContent}>
@@ -120,11 +127,18 @@ function SaveCaseForm({
         name="subscribe"
         label={t(`${translationKey}.followSubscribe`)}
         defaultChecked={state.subscribe}
+        disabled={saved}
         data-color="accent"
       />
       <EinButton
         type="submit"
-        disabled={isPending || saved}
+        // Not `disabled`, which would drop keyboard focus from the button.
+        aria-disabled={isBlocked}
+        onClick={(e) => {
+          if (isBlocked) {
+            e.preventDefault();
+          }
+        }}
         fullWidth
         data-color="accent"
       >

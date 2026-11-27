@@ -1,7 +1,18 @@
+@use '../../../styles/headerRow.scss' as headerRow;
+
 .saveCaseTrigger {
   display: inline-flex;
   align-items: center;
   gap: var(--ds-size-2);
+
+  svg {
+    font-size: 1.25em;
+  }
+}
+
+// Outweighs the dropdown's and the button's own trigger styles.
+.saveCaseDropdown .saveCaseTriggerButton:global(.ein-button.ein-dropdown-trigger) {
+  @include headerRow.header-row-item;
 }
 
 .saveCaseDropdown {

@@ -51,7 +51,7 @@ export default async function SaksmappeHeaderRow({
     <HeaderBar
       end={
         <SaveCaseDropdown
-          target={{ saksmappe: saksmappeId }}
+          target={{ saksmappe: saksmappeEntity.id }}
           translationKey="saksmappe"
         />
       }
