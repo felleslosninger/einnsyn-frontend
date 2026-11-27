@@ -20,6 +20,8 @@ export default function ListItem({
   id,
   title,
   subscribed = false,
+  deleteLabel,
+  deleteIcon,
   onDelete,
   children,
 }: {
@@ -28,6 +30,10 @@ export default function ListItem({
   /** Read out with the controls, which are the same on every item. */
   title?: string;
   subscribed?: boolean;
+  /** Replaces the delete button's text, which is "Delete" by default. */
+  deleteLabel?: string;
+  /** Replaces the delete button's trash icon. */
+  deleteIcon?: ReactNode;
   onDelete: () => void;
   children: ReactNode;
 }) {
@@ -108,8 +114,8 @@ export default function ListItem({
             loading={isDeleting}
             onClick={handleDelete}
           >
-            {!isDeleting && <TrashIcon aria-hidden="true" />}
-            {t('common.delete')}
+            {!isDeleting && (deleteIcon ?? <TrashIcon aria-hidden="true" />)}
+            {deleteLabel ?? t('common.delete')}
             {hiddenTitle}
           </EinButton>
         </div>

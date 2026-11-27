@@ -360,6 +360,8 @@
     },
     "accessRequestsPage": {
       "description": "The answer to an access request comes by email from the organisation handling it. If you delete a request from the list, it will still be processed.",
+      "requestedDocument": "You requested access to",
+      "remove": "Remove",
       "sentAt": "Sent to organisation",
       "notSent": "Not sent yet",
       "unavailable": "The document is no longer available",

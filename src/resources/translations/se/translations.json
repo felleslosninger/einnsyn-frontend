@@ -345,6 +345,8 @@
     },
     "accessRequestsPage": {
       "description": "Vástádus geahčadangáibádussii boahtá e-poasttain doaimmas mii gieđahallá dan. Jus sihkut gáibádusa listtus, de dat gieđahallojuvvo goittotge.",
+      "requestedDocument": "Du ba om innsyn i",
+      "remove": "Fjern",
       "sentAt": "Sáddejuvvon doibmii",
       "notSent": "Ii leat vel sáddejuvvon",
       "unavailable": "Dokumentet er ikke lenger tilgjengelig",

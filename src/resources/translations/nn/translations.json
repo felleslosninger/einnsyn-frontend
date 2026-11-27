@@ -345,6 +345,8 @@
     },
     "accessRequestsPage": {
       "description": "Svaret på eit innsynskrav kjem på e-post frå verksemda som behandlar det. Slettar du eit krav frå lista, blir det likevel behandla.",
+      "requestedDocument": "Du bad om innsyn i",
+      "remove": "Fjern",
       "sentAt": "Sendt til verksemd",
       "notSent": "Ikkje sendt enno",
       "unavailable": "Dokumentet er ikkje lenger tilgjengeleg",
