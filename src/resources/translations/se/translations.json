@@ -203,6 +203,7 @@
     "deleting": "Sihkko...",
     "create": "Ráhkat",
     "creating": "Ráhkada...",
+    "saving": "Vurkejuvvo...",
     "cancel": "Gaskkalduhte",
     "ok": "OK",
     "remove": "Váldde eret",
@@ -232,6 +233,10 @@
     "saksnummer": "Áššinummar",
     "journalfoert": "Journalastojuvvon",
     "follow": "Čuovo ášši",
+    "followSubscribe": "Dieđit munnje ášši rievdadusain",
+    "followSaved": "Ášši lea vurkejuvvon",
+    "followError": "Ii sáhttán vurket ášši",
+    "followLoginPrompt": "Logga sisa vai čuovut ášši",
     "publishedBy": "Almmuhan"
   },
   "journalpost": {

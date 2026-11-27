@@ -203,6 +203,7 @@
     "deleting": "Slettar...",
     "create": "Opprett",
     "creating": "Opprettar...",
+    "saving": "Lagrar...",
     "cancel": "Avbryt",
     "ok": "OK",
     "remove": "Fjern",
@@ -232,6 +233,10 @@
     "saksnummer": "Saksnummer",
     "journalfoert": "Journalført",
     "follow": "Følg saka",
+    "followSubscribe": "Varsle meg om endringar i saka",
+    "followSaved": "Saka er lagra",
+    "followError": "Kunne ikkje lagre saka",
+    "followLoginPrompt": "Logg inn for å følgje saka",
     "publishedBy": "Publisert av"
   },
   "journalpost": {
