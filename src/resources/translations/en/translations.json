@@ -14,6 +14,8 @@
     "username": "Username",
     "usernamePlaceholder": "user@example.com",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "passwordPlaceholder": "********",
     "stayLoggedIn": "Stay logged in",
     "forgottenPassword": "Forgotten password?",
