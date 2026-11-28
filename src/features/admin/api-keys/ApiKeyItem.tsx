@@ -1,5 +1,6 @@
 'use client';
 
+import { Alert } from '@digdir/designsystemet-react';
 import type { ApiKey } from '@digdir/einnsyn-sdk';
 import { TrashIcon } from '@navikt/aksel-icons';
 import { useState, useTransition } from 'react';
@@ -28,9 +29,11 @@ export default function ApiKeyItem({
   const t = useTranslation();
   const languageCode = useLanguageCode();
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
   const [isDeleting, startDeleteTransition] = useTransition();
 
   const handleDeleteClick = () => {
+    setDeleteFailed(false);
     setShowDeletePopup(true);
   };
 
@@ -39,10 +42,15 @@ export default function ApiKeyItem({
   };
 
   const handleDelete = (form: FormData) => {
-    startDeleteTransition(() => {
-      removeApiKeyHandler(form.get('keyId') as string);
-      deleteApiKeyAction(form);
-      setShowDeletePopup(false);
+    setDeleteFailed(false);
+    startDeleteTransition(async () => {
+      try {
+        await deleteApiKeyAction(form);
+        removeApiKeyHandler(form.get('keyId') as string);
+        setShowDeletePopup(false);
+      } catch {
+        setDeleteFailed(true);
+      }
     });
   };
 
@@ -84,6 +92,11 @@ export default function ApiKeyItem({
                   apiKey.name ?? t('common.unnamed'),
                 )}
               </div>
+              {deleteFailed && (
+                <Alert data-color="danger" role="alert">
+                  {t('admin.apiKey.deleteError')}
+                </Alert>
+              )}
               <input type="hidden" name="action" value="delete" />
               <input type="hidden" name="keyId" value={apiKey.id} />
 
