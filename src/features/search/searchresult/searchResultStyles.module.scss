@@ -34,9 +34,7 @@
   h2 {
     width: 100%;
     font-size: var(--ds-font-size-5);
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
   }
 }
 
